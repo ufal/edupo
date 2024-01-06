@@ -81,7 +81,8 @@ def get_message_texts(messages, users):
 def get_message_tuples(messages, users):
     # TODO emails sent here have empty text
     result = list()
-    for message in messages[::-1]:
+    # for message in messages[::-1]:
+    for message in messages:
         if 'subtype' in message:
             author = message['subtype']
         else:
@@ -106,7 +107,7 @@ if __name__=="__main__":
 
     # caching the result for 10 minutes
     AGELIMIT=600
-    CACHEFILE="experimenting.html"
+    CACHEFILE="slack.html"
     age = time.time() - os.path.getmtime(CACHEFILE)
     if age < AGELIMIT:
         with open(CACHEFILE) as infile:
