@@ -2,8 +2,9 @@
 #coding: utf-8
 
 import sys
-
+import time
 import logging
+from collections import defaultdict
 logging.basicConfig(
     format='%(asctime)s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
@@ -21,6 +22,20 @@ print(token)
 client = WebClient(token=token)
 logger = logging.getLogger(__name__)
 
+def Unk():
+    return "(unknown user)"
+
+def get_users():
+    try:
+        users = client.users_list()
+        result = defaultdict(Unk)
+        for user in users["members"]:
+            result[user["id"]] = user["name"]
+        return result
+    except SlackApiError as e:
+        print(f"Error: {e}")
+        return None
+        
 def get_channel_id(channel_name):
     try:
         # Call the conversations.list method using the WebClient
@@ -43,9 +58,49 @@ def get_messages(channel_id):
         print(f"Error: {e}")
         return None
 
+def replace_user_ids(text, users):
+    for user_id, user_name in users.items():
+        text = text.replace(user_id, user_name)
+    return text
+
+def get_message_texts(messages):
+    result = list()
+    for i, message in enumerate(messages[::-1]):
+        if 'subtype' in message:
+            header = f"{message['type']} {message['subtype']}"
+        else:
+            header = f"{message['type']} by {users[message['user']]}"
+        t = time.localtime(int(message['ts'].split('.')[0]))
+        ts = time.strftime("%A %d.%m.%Y %H:%M:%S", t)
+        print(f"=== {i}. {header} at {ts} ===")
+        text = replace_user_ids(message["text"], users)
+        print(text)
+        print()
+    return result
+
+def get_message_tuples(messages):
+    result = list()
+    for message in messages[::-1]:
+        if 'subtype' in message:
+            author = message['subtype']
+        else:
+            author = users[message['user']]
+        t = time.localtime(int(message['ts'].split('.')[0]))
+        ts = time.strftime("%A %d.%m.%Y %H:%M:%S", t)
+        text = replace_user_ids(message["text"], users)
+        result.append( (author, ts, text) )
+    return result
+
+
 channel_name = "edupo"
 channel_id = get_channel_id(channel_name)
 messages = get_messages(channel_id)
+users = get_users()
 
 print(f"{len(messages)} messages in {channel_name}")
+print()
 
+mt = get_message_tuples(messages)
+print(mt)
+
+# print(messages[19])
