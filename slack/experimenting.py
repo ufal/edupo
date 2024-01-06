@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
+print("Content-Type: text/html; charset=utf-8")
+print()
+
 import sys
 import time
 import logging
@@ -18,7 +21,6 @@ from slack_sdk.errors import SlackApiError
 # WebClient instantiates a client that can call API methods
 # When using Bolt, you can use either `app.client` or the `client` passed to listeners.
 token = os.environ.get("SLACK_BOT_TOKEN")
-print(token)
 client = WebClient(token=token)
 logger = logging.getLogger(__name__)
 
@@ -79,6 +81,7 @@ def get_message_texts(messages):
     return result
 
 def get_message_tuples(messages):
+    # TODO emails sent here have empty text
     result = list()
     for message in messages[::-1]:
         if 'subtype' in message:
@@ -96,11 +99,21 @@ channel_name = "edupo"
 channel_id = get_channel_id(channel_name)
 messages = get_messages(channel_id)
 users = get_users()
-
-print(f"{len(messages)} messages in {channel_name}")
-print()
-
 mt = get_message_tuples(messages)
-print(mt)
 
-# print(messages[19])
+css = """
+<style>
+pre {
+    white-space: pre-wrap;
+}
+</style>
+"""
+
+print(f"<html><head><title>EduPo Slack Channel</title>{css}</head><body>")
+for author, ts, text in mt:
+    print(f"""<fieldset>
+        <legend>{ts} <b>{author}</b></legend>
+        <pre>{text}</pre>
+    </fieldset>
+    """)
+print("</body></html>")
