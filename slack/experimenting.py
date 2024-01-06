@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-print("Content-Type: text/html; charset=utf-8")
-print()
-
 import sys
 import time
 import logging
+import os
 from collections import defaultdict
 logging.basicConfig(
     format='%(asctime)s %(message)s',
@@ -65,7 +63,7 @@ def replace_user_ids(text, users):
         text = text.replace(user_id, user_name)
     return text
 
-def get_message_texts(messages):
+def get_message_texts(messages, users):
     result = list()
     for i, message in enumerate(messages[::-1]):
         if 'subtype' in message:
@@ -80,7 +78,7 @@ def get_message_texts(messages):
         print()
     return result
 
-def get_message_tuples(messages):
+def get_message_tuples(messages, users):
     # TODO emails sent here have empty text
     result = list()
     for message in messages[::-1]:
@@ -94,26 +92,44 @@ def get_message_tuples(messages):
         result.append( (author, ts, text) )
     return result
 
+if __name__=="__main__":
+    print("Content-Type: text/html; charset=utf-8")
+    print()
 
-channel_name = "edupo"
-channel_id = get_channel_id(channel_name)
-messages = get_messages(channel_id)
-users = get_users()
-mt = get_message_tuples(messages)
+    CSS = """
+    <style>
+    pre {
+        white-space: pre-wrap;
+    }
+    </style>
+    """
 
-css = """
-<style>
-pre {
-    white-space: pre-wrap;
-}
-</style>
-"""
+    # caching the result for 10 minutes
+    AGELIMIT=600
+    CACHEFILE="experimenting.html"
+    age = time.time() - os.path.getmtime(CACHEFILE)
+    if age < AGELIMIT:
+        with open(CACHEFILE) as infile:
+            print(infile.read())
+    else:
+        result = list()
+        channel_name = "edupo"
+        channel_id = get_channel_id(channel_name)
+        messages = get_messages(channel_id)
+        users = get_users()
+        mt = get_message_tuples(messages, users)
 
-print(f"<html><head><title>EduPo Slack Channel</title>{css}</head><body>")
-for author, ts, text in mt:
-    print(f"""<fieldset>
-        <legend>{ts} <b>{author}</b></legend>
-        <pre>{text}</pre>
-    </fieldset>
-    """)
-print("</body></html>")
+        result.append(f"<html><head><title>EduPo Slack Channel</title>{CSS}</head><body>")
+        result.append(f"<h1>EduPo Slack Channel</h1>")
+        for author, ts, text in mt:
+            result.append(f"""<fieldset>
+                <legend>{ts} <b>{author}</b></legend>
+                <pre>{text}</pre>
+            </fieldset>
+            """)
+        result.append("</body></html>")
+        
+        print(*result, sep="\n")
+        with open(CACHEFILE, "w") as outfile:
+            print(*result, sep="\n", file=outfile)
+
