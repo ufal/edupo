@@ -5,6 +5,8 @@ import sys
 import time
 import logging
 import os
+import html
+import re
 from collections import defaultdict
 logging.basicConfig(
     format='%(asctime)s %(message)s',
@@ -61,6 +63,13 @@ def get_messages(channel_id):
 def replace_user_ids(text, users):
     for user_id, user_name in users.items():
         text = text.replace(user_id, user_name)
+    return text
+
+def replace_links(text):
+    text = re.sub(r'<(http[^>|]*)>', r'<a href="\1" target="_blank">\1</a>', text)
+    text = re.sub(r'<(http[^>]*)\|([^>]*)>', r'<a href="\1" target="_blank">\2</a>', text)
+    text = re.sub(r'<(mailto[^>]*)\|([^>]*)>', r'<a href="\1">\2</a>', text)
+    text = re.sub(r'<(@[^>]*)>', r'<b>\1</b>', text)
     return text
 
 def get_message_texts(messages, users):
@@ -125,7 +134,7 @@ if __name__=="__main__":
         for author, ts, text in mt:
             result.append(f"""<fieldset>
                 <legend>{ts} <b>{author}</b></legend>
-                <pre>{text}</pre>
+                <pre>{replace_links(text)}</pre>
             </fieldset>
             """)
         result.append("</body></html>")
