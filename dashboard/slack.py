@@ -146,7 +146,7 @@ if __name__=="__main__":
                 files_text = ''
             bottom_text = ""
             if replies_text or files_text:
-                bottom_text = f"<br><br>{replies_text} {files_text}"
+                bottom_text = f"<br>{replies_text} {files_text}"
 
             result.append(f"""<fieldset>
                 <legend>{ts} <b>{author}</b></legend>
