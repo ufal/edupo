@@ -88,7 +88,6 @@ def get_message_texts(messages, users):
     return result
 
 def get_message_tuples(messages, users):
-    # TODO emails sent here have empty text
     result = list()
     # for message in messages[::-1]:
     for message in messages:
@@ -99,7 +98,14 @@ def get_message_tuples(messages, users):
         t = time.localtime(int(message['ts'].split('.')[0]))
         ts = time.strftime("%A %d.%m.%Y %H:%M:%S", t)
         text = replace_user_ids(message["text"], users)
-        result.append( (author, ts, text) )
+        replies = int(message.get('reply_count', 0))
+        files = message.get('files', [])
+
+        for f in files:
+            if f.get('filetype', '') == 'email':
+                text = f['plain_text']
+        
+        result.append( (author, ts, text, replies, files) )
     return result
 
 if __name__=="__main__":
@@ -126,15 +132,26 @@ if __name__=="__main__":
         channel_name = "edupo"
         channel_id = get_channel_id(channel_name)
         messages = get_messages(channel_id)
+        
         users = get_users()
         mt = get_message_tuples(messages, users)
 
         result.append(f"<html><head><title>EduPo Slack Channel</title>{CSS}</head><body>")
         result.append(f"<h1>EduPo Slack Channel</h1>")
-        for author, ts, text in mt:
+        for author, ts, text, replies, files in mt:
+            replies_text = f"({replies} replies in Slack thread)" if replies else ''
+            if files:
+                files_text = f"({len(files)} attached files on Slack)"
+            else:
+                files_text = ''
+            bottom_text = ""
+            if replies_text or files_text:
+                bottom_text = f"<br><br>{replies_text} {files_text}"
+
             result.append(f"""<fieldset>
                 <legend>{ts} <b>{author}</b></legend>
                 <pre>{replace_links(text)}</pre>
+                {bottom_text}
             </fieldset>
             """)
         result.append("</body></html>")
