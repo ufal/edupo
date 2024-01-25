@@ -16,9 +16,7 @@ client = OpenAI(
 assistant_id = 'asst_oEwl7wnhGDi5JDvAdE92GgWk'
 thread = client.beta.threads.create()
 
-MESSAGE = "Napište báseň o přírodě ve městě."
-
-def talk(message=MESSAGE):
+def talk(message="Napište báseň o přírodě ve městě."):
     # add message to thread
     msg = client.beta.threads.messages.create(
         thread_id=thread.id,
@@ -48,11 +46,8 @@ def talk(message=MESSAGE):
     
     return text
 
-print(MESSAGE)
-print(talk())
-while True:
-    message = input()
-    print(talk(message))
-
-
+if __name__=="__main__":
+    while True:
+        message = input()
+        print(talk(message))
 
