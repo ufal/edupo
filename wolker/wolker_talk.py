@@ -38,7 +38,7 @@ print(f"""
 if text and response:
     print(f"""
     <h2>{text}</h2>
-    <p>{response}</p>
+    <pre>{response}</pre>
     <hr>
     """)
 
