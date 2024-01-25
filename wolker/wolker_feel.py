@@ -257,6 +257,10 @@ print(f"""
             {' '.join([ f'<input type="submit" name="text" value="{opt}"><br>' for opt in options])}
             <input name="prompt"> <input type="submit" value="Poslat">
         </form>
+        <br>
+        <form method="post">
+            <input type="submit" value="Vyber mi náhodně jinou báseň">
+        </form>
         </body>
         </html>
         """)
