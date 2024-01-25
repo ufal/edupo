@@ -17,7 +17,7 @@ if prompt and not text:
     text = prompt
 
 if text:
-    response = talk(text)
+    response = talk(text).replace('\n', '<br>')
 
 
 print(f"""
@@ -38,7 +38,7 @@ print(f"""
 if text and response:
     print(f"""
     <h2>{text}</h2>
-    <pre>{response}</pre>
+    <p>{response}</p>
     <hr>
     """)
 
