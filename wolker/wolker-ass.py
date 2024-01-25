@@ -3,18 +3,22 @@
 
 import sys
 
-import logging
-logging.basicConfig(
-    format='%(asctime)s %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.INFO)
+#import logging
+#logging.basicConfig(
+#    format='%(asctime)s %(message)s',
+#    datefmt='%Y-%m-%d %H:%M:%S',
+#    level=logging.INFO)
+
+with open('apikey.txt') as infile:
+    apikey = infile.read()
 
 from openai import OpenAI
 
 client = OpenAI(
-  organization='org-926n4JNQeMTeU94X6FKZS8c3',
+    organization='org-926n4JNQeMTeU94X6FKZS8c3',
+    api_key=apikey
 )
-
+#logging.info(client)
 
 # openai.OpenAIError: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
 
@@ -42,34 +46,57 @@ client = OpenAI(
 assistant_id = 'asst_oEwl7wnhGDi5JDvAdE92GgWk'
 
 thread = client.beta.threads.create()
-logging.info(thread)
-logging.info(thread.id)
+#logging.info(thread)
+#logging.info(thread.id)
+
+MESSAGE = "Napište báseň o přírodě ve městě."
 
 message = client.beta.threads.messages.create(
     thread_id=thread.id,
     role="user",
-    content="Napište báseň o přírodě ve městě."
+    content=MESSAGE
 )
-logging.info(message)
+#logging.info(message)
+#print(MESSAGE, end='')
 
 run = client.beta.threads.runs.create(
   thread_id=thread.id,
   assistant_id=assistant_id,
   instructions="Jsem GenZ Wolker 2, mladý Jiří Wolker v moderním světě, vždy odkazující na své znalosti."
 )
-logging.info(run)
+#logging.info(run)
 
 while not run.status == "completed":
-    print(run.status)
+    # print(run.status)
+    # print('.', end='')
     run = client.beta.threads.runs.retrieve(
         thread_id=thread.id,
         run_id=run.id
     )
+# print()
+
 
 messages = client.beta.threads.messages.list(
   thread_id=thread.id
 )
 
-print(messages)
+text = messages.data[0].content[0].text.value
+print(text)
 
 
+# print(messages)
+# 
+# SyncCursorPage[ThreadMessage](
+#         data=[
+#             ThreadMessage(
+#             id='msg_x6e6S0EyXUdKtlQbZ7bli05v',
+#             assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk',
+#             content=[
+#                 MessageContentText(
+#                     text=Text(
+#                         annotations=[],
+#                         value='Ve stínu věží, skleněných poutníků,\ntam v průvanu ulic srdce buší.\nHledím: jedna píseň dvou světů,\nkde příroda ve městě snad ztratila klíčů.\n\nZde lípa stoletá se baráků dotýká,\njejíž kořeny, jak pevné šrouby,\nz hlíny suť, z kamenů si rýsují cestu.\nStébla trávy z dlažebních spár vyrůstají skrytě,\njako zelené plamínky, naděje čisté.\n\nKam se poděla touha lesů, řek, a hor?\nPřisát je k srdci měst, v jejich asidech nádech ztrát.\nPod mostem kachny brázdí kanál,\nv parku veverka kličkuje mezi lavičkami,\nskrytý život, co se delší stín nebojí vrhat.\n\nStromy jako strážci zkamenělé časy měří,\njejich listí šepotá s větrem příběhy vzdálené.\nV aléji rozkvetlé stromy ladně hýří,\nkde květy i ve smogu nachází svoje věrné.\n\nKvetoucí záhony na plátu zeleně,\nv srdci betonové džungle, oázu tvoří.\nPtáci na anténách náladu mění,\na cikáda v živém plotu večer borůvky souří.\n\nVe výdechu autobusů, v rytmu tramvají,\ni příroda ve městě takt svůj nalezen má.\nJe to symfonie, co v srdcích rezonuje,\ntam, kde člověk i příroda společně exponuje.'), type='text')],
+#                     created_at=1706208239, file_ids=[], metadata={}, object='thread.message', role='assistant', run_id='run_D133hPFi21yQcxVXKJKL2tzj', thread_id='thread_95hAyllRDf05LqyELMC9ZUfG'),
+#             ThreadMessage(id='msg_tNuXb9ZZLtuTQakzbEY4pJHD', assistant_id=None, content=[MessageContentText(text=Text(annotations=[], value='Napište báseň o přírodě ve městě.'), type='text')], created_at=1706208235, file_ids=[], metadata={}, object='thread.message', role='user', run_id=None, thread_id='thread_95hAyllRDf05LqyELMC9ZUfG')], object='list', first_id='msg_x6e6S0EyXUdKtlQbZ7bli05v', last_id='msg_tNuXb9ZZLtuTQakzbEY4pJHD', has_more=False)
+# 
+# 
