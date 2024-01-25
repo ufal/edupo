@@ -218,14 +218,17 @@ if text:
     # TODO translate text to English
     # but probably will use DALLE anyway which can take Czech as well
     # TODO take into account whole text, not only title
-    image_filename = get_image_for_line(titles[index], seed)
+    prompt = "An abstract dreamy image, relating to the topic of " + titles[index]
+    image_filename = get_image_for_line(prompt, seed)
 
 
 if text and image_filename:
     
     print(f"""
     <h2>{nazvy[index]}: {text}</h2>
+    <p>Zde je obrázek zobrazující tvé pocity ve vztahu k této básni.</p>
     <img src="genimgs/{image_filename}.png">
+    <br>
     <input disabled type="submit" value="Sdílet">
     <hr>
     """)
