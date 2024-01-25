@@ -39,6 +39,7 @@ if text and response:
     print(f"""
     <h2>{text}</h2>
     <p>{response}</p>
+    <input disabled type="submit" value="Sdílet">
     <hr>
     """)
 
