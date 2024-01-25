@@ -31,8 +31,8 @@ print(f"""
         <h1>Povídání s Wolkerem</h1>
         <p>Jsem GenZ Wolker 2, mladý Jiří Wolker v moderním světě, vždy odkazující na své znalosti.</p>
         <p>(Teď to nedrží kontext konverzace, každou zprávu to zpracovává
-        nezávisle. Ale to se dá upravit aby to vedlo jednou souvislou
-        konverzaci.)</p>
+        nezávisle. Ale to se dá případně upravit aby to vedlo jednou souvislou
+        konverzaci. Ale možná je to takhle OK.)</p>
 """)
         
 if text and response:
