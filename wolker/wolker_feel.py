@@ -207,11 +207,8 @@ poems = [
 
 form = cgi.FieldStorage()
 index = int(form.getvalue("index", 0))
-text = form.getvalue("text", None)
-prompt = form.getvalue("prompt", None)
-
-if prompt and not text:
-    text = prompt
+text = form.getvalue("text", 
+    form.getvalue("prompt", None)
 
 if text:
     seed = random.randint(0, 10000000)
@@ -255,6 +252,9 @@ print(f"""
         <form method="post">
             <input name="index" type="hidden" value="{index}">
             {' '.join([ f'<input type="submit" name="text" value="{opt}"><br>' for opt in options])}
+        </form>
+        <form method="post">
+            <input name="index" type="hidden" value="{index}">
             <input name="prompt"> <input type="submit" value="Poslat">
         </form>
         <br>

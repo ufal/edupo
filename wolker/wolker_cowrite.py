@@ -76,6 +76,8 @@ else:
         <h2>Na jaké téma chceš společně s Wolkerem psát báseň?</h2>
         <form method="post">
             {' '.join([ f'<input type="submit" name="topic" value="{opt}"><br>' for opt in options])}
+        </form>
+        <form method="post">
             <input name="topic_freeform"> <input type="submit" value="Jdeme psát">
         </form>
         </body>
