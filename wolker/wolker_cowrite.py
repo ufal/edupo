@@ -40,12 +40,12 @@ if topic:
     # už máme téma
     if content:
         # pokračujem
-        prompt = '\n'.join((f'Báseň na téma: {topic}', content, verse1, verse2, 'Napiš další dva verše:'))
+        prompt = '\n'.join((f'Báseň na téma: {topic}', content, verse1, verse2, 'Napiš další dva řádky básně:'))
         continuation = talk(prompt)
         content = '\n'.join((content, verse1, verse2, continuation))
     else:
         # začínáme
-        prompt = f"Napiš první dva verše básně na téma: {topic}"
+        prompt = f"Napiš první dva řádky básně na téma: {topic}"
         content = talk(prompt)
 else:
     # ještě nemáme ani téma
