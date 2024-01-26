@@ -46,8 +46,7 @@ if topic:
     else:
         # začínáme
         prompt = f"Napiš první dva verše básně na téma: {topic}"
-        continuation = talk(prompt)
-        content = '\n'.join((content, continuation))
+        content = talk(prompt)
 else:
     # ještě nemáme ani téma
     content = None
