@@ -208,7 +208,7 @@ poems = [
 form = cgi.FieldStorage()
 index = int(form.getvalue("index", 0))
 text = form.getvalue("text", 
-    form.getvalue("prompt", None)
+    form.getvalue("prompt", None))
 
 if text:
     seed = random.randint(0, 10000000)
