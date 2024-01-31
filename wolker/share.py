@@ -23,7 +23,7 @@ else:
 
 filename_out = common.get_filename()
 
-with open('genouts/{filename_out}.html', 'w') as outfile:
+with open(f'genouts/{filename_out}.html', 'w') as outfile:
     print(html, file=outfile)
 
 print('<p>Výsledek je nyní veřejně sdílen v <a href="gallery.py">Galerii</a> a je zařazen do projekce v muzeu.</p>')
