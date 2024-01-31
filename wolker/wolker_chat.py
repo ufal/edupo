@@ -37,11 +37,16 @@ print('<br><hr><br>')
 
 print(f"""
     <form method="post" action="share.py">
+        <p>
+        Text můžeš veřejně sdílet v Galerii; promítne se v muzeu a bude vidět online!
         <input type="hidden" name="typ" value="thread">
         <input type="hidden" name="thread_id" value="{thread_id}">
         <input type="submit" value="Sdílet text bez obrázku">
+        </p>
     </form>
     """)
+
+print('<br><hr><br>')
 
 print(f"""
     <form method="post" action="wolker_image.py">
