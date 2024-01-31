@@ -8,7 +8,8 @@ common.header()
 
 form = cgi.FieldStorage()
 text = form.getvalue("text", "")
-replacements = {'TEXT': text}
+title = form.getvalue("title", "")
+replacements = {'TEXT': text, 'TITLE': title}
 
 common.replace_and_write_out_file('welcome_wolker_feel.html', replacements)
 
