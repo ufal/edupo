@@ -17,6 +17,7 @@ text = form.getvalue("text", "")
 # TODO check if data filled in
 
 prompt = prefix + text
+print(f'<!-- {prompt} -->')
 image_filename = get_image_for_line(prompt)
 
 # TODO check for errors
