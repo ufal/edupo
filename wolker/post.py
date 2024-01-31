@@ -5,7 +5,7 @@ import common
 import os
 import cgi
 
-common.header()
+common.header('_static')
 
 form = cgi.FieldStorage()
 key = form.getvalue("key", "")

@@ -6,7 +6,7 @@ import os
 import os.path
 import random
 
-common.header_refresh()
+common.header('_refresh')
 
 DIR = 'genouts'
 

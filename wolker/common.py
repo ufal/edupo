@@ -20,15 +20,10 @@ def replace_and_write_out_file(filename, replacements={}):
             text = text.replace(key, replacements[key])
         print(text)
 
-def header():
+def header(subtype=''):
     print("Content-type: text/html")
     print()
-    write_out_file('header.html')
-
-def header_refresh():
-    print("Content-type: text/html")
-    print()
-    write_out_file('header_refresh.html')
+    write_out_file(f'header{subtype}.html')
 
 def footer():
     write_out_file('footer.html')
