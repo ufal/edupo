@@ -14,14 +14,14 @@ text = form.getvalue("text", "")
 
 # TODO check if data filled in
 
-filename_out = common.get_filename()
-
 if typ == 'image':
-    html = f'<img src="genimgs/{image_filename}.png">'
+    html = f'<img src="../genimgs/{image_filename}.png">'
 elif typ == 'text':
     html = f'<pre>{text}</pre>'
 else:
     assert False
+
+filename_out = common.get_filename()
 
 with open('genouts/{filename_out}.html', 'w') as outfile:
     print(html, file=outfile)
