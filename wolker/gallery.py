@@ -24,10 +24,9 @@ files.sort(reverse=True)
 for filename in files:
     common.write_out_file(f'genouts/{filename}')
     if typ == 'admin':
+        key, _ = filename.split('.')
         print('<br>')
-        print(f'''
-<div class="fb-share-button" data-href="https://ufal.mff.cuni.cz/AIvK/edupo/wolker/post.py?key={key}" data-layout="" data-size=""><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fufal.mff.cuni.cz%2FAIvK%2Fedupo%2Fwolker%2Fpost.py%3Fkey%3D{key}&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Sdílet</a></div>
-''')
+        print(f'<div class="fb-share-button" data-href="https://ufal.mff.cuni.cz/AIvK/edupo/wolker/post.py?key={key}" data-layout="" data-size=""><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fufal.mff.cuni.cz%2FAIvK%2Fedupo%2Fwolker%2Fpost.py%3Fkey%3D{key}&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Sdílet</a></div>')
     print('<br><hr><br>')
     
 common.footer()
