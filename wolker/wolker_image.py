@@ -11,6 +11,7 @@ common.header()
 
 form = cgi.FieldStorage()
 typ = form.getvalue("typ", "")
+back = form.getvalue("back", "")
 prefix = form.getvalue("prefix", "")
 poemname = form.getvalue("poemname", "")
 text = form.getvalue("text", "")
@@ -28,7 +29,11 @@ image_filename = get_image_for_line(prompt)
 
 replacements = {
         'DEFAULTIMAGE': image_filename,
-        'THREAD_ID': thread_id}
+        'THREAD_ID': thread_id,
+        'TEXT': text,
+        'POEMNAME': poemname,
+        'BACK': back,
+        }
 
 common.replace_and_write_out_file('result_image.html', replacements)
 common.footer()
