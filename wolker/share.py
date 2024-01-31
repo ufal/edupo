@@ -11,14 +11,14 @@ common.header()
 form = cgi.FieldStorage()
 typ = form.getvalue("typ", "")
 image_filename = form.getvalue("image_filename", "")
-text = form.getvalue("text", "")
+poemname = form.getvalue("poemname", "")
 thread_id = form.getvalue("thread_id", "")
 
 # TODO check if data filled in
 
 result = []
-if text:
-    result.append(f'<pre>{text}</pre>')
+if poemname:
+    result.append(f'<h2>{poemname}</h2>')
 if thread_id:
     messages, roles = wolker_interactive.get_thread_messages(thread_id)
     for message, role in zip(messages, roles):
