@@ -15,7 +15,7 @@ text = form.getvalue("text", "")
 # TODO check if data filled in
 
 if typ == 'image':
-    html = f'<img src="../genimgs/{image_filename}.png">'
+    html = f'<img src="genimgs/{image_filename}.png">'
 elif typ == 'text':
     html = f'<pre>{text}</pre>'
 else:
