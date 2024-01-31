@@ -12,6 +12,7 @@ import re
 from PIL import Image, PngImagePlugin
 import json
 import logging
+import random
 
 ### Image generation
 
@@ -72,7 +73,9 @@ def _get_image_for_line(line, seed):
     
     return filename
 
-def get_image_for_line(line, seed):
+def get_image_for_line(line, seed = None):
+    if not seed:
+        seed = random.randint(0, 10000000)
     filename = _get_image_for_line(line, seed)
     return filename
 

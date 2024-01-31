@@ -1,20 +1,10 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-    <meta charset="utf-8">
-    <title>#jiriwolkerMGP</title>
-</head>
-<body>
-
-<h1>#jiriwolkerMGP</h1>
-
 <fieldset>
     <legend>Kým by Jiří Wolker byl dnes ? </legend>
     <form method="post" action="wolker_image.py">
         <p>vytvořte fotografii JW v současnosti</p>
         <p>Popište několika slovy nebo několika větami, jaký by podle vás byl
         Jiří Wolker dnes a jak by vypadal:</p>
-        <input name="type" type="hidden" value="portrait">
+        <input name="typ" type="hidden" value="portrait">
         <input name="prefix" type="hidden" value="Image of a young Czech poet. ">
         <input name="text" size=50>
         <input name="submit" type="submit" value="Vygenerovat obrázek">
@@ -26,7 +16,7 @@
     <form method="post" action="wolker_chat.py">
         <p>vytvořte text s pomocí konverzace s virtuální osobností JW o důležitých tématech současnosti</p>
         <p>Které témata si myslíte, že by JW dnes řešil?</p>
-        <input name="type" type="hidden" value="chat">
+        <input name="typ" type="hidden" value="chat">
         <input name="prefix" type="hidden" value="Co bys řekl o následujících tématech? ">
         <input name="text" size=50>
         <input name="submit" type="submit" value="Popovídat si s GenZ Wolkerem">
@@ -38,7 +28,7 @@
     <form method="post" action="wolker_chat.py">
         <p>navrhněte vlastní téma básně a poté dokončete verše vygenerované AI Wolkerem svou představou</p>
         <p>Na jaké téma zkusíte společně s AI Wolkerem napsat báseň?</p>
-        <input name="type" type="hidden" value="poem">
+        <input name="typ" type="hidden" value="poem">
         <input name="prefix" type="hidden" value="Vypiš pouze jeden krátký řádek textu. Napiš první verš básně na následující téma: ">
         <input name="text" size=50>
         <input name="submit" type="submit" value="Psát báseň">
@@ -52,7 +42,7 @@
         <p>Popište několika slovy nebo několika větami, jak by měl vypadat
         obrázek ilustrující vybranou báseň J. Wolkera:
        </p>
-        <input name="type" type="hidden" value="poem">
+        <input name="typ" type="hidden" value="poem">
         <input name="prefix" type="hidden" value="Image illustrating a poem written by a young Czech leftist poet at the beginning of 20th century. ">
         <input name="text" size=50>
         <input name="submit" type="submit" value="Vygenerovat obrázek">
@@ -98,7 +88,3 @@ dáreček z cesty —
         <input name="submit" type="submit" value="Do galerie">
     </form> 
 </fieldset>
-
-</body>
-</html>
-
