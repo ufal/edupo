@@ -24,7 +24,7 @@ image_filename = get_image_for_line(prompt)
 
 with open('result_image.html') as infile:
     html = infile.read()
-    html.replace('DEFAULTIMAGE', image_filename)
+    html = html.replace('DEFAULTIMAGE', image_filename)
     print(html)
 
 common.footer()
