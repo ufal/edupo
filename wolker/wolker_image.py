@@ -13,15 +13,15 @@ form = cgi.FieldStorage()
 typ = form.getvalue("typ", "")
 back = form.getvalue("back", "")
 prefix = form.getvalue("prefix", "")
-poemname = form.getvalue("poemname", "")
+title = form.getvalue("title", "")
 text = form.getvalue("text", "")
 thread_id = form.getvalue("thread_id", "")
 
 # TODO check if data filled in
 
 prompt = prefix + text
-if poemname:
-    prompt += ' The image accompanies the poem called: '
+if title:
+    prompt += f' The image accompanies the text called: {title}'
 print(f'<!-- {prompt} -->')
 image_filename = get_image_for_line(prompt)
 
@@ -31,7 +31,7 @@ replacements = {
         'DEFAULTIMAGE': image_filename,
         'THREAD_ID': thread_id,
         'TEXT': text,
-        'POEMNAME': poemname,
+        'TITLE': title,
         'BACK': back,
         }
 
