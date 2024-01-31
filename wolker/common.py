@@ -26,4 +26,7 @@ def header_refresh():
 def footer():
     write_out_file('footer.html')
 
+def nl2br(text):
+    return text.replace('\n', '<br>')
+
 

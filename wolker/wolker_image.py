@@ -13,6 +13,7 @@ form = cgi.FieldStorage()
 typ = form.getvalue("typ", "")
 prefix = form.getvalue("prefix", "")
 text = form.getvalue("text", "")
+thread_id = form.getvalue("thread_id", "")
 
 # TODO check if data filled in
 
@@ -25,6 +26,7 @@ image_filename = get_image_for_line(prompt)
 with open('result_image.html') as infile:
     html = infile.read()
     html = html.replace('DEFAULTIMAGE', image_filename)
+    html = html.replace('THREAD_ID', thread_id)
     print(html)
 
 common.footer()
