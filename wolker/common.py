@@ -13,6 +13,13 @@ def write_out_file(filename):
     with open(filename) as infile:
         print(infile.read())
 
+def replace_and_write_out_file(filename, replacements={}):
+    with open(filename) as infile:
+        text = infile.read()
+        for key in replacements:
+            text = text.replace(key, replacements[key])
+        print(text)
+
 def header():
     print("Content-type: text/html")
     print()

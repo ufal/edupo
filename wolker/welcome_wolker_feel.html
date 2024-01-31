@@ -1,0 +1,48 @@
+<fieldset>
+    <legend>Vytvořte ilustraci k básni Jiřího Wolkera.</legend>
+    <form method="post" action="wolker_image.py">
+        <p>vyberte si báseň JW a doprovoďte ji obrazem</p>
+        <p>TODO zapojit lepší image generator (nyní Stable Diffusion 1.5, bude DALL-E 3</p>
+        <p>Popište několika slovy nebo několika větami, jak by měl vypadat
+        obrázek ilustrující vybranou báseň J. Wolkera:
+       </p>
+        <input name="typ" type="hidden" value="poem">
+        <input name="prefix" type="hidden" value="Image illustrating a poem written by a young Czech leftist poet at the beginning of 20th century. ">
+        <input name="text" size=50 value="TEXT">
+        <input name="submit" type="submit" value="Vygenerovat obrázek">
+        <p>TODO tady karusel s výběrem básně pro inspiraci</p>
+        <p>TODO zahrnovat do promptu i název básně nebo další info o básni?</p>
+        <pre>Okna
+
+Okno je skleněná loď,
+připoutaná k břehům mé světnice.
+Mladý námořník nepotřebuje sedmimílové střevíce.
+Vsedne a odjede;
+každou chvílí
+urazí očima dychtivýma deset tisíc mílí
+nad mořem
+po nebi krásném a širokém.
+
+Bílá oblaka,
+bílé skály,
+Afriku i Australii jsme zcestovali,
+s černochy se pobratřili,
+Indiány navštívili.
+Našli jsme i nové světadíly,
+ze všech světadílů nejmladší,
+to vše ale nestačí,
+abychom se zastavili.
+
+Svět je kulatý.
+Po mnoha dobrodružstvích rád vrátíš se zase
+do nízké světničky, která zavírá se
+nad starými známými věcmi.
+U rozviklaného stolu mezi dvěma vysychajícími kalamáři
+nejlépe uplatníš povídku s polární září.
+Vše bude tiché a štastné — ty sám nejvíce.
+Oči své položíš doprostřed světnice:
+dáreček z cesty —
+— album světa.</pre>
+    </form> 
+</fieldset>
+

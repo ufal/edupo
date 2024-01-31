@@ -23,10 +23,9 @@ image_filename = get_image_for_line(prompt)
 
 # TODO check for errors
 
-with open('result_image.html') as infile:
-    html = infile.read()
-    html = html.replace('DEFAULTIMAGE', image_filename)
-    html = html.replace('THREAD_ID', thread_id)
-    print(html)
+replacements = {
+        'DEFAULTIMAGE': image_filename,
+        'THREAD_ID': thread_id}
 
+common.replace_and_write_out_file('result_image.html', replacements)
 common.footer()
