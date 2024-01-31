@@ -12,12 +12,15 @@ common.header()
 form = cgi.FieldStorage()
 typ = form.getvalue("typ", "")
 prefix = form.getvalue("prefix", "")
+poemname = form.getvalue("poemname", "")
 text = form.getvalue("text", "")
 thread_id = form.getvalue("thread_id", "")
 
 # TODO check if data filled in
 
 prompt = prefix + text
+if poemname:
+    prompt += ' The image accompanies the poem called: '
 print(f'<!-- {prompt} -->')
 image_filename = get_image_for_line(prompt)
 
