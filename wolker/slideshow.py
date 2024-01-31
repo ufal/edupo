@@ -8,9 +8,6 @@ import random
 
 common.header_refresh()
 
-print('<a href="index.py">Zpátky na začátek</a>')
-print('<br>')
-
 DIR = 'genouts'
 
 def getctime(item):

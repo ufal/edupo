@@ -47,6 +47,7 @@
         <input name="text" size=50>
         <input name="submit" type="submit" value="Vygenerovat obrázek">
         <p>TODO tady karusel s výběrem básně pro inspiraci</p>
+        <p>TODO zahrnovat do promptu i název básně nebo další info o básni?</p>
         <pre>Okna
 
 Okno je skleněná loď,
@@ -88,3 +89,24 @@ dáreček z cesty —
         <input name="submit" type="submit" value="Do galerie">
     </form> 
 </fieldset>
+
+<fieldset>
+    <legend>Galerie výtvorů PRO ADMINISTRÁTORA</legend>
+    <form method="post" action="gallery.py">
+        <p>Možnost správy a sdílení</p>
+        <input name="typ" type="hidden" value="admin">
+        <input name="submit" type="submit" value="Do galerie">
+    </form> 
+</fieldset>
+
+
+<fieldset>
+    <legend>Slideshow výtvorů</legend>
+    <form method="post" action="slideshow.py">
+        <p>slideshow pro zobrazení na projektoru</p>
+        <input name="submit" type="submit" value="Spustit slideshow">
+    </form> 
+</fieldset>
+
+
+
