@@ -48,6 +48,7 @@ print(f"""
 
 print('<br><hr><br>')
 
+# TODO umožnit se sem pak ještě vrátit k úpravě popisiku obrázku?
 print(f"""
     <form method="post" action="wolker_image.py">
         <input type="hidden" name="typ" value="thread">

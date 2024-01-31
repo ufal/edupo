@@ -36,4 +36,8 @@ replacements = {
         }
 
 common.replace_and_write_out_file('result_image.html', replacements)
+
+if back:
+    common.replace_and_write_out_file('result_image_backlink.html', replacements)
+
 common.footer()
