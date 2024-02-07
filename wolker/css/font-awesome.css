@@ -1,0 +1,4 @@
+.fa-icon {
+    /* vertical-align: -.125em; */
+    filter: brightness(0) invert(1); /* všechny orginální ikony nechat zbělet */
+}

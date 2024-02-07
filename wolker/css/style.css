@@ -1,0 +1,71 @@
+body {
+    color: white;
+    background-color: var(--blue);
+    text-align: center;
+    margin: 0;
+    padding: 40px;
+    min-height: 100vh;
+    position: relative;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.nav-link {
+    font-family: "IBMPlexMono";
+    font-weight: 400;
+}
+
+.nav-link .fa-icon {
+    width: 12px;
+}
+
+header, footer {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+header {
+    align-self: start;
+}
+
+footer {
+    align-self: end;
+}
+
+header #logo {
+    font-family: "IBMPlexMono";
+    font-weight: 400;
+    font-size: xx-large;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+header #go-back {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+main {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    align-self: stretch;
+}
+
+#welcome {
+    font-family: "PTSerif-Regular";
+    font-size: large;
+    hyphens: auto;
+
+    max-width: 768px;
+    margin-left: auto;
+    margin-right: auto;
+}
