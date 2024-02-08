@@ -14,7 +14,13 @@ def write_out_file(filename):
     with open(filename) as infile:
         print(infile.read())
 
-def replace_and_write_out_file(filename, replacements={}):
+def replace_and_write_out_file(filename=None, replacements={}):
+    if not replacements:
+        replacements = get_replacements()
+    if not filename:
+        filename = replacements.get('PAGE', 'welcome')
+        filename += '.html'
+        # TODO CHECK!!!!
     with open(filename) as infile:
         text = infile.read()
         for key in replacements:
@@ -35,6 +41,8 @@ def nl2br(text):
 def get_replacements(names=[]):
     replacements = {}
     form = cgi.FieldStorage()
+    if not names:
+        names = form.getvalue('replacements', [])
     for name in names:
         value = form.getvalue(name, "")
         replacements[name.upper()] = value
