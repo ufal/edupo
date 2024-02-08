@@ -3,6 +3,7 @@
 
 import sys
 import random
+import cgi
 from datetime import datetime
 
 def get_filename():
@@ -30,5 +31,13 @@ def footer():
 
 def nl2br(text):
     return text.replace('\n', '<br>')
+
+def get_replacements(names=[]):
+    replacements = {}
+    form = cgi.FieldStorage()
+    for name in names:
+        value = form.getvalue(name, "")
+        replacements[name.upper()] = value
+    return replacements
 
 
