@@ -36,7 +36,6 @@ print(f"""
 
 print('<br><hr><br>')
 
-    <p></p>
 print(f"""
     <form method="post" action="share.py">
         <p>
