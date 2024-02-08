@@ -10,14 +10,15 @@ common.header()
 
 form = cgi.FieldStorage()
 typ = form.getvalue("typ", "")
-prefix = form.getvalue("prefix", "")
 text = form.getvalue("text", "")
 thread_id = form.getvalue("thread_id", None)
+assistant_id = form.getvalue('assistant_id', 'asst_oEwl7wnhGDi5JDvAdE92GgWk')
 
 # TODO check if data filled in
 
-message = prefix + text
-messages, roles, thread_id = wolker_interactive.talk_threaded(message, thread_id)
+message = text
+messages, roles, thread_id = wolker_interactive.talk_threaded(
+        message, assistant_id, thread_id)
 
 for message, role in zip(messages, roles):
     # role is user or assistant

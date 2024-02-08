@@ -13,7 +13,7 @@ client = OpenAI(
     organization='org-926n4JNQeMTeU94X6FKZS8c3',
     api_key=apikey
 )
-assistant_id = 'asst_oEwl7wnhGDi5JDvAdE92GgWk'
+ASSISTANT_ID = 'asst_oEwl7wnhGDi5JDvAdE92GgWk'
 
 def get_thread_messages(thread_id):
     # extract response text
@@ -36,7 +36,9 @@ def talk(message="Napište báseň o přírodě ve městě."):
     result, _, _ = talk_threaded(message)
     return result[-1]
 
-def talk_threaded(message="Napište báseň o přírodě ve městě.", thread_id=None):
+def talk_threaded(message="Napište báseň o přírodě ve městě.",
+        assistant_id=ASSISTANT_ID,
+        thread_id=None):
     if not thread_id:
         thread = client.beta.threads.create()
         thread_id = thread.id
