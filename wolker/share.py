@@ -12,6 +12,7 @@ form = cgi.FieldStorage()
 typ = form.getvalue("typ", "")
 image_filename = form.getvalue("image_filename", "")
 title = form.getvalue("title", "")
+text = form.getvalue("text", "")
 thread_id = form.getvalue("thread_id", "")
 
 # TODO check if data filled in
@@ -19,6 +20,8 @@ thread_id = form.getvalue("thread_id", "")
 result = []
 if title:
     result.append(f'<h2>{title}</h2>')
+if text:
+    result.append(f'<p>{text}</p>')
 if thread_id:
     messages, roles = wolker_interactive.get_thread_messages(thread_id)
     for message, role in zip(messages, roles):

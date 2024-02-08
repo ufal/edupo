@@ -55,7 +55,7 @@ print(f"""
         <input type="hidden" name="thread_id" value="{thread_id}">
         <input type="hidden" name="prefix" value="Image accompanying a poetic generated text, as a conversation between the user and a young Czech poet from the beginning on the 20th century.  ">
         Popis doprovodného obrázku: <input name="text" size=50>
-        <input name="submit" type="submit" value="Vygenerovat k textu obrázek">
+        <input name="submit" type="submit" value="Vytvoř k textu obrázek">
     </form>
     """)
 
