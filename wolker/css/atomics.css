@@ -15,14 +15,14 @@ a {
     text-decoration: inherit;
 }
 
-/*
-form {
+form.form-as-button,
+form.form-as-link {
     display: flex;
     justify-content: center;
 }
-*/
 
-form button {
+form.form-as-button button,
+form.form-as-link button {
     display: flex;
     border: none;
     outline: none;
