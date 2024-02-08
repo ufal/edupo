@@ -7,7 +7,7 @@ import common
 common.header()
 
 replacements = common.get_replacements(
-        ['text', 'task', 'taskshort', 'assistant_id'])
+        ['text', 'task', 'short', 'assistant_id'])
 
 common.replace_and_write_out_file('welcome_wolker_chat_topic.html', replacements)
 
