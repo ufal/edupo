@@ -14,6 +14,7 @@ image_filename = form.getvalue("image_filename", "")
 title = form.getvalue("title", "")
 text = form.getvalue("text", "")
 thread_id = form.getvalue("thread_id", "")
+author = form.getvalue("author", "")
 
 # TODO check if data filled in
 
@@ -28,6 +29,8 @@ if thread_id:
         result.append(f'<p class="{role}">{common.nl2br(message)}</p>')
 if image_filename:
     result.append(f'<img src="genimgs/{image_filename}.png">')
+if author:
+    result.append(f'<address>{author}</address>')
 
 html = '\n'.join(result)
 

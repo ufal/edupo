@@ -35,14 +35,23 @@ print(f"""
 
 print('<br><hr><br>')
 
+    <p></p>
 print(f"""
     <form method="post" action="share.py">
         <p>
-        Text můžeš veřejně sdílet v Galerii; promítne se v muzeu a bude vidět online!
+        Sdílej text s ostatními. Promítneme ho v galerii. Vybrané příspěvky
+        budou zveřejněny v knize a na sociálních sítích.
+        </p>
+        
         <input type="hidden" name="typ" value="thread">
         <input type="hidden" name="thread_id" value="{thread_id}">
-        <input type="submit" value="Sdílet text bez obrázku">
+        
+        <p>
+        Uveď své jméno nebo přezdívku, jestli chceš:
+        <input name="author">
         </p>
+        
+        <input type="submit" value="Sdílet text bez obrázku">
     </form>
     """)
 
@@ -62,6 +71,6 @@ print(f"""
 # Pokračovat dál v konverzaci:
 # Skončenou konverzaci můžeš veřejně sdílet v Galerii; promítne se v muzeu a bude vidět online!
 # Ke skončené konverzaci můžeš vygenerovat obrázek!
-# Popište několika slovy nebo několika větami, jak by měl vypadat obrázek k této konverzaci:
+# Popiš několika slovy nebo několika větami, jak by měl vypadat obrázek k této konverzaci:
 
 common.footer()

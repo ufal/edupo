@@ -1,17 +1,14 @@
 <fieldset>
-    <legend>Vytvořte ilustraci k básni Jiřího Wolkera.</legend>
+    <legend>Vytvoř ilustraci k básni Jiřího Wolkera.</legend>
     <form method="post" action="wolker_image.py">
-        <p>vyberte si báseň JW a doprovoďte ji obrazem</p>
-        <p>Popište několika slovy nebo několika větami, jak by měl vypadat
-        obrázek ilustrující vybranou báseň J. Wolkera:
-       </p>
+        <p>Vyber si báseň a doprovoď ji obrazem</p>
+        <p>Popiš několika slovy nebo větami, jak by vypadal obrázek, ilustrující vybranou báseň JW.</p>
         <input name="back" type="hidden" value="welcome_wolker_feel">
         <input name="typ" type="hidden" value="poem">
         <input name="prefix" type="hidden" value="Image illustrating a poem written by a young Czech leftist poet at the beginning of 20th century. ">
         Název básně: <input name="title" value="TITLE"><br>
         Popis obrázku: <input name="text" size=50 value="TEXT"><br>
         <input name="submit" type="submit" value="Vytvoř obrázek">
-        <p>TODO zapojit lepší image generator (nyní Stable Diffusion 1.5, bude DALL-E 3</p>
         <p>TODO tady karusel s výběrem básně pro inspiraci</p>
         <pre>Okna
 

@@ -46,7 +46,7 @@ if text and response:
 
 options = [
         "Podělte své myšlenky o moderní poezii.",
-        "Popište dnešní svět ve svém poetickém stylu.",
+        "Popiš dnešní svět ve svém poetickém stylu.",
         "Napište báseň o přírodě ve městě.",
         "Co v dnešní společnosti vás inspiruje k vaší poezii?",
         ]
