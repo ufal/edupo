@@ -19,7 +19,8 @@ def replace_and_write_out_file(filename=None, replacements={}):
     if not replacements:
         replacements = get_replacements()
     if not filename:
-        filename = replacements.get('PAGE', DEFAULTPAGE)
+        form = cgi.FieldStorage()
+        filename = form.getvalue('page', DEFAULTPAGE)
         if not filename.isidentifier():
             filename = DEFAULTPAGE
         filename += '.html'
