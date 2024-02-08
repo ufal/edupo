@@ -2,3 +2,7 @@
     /* vertical-align: -.125em; */
     filter: brightness(0) invert(1); /* všechny orginální ikony nechat zbělet */
 }
+
+.fa-icon.blue {
+    filter: invert(30%) sepia(17%) saturate(3605%) hue-rotate(193deg) brightness(93%) contrast(92%); /* modrá */
+}

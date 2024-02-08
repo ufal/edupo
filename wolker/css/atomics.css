@@ -14,3 +14,59 @@ a {
     color: inherit;
     text-decoration: inherit;
 }
+
+form {
+    display: flex;
+    justify-content: center;
+}
+
+form button {
+    display: flex;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    font-family: "IBMPlexMono";
+}
+
+form.form-as-button button {
+    gap: 12px;
+    min-width: 250px;
+    color: var(--blue);
+    font-size: medium;
+    padding: 16px 36px;
+    background: white;
+    border-radius: 30px;
+}
+
+form.form-as-button button .fa-icon {
+    width: 11px;
+    display: inline-block;
+}
+
+form.form-as-link button {
+    gap: 30px;
+    color: white;
+    background: transparent;
+    font-size: 48px;
+    font-weight: 400;
+    margin: 30px 0;
+}
+
+form.form-as-link button:before {
+    content: '';
+    width: 24px;
+    height: 100%;
+}
+
+form.form-as-link button:hover {
+    font-weight: 700;
+}
+
+form.form-as-link button:hover:before {
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0) invert(1);
+    background-image: url('../fa-symbols/solid/arrow-right.svg');
+}
