@@ -18,3 +18,10 @@
     font-style: normal;
     src: local("IBMPlexMono-Regular"), url("../fonts/IBMPlexMono/IBMPlexMono-Medium.woff2") format("woff2");
 }
+
+@font-face {
+    font-family: "IBMPlexMono";
+    font-weight: 700;
+    font-style: normal;
+    src: local("IBMPlexMono-Bold"), url("../fonts/IBMPlexMono/IBMPlexMono-Bold.woff2") format("woff2");
+}
