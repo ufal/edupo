@@ -17,7 +17,9 @@
         vymenuju texty v kazdem z linku podle toho, jak jsem v poslednim schvalenem designu (pripadne je mozne to revertnout)
     -->
 
-    <form method="post" action="welcome_wolker_image.py" class="form-as-link">
+    <form method="post" action="page.py" class="form-as-link">
+        <input name="page" type="hidden" value="welcome_wolker_image">
+        <input name="replacements" type="hidden" value="text,title">
         <button type="submit">
             vytvoř foto s Wolkerem
         </button>
@@ -30,15 +32,19 @@
         </button>
     </form> 
         
-    <form method="post" action="welcome_wolker_poem.py" class="form-as-link">
+    <form method="post" action="page.py" class="form-as-link">
+        <input name="page" type="hidden" value="welcome_wolker_poem">
+        <input name="replacements" type="hidden" value="text,title">
         <button type="submit">
             rýmuj s Wolkerem
         </button>
     </form> 
         
-    <form method="post" action="welcome_wolker_feel.py" class="form-as-link">
+    <form method="post" action="page.py" class="form-as-link">
+        <input name="page" type="hidden" value="welcome_wolker_feel">
+        <input name="replacements" type="hidden" value="text,title">
         <button type="submit">
-            vytvoř ilustraci k Wolkrově básni
+            vytvoř ilustraci k Wolkerově básni
         </button>
     </form>
 
