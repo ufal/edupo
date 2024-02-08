@@ -14,13 +14,16 @@ def write_out_file(filename):
     with open(filename) as infile:
         print(infile.read())
 
+DEFAULTPAGE = 'welcome'
 def replace_and_write_out_file(filename=None, replacements={}):
     if not replacements:
         replacements = get_replacements()
     if not filename:
-        filename = replacements.get('PAGE', 'welcome')
+        filename = replacements.get('PAGE', DEFAULTPAGE)
+        if not filename.isidentifier():
+            filename = DEFAULTPAGE
         filename += '.html'
-        # TODO CHECK!!!!
+    
     with open(filename) as infile:
         text = infile.read()
         for key in replacements:
@@ -42,7 +45,7 @@ def get_replacements(names=[]):
     replacements = {}
     form = cgi.FieldStorage()
     if not names:
-        names = form.getvalue('replacements', [])
+        names = form.getvalue('replacements', '').split(',')
     for name in names:
         value = form.getvalue(name, "")
         replacements[name.upper()] = value
