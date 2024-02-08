@@ -9,7 +9,6 @@ import common
 common.header()
 
 form = cgi.FieldStorage()
-typ = form.getvalue("typ", "")
 text = form.getvalue("text", "")
 thread_id = form.getvalue("thread_id", None)
 assistant_id = form.getvalue('assistant_id', 'asst_oEwl7wnhGDi5JDvAdE92GgWk')
@@ -27,7 +26,6 @@ for message, role in zip(messages, roles):
 print(f"""
     <form method="post">
         <textarea name="text" rows="4" cols="60"></textarea>
-        <input type="hidden" name="typ" value="{typ}">
         <input type="hidden" name="thread_id" value="{thread_id}">
         <br>
         <input type="submit" value="Odpovědět">

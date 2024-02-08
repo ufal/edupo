@@ -1,21 +1,23 @@
 <fieldset>
     <legend>Jakými tématy by se Jiří Wolker dnes zabýval ? aneb Gen-Z Wolker</legend>
-    <form method="post" action="wolker_chat.py">
-        <p>Vytvořte text na vaše téma, nebo o něm konverzujte s virtuální osobností JW </p>
-        <input name="typ" type="hidden" value="chat">
-        <input name="back" type="hidden" value="welcome_wolker_chat">
-        
-        <button name="assistant_id" type="submit" value="asst_itMYhVAs2RxGQvqRRXRIzwrj">
-            Vytvoř na tvé téma báseň
-        </button>
-        
-        <button name="assistant_id" type="submit" value="asst_GrxKyRg78kAdfUvWmHjyEipM">
-            Vytvoř na tvé téma úvahu
-        </button>
-        
-        <button name="assistant_id" type="submit" value="asst_j2pqoIQ3dHKf1BwpywJh0RUg">
-            Povídej si s JW
-        </button>
-    </form> 
-</fieldset>
+    <p>Vytvořte text na vaše téma, nebo o něm konverzujte s virtuální osobností JW </p>
 
+    <form method="post" action="wolker_chat.py">
+        <input name="task" type="hidden" value="">
+        <input name="assistant_id" type="hidden" value="asst_itMYhVAs2RxGQvqRRXRIzwrj">
+        <input name="taskshort" type="submit" value="Vytvoř na tvé téma báseň">
+    </form> 
+        
+    <form method="post" action="wolker_chat.py">
+        <input name="task" type="hidden" value="">
+        <input name="assistant_id" type="hidden" value="asst_GrxKyRg78kAdfUvWmHjyEipM">
+        <input name="taskshort" type="submit" value="Vytvoř na tvé téma úvahu">
+    </form> 
+        
+    <form method="post" action="wolker_chat.py">
+        <input name="task" type="hidden" value="TASK">
+        <input name="assistant_id" type="hidden" value="asst_j2pqoIQ3dHKf1BwpywJh0RUg">
+        <input name="taskshort" type="submit" value="Povídej si s JW">
+    </form> 
+
+</fieldset>
