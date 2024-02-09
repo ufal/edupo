@@ -13,7 +13,7 @@ def get_replacements():
     replacements = {}
     names = bottle.request.params.replacements.split(',')
     for name in names:
-        replacements[name.upper()] = bottle.request.params[name]
+        replacements[name.upper()] = bottle.request.params.get(name)
     return replacements
 
 # serve static files in the given subdirectories
