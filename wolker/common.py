@@ -27,6 +27,13 @@ def get_replacements(form, names=None):
         replacements[name.upper()] = form.getvalue(name, "")
     return replacements
 
+def _replace_and_return_file(filename, replacements):
+    with open(filename) as infile:
+        text = infile.read()
+        for key in replacements:
+            text = text.replace(key, replacements[key])
+        return text
+
 def replace_and_write_out_file(filename=None, replacements={}):
     print(replace_and_return_file(filename, replacements))
 
@@ -46,13 +53,9 @@ def replace_and_return_file(filename=None, replacements={}):
     
         # replacements: get from replacements
         replacements = get_replacements(form)
-    
-    with open(filename) as infile:
-        text = infile.read()
-        for key in replacements:
-            text = text.replace(key, replacements[key])
-        return text
 
+    return _replace_and_return_file(filename, replacements)
+    
 def header(subtype=''):
     print("Content-type: text/html")
     print()
@@ -64,9 +67,10 @@ def footer():
 def nl2br(text):
     return text.replace('\n', '<br>')
 
-def page():
+# for handling bottle
+def page(page=None, replacements={}):
     header = return_file('header.html')
-    body = replace_and_return_file()
+    body = _replace_and_return_file(page, replacements)
     footer = return_file('footer.html')
-    return '\n'.join([header, body, footer])
+    return header, body, footer
 
