@@ -40,6 +40,14 @@ def wolker_image():
     replacements = get_replacements(['image', 'thread_id', 'text', 'title', 'back'])
     return common.wolker_image(prompt, replacements)
 
+@bottle.route('/wtr/wolker_chat.py', method='ANY')
+def wolker_chat():
+    form = bottle.request.params
+    return common.wolker_chat(
+            form.text,
+            form.getunicode('assistant_id', 'asst_oEwl7wnhGDi5JDvAdE92GgWk'),
+            form.thread_id)
+
 @bottle.route('/wtr/gallery.py', method='ANY')
 def gallery():
     return common.gallery()
