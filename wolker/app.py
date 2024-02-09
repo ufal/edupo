@@ -17,7 +17,7 @@ def get_replacements(names=[]):
     return replacements
 
 # serve static files in the given subdirectories
-@bottle.route('/<root:re:(wtr|wolker|panwtr)>/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
+@bottle.route('/<root:re:(wtr|wolker|panwtr)>/<directory:path:re:(css|genimgs|qrcodes|fa-symbols|fonts).*>/<filename>')
 def static(root, directory, filename):
     return bottle.static_file(filename, directory)
 

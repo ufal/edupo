@@ -3,3 +3,4 @@ tiktoken
 unidecode
 Pillow
 gTTS
+qrcode
