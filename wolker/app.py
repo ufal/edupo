@@ -17,8 +17,8 @@ def get_replacements():
     return replacements
 
 # serve static files in the given subdirectories
-@bottle.route('/wtr/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
-def static(directory, filename):
+@bottle.route('/<root:re:(wtr|wolker|panwtr)>/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
+def static(root, directory, filename):
     return bottle.static_file(filename, directory)
 
 # serve simple generic pages
@@ -44,11 +44,6 @@ def dynamic_page(page):
 @bottle.route('/panwtr/gallery.py')
 def admin_gallery():
     return gallery.main('admin')
-
-# public access to posts: serve at different path!
-@bottle.route('/wolker/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
-def public_static(directory, filename):
-    return bottle.static_file(filename, directory)
 
 @bottle.route('/wolker/<key>')
 def public_post(key):
