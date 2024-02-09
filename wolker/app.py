@@ -1,5 +1,6 @@
 import bottle
-import edupo.wolker.common as common
+# import edupo.wolker.common as common
+import common
 
 @bottle.route('/')
 def page():
