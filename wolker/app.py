@@ -32,7 +32,7 @@ import slideshow
 mains = {
     'slideshow': slideshow.main,
 }
-@bottle.route('/wtr/<page:re:(gallery|slideshow).py>', method='ANY')
+@bottle.route('/wtr/<page:re:(gallery|slideshow)>.py', method='ANY')
 def dynamic_page(page):
     return mains[page]()
 
