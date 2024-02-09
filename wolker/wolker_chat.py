@@ -41,7 +41,6 @@ print(f"""
         budou zveřejněny v knize a na sociálních sítích.
         </p>
         
-        <input type="hidden" name="typ" value="thread">
         <input type="hidden" name="thread_id" value="{thread_id}">
         
         <p>
@@ -58,7 +57,6 @@ print('<br><hr><br>')
 # TODO umožnit se sem pak ještě vrátit k úpravě popisiku obrázku?
 print(f"""
     <form method="post" action="wolker_image.py">
-        <input type="hidden" name="typ" value="thread">
         <input type="hidden" name="thread_id" value="{thread_id}">
         <input type="hidden" name="prefix" value="Image accompanying a poetic generated text, as a conversation between the user and a young Czech poet from the beginning on the 20th century.  ">
         Popis doprovodného obrázku: <input name="text" size=50>

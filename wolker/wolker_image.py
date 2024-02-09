@@ -4,18 +4,16 @@
 import sys
 import cgi
 from image_generation import get_image_for_line
-import random
 import common
 
 common.header()
 
 form = cgi.FieldStorage()
-typ = form.getvalue("typ", "")
-back = form.getvalue("back", "")
 prefix = form.getvalue("prefix", "")
 title = form.getvalue("title", "")
 text = form.getvalue("text", "")
 thread_id = form.getvalue("thread_id", "")
+back = form.getvalue("back", "")
 
 # TODO check if data filled in
 
@@ -23,6 +21,7 @@ prompt = prefix + text
 if title:
     prompt += f' The image accompanies the text called: {title}'
 print(f'<!-- {prompt} -->')
+
 image = get_image_for_line(prompt)
 
 # TODO check for errors
