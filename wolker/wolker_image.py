@@ -21,7 +21,10 @@ image = get_image_for_line(prompt)
 
 replacements = common.get_replacements(
         form, ['image', 'thread_id', 'text', 'title', 'back'])
+replacements['IMAGE'] = image
+
 common.replace_and_write_out_file('result_image.html', replacements)
+
 if replacements['BACK']:
     common.replace_and_write_out_file('result_image_backlink.html', replacements)
 
