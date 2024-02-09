@@ -1,5 +1,7 @@
-<form method="post" action="BACK.py">
+<form method="post" action="page.py">
     <p>Pokud nejsi spokojený s výsledkem, můžeš se vrátit zpátky a upravit popis obrázku:</p>
+    <input name="page" type="hidden" value="BACK">
+    <input name="replacements" type="hidden" value="text,title">
     <input name="text" type="hidden" value="TEXT">
     <input name="title" type="hidden" value="TITLE">
     <input name="submit" type="submit" value="Upravit">
