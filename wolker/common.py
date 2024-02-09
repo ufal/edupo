@@ -86,7 +86,7 @@ def page(page=None, replacements={}):
 def post(key):
     header = return_file('header_static.html')
     
-    filename = f'genouts/{key}.html'
+    filename = f'{OUTPUTDIR}/{key}.html'
     if key and key.isnumeric() and os.path.isfile(filename):
         body = return_file(filename)
     else:
@@ -128,5 +128,28 @@ def slideshow():
         'footer.html',
     ]
     return [return_file(f) for f in files]
+
+def gallery(typ=''):
+    files = []
+    files.append(return_file('header.html'))
+    
+    if typ == 'admin':
+        files.append(return_file('gallery_admin_head.html'))
+    files.append(return_file('gallery_head.html'))
+
+    postfiles = os.listdir(OUTPUTDIR)
+    postfiles.sort(reverse=True)
+    for filename in postfiles:
+        files.append(return_file(f'{OUTPUTDIR}/{filename}'))
+        if typ == 'admin':
+            key, _ = filename.split('.')
+            files.append(replace_and_return_file(
+                    'gallery_admin_sharebutton.html', {'KEY': key}))
+        
+            files.append(return_file('gallery_sep.html'))
+    files.append(return_file('footer.html'))
+    
+    return files
+
 
 

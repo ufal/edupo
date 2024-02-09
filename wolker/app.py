@@ -34,8 +34,7 @@ def page():
 # serve specific pages
 @bottle.route('/wtr/gallery.py', method='ANY')
 def gallery():
-    import gallery
-    return gallery.main()
+    return common.gallery()
 
 @bottle.route('/wtr/slideshow.py', method='ANY')
 def slideshow():
@@ -44,7 +43,7 @@ def slideshow():
 # admin gallery: at different path!
 @bottle.route('/panwtr/gallery.py')
 def admin_gallery():
-    return gallery.main('admin')
+    return common.gallery('admin')
 
 # public post: at different path!
 @bottle.route('/wolker/<key>')
