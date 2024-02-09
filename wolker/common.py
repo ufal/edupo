@@ -147,8 +147,7 @@ def gallery(typ=''):
             key, _ = filename.split('.')
             files.append(replace_and_return_file(
                     'gallery_admin_sharebutton.html', {'KEY': key}))
-        
-            files.append(return_file('gallery_sep.html'))
+        files.append(return_file('gallery_sep.html'))
     files.append(return_file('footer.html'))
     
     return files
