@@ -6,8 +6,6 @@ import random
 import cgi
 from datetime import datetime
 
-FORM = None
-
 def get_filename():
     return datetime.now().strftime("%Y%m%d%H%M%S")
     # + random.randrange(10000000, 100000000) ... randseed je time takže bych potřeboval seed
@@ -18,15 +16,24 @@ def write_out_file(filename):
 
 DEFAULTPAGE = 'welcome'
 def replace_and_write_out_file(filename=None, replacements={}):
-    if not replacements:
-        replacements = get_replacements()
     if not filename:
-        if not FORM:
-            FORM = cgi.FieldStorage()
-        filename = FORM.getvalue('page', DEFAULTPAGE)
+        # get from parameters
+        # WARNING: this eats up the parameters for everyone!
+        assert not replacements
+        
+        form = cgi.FieldStorage()
+        
+        # filename: get from page
+        filename = form.getvalue('page', DEFAULTPAGE)
         if not filename.isidentifier():
             filename = DEFAULTPAGE
         filename += '.html'
+    
+        # replacements: get from replacements
+        names = form.getvalue('replacements', '').split(',')
+        for name in names:
+            value = form.getvalue(name, "")
+            replacements[name.upper()] = value
     
     with open(filename) as infile:
         text = infile.read()
@@ -44,16 +51,5 @@ def footer():
 
 def nl2br(text):
     return text.replace('\n', '<br>')
-
-def get_replacements(names=[]):
-    replacements = {}
-    if not FORM:
-        FORM = cgi.FieldStorage()
-    if not names:
-        names = FORM.getvalue('replacements', '').split(',')
-    for name in names:
-        value = FORM.getvalue(name, "")
-        replacements[name.upper()] = value
-    return replacements
 
 
