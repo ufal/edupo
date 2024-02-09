@@ -193,3 +193,51 @@ def wolker_chat(text='', assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk', thread_id
     files.append(return_file('footer.html'))
     
     return files
+
+# form is something which can get the following keys:
+# thread_id, title, text, image, author
+# either directly cgi form, or a dict gotten throgh getunicode from bottle
+def share_page(form):
+    result = []
+
+    def append(field, value):
+        html = replace_and_return_file(f'share_{field}.html', {'CONTENT': value})
+        result.append(html)
+
+    def get_append(field):
+        value = form.get(field, None)
+        if value:
+            append(field, value)
+
+    if thread_id:
+        messages, roles = wolker_interactive.get_thread_messages(thread_id)
+    else:
+        messages, roles = [], []
+
+    # construct result
+    get_append('title')
+    get_append('text')
+    for message, role in zip(messages, roles):
+        append(f'message_{role}', common.nl2br(message))
+    get_append('image')
+    get_append('author')
+
+    # write out into file
+    filename_out = common.get_filename()
+    with open(f'{OUTPUTDIR}/{filename_out}.html', 'w') as outfile:
+        print(*result, sep='\n', file=outfile)
+
+    # get and show sharing QR code
+    import qrcode
+    base_url = common.return_file('share_baseurl.txt').strip()
+    url = f'{base_url}{filename_out}'
+    img = qrcode.make(url)
+    img.save(f'qrcodes/{filename_out}.png')
+
+    files=[]
+    files.append(return_file('header.html'))
+    files.append(replace_and_return_file('share.html', {'KEY': filename_out}))
+    files.append(return_file('footer.html'))
+
+    return files
+

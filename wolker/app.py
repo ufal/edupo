@@ -48,6 +48,13 @@ def wolker_chat():
             form.getunicode('assistant_id', 'asst_oEwl7wnhGDi5JDvAdE92GgWk'),
             form.thread_id)
 
+@bottle.route('/wtr/share.py', method='ANY')
+def share_page():
+    form = {}
+    for field in ['thread_id', 'title', 'text', 'image', 'author']:
+        form[field] = bottle.request.params.getunicode(field, '')
+    return common.share_page(form)
+
 @bottle.route('/wtr/gallery.py', method='ANY')
 def gallery():
     return common.gallery()
