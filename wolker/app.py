@@ -29,8 +29,11 @@ def page():
 
 # serve specific pages
 import slideshow
+import gallery
 mains = {
     'slideshow': slideshow.main,
+    'gallery': gallery.main,
+    # TODO admin version
 }
 @bottle.route('/wtr/<page:re:(gallery|slideshow)>.py', method='ANY')
 def dynamic_page(page):

@@ -5,23 +5,32 @@ import common
 import os
 import cgi
 
-common.header()
-
-form = cgi.FieldStorage()
-typ = form.getvalue("typ", "")
-
-if typ == 'admin':
-    common.write_out_file(f'gallery_admin_head.html')
-common.write_out_file(f'gallery_head.html')
-
-files = os.listdir('genouts')
-files.sort(reverse=True)
-for filename in files:
-    common.write_out_file(f'genouts/{filename}')
-    if typ == 'admin':
-        key, _ = filename.split('.')
-        common.replace_and_write_out_file(
-                'gallery_admin_sharebutton.html', {'KEY': key})
-    common.write_out_file(f'gallery_sep.html')
+def append(files, filename):
+    files.append(common.return_file(filename)
     
-common.footer()
+def main(typ=''):
+    files = []
+    append(files, 'header.html')
+    
+    if typ == 'admin':
+        append(files, 'gallery_admin_head.html')
+    append(files, 'gallery_head.html')
+
+    postfiles = os.listdir('genouts')
+    postfiles.sort(reverse=True)
+    for filename in postfiles:
+        append(files, f'genouts/{filename}'
+        if typ == 'admin':
+            key, _ = filename.split('.')
+            files.append(common.replace_and_return_file(
+                    'gallery_admin_sharebutton.html', {'KEY': key}))
+        
+            append(files, 'gallery_sep.html')
+    append(files. 'footer.html')
+    
+    return files
+
+if __name__=="__main__":
+    form = cgi.FieldStorage()
+    typ = form.getvalue("typ", "")
+    print(main(typ), sep='\n')
