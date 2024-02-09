@@ -17,7 +17,7 @@ else:
     messages, roles = [], []
 
 def append(result, field, value):
-    html = replace_and_return_file(f'share_{field}.html', {'CONTENT': value})
+    html = common.replace_and_return_file(f'share_{field}.html', {'CONTENT': value})
     result.append(html)
 
 def get_append(result, field, form):
