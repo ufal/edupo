@@ -17,7 +17,7 @@ def write_out_file(filename):
 DEFAULTPAGE = 'welcome'
 
 def replace_and_write_out_file(filename=None, replacements={}):
-    print(replace_and_return_file(filename, replacements)
+    print(replace_and_return_file(filename, replacements))
 
 def replace_and_return_file(filename=None, replacements={}):
     if not filename:
