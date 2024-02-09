@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-import sys
 import cgi
 from image_generation import get_image_for_line
 import common
@@ -9,34 +8,21 @@ import common
 common.header()
 
 form = cgi.FieldStorage()
-prefix = form.getvalue("prefix", "")
 title = form.getvalue("title", "")
+prefix = form.getvalue("prefix", "")
 text = form.getvalue("text", "")
-thread_id = form.getvalue("thread_id", "")
-back = form.getvalue("back", "")
 
-# TODO check if data filled in
-
-prompt = prefix + text
-if title:
-    prompt += f' The image accompanies the text called: {title}'
+prompt = f"{title} {prefix} {text}"
 print(f'<!-- {prompt} -->')
 
+# generate the image
+# TODO check for errors
 image = get_image_for_line(prompt)
 
-# TODO check for errors
-
-replacements = {
-        'DEFAULTIMAGE': image,
-        'THREAD_ID': thread_id,
-        'TEXT': text,
-        'TITLE': title,
-        'BACK': back,
-        }
-
+replacements = common.get_replacements(
+        form, ['image', 'thread_id', 'text', 'title', 'back'])
 common.replace_and_write_out_file('result_image.html', replacements)
-
-if back:
+if replacements['BACK']:
     common.replace_and_write_out_file('result_image_backlink.html', replacements)
 
 common.footer()

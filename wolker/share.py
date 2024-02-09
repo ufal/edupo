@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-import sys
 import cgi
 import common
 import wolker_interactive

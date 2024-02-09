@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-import sys
 import random
 import cgi
 from datetime import datetime
+
+DEFAULTPAGE = 'welcome'
 
 def get_filename():
     return datetime.now().strftime("%Y%m%d%H%M%S")
@@ -14,7 +15,13 @@ def write_out_file(filename):
     with open(filename) as infile:
         print(infile.read())
 
-DEFAULTPAGE = 'welcome'
+def get_replacements(form, names=None):
+    replacements = {}
+    if not names:
+        names = form.getvalue('replacements', '').split(',')
+    for name in names:
+        replacements[name.upper()] = form.getvalue(name, "")
+    return replacements
 
 def replace_and_write_out_file(filename=None, replacements={}):
     print(replace_and_return_file(filename, replacements))
@@ -34,10 +41,7 @@ def replace_and_return_file(filename=None, replacements={}):
         filename += '.html'
     
         # replacements: get from replacements
-        names = form.getvalue('replacements', '').split(',')
-        for name in names:
-            value = form.getvalue(name, "")
-            replacements[name.upper()] = value
+        replacements = get_replacements(form)
     
     with open(filename) as infile:
         text = infile.read()

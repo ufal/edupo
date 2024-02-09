@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-import sys
-
 with open('apikey.txt') as infile:
     apikey = infile.read()
 
