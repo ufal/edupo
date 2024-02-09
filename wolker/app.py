@@ -1,5 +1,4 @@
 import bottle
-# import edupo.wolker.common as common
 import common
 
 DEFAULTPAGE = 'welcome'
@@ -29,22 +28,21 @@ def page():
     return common.page(get_page(), get_replacements())
 
 # serve specific pages
-import slideshow
-import gallery
-mains = {
-    'slideshow': slideshow.main,
-    'gallery': gallery.main,
-    # TODO admin version
-}
-@bottle.route('/wtr/<page:re:(gallery|slideshow)>.py', method='ANY')
-def dynamic_page(page):
-    return mains[page]()
+@bottle.route('/wtr/gallery.py', method='ANY')
+def gallery():
+    import gallery
+    return gallery.main()
+
+@bottle.route('/wtr/slideshow.py', method='ANY')
+def slideshow():
+    return common.slideshow()
 
 # admin gallery: at different path!
 @bottle.route('/panwtr/gallery.py')
 def admin_gallery():
     return gallery.main('admin')
 
+# public post: at different path!
 @bottle.route('/wolker/<key>')
 def public_post(key):
     return common.post(key)

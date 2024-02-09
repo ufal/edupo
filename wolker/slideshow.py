@@ -41,5 +41,5 @@ def main():
 
 if __name__=="__main__":
     common.httpheader()
-    print(*main(), sep='\n')
+    print(*common.slideshow(), sep='\n')
 
