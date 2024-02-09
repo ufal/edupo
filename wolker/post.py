@@ -8,4 +8,4 @@ common.header('_static')
 
 form = cgi.FieldStorage()
 key = form.getvalue("key", "")
-print(common.post(key), sep="\n")
+print(*common.post(key), sep="\n")
