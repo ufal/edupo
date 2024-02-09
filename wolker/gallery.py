@@ -35,4 +35,4 @@ if __name__=="__main__":
     typ = form.getvalue("typ", "")
     
     common.httpheader()
-    print(main(typ), sep='\n')
+    print(*main(typ), sep='\n')
