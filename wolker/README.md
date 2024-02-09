@@ -27,6 +27,14 @@ Jednotlivé parametry se vizualizují skrzevá různé html soubory s návodným
 * image: vygenerovaný obrázek (share_image.html)
 * author: jméno autora aneb uživatele (share_author.html)
 
+### wolker_chat.py
+Chatování s Wolkerem:
+* wolker_chat_head.html (aktuálně prázdné)
+* jednotlivé zprávy z konverzace s Wolkerem; sekvence střídajících se zpráv uživatele (user) a chatbota (assistant), vizualizované skrzevá soubory pro jednotlivé zprávy:
+  * wolker_chat_message_user.html
+  * wolker_chat_message_assistant.html
+* wolker_chat_controls.html (zadávání odpovědí, sdílení...)
+
 ### wolker_image.py
 Výsledek generování obrázku:
 * result_image.html
