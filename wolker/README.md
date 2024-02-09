@@ -3,7 +3,7 @@
 ### share.py / post.py
 Prostě jak se výsledky skládají do stránky, která se pak sdílí a promítá atd...
 
-Vezmou se vstupy z parametrů, postupně se za sebe naskládají, a vytvořené HTML se uloží do souboru `genouts/key.html`
+Vezmou se vstupy z parametrů, postupně se za sebe naskládají, a vytvořené HTML se uloží do souboru `genouts/{key}.html` (key je datum a čas vygenerování příspěvku)
 
 Jednotlivé parametry se vizualizují skrzevá různé html soubory s návodným jménem, v tomto pořadí:
 * title: název příspěvku (share_title.html)
@@ -22,3 +22,7 @@ Výsledek generování obrázku:
 ### gallery.py
 * gallery_admin_head.html (pokud je to admin)
 * gallery_head.html
+* pro každý příspěvek:
+  * `genouts/{key}.html`
+  * gallery_admin_sharebutton.html (pokud je to admin)
+  * gallery_sep.html
