@@ -74,3 +74,17 @@ def page(page=None, replacements={}):
     footer = return_file('footer.html')
     return header, body, footer
 
+# show public post
+def post(key):
+    header = return_file('header_static.html')
+    
+    filename = f'genouts/{key}.html'
+    if key and key.isnumeric() and os.path.isfile(filename):
+        body = common.return_file(filename)
+    else:
+        body = f"Nelze zobrazit soubor se zadaným klíčem '{key}'"
+
+    footer = return_file('footer.html')
+
+    return header, body, footer
+

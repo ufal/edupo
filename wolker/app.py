@@ -17,15 +17,25 @@ def get_replacements():
     return replacements
 
 # serve static files in the given subdirectories
-@bottle.route('/wtr/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<style>')
-def static(directory, style):
-    return bottle.static_file(style, directory)
+@bottle.route('/wtr/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
+def static(directory, filename):
+    return bottle.static_file(filename, directory)
 
 # serve simple pages
 @bottle.route('/wtr/', method='ANY')
 @bottle.route('/wtr/page.py', method='ANY')
 def page():
     return common.page(get_page(), get_replacements())
+
+
+# public access to posts: serve at different path!
+@bottle.route('/wolker/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
+def public_static(directory, filename):
+    return bottle.static_file(filename, directory)
+
+@bottle.route('/wolker/<key>')
+def public_post():
+    return common.post(key)
 
 application = bottle.default_app()
 
