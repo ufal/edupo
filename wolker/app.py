@@ -45,7 +45,7 @@ def public_static(directory, filename):
     return bottle.static_file(filename, directory)
 
 @bottle.route('/wolker/<key>')
-def public_post():
+def public_post(key):
     return common.post(key)
 
 application = bottle.default_app()
