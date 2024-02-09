@@ -28,14 +28,13 @@ def page():
     return common.page(get_page(), get_replacements())
 
 # serve specific pages
-@bottle.route('/wtr/slideshow.py', method='ANY')
-def slideshow():
-    import slideshow
-    return slideshow.main()
-
+import slideshow
+mains = {
+    'slideshow': slideshow.main,
+}
 @bottle.route('/wtr/<page:re:(gallery|slideshow).py>', method='ANY')
 def dynamic_page(page):
-    return eval(f"import {page}; {page}.main()", {}, {})
+    return mains[page]()
 
 # public access to posts: serve at different path!
 @bottle.route('/wolker/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
