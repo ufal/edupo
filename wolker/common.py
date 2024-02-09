@@ -8,6 +8,7 @@ import os.path
 import random
 from datetime import datetime
 from image_generation import get_image_for_line
+import wolker_interactive
 
 OUTPUTDIR = 'genouts'
 DEFAULTPAGE = 'welcome'
@@ -170,3 +171,25 @@ def wolker_image(prompt, replacements):
     
     return files
 
+def wolker_chat(text='', assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk', thread_id=None):
+    files = []
+
+    # invoke the chatbot
+    messages, roles, thread_id = wolker_interactive.talk_threaded(
+            text, assistant_id, thread_id)
+
+    # compose the page
+    files.append(return_file('header.html'))
+    files.append(replace_and_return_file(
+        'wolker_chat_head.html', {}))
+    for message, role in zip(messages, roles):
+        # role is user or assistant
+        files.append(replace_and_return_file(
+            f'wolker_chat_message_{role}.html',
+            {'CONTENT': nl2br(message)}))
+    files.append(replace_and_return_file(
+        'wolker_chat_controls.html',
+        {'THREAD_ID': thread_id, 'ASSISTANT_ID': assistant_id}))
+    files.append(return_file('footer.html'))
+    
+    return files
