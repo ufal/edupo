@@ -85,7 +85,7 @@ def post(key):
     
     filename = f'genouts/{key}.html'
     if key and key.isnumeric() and os.path.isfile(filename):
-        body = common.return_file(filename)
+        body = return_file(filename)
     else:
         body = f"Nelze zobrazit soubor se zadaným klíčem '{key}'"
 
