@@ -8,51 +8,24 @@ import common
 
 common.header()
 
+# input parameters
 form = cgi.FieldStorage()
 text = form.getvalue("text", "")
-thread_id = form.getvalue("thread_id", None)
 assistant_id = form.getvalue('assistant_id', 'asst_oEwl7wnhGDi5JDvAdE92GgWk')
+thread_id = form.getvalue("thread_id", None)
 
-# TODO check if data filled in
-
-message = text
+# invoke the chatbot
 messages, roles, thread_id = wolker_interactive.talk_threaded(
-        message, assistant_id, thread_id)
+        text, assistant_id, thread_id)
 
+# compose the page
+common.replace_and_write_out_file('wolker_chat_head.html', {})
 for message, role in zip(messages, roles):
     # role is user or assistant
-    print(f'<p class="{role}">{common.nl2br(message)}</p>')
-
-print(f"""
-    <form method="post">
-        <textarea name="text" rows="4" cols="60"></textarea>
-        <input type="hidden" name="thread_id" value="{thread_id}">
-        <br>
-        <input type="submit" value="Odpovědět">
-    </form>
-    """)
-
-print('<br><hr><br>')
-
-print(f"""
-    <form method="post" action="share.py">
-        <p>
-        Sdílej text s ostatními. Promítneme ho v galerii. Vybrané příspěvky
-        budou zveřejněny v knize a na sociálních sítích.
-        </p>
-        
-        <input type="hidden" name="thread_id" value="{thread_id}">
-        
-        <p>
-        Uveď své jméno nebo přezdívku, jestli chceš:
-        <input name="author">
-        </p>
-        
-        <input type="submit" value="Sdílet text bez obrázku">
-    </form>
-    """)
-
-print('<br><hr><br>')
+    common.replace_and_write_out_file(f'wolker_chat_message_{role}.html',
+            {'CONTENT': common.nl2br(message)})
+common.replace_and_write_out_file('wolker_chat_controls.html',
+        {'THREAD_ID': thread_id, 'ASSISTANT_ID': assistant_id})
 
 # TODO umožnit se sem pak ještě vrátit k úpravě popisiku obrázku?
 print(f"""
@@ -63,10 +36,5 @@ print(f"""
         <input name="submit" type="submit" value="Vytvoř k textu obrázek">
     </form>
     """)
-
-# Pokračovat dál v konverzaci:
-# Skončenou konverzaci můžeš veřejně sdílet v Galerii; promítne se v muzeu a bude vidět online!
-# Ke skončené konverzaci můžeš vygenerovat obrázek!
-# Popiš několika slovy nebo několika větami, jak by měl vypadat obrázek k této konverzaci:
 
 common.footer()

@@ -1,9 +1,10 @@
 <form method="post" action="page.py">
     <p>Pokud nejsi spokojený s výsledkem, můžeš se vrátit zpátky a upravit popis obrázku:</p>
-    <input name="page" type="hidden" value="BACK">
-    <input name="replacements" type="hidden" value="text,title">
-    <input name="text" type="hidden" value="TEXT">
-    <input name="title" type="hidden" value="TITLE">
+    <input type="hidden" name="page" value="BACK">
+    <input type="hidden" name="replacements" value="text,title,thread_id">
+    <input type="hidden" name="text" value="TEXT">
+    <input type="hidden" name="title" value="TITLE">
+    <input type="hidden" name="thread_id" value="THREAD_ID">
     <input name="submit" type="submit" value="Upravit">
 </form> 
 

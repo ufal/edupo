@@ -1,0 +1,35 @@
+<form method="post">
+    <textarea name="text" rows="4" cols="60"></textarea>
+    <input type="hidden" name="thread_id" value="THREAD_ID">
+    <input type="hidden" name="assistant_id" value="ASSISTANT_ID">
+    <br>
+    <input type="submit" value="Odpovědět">
+</form>
+
+<br><hr><br>
+
+<form method="post" action="share.py">
+    <p>
+    Sdílej text s ostatními. Promítneme ho v galerii. Vybrané příspěvky
+    budou zveřejněny v knize a na sociálních sítích.
+    </p>
+    
+    <input type="hidden" name="thread_id" value="THREAD_ID">
+    
+    <p>
+    Uveď své jméno nebo přezdívku, jestli chceš:
+    <input name="author">
+    </p>
+    
+    <input type="submit" value="Sdílej text">
+</form>
+
+<br><hr><br>
+
+<form method="post" action="page.py">
+    <input type="hidden" name="page" value="wolker_chat_illustrate">
+    <input type="hidden" name="replacements" value="thread_id">
+    <input type="hidden" name="thread_id" value="THREAD_ID">
+    <input type="submit" value="Doplň text ilustrací">
+</form>
+
