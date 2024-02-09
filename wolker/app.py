@@ -23,6 +23,7 @@ def static(directory, filename):
 
 # serve simple generic pages
 @bottle.route('/wtr/', method='ANY')
+@bottle.route('/wtr/index.py', method='ANY')
 @bottle.route('/wtr/page.py', method='ANY')
 def page():
     return common.page(get_page(), get_replacements())
@@ -38,6 +39,11 @@ mains = {
 @bottle.route('/wtr/<page:re:(gallery|slideshow)>.py', method='ANY')
 def dynamic_page(page):
     return mains[page]()
+
+# admin gallery: at different path!
+@bottle.route('/panwtr/gallery.py')
+def admin_gallery():
+    return gallery.main('admin')
 
 # public access to posts: serve at different path!
 @bottle.route('/wolker/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
