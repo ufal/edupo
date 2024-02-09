@@ -218,18 +218,18 @@ def share_page(form):
     get_append('title')
     get_append('text')
     for message, role in zip(messages, roles):
-        append(f'message_{role}', common.nl2br(message))
+        append(f'message_{role}', nl2br(message))
     get_append('image')
     get_append('author')
 
     # write out into file
-    filename_out = common.get_filename()
+    filename_out = get_filename()
     with open(f'{OUTPUTDIR}/{filename_out}.html', 'w') as outfile:
         print(*result, sep='\n', file=outfile)
 
     # get and show sharing QR code
     import qrcode
-    base_url = common.return_file('share_baseurl.txt').strip()
+    base_url = return_file('share_baseurl.txt').strip()
     url = f'{base_url}{filename_out}'
     img = qrcode.make(url)
     img.save(f'qrcodes/{filename_out}.png')
