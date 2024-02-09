@@ -1,3 +1,16 @@
+## Skládání stránek
+
+Stránky jsou primárně v HTML.
+
+Dynamiky se dosahuje tím, že tam jsou kapitálkama parametry, keré se nahradí vhodnými hodnotami.
+Takže typicky věci jako TEXT, TITLE, IMAGE, KEY... jsou automaticky nahrazeny za správné hodnoty.
+
+Většina stránek jsou tak jednoduché, že ani nemají vlastní PY skript. Místo toho používají společný skript `page.py`, který podle hodnoty parametru `page` zobrazí správný HTML soubor (a případně dle hodnoty parametru `replacements` nahradí zadané parametry).
+Parametr může být GET i POST, takže stránku lze zobrazit buď skrzevá formulář, který má `action="page.py"` a skrze hidden input definuje hodnotu parametru `page`; ale taky lze prostě udělat odkaz na `page.py?page=stranka`.
+Hodnota parametru `page` je název HTML souboru *bez přípony*; tj. např. `page.py?page=credits` zobrazí stránku `credits.html`.
+
+Není ale dobré odkazovat přímo na HTML soubor, protože pak by tam chyběl header a footer
+
 ## Skládání složitějších stránek
 
 ### share.py / post.py
