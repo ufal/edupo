@@ -3,6 +3,7 @@
 
 import random
 import cgi
+import os
 from datetime import datetime
 
 DEFAULTPAGE = 'welcome'
