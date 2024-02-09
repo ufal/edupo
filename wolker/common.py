@@ -15,7 +15,11 @@ def write_out_file(filename):
         print(infile.read())
 
 DEFAULTPAGE = 'welcome'
+
 def replace_and_write_out_file(filename=None, replacements={}):
+    print(replace_and_return_file(filename, replacements)
+
+def replace_and_return_file(filename=None, replacements={}):
     if not filename:
         # get from parameters
         # WARNING: this eats up the parameters for everyone!
@@ -39,7 +43,7 @@ def replace_and_write_out_file(filename=None, replacements={}):
         text = infile.read()
         for key in replacements:
             text = text.replace(key, replacements[key])
-        print(text)
+        return text
 
 def header(subtype=''):
     print("Content-type: text/html")

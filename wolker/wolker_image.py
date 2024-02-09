@@ -23,12 +23,12 @@ prompt = prefix + text
 if title:
     prompt += f' The image accompanies the text called: {title}'
 print(f'<!-- {prompt} -->')
-image_filename = get_image_for_line(prompt)
+image = get_image_for_line(prompt)
 
 # TODO check for errors
 
 replacements = {
-        'DEFAULTIMAGE': image_filename,
+        'DEFAULTIMAGE': image,
         'THREAD_ID': thread_id,
         'TEXT': text,
         'TITLE': title,

@@ -8,42 +8,42 @@ import wolker_interactive
 
 common.header()
 
+# get inputs
 form = cgi.FieldStorage()
-typ = form.getvalue("typ", "")
-image_filename = form.getvalue("image_filename", "")
-title = form.getvalue("title", "")
-text = form.getvalue("text", "")
 thread_id = form.getvalue("thread_id", "")
-author = form.getvalue("author", "")
-
-# TODO check if data filled in
-
-result = []
-if title:
-    result.append(f'<h2>{title}</h2>')
-if text:
-    result.append(f'<p>{text}</p>')
 if thread_id:
     messages, roles = wolker_interactive.get_thread_messages(thread_id)
-    for message, role in zip(messages, roles):
-        result.append(f'<p class="{role}">{common.nl2br(message)}</p>')
-if image_filename:
-    result.append(f'<img src="genimgs/{image_filename}.png">')
-if author:
-    result.append(f'<address>{author}</address>')
+else:
+    messages, roles = [], []
 
-html = '\n'.join(result)
+def append(result, field, value):
+    html = replace_and_return_file(f'share_{field}.html', {'CONTENT': value})
+    result.append(html)
 
+def get_append(result, field, form):
+    value = form.getvalue(field, None)
+    if value:
+        append(result, field, value)
+
+# construct result
+result = []
+get_append(result, 'title', form)
+get_append(result, 'text', form)
+for message, role in zip(messages, roles):
+    append(result, f'message_{role}', common.nl2br(message))
+get_append(result, 'image', form)
+get_append(result, 'author', form)
+
+# write out into file
 filename_out = common.get_filename()
-
 with open(f'genouts/{filename_out}.html', 'w') as outfile:
-    print(html, file=outfile)
+    print(*result, sep='\n', file=outfile)
 
+# get and show sharing QR code
 import qrcode
 url = f'https://ufal.mff.cuni.cz/AIvK/edupo/wolker/post.py?key={filename_out}'
 img = qrcode.make(url)
 img.save(f'qrcodes/{filename_out}.png')
-
 common.replace_and_write_out_file('share.html', {'KEY': filename_out})
 
 common.footer()
