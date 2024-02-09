@@ -20,9 +20,13 @@ def get_replacements():
 def static(root, directory, filename):
     return bottle.static_file(filename, directory)
 
-# serve simple generic pages
+# intro
 @bottle.route('/wtr/', method='ANY')
 @bottle.route('/wtr/index.py', method='ANY')
+def intro():
+    return common.page('intro.html', get_replacements())
+
+# serve simple generic pages
 @bottle.route('/wtr/page.py', method='ANY')
 def page():
     return common.page(get_page(), get_replacements())
