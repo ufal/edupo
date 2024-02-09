@@ -2,7 +2,7 @@
 #coding: utf-8
 
 with open('apikey.txt') as infile:
-    apikey = infile.read()
+    apikey = infile.read().strip()
 
 from openai import OpenAI
 import time
