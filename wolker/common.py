@@ -209,8 +209,8 @@ def share_page(form):
         if value:
             append(field, value)
 
-    if thread_id:
-        messages, roles = wolker_interactive.get_thread_messages(thread_id)
+    if form['thread_id']:
+        messages, roles = wolker_interactive.get_thread_messages(form['thread_id'])
     else:
         messages, roles = [], []
 
