@@ -55,7 +55,11 @@ def replace_and_return_file(filename=None, replacements={}):
         replacements = get_replacements(form)
 
     return _replace_and_return_file(filename, replacements)
-    
+   
+def httpheader():
+    print("Content-type: text/html")
+    print()
+
 def header(subtype=''):
     print("Content-type: text/html")
     print()

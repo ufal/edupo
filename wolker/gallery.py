@@ -33,4 +33,6 @@ def main(typ=''):
 if __name__=="__main__":
     form = cgi.FieldStorage()
     typ = form.getvalue("typ", "")
+    
+    common.httpheader()
     print(main(typ), sep='\n')
