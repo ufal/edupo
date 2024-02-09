@@ -33,6 +33,10 @@ def slideshow():
     import slideshow
     return slideshow.main()
 
+@bottle.route('/wtr/<page:re:(gallery|slideshow).py>', method='ANY')
+def dynamic_page(page):
+    return eval(f"import {page}; {page}.main()", {}, {})
+
 # public access to posts: serve at different path!
 @bottle.route('/wolker/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
 def public_static(directory, filename):
