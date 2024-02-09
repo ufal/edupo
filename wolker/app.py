@@ -21,12 +21,17 @@ def get_replacements():
 def static(directory, filename):
     return bottle.static_file(filename, directory)
 
-# serve simple pages
+# serve simple generic pages
 @bottle.route('/wtr/', method='ANY')
 @bottle.route('/wtr/page.py', method='ANY')
 def page():
     return common.page(get_page(), get_replacements())
 
+# serve specific pages
+@bottle.route('/wtr/slideshow.py')
+def slideshow():
+    import slideshow
+    return slideshow.main()
 
 # public access to posts: serve at different path!
 @bottle.route('/wolker/<directory:path:re:(css|genimgs|fa-symbols|fonts).*>/<filename>')
