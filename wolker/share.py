@@ -40,7 +40,8 @@ with open(f'genouts/{filename_out}.html', 'w') as outfile:
 
 # get and show sharing QR code
 import qrcode
-url = f'https://ufal.mff.cuni.cz/AIvK/edupo/wolker/post.py?key={filename_out}'
+base_url = common.return_file('share_baseurl.txt').strip()
+url = f'{base_url}{filename_out}'
 img = qrcode.make(url)
 img.save(f'qrcodes/{filename_out}.png')
 common.replace_and_write_out_file('share.html', {'KEY': filename_out})
