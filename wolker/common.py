@@ -7,6 +7,7 @@ import os
 import os.path
 import random
 from datetime import datetime
+from image_generation import get_image_for_line
 
 OUTPUTDIR = 'genouts'
 DEFAULTPAGE = 'welcome'
@@ -151,5 +152,21 @@ def gallery(typ=''):
     
     return files
 
+def wolker_image(prompt, replacements):
+    files = []
+    files.append(return_file('header.html'))
 
+    # TODO check for errors
+    files.append(f'<!-- {prompt} -->')
+    image = get_image_for_line(prompt)
+    replacements['IMAGE'] = image
+    
+    files.append(replace_and_return_file(
+        'result_image.html', replacements))
+    if replacements['BACK']:
+        files.append(replace_and_return_file(
+            'result_image_backlink.html', replacements))
+    files.append(return_file('footer.html'))
+    
+    return files
 

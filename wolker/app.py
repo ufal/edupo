@@ -8,9 +8,10 @@ def get_page():
         page = DEFAULTPAGE
     return f"{page}.html"
 
-def get_replacements():
+def get_replacements(names=[]):
     replacements = {}
-    names = bottle.request.params.replacements.split(',')
+    if not names:
+        names = bottle.request.params.replacements.split(',')
     for name in names:
         replacements[name.upper()] = bottle.request.params.getunicode(name, '')
     return replacements
@@ -32,6 +33,13 @@ def page():
     return common.page(get_page(), get_replacements())
 
 # serve specific pages
+@bottle.route('/wtr/wolker_image.py', method='ANY')
+def wolker_image():
+    form = bottle.request.params
+    prompt = f"{form.title} {form.prefix} {form.text}"
+    replacements = get_replacements(['image', 'thread_id', 'text', 'title', 'back'])
+    return common.wolker_image(prompt, replacements)
+
 @bottle.route('/wtr/gallery.py', method='ANY')
 def gallery():
     return common.gallery()
