@@ -68,5 +68,5 @@ def page():
     header = return_file('header.html')
     body = replace_and_return_file()
     footer = return_file('footer.html')
-    return '\n'.join(header, body, footer)
+    return '\n'.join([header, body, footer])
 
