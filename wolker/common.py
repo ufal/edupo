@@ -11,6 +11,10 @@ def get_filename():
     return datetime.now().strftime("%Y%m%d%H%M%S")
     # + random.randrange(10000000, 100000000) ... randseed je time takže bych potřeboval seed
 
+def return_file(filename):
+    with open(filename) as infile:
+        return infile.read()
+
 def write_out_file(filename):
     with open(filename) as infile:
         print(infile.read())
@@ -60,4 +64,9 @@ def footer():
 def nl2br(text):
     return text.replace('\n', '<br>')
 
+def page():
+    header = return_file('header.html')
+    body = replace_and_return_file()
+    footer = return_file('footer.html')
+    return '\n'.join(header, body, footer)
 
