@@ -28,7 +28,7 @@ def page():
     return common.page(get_page(), get_replacements())
 
 # serve specific pages
-@bottle.route('/wtr/slideshow.py')
+@bottle.route('/wtr/slideshow.py', method='ANY')
 def slideshow():
     import slideshow
     return slideshow.main()
