@@ -6,12 +6,14 @@ import os
 import os.path
 import random
 
+OUTPUTDIR = 'genouts'
+
 def getctime(item):
-    item_path = os.path.join(DIR, item)
+    item_path = os.path.join(OUTPUTDIR, item)
     return os.path.getctime(item_path)
 
-def choose_candidate(DIR='genouts'):
-    candidates = os.listdir(DIR)
+def choose_candidate():
+    candidates = os.listdir(OUTPUTDIR)
 
     # randomly choose whether to use weights or not
     if random.randint(0, 1) == 0:
@@ -27,7 +29,7 @@ def choose_candidate(DIR='genouts'):
             weight *= decay
         candidate = random.choices(candidates, weights=weights)[0]
     
-    return f'{DIR}/{candidate}'
+    return f'{OUTPUTDIR}/{candidate}'
 
 def main():
     files = [
@@ -35,7 +37,7 @@ def main():
         choose_candidate(),
         'footer.html',
     ]
-    return [return_file(f) for f in files]
+    return [common.return_file(f) for f in files]
 
 if __name__=="__main__":
     print(main(), sep='\n')
