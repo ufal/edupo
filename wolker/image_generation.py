@@ -84,37 +84,38 @@ def generate_image_openai(prompt, filename):
         response_format="b64_json",
     )
 
-    # response.data[0].revised_prompt
-
     imgdata = response.data[0].b64_json
     store_image(imgdata, filename)
 
+    return response.data[0].revised_prompt
+
 def generate_image(prompt, seed, filename):
     try:
-        generate_image_openai(prompt, filename)
+        return generate_image_openai(prompt, filename)
     except:
         generate_image_sd(prompt, seed, filename)
-
+        return prompt
 
 def _get_image_for_line(line, seed):
+    prompt = line
     try:
         filename = text2id(line) + '_' + str(seed)
         filename_full = f'{IMGDIR}/{filename}.png'
         if not os.path.isfile(filename_full):
-            generate_image(line, seed, filename_full)
+            prompt = generate_image(line, seed, filename_full)
     except Exception as e:
-        message = f'AI Soul: Cannot generate image "{filename}" for "{line}": {e}'
+        message = f'Cannot generate image "{filename}" for "{line}": {e}'
         logging.warning(message)
         print(message)
         filename = "DEFAULTIMAGE"
     
-    return filename
+    return filename, prompt
 
 def get_image_for_line(line, seed = None):
     if not seed:
         seed = random.randint(0, 10000000)
-    filename = _get_image_for_line(line, seed)
-    return filename
+    filename, prompt = _get_image_for_line(line, seed)
+    return filename, prompt
 
 if __name__=="__main__":
     line = input('Image decsription:')

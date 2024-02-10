@@ -154,14 +154,18 @@ def gallery(typ=''):
     
     return files
 
+def prompt_in_comment(prompt):
+    escaped_prompt = prompt.replace('>', ' >')
+    return f'<!-- {escaped_prompt} -->'
+
 def wolker_image(prompt, replacements):
     files = []
     files.append(return_file('header.html'))
 
     # TODO check for errors
-    escaped_prompt = prompt.replace('>', ' >')
-    files.append(f'<!-- {escaped_prompt} -->')
-    image = get_image_for_line(prompt)
+    files.append(prompt_in_comment(prompt))
+    image, prompt = get_image_for_line(prompt)
+    files.append(prompt_in_comment(prompt))
     replacements['IMAGE'] = image
     
     files.append(replace_and_return_file(
@@ -176,6 +180,7 @@ def wolker_image(prompt, replacements):
 def wolker_chat(text='', assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk', thread_id=None):
     files = []
 
+    # TODO check for errors
     # invoke the chatbot
     messages, roles, thread_id = wolker_interactive.talk_threaded(
             text, assistant_id, thread_id)
