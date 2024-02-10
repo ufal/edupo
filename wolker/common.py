@@ -159,7 +159,8 @@ def wolker_image(prompt, replacements):
     files.append(return_file('header.html'))
 
     # TODO check for errors
-    files.append(f'<!-- {prompt} -->')
+    escaped_prompt = prompt.replace('>', ' >')
+    files.append(f'<!-- {escaped_prompt} -->')
     image = get_image_for_line(prompt)
     replacements['IMAGE'] = image
     
