@@ -1,49 +1,36 @@
 <div class="link-list">
-
-    <!--
-        tak uz asi chapu, z ceho ten zmatek - zmatlo me, ze je tady ten welcome text. Usuzoval jsem z toho na to, ze tohle je welcome screen.
-        Chapu ale teda spravne, ze toto je rozcestnik, ze ten welcome text je na strance index.py, a z teto stranky ma zmizet (a tedy ne buttony pod nim)?
-        Beru, ze je to tak a ten text teda zakomentovavam.
-    -->
-    <!--
-    Sdílejte s námi vaše představy, myšlenky, citlivost i vnímání světa kolem. Nechte se inspirovat vášní, odvahou a schopností vytvářet hluboké emoce. Za pomoci skloubení světu literatury a umělé inteligence vytvářejte své vlastní návrhy, vize a staňte se Jiřím Wolkerem.
-    <br><br>
-    Seznamte se s Jiřím Wolkerem blíže na časové ose, v ostatních textech i pod QR kódy, které doplňují výstavu doprovodnými informacemi. Jste zváni na poutavou a inspirativní cestu slov, která propojují minulost, přítomnost i budoucnost.
-    <br><br>
-    Usedněte do autorova křesla a začněte tvořit a sdílet poezii, povídky, ilustrace… s #JiriWolkerMGP – ať už zde, nebo na vlastních zařízeních. Na protější straně, v kuželu světla vašich příspěvků se staňte umělci, kurátory i diváci své výstavy. Nakonec se můžete stát jedním ze spoluautorů knihy, která bude ze sdílených příspěvků vydaná.
-    -->
-
-    <!--
-        vymenuju texty v kazdem z linku podle toho, jak jsem v poslednim schvalenem designu (pripadne je mozne to revertnout)
-    -->
     
     <form method="post" action="page.py" class="form-as-link">
         <input name="page" type="hidden" value="welcome_wolker_image">
         <input name="replacements" type="hidden" value="text,title">
-        <button type="submit" class="big">
-            vytvoř foto s Wolkerem
+        <button type="submit">
+            <p>Kým by byl Jiří Wolker dnes?</p>
+            <p class="small">Vytvoř portrét JW v současnosti</p>
         </button>
     </form> 
         
     <form method="post" action="page.py" class="form-as-link">
         <input name="page" type="hidden" value="welcome_wolker_chat">
-        <button type="submit" class="big">
-            popovídej si s Wolkerem
-        </button>
+        <button type="submit">
+             <p>Jakými tématy by se Jiří Wolker dnes zabýval?</p>
+              <p class="small">Vytvoř text na tvé téma, nebo si o něm promluv s virtuální osobností JW</p>
+          </button>
     </form> 
         
     <form method="post" action="page.py" class="form-as-link">
         <input name="page" type="hidden" value="welcome_wolker_poem">
         <input name="replacements" type="hidden" value="text,title">
-        <button type="submit" class="big">
-            rýmuj s Wolkerem
+        <button type="submit">
+            <p>Vytvoř ilustraci k básni Jiřího Wolkera</p>
+             <p class="small">Vyber si báseň JW a doprovoď ji obrazem</p>
         </button>
     </form> 
         
     <form method="post" action="welcome_wolker_feel.py" class="form-as-link">
         <input name="replacements" type="hidden" value="text,title">
-        <button type="submit" class="big">
-            vytvoř ilustraci k Wolkerově básni
+        <button type="submit">
+            <p>Rýmuj s Wolkerem</p>
+            <p class="small">Vytvoř báseň společně s JW</p>
         </button>
     </form>
 
