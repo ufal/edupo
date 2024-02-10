@@ -61,31 +61,16 @@
     <br>
     <br>
     
-    <p>Tohle tu nebude, to je jen proteď:</p>
-    
     <fieldset>
-        <legend>Galerie výtvorů</legend>
+        <legend>Tohle tu nebude, to je jen proteď:</legend>
+        
         <form method="post" action="gallery.py">
-            <p>podívejte se, co vytvořili návštěvníci před Vámi</p>
-            <input name="submit" type="submit" value="Do galerie">
-        </form> 
-    </fieldset>
-    
-    <fieldset>
-        <legend>Galerie výtvorů PRO ADMINISTRÁTORA</legend>
-        <form method="post" action="gallery.py">
-            <p>Možnost správy a sdílení</p>
             <input name="typ" type="hidden" value="admin">
-            <input name="submit" type="submit" value="Do galerie PRO ADMINISTRÁTORA">
+            <input name="submit" type="submit" value="Do galerie PRO ADMINISTRÁTORA (odkaz bude mít jen správce galerie)">
         </form> 
-    </fieldset>
-    
-    
-    <fieldset>
-        <legend>Slideshow výtvorů</legend>
+        
         <form method="post" action="slideshow.py">
-            <p>slideshow pro zobrazení na projektoru</p>
-            <input name="submit" type="submit" value="Spustit slideshow">
+            <input name="submit" type="submit" value="Spustit slideshow (bude se promítat na projektoru)">
         </form> 
     </fieldset>
 
