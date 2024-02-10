@@ -14,6 +14,10 @@
 
 /* *** Layout ******************* */
 
+.offset-top {
+    margin-top: 50px;
+}
+
 .max-block-width {
     max-width: 768px;
     margin-left: auto;
