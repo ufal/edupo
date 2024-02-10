@@ -1,4 +1,4 @@
-<div id="link-list">
+<div class="link-list">
 
     <!--
         tak uz asi chapu, z ceho ten zmatek - zmatlo me, ze je tady ten welcome text. Usuzoval jsem z toho na to, ze tohle je welcome screen.
@@ -16,18 +16,18 @@
     <!--
         vymenuju texty v kazdem z linku podle toho, jak jsem v poslednim schvalenem designu (pripadne je mozne to revertnout)
     -->
-
+    
     <form method="post" action="page.py" class="form-as-link">
         <input name="page" type="hidden" value="welcome_wolker_image">
         <input name="replacements" type="hidden" value="text,title">
-        <button type="submit">
+        <button type="submit" class="big">
             vytvoř foto s Wolkerem
         </button>
     </form> 
         
     <form method="post" action="page.py" class="form-as-link">
         <input name="page" type="hidden" value="welcome_wolker_chat">
-        <button type="submit">
+        <button type="submit" class="big">
             popovídej si s Wolkerem
         </button>
     </form> 
@@ -35,14 +35,14 @@
     <form method="post" action="page.py" class="form-as-link">
         <input name="page" type="hidden" value="welcome_wolker_poem">
         <input name="replacements" type="hidden" value="text,title">
-        <button type="submit">
+        <button type="submit" class="big">
             rýmuj s Wolkerem
         </button>
     </form> 
         
     <form method="post" action="welcome_wolker_feel.py" class="form-as-link">
         <input name="replacements" type="hidden" value="text,title">
-        <button type="submit">
+        <button type="submit" class="big">
             vytvoř ilustraci k Wolkerově básni
         </button>
     </form>
