@@ -62,7 +62,6 @@ p.note .icon {
 /* *** Forms ******************** */
 
 form.form-as-button,
-form.form-as-link,
 form.standard {
     display: flex;
     align-items: center;
@@ -71,7 +70,6 @@ form.standard {
 }
 
 form.form-as-button button,
-form.form-as-link button,
 form.standard button {
     display: flex;
     border: none;
@@ -200,47 +198,58 @@ form.standard button {
 
 /* *** Form links *************** */
 
-form.form-as-link button {
-    color: white;
-    align-self: center;
-    font-weight: 400;
-    background: transparent;
+.link-list {
+    gap: 50px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
 }
 
-form.form-as-link button:before {
+form.form-as-link {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: start;
+}
+
+form.form-as-link button {
+    font-family: "IBMPlexMono";
+    font-size: 48px;
+    color: white;
+    font-weight: 400;
+
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+
+}
+
+form.form-as-link button p {
+    margin: 0;
+    padding: 0;
+}
+
+form.form-as-link button p:first-of-type {
+    font-size: xx-large;
+    margin-bottom: 20px;
+    position: relative;
+    padding: 0 20px;
+}
+
+form.form-as-link button p:first-of-type:before {
     content: '';
+    width: 24px;
+    height: 24px;
+    top: 9px;
+    left: -20px;
+    position: absolute;
+    font-weight: 700;
     align-self: stretch;
 }
 
-form.form-as-link button:hover {
-    font-weight: 700;
-}
-
-form.form-as-link button:hover:before {
+form.form-as-link button p:first-of-type:hover:before {
     background-position: center;
     background-repeat: no-repeat;
     filter: brightness(0) invert(1);
     background-image: url('../fa-symbols/solid/arrow-right.svg');
-}
-
-form.form-as-link button.big {
-    gap: 30px;
-    font-size: 48px;
-    margin: 30px 0;
-    margin-left: -54px;
-}
-
-form.form-as-link button.big:before {
-    width: 24px;
-}
-
-form.form-as-link button.small {
-    gap: 15px;
-    font-size: x-large;
-    margin: 15px 0;
-    margin-left: -30px;
-}
-
-form.form-as-link button.small:before {
-    width: 15px;
 }
