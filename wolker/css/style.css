@@ -75,9 +75,6 @@ main {
     hyphens: auto;
     font-size: large;
     font-family: "PTSerif-Regular";
-    max-width: 768px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 #welcome button {
