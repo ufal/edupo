@@ -2,6 +2,8 @@
     --blue: #3054A5;
 }
 
+/* *** Fonts ******************** */
+
 .font-ptserif {
     font-family: "PTSerif-Regular";
 }
@@ -10,19 +12,61 @@
     font-family: "IBMPlexMono";
 }
 
+/* *** Layout ******************* */
+
+.max-block-width {
+    max-width: 768px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* *** Base elements ************ */
+
 a {
     color: inherit;
     text-decoration: inherit;
 }
 
+h1 {
+    margin: 0;
+    font-size: 40px;
+    font-weight: normal;
+    font-family: "PTSerif-Regular";
+}
+
+p {
+    font-size: large;
+    font-family: "PTSerif-Regular";
+}
+
+/* *** Forms ******************** */
+
+p.note {
+    font-size: medium;
+    margin: 36px 0 24px 0;
+    font-family: "IBMPlexMono";
+}
+
+p.note .icon {
+    width: 13px;
+    height: 13px;
+    display: inline-block;
+}
+
+/* *** Forms ******************** */
+
 form.form-as-button,
-form.form-as-link {
+form.form-as-link,
+form.standard {
     display: flex;
+    align-items: flex-start;
+    flex-direction: column;
     justify-content: center;
 }
 
 form.form-as-button button,
-form.form-as-link button {
+form.form-as-link button,
+form.standard button {
     display: flex;
     border: none;
     outline: none;
@@ -32,9 +76,13 @@ form.form-as-link button {
     font-family: "IBMPlexMono";
 }
 
-form.form-as-button button {
+/* *** Form buttons ************* */
+
+form.form-as-button button,
+form.standard button {
     gap: 12px;
     min-width: 250px;
+    align-self: center;
     color: var(--blue);
     font-size: medium;
     padding: 16px 36px;
@@ -42,24 +90,48 @@ form.form-as-button button {
     border-radius: 30px;
 }
 
-form.form-as-button button .fa-icon {
-    width: 11px;
+form.form-as-button button .fa-icon,
+form.standard button .fa-icon {
+    width: 13px;
     display: inline-block;
 }
 
-form.form-as-link button {
-    gap: 30px;
+/* *** Form standard ************ */
+
+form.standard textarea {
     color: white;
+    font-size: medium;
+    font-family: "IBMPlexMono";
+    align-self: center;
     background: transparent;
-    font-size: 48px;
+    border: 0;
+    border-top: 1px solid white;
+    border-bottom: 1px solid white;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    outline: none;
+}
+
+form.standard textarea::placeholder {
+    color: white;
+}
+
+form.standard button {
+    margin-top: 40px;
+}
+
+/* *** Form links *************** */
+
+form.form-as-link button {
+    color: white;
+    align-self: center;
     font-weight: 400;
-    margin: 30px 0;
+    background: transparent;
 }
 
 form.form-as-link button:before {
     content: '';
-    width: 24px;
-    height: 100%;
+    align-self: stretch;
 }
 
 form.form-as-link button:hover {
@@ -71,4 +143,26 @@ form.form-as-link button:hover:before {
     background-repeat: no-repeat;
     filter: brightness(0) invert(1);
     background-image: url('../fa-symbols/solid/arrow-right.svg');
+}
+
+form.form-as-link button.big {
+    gap: 30px;
+    font-size: 48px;
+    margin: 30px 0;
+    margin-left: -54px;
+}
+
+form.form-as-link button.big:before {
+    width: 24px;
+}
+
+form.form-as-link button.small {
+    gap: 15px;
+    font-size: x-large;
+    margin: 15px 0;
+    margin-left: -30px;
+}
+
+form.form-as-link button.small:before {
+    width: 15px;
 }
