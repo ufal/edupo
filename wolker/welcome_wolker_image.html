@@ -1,13 +1,23 @@
-<fieldset>
-    <legend>Kým by Jiří Wolker byl dnes ? </legend>
-    <form method="post" action="wolker_image.py">
-        <p>Vytvoř portrét JW v současnosti</p>
-        <p>Popiš několika slovy nebo větami, jakou by měl dnes JW podobu, společenskou roli a styl.</p>
+<div id="wolker-dnes" class="max-block-width">
+    <h1>Kým by Jiří Wolker byl dnes?</h1>
+    <p>Vytvořte fotografii Jiřího wolkera v současnosti</p>
+    <p class="note">
+        <img class="icon fa-icon" src="./fa-symbols/regular/info-circle.svg">
+        Popište několika slovy nebo větami,<br>jaký by podle vás byl Jiří Wolker dnes a jak by vypadal:
+    </p>
+    
+    <form method="post" action="wolker_image.py" class="standard">
+        
         <input name="title" type="hidden" value="Kým by Jiří Wolker byl dnes">
         <input name="back" type="hidden" value="welcome_wolker_image">
         <input name="prefix" type="hidden" value="Portrét mladého českého básníka Jiřího Wolkera, který žil na začátku 20. století, ale jako by žil dnes. Popis toho, jaký by dnes byl: ">
-        <input name="text" size=50 value="TEXT">
-        <input name="submit" type="submit" value="Vytvoř obrázek">
-    </form> 
-</fieldset>
+        <textarea name="text" rows="4" cols="60" placeholder="pište sem"></textarea>
+        
+        <button type="submit" name="submit" value="Vytvoř obrázek">
+            <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
+            Generovat obrázek
+        </button>
+        
+    </form>
+</div>
 
