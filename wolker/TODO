@@ -1,0 +1,21 @@
+
+wolker_chat_illustrate.html
+
+možná prefix něco jako: Image accompanying a poetic generated text, as a
+conversation between the user and a young Czech poet from the beginning on the
+20th century. A ideálně k tomu ještě držet, jaké bylo téma rozhovoru, a to tam
+taky zahrnout.
+
+
+
+common.wolker_image
+
+kontrolovat chyby (try except), při chybě buď umět říct že chyba, a/nebo aspoň
+ukázat nějakej náhradní obrázek (smutnej wolker? mrtvej virutální wolker?)
+
+
+common.wolker_chat
+
+kontrolovat chyby (try except), při chybě asi říct že je chyba
+
+
