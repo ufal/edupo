@@ -161,6 +161,34 @@ def prompt_in_comment(prompt):
     escaped_prompt = prompt.replace('>', ' >')
     return f'<!-- {escaped_prompt} -->'
 
+import poems
+def get_poem_htmls():
+    poem_tuples = poems.poems()
+    poem_htmls = []
+    poemid = 0
+    for title, text in poem_tuples:
+        replacements = {
+                'POEMID': str(poemid),
+                'TITLE': title,
+                'TEXT': text}
+        poem_htmls.append(_replace_and_return_file('poem.html', replacements))
+        poemid += 1
+    return poem_htmls
+
+def wolker_feel(title='', text=''):
+    poem_htmls = get_poem_htmls()
+    replacements = {
+            'TITLE': title,
+            'TEXT': text,
+            'COUNT': str(len(poem_htmls))}
+    header = return_file('header.html')
+    body = _replace_and_return_file(
+            'welcome_wolker_feel.html', replacements
+            ).replace('POEMS', '\n'.join(poem_htmls))
+    footer = return_file('footer.html')
+    return header, body, footer
+
+
 def wolker_image(title, prefix, text, replacements):
     files = []
     files.append(return_file('header.html'))
@@ -180,6 +208,9 @@ def wolker_image(title, prefix, text, replacements):
     if replacements['BACK']:
         files.append(replace_and_return_file(
             'result_image_backlink.html', replacements))
+    elif replacements['BACKFULL']:
+        files.append(replace_and_return_file(
+            'result_image_backfulllink.html', replacements))
     files.append(return_file('footer.html'))
     
     return files

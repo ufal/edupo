@@ -36,7 +36,8 @@ def page():
 @bottle.route('/wtr/wolker_image.py', method='ANY')
 def wolker_image():
     form = bottle.request.params
-    replacements = get_replacements(['image', 'thread_id', 'text', 'title', 'back'])
+    replacements = get_replacements([
+        'image', 'thread_id', 'text', 'title', 'back', 'backfull'])
     return common.wolker_image(form.title, form.prefix, form.text, replacements)
 
 @bottle.route('/wtr/wolker_chat.py', method='ANY')
@@ -46,6 +47,11 @@ def wolker_chat():
             form.text,
             form.getunicode('assistant_id', 'asst_oEwl7wnhGDi5JDvAdE92GgWk'),
             form.thread_id)
+
+@bottle.route('/wtr/welcome_wolker_feel.py', method='ANY')
+def wolker_feel():
+    form = bottle.request.params
+    return common.wolker_feel(form.title, form.text)
 
 @bottle.route('/wtr/share.py', method='ANY')
 def share_page():
