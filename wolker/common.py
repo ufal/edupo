@@ -38,7 +38,7 @@ def _replace_and_return_file(filename, replacements):
     with open(filename) as infile:
         text = infile.read()
         for key in replacements:
-            value = html.escape(replacements[key], quote=True)
+            value = BR2br(html.escape(replacements[key], quote=True))
             text = text.replace(key, value)
         return text
 
@@ -76,8 +76,11 @@ def header(subtype=''):
 def footer():
     write_out_file('footer.html')
 
-def nl2br(text):
-    return text.replace('\n', '<br>')
+def nl2BR(text):
+    return text.replace('\n', '[BR]')
+
+def BR2br(text):
+    return text.replace('[BR]', '<br>')
 
 # for handling bottle
 def page(page=None, replacements={}):
@@ -193,7 +196,7 @@ def wolker_chat(text='', assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk', thread_id
         # role is user or assistant
         files.append(replace_and_return_file(
             f'wolker_chat_message_{role}.html',
-            {'CONTENT': nl2br(message)}))
+            {'CONTENT': nl2BR(message)}))
     files.append(replace_and_return_file(
         'wolker_chat_controls.html',
         {'THREAD_ID': thread_id, 'ASSISTANT_ID': assistant_id}))
@@ -210,7 +213,7 @@ def share_page(form):
     def append(field, value):
         text = replace_and_return_file(
                 f'share_{field}.html',
-                {'CONTENT': nl2br(value)})
+                {'CONTENT': nl2BR(value)})
         result.append(text)
 
     def get_append(field):
