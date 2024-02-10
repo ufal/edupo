@@ -1,13 +1,27 @@
-<fieldset>
-    <legend>Vytvoř ilustraci k básni Jiřího Wolkera.</legend>
-    <form method="post" action="wolker_image.py">
-        <p>Vyber si báseň a doprovoď ji obrazem</p>
-        <p>Popiš několika slovy nebo větami, jak by vypadal obrázek, ilustrující vybranou báseň JW.</p>
+<div id="ilustrace-basne" class="max-block-width">
+    <form method="post" action="wolker_image.py" class="standard">
+
+        <h1>Vytvořte ilustraci k básni Jiřího Wolkera</h1>
+        
+        <p>Vyberte si báseň Jiřího wolkera a doprovoďte ji obrazem</p>
+        
         <input name="prevfull" type="hidden" value="welcome_wolker_feel.py">
         <input name="prefix" type="hidden" value="Obrázek ilustující báseň napsanou mladým českým levicovým básníkem Jiřím Wolkerem na začátku 20. století. Popis obrázku: ">
-        Název básně: <select name="title">POEMS</select>
-        Popis obrázku: <input name="text" size=50 value="TEXT"><br>
-        <input name="submit" type="submit" value="Vytvoř obrázek">
-    </form> 
-</fieldset>
+        
+        <select name="title">POEMS</select>
+        
+        <p class="note">
+            <img class="icon fa-icon" src="./fa-symbols/regular/info-circle.svg">
+            Popište několika slovy nebo několika větami,<br>jak by měl vypadat obrázek ilustrující vybranou báseň J. Wolkera:
+        </p>
+        
+        <textarea name="text" rows="4" cols="60" placeholder="pište sem"></textarea>
+        
+        <button type="submit" name="submit" value="Vygenerovat obrázek">
+            <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
+            Vygenerovat obrázek
+        </button>
+        
+    </form>
+</div>
 
