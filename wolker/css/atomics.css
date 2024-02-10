@@ -1,5 +1,7 @@
 :root {
-    --blue: #3054A5;
+    /* --blue: #3054A5; */
+    --blue: #0000DC;
+    --extra-light-blue: #D6DDED;
 }
 
 /* *** Fonts ******************** */
@@ -92,12 +94,84 @@ form.standard button {
     padding: 16px 36px;
     background: white;
     border-radius: 30px;
+
+    transition: all .3s;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+form.form-as-button button:hover:before,
+form.form-as-button button.show-loading:before,
+form.standard button:hover:before,
+form.standard button.show-loading:before {
+    width: 100%;
 }
 
 form.form-as-button button .fa-icon,
 form.standard button .fa-icon {
     width: 13px;
     display: inline-block;
+}
+
+form.form-as-button button:after,
+form.standard button:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border-radius: 30px;
+    z-index: -2;
+}
+
+form.form-as-button button:before,
+form.standard button:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 100%;
+    background-color: var(--extra-light-blue);
+    transition: all .3s;
+    border-radius: 10rem;
+    z-index: -1;
+}
+
+form.form-as-button button.show-loading:before,
+form.standard button.show-loading:before {
+    transition: none;
+}
+
+form.form-as-button button:active,
+form.form-as-button button.show-loading,
+form.standard button:active,
+form.standard button.show-loading {
+    color: transparent;
+    transition: color 200ms ease;
+}
+
+form.form-as-button button:active .fa-icon,
+form.form-as-button button.show-loading .fa-icon,
+form.standard button:active .fa-icon,
+form.standard button.show-loading .fa-icon {
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+form.form-as-button button.show-loading:before,
+form.standard button.show-loading:before {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url('../images/tube-spinner.svg');
+}
+
+form.form-as-button button.big.show-loading:before,
+form.standard button.big.show-loading:before {
+    background-size: 40px 40px;
 }
 
 /* *** Form standard ************ */
