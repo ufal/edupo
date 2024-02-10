@@ -35,6 +35,16 @@ Chatování s Wolkerem:
   * wolker_chat_message_assistant.html
 * wolker_chat_controls.html (zadávání odpovědí, sdílení...)
 
+### welcome_wolker_feel.py
+Generování k básní:
+* welcome_wolker_feel.html
+  * COUNT: nahradí se za počet básní
+  * POEMS: nahradí se za jednotlivé básně (COUNT-krát za sebe slepené `poem.html`)
+* poem.html -- pro každou báseň
+  * POEMID: 0 až COUNT-1
+  * TITLE: název
+  * TEXT: text, nyní s opravdovými newlines (proto je to uvnitř `<pre>`); můžu tam provést nahrazní newlines za `<br>` když mi někdo řekne :-)
+
 ### wolker_image.py
 Výsledek generování obrázku:
 * result_image.html
