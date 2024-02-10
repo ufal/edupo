@@ -205,12 +205,12 @@ def wolker_image(title, prefix, text, replacements):
     
     files.append(replace_and_return_file(
         'result_image.html', replacements))
-    if replacements['BACK']:
-        files.append(replace_and_return_file(
-            'result_image_backlink.html', replacements))
-    elif replacements['BACKFULL']:
+    if replacements['BACKFULL']:
         files.append(replace_and_return_file(
             'result_image_backfulllink.html', replacements))
+    elif replacements['BACK']:
+        files.append(replace_and_return_file(
+            'result_image_backlink.html', replacements))
     files.append(return_file('footer.html'))
     
     return files
