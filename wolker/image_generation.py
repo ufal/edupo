@@ -13,6 +13,7 @@ from PIL import Image, PngImagePlugin
 import json
 import logging
 import random
+from openai import OpenAI
 
 ### Image generation
 
@@ -42,8 +43,14 @@ def text2id(text, add_text=False):
     else:
         return hash64
 
+def store_image(imgdata, filename):
+    bytestream = io.BytesIO(base64.b64decode(imgdata))
+    
+    with open(filename, "wb") as outfile:
+        outfile.write(bytestream.getbuffer())
+
 # Based on https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API
-def generate_image(prompt, seed, filename):
+def generate_image_sd(prompt, seed, filename):
     payload = {
         "prompt": prompt,
         "steps": 13,
@@ -53,11 +60,41 @@ def generate_image(prompt, seed, filename):
 
     response = requests.post(SDURL_TXT2IMG, json=payload)
 
-    imgdata = response.json()['images'][0]
-    bytestream = io.BytesIO(base64.b64decode(imgdata.split(",",1)[0]))
+    imgdata = response.json()['images'][0].split(",",1)[0]
+    store_image(imgdata, filename)
+
+
+# https://platform.openai.com/docs/guides/images/usage?context=python
+# https://platform.openai.com/docs/api-reference/images/create
+def generate_image_openai(prompt, filename):
+    with open('apikey.txt') as infile:
+        apikey = infile.read().strip()
     
-    with open(filename, "wb") as outfile:
-        outfile.write(bytestream.getbuffer())
+    client = OpenAI(
+        organization='org-926n4JNQeMTeU94X6FKZS8c3',
+        api_key=apikey
+    )
+    
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=prompt,
+        size="1024x1024",
+        quality="standard",
+        n=1,
+        response_format="b64_json",
+    )
+
+    # response.data[0].revised_prompt
+
+    imgdata = response.data[0].b64_json
+    store_image(imgdata, filename)
+
+def generate_image(prompt, seed, filename):
+    try:
+        generate_image_openai(prompt, filename)
+    except:
+        generate_image_sd(prompt, seed, filename)
+
 
 def _get_image_for_line(line, seed):
     try:
