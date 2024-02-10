@@ -1,10 +1,22 @@
-<fieldset>
-    <legend>Rýmuj s Jiřím Wolkerem</legend>
-    <form method="post" action="wolker_chat.py">
-        <p>Navrhni, o čem bude báseň a poté dokonči verše vytvořené virtuální osobností JW.</p>
+<div id="rymuj-s-wolkerem" class="max-block-width">
+    
+    <h1>Rýmuj s AI Wolkerem</h1>
+    
+    <p>Navrhněte vlastní téma básně a poté dokončete verše vygenerované AI Wolkerem svou představou</p>
+    
+    <p class="note">
+        <img class="icon fa-icon" src="./fa-symbols/regular/info-circle.svg">
+        Na jaké téma zkusíte společně s AI Wolkerem napsat báseň?
+    </p>
+    
+    <form method="post" action="wolker_chat.py" class="standard">
         <input name="back" type="hidden" value="welcome_wolker_poem">
         <input name="assistant_id" type="hidden" value="asst_LgQ4uc0GEqSZwsMjSl0IeUiH">
-        <input name="text" size=50 value="TEXT">
-        <input name="submit" type="submit" value="Psát báseň">
-    </form> 
-</fieldset>
+        <textarea name="text" rows="4" cols="60" placeholder="pište sem"></textarea>
+        <button type="submit" name="submit" value="Psát báseň">
+            <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
+            Psát báseň
+        </button>
+    </form>
+    
+</div>
