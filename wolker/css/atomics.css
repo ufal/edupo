@@ -26,6 +26,17 @@
     margin-right: auto;
 }
 
+.max-big-block-width {
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.flex {
+    gap: 30px;
+    display: flex;
+}
+
 /* *** Base elements ************ */
 
 a {
