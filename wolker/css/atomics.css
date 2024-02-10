@@ -63,7 +63,7 @@ form.form-as-button,
 form.form-as-link,
 form.standard {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     flex-direction: column;
     justify-content: center;
 }
