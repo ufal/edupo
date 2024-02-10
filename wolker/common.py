@@ -9,6 +9,7 @@ import random
 from datetime import datetime
 from image_generation import get_image_for_line
 import wolker_interactive
+import html
 
 OUTPUTDIR = 'genouts'
 DEFAULTPAGE = 'welcome'
@@ -37,7 +38,8 @@ def _replace_and_return_file(filename, replacements):
     with open(filename) as infile:
         text = infile.read()
         for key in replacements:
-            text = text.replace(key, replacements[key])
+            value = html.escape(replacements[key], quote=True)
+            text = text.replace(key, value)
         return text
 
 def replace_and_write_out_file(filename=None, replacements={}):
@@ -200,8 +202,10 @@ def share_page(form):
     result = []
 
     def append(field, value):
-        html = replace_and_return_file(f'share_{field}.html', {'CONTENT': value})
-        result.append(html)
+        text = replace_and_return_file(
+                f'share_{field}.html',
+                {'CONTENT': nl2br(value)})
+        result.append(text)
 
     def get_append(field):
         value = form.get(field, None)
@@ -217,7 +221,7 @@ def share_page(form):
     get_append('title')
     get_append('text')
     for message, role in zip(messages, roles):
-        append(f'message_{role}', nl2br(message))
+        append(f'message_{role}', message)
     get_append('image')
     get_append('author')
 
