@@ -162,7 +162,7 @@ def prompt_in_comment(prompt):
     return f'<!-- {escaped_prompt} -->'
 
 import poems
-def get_poem_htmls():
+def get_poem_htmls_KARUSEL_UNUSED():
     poem_tuples = poems.poems()
     poem_htmls = []
     poemid = 0
@@ -173,6 +173,14 @@ def get_poem_htmls():
                 'TEXT': text}
         poem_htmls.append(_replace_and_return_file('poem.html', replacements))
         poemid += 1
+    return poem_htmls
+
+def get_poem_htmls():
+    poem_titles = poems.titles()
+    poem_htmls = []
+    for title in poem_titles:
+        replacements = {'TITLE': title}
+        poem_htmls.append(_replace_and_return_file('poemoption.html', replacements))
     return poem_htmls
 
 def wolker_feel(title='', text=''):

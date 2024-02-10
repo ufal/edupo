@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
+def titles():
+    return  ['Okna', 'Pokora', 'Těžká hodina']
+
 def poems():
     return  [
 ('Okna', 
