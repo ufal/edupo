@@ -37,7 +37,7 @@ def page():
 def wolker_image():
     form = bottle.request.params
     replacements = get_replacements([
-        'image', 'thread_id', 'text', 'title', 'back', 'backfull'])
+        'image', 'thread_id', 'text', 'title', 'back', 'prevfull'])
     return common.wolker_image(form.title, form.prefix, form.text, replacements)
 
 @bottle.route('/wtr/wolker_chat.py', method='ANY')

@@ -11,6 +11,6 @@ if __name__=="__main__":
     prefix = form.getvalue("prefix", "")
     text = form.getvalue("text", "")
     replacements = common.get_replacements(
-            form, ['image', 'thread_id', 'text', 'title', 'back', 'backfull'])
+            form, ['image', 'thread_id', 'text', 'title', 'back', 'prevfull'])
     print(*common.wolker_image(title, prefix, text, replacements), sep='\n')
 

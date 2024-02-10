@@ -205,7 +205,7 @@ def wolker_image(title, prefix, text, replacements):
     
     files.append(replace_and_return_file(
         'result_image.html', replacements))
-    if replacements['BACKFULL']:
+    if replacements['PREVFULL']:
         files.append(replace_and_return_file(
             'result_image_backfulllink.html', replacements))
     elif replacements['BACK']:
