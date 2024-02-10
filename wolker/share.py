@@ -4,11 +4,10 @@
 import cgi
 import common
 
-if __name__=="__main__":
-    common.httpheader()
-    cgiform = cgi.FieldStorage()
-    form = {}
-    for field in ['thread_id', 'title', 'text', 'image', 'author']:
-        form[field] = cgiform.getvalue(field, '')
-    print(*common.share_page(form), sep='\n')
+common.httpheader()
+cgiform = cgi.FieldStorage()
+form = {}
+for field in ['thread_id', 'title', 'text', 'image', 'author']:
+    form[field] = cgiform.getvalue(field, '')
+print(*common.share_page(form), sep='\n')
 

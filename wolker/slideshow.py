@@ -3,7 +3,6 @@
 
 import common
 
-if __name__=="__main__":
-    common.httpheader()
-    print(*common.slideshow(), sep='\n')
+common.httpheader()
+print(*common.slideshow(), sep='\n')
 

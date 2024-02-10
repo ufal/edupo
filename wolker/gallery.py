@@ -4,9 +4,8 @@
 import common
 import cgi
 
-if __name__=="__main__":
-    form = cgi.FieldStorage()
-    typ = form.getvalue("typ", "")
-    
-    common.httpheader()
-    print(*common.gallery(typ), sep='\n')
+form = cgi.FieldStorage()
+typ = form.getvalue("typ", "")
+
+common.httpheader()
+print(*common.gallery(typ), sep='\n')
