@@ -161,9 +161,13 @@ def prompt_in_comment(prompt):
     escaped_prompt = prompt.replace('>', ' >')
     return f'<!-- {escaped_prompt} -->'
 
-def wolker_image(prompt, replacements):
+def wolker_image(title, prefix, text, replacements):
     files = []
     files.append(return_file('header.html'))
+
+    if title:
+        title = f"{title}: "
+    prompt = f"{title}{prefix}{text}"
 
     # TODO check for errors
     files.append(prompt_in_comment(prompt))
@@ -225,6 +229,11 @@ def share_page(form):
         messages, roles = wolker_interactive.get_thread_messages(form['thread_id'])
     else:
         messages, roles = [], []
+    
+    # if there is text but not title, use text as title
+    if form['text'] and not form['title']:
+        form['title'] = form['text']
+        form['text'] = ''
 
     # construct result
     get_append('title')
