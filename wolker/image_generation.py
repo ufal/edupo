@@ -119,5 +119,7 @@ def get_image_for_line(line, seed = None):
 
 if __name__=="__main__":
     line = input('Image decsription:')
-    print(f"{IMGDIR}/{get_image_for_line(line, 1987)}.png")
+    filename, prompt = get_image_for_line(line, 1987)
+    print(f"{IMGDIR}/{filename}.png")
+    print(prompt)
     
