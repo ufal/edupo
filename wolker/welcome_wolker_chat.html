@@ -1,35 +1,38 @@
-<div id="chatuj-s-wolkerem" class="max-block-width">
+<div id="chatuj-s-wolkerem" class="max-big-block-width">
     
     <h1>Jakými tématy by se Jiří Wolker dnes zabýval ? aneb Gen-Z Wolker</h1>
     
-    <p>Vytvořte text na vaše téma, nebo o něm konverzujte s virtuální osobností JW</p>
+    <p>Vytvoř text na tvé téma, nebo si o něm promluv s virtuální osobností JW</p>
     
-    <div class="link-list offset-top">
-        <form method="post" action="page.py" class="form-as-link">
+    <div class="flex offset-top">
+        <form method="post" action="page.py" class="form-as-button">
             <input name="page" type="hidden" value="welcome_wolker_chat_topic">
             <input name="replacements" type="hidden" value="text,task,short,assistant_id">
             <input name="task" type="hidden" value="Popiš několika slovy nebo větami téma o kterém by JW dnes složil báseň">
             <input name="assistant_id" type="hidden" value="asst_itMYhVAs2RxGQvqRRXRIzwrj">
-            <button name="short" type="submit" class="small" value="Vytvoř na tvé téma báseň">
-                vytvoř na tvé téma báseň
+            <button name="short" type="submit" value="Vytvoř na tvé téma báseň">
+                <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
+                Vytvořit báseň
             </button>
         </form> 
-        <form method="post" action="page.py" class="form-as-link">
+        <form method="post" action="page.py" class="form-as-button">
             <input name="page" type="hidden" value="welcome_wolker_chat_topic">
             <input name="replacements" type="hidden" value="text,task,short,assistant_id">
             <input name="task" type="hidden" value="Popiš několika slovy nebo větami téma o kterém by JW dnes napsal úvahu">
             <input name="assistant_id" type="hidden" value="asst_GrxKyRg78kAdfUvWmHjyEipM">
-            <button name="short" type="submit" class="small" value="Vytvoř na tvé téma úvahu">
-                vytvoř na tvé téma úvahu
+            <button name="short" type="submit" value="Vytvoř na tvé téma úvahu">
+                <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
+                Vytvořit úvahu
             </button>
         </form> 
-        <form method="post" action="page.py" class="form-as-link">
+        <form method="post" action="page.py" class="form-as-button">
             <input name="page" type="hidden" value="welcome_wolker_chat_topic">
             <input name="replacements" type="hidden" value="text,task,short,assistant_id">
             <input name="task" type="hidden" value="Chatuj o tématech, která tě zajímají. Čím začneš konverzaci s virtuální osobností JW?">
             <input name="assistant_id" type="hidden" value="asst_j2pqoIQ3dHKf1BwpywJh0RUg">
-            <button name="short" type="submit" class="small" value="Povídej si s JW">
-                povídej si s JW
+            <button name="short" type="submit" value="Povídej si s JW">
+                <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
+                Povídat si s Wolkerem
             </button>
         </form> 
     </div>
