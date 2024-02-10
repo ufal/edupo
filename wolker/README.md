@@ -38,6 +38,12 @@ Chatování s Wolkerem:
 ### welcome_wolker_feel.py
 Generování k básní:
 * welcome_wolker_feel.html
+  * POEMS: nahradí se za jednotlivé básně (COUNT-krát za sebe slepené `poemoption.html`)
+* poemoption.html -- pro každou báseň
+  * TITLE: název
+
+TOHLE JE VARIANTA DĚLANÁ PRO KARUSEL, TEĎ TO JE VYHOZENÉ:
+* welcome_wolker_feel.html
   * COUNT: nahradí se za počet básní
   * POEMS: nahradí se za jednotlivé básně (COUNT-krát za sebe slepené `poem.html`)
 * poem.html -- pro každou báseň
