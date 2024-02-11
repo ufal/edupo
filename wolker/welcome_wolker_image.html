@@ -6,14 +6,14 @@
         Popiš několika slovy nebo větami,<br>jaký by podle tebe byl JW dnes a jak by vypadal:
     </p>
     
-    <form method="post" action="wolker_image.py" class="standard">
+    <form method="post" action="wolker_image.py" class="standard" onsubmit="this.submit.classList.add('show-loading')">
         
         <input name="title" type="hidden" value="Zde je obrázek odpovídající tvému zadání">
         <input name="back" type="hidden" value="welcome_wolker_image">
         <input name="prefix" type="hidden" value="Portrét mladého českého básníka Jiřího Wolkera, který žil na začátku 20. století, ale jako by žil dnes. Popis toho, jaký by dnes byl: ">
         <textarea name="text" rows="4" cols="60" placeholder="Piš sem"></textarea>
         
-        <button type="submit" class="big" name="submit" value="Vytvoř obrázek" onclick="this.classList.add('show-loading')">
+        <button type="submit" class="big" name="submit" value="Vytvoř obrázek">
             <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
             Generovat obrázek
         </button>
