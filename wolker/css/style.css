@@ -124,11 +124,11 @@ main {
     animation-delay: 0s;
 }
 
-#chat > p.animate.roll-from-left {
+#chat > p.animate:nth-last-child(2) {
     animation: roll-from-left .3s ease-in;
 }
 
-#chat > p.animate.roll-from-right {
+#chat > p.animate:nth-last-child(1) {
     animation: roll-from-right .3s ease-in;
 }
 
