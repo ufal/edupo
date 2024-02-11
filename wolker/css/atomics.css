@@ -24,6 +24,10 @@
     margin-bottom: 50px;
 }
 
+.no-margin-top {
+    margin-top: 0;
+}
+
 .max-block-width {
     max-width: 768px;
     margin-left: auto;
@@ -97,10 +101,6 @@ form.standard button {
 
 form.standard.half {
     width: 50%;
-}
-
-form.standard:first-child {
-    margin-top: 0;
 }
 
 /* *** Form buttons ************* */
