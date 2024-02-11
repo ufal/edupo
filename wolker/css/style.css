@@ -80,3 +80,14 @@ main {
 #welcome button {
     margin-top: 150px;
 }
+
+.img-with-forms {
+    gap: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+#generated-img {
+    width: 512px;
+    margin: auto;
+}
