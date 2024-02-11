@@ -1,5 +1,5 @@
 <div id="ilustrace-basne" class="max-block-width">
-    <form method="post" action="wolker_image.py" class="standard">
+    <form method="post" action="wolker_image.py" class="standard" onsubmit="this.submit.classList.add('show-loading')">
 
         <h1>Vytvoř ilustraci k básni Jiřího Wolkera</h1>
         
@@ -17,7 +17,7 @@
         
         <textarea name="text" rows="4" cols="60" placeholder="Piš sem"></textarea>
         
-        <button type="submit" class="big" name="submit" value="Vygenerovat obrázek" onclick="this.classList.add('show-loading')">
+        <button type="submit" class="big" name="submit" value="Vygenerovat obrázek">
             <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
             Vygenerovat obrázek
         </button>
