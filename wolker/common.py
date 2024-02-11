@@ -73,8 +73,8 @@ def header(subtype=''):
     print()
     write_out_file(f'header{subtype}.html')
 
-def footer():
-    write_out_file('footer.html')
+def footer(subtype=''):
+    write_out_file(f'footer{subtype}.html')
 
 def nl2BR(text):
     return text.replace('\n', '[BR]')
