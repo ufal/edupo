@@ -1,10 +1,14 @@
-
-<p>Výsledek je nyní veřejně sdílen v Galerii.</p>
-<p>Pomocí QR kódu můžete výsledek sdílet i na svém mobilním telefonu.</p>
-
-<img src="qrcodes/KEY.png">
-
-<br>
-<form method="post" action="index.py">
-    <input name="submit" type="submit" value="Jít na začátek">
-</form>
+<div id="share">
+    
+    <p class="offset-bottom">Výsledek je nyní veřejně sdílen v Galerii.</p>
+    <img id="generated-img" src="qrcodes/KEY.png">
+    <p class="offset-bottom">Můžeš si ho načíst mobilním telefonem z QR kódu</p>
+    
+    <form method="post" action="index.py" class="form-as-button">
+        <button name="submit" class="big" type="submit" value="Jít na začátek">
+            <img class="fa-icon blue" src="./fa-symbols/light/undo.svg">
+            Jít na začátek
+        </button>
+    </form> 
+    
+</div>
