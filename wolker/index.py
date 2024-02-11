@@ -5,4 +5,4 @@ import common
 
 common.header('_static')
 common.write_out_file('intro.html')
-common.footer()
+common.footer('_with_links')
