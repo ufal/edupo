@@ -8,6 +8,8 @@
 .form_as_button input {font-size: x-large}
 /* END */
 
+/* *** Base layout ************** */
+
 body {
     color: white;
     background-color: var(--blue);
@@ -71,6 +73,8 @@ main {
     align-self: stretch;
 }
 
+/* *** Welcome ****************** */
+
 #welcome {
     hyphens: auto;
     font-size: large;
@@ -81,15 +85,68 @@ main {
     margin-top: 150px;
 }
 
-.img-with-forms {
-    gap: 30px;
+/* *** Chat ********************* */
+
+@keyframes roll-from-left {
+    from {
+        opacity: 0;
+        margin-left: -100%;
+    }
+    to {
+        opacity: 1;
+        margin-left: 0;
+    }
+}
+
+@keyframes roll-from-right {
+    from {
+        opacity: 0;
+        margin-right: -100%;
+    }
+    to {
+        opacity: 1;
+        margin-right: 0;
+    }
+}
+
+#chat {
+    gap: 20px;
     display: flex;
     flex-direction: column;
 }
 
-#generated-img {
-    width: 512px;
-    margin: auto;
+#chat > p {
+    margin: 0;
+    font-size: x-large;
+}
+
+#chat > p.animate {
+    animation-delay: 0s;
+}
+
+#chat > p.animate.roll-from-left {
+    animation: roll-from-left .3s ease-in;
+}
+
+#chat > p.animate.roll-from-right {
+    animation: roll-from-right .3s ease-in;
+}
+
+#chat-response .title {
+    margin: 50px 0 20px 0;
+}
+
+/* *** Share ******************** */
+
+#share {
+    display: flex;
+    flex-direction: column;
+}
+
+.img-with-forms {
+    gap: 30px;
+    display: flex;
+    flex-direction: column;
 }
 
 .horizontal-forms-holder {
@@ -99,7 +156,7 @@ main {
     gap: 50px;
 }
 
-#share {
-    display: flex;
-    flex-direction: column;
+#generated-img {
+    width: 512px;
+    margin: auto;
 }
