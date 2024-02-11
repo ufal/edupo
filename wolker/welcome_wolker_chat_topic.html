@@ -1,12 +1,16 @@
-<fieldset>
-    <legend>Jakými tématy by se Jiří Wolker dnes zabýval ? aneb Gen-Z Wolker</legend>
-    <form method="post" action="wolker_chat.py">
-        <p>TASK</p>
+<div id="wolker-chat-temata" class="max-block-width">
+    <h1>Jakými tématy by se Jiří Wolker dnes zabýval?</h1>
+    <p>TASK</p>
+    
+    <form method="post" action="wolker_chat.py" class="standard">
         <input name="back" type="hidden" value="welcome_wolker_chat_topic">
-        <input name="text" size=50 value="TEXT">
         <input name="assistant_id" type="hidden" value="ASSISTANT_ID">
         <input name="task" type="hidden" value="TASK">
-        <input name="short" type="submit" value="SHORT">
-    </form> 
-</fieldset>
-
+        <textarea name="text" rows="4" cols="60" placeholder="Piš sem">TEXT</textarea>
+        <button type="submit" class="big" value="SHORT" onclick="this.classList.add('show-loading')">
+            <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
+            SHORT
+        </button>
+    </form>
+    
+</div>
