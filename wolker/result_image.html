@@ -1,8 +1,10 @@
 <div class="img-with-forms">
     <p>TITLE</p>
     <img id="generated-img" src="genimgs/IMAGE.png">
-    
-    <form method="post" action="share.py">
+</div>
+
+<div class="horizontal-forms-holder">
+    <form method="post" class="standard small half" action="share.py">
         <p>Sdílej výsledek s ostatními. Promítneme ho v galerii. Vybrané příspěvky budou zveřejněny v knize a na sociálních sítích.</p>
         <input name="image" type="hidden" value="IMAGE">
         <input name="thread_id" type="hidden" value="THREAD_ID">
@@ -12,5 +14,4 @@
         Uveď své jméno nebo přezdívku, jestli chceš: <input name="author">
         <br>
         <input name="submit" type="submit" value="Sdílet">
-    </form> 
-</div>
+    </form>
