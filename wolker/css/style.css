@@ -98,3 +98,8 @@ main {
     align-items: start;
     gap: 50px;
 }
+
+#share {
+    display: flex;
+    flex-direction: column;
+}
