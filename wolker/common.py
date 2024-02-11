@@ -241,6 +241,8 @@ def wolker_chat(text='', assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk', thread_id
             f'wolker_chat_message_{role}.html',
             {'CONTENT': nl2BR(message)}))
     files.append(replace_and_return_file(
+        'wolker_chat_footer.html', {}))
+    files.append(replace_and_return_file(
         'wolker_chat_controls.html',
         {'THREAD_ID': thread_id, 'ASSISTANT_ID': assistant_id}))
     files.append(return_file('footer.html'))
