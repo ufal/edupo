@@ -13,30 +13,23 @@
     </form>
 </div>
 
-<br><hr><br>
+<div class="horizontal-forms-holder offset-top">
+    <form method="post" class="standard half" action="share.py">
+        <input type="hidden" name="thread_id" value="THREAD_ID">
 
-<form method="post" action="share.py">
-    <p>
-    Sdílej text s ostatními. Promítneme ho v galerii. Vybrané příspěvky
-    budou zveřejněny v knize a na sociálních sítích.
-    </p>
-    
-    <input type="hidden" name="thread_id" value="THREAD_ID">
-    
-    <p>
-    Uveď své jméno nebo přezdívku, jestli chceš:
-    <input name="author">
-    </p>
-    
-    <input type="submit" value="Sdílej text">
-</form>
-
-<br><hr><br>
-
-<form method="post" action="page.py">
-    <input type="hidden" name="page" value="wolker_chat_illustrate">
-    <input type="hidden" name="replacements" value="thread_id,text">
-    <input type="hidden" name="thread_id" value="THREAD_ID">
-    <input type="submit" value="Doplň text ilustrací">
-</form>
-
+        <!-- Vypouští se input author (místo něj posílám text), takže to asi bude potřeba zohlednit -->
+        <textarea name="text" rows="4" cols="60" placeholder="Napiš sem popis obrázku a své jméno, profil nebo přezdívku"></textarea>
+        <p>Výsledek můžeš veřejně sdílet. Promítneme ho v galerii a možná i v knize na soc. sítích</p>
+        <button type="submit" name="submit" class="small" value="Sdílej text">
+            <img class="fa-icon blue" src="./fa-symbols/regular/paper-plane.svg">
+            Sdílet
+        </button>
+    </form>
+    <form method="post" class="standard half" action="page.py">
+        <input type="hidden" name="page" value="wolker_chat_illustrate">
+        <input type="hidden" name="replacements" value="thread_id,text">
+        <input type="hidden" name="thread_id" value="THREAD_ID">
+        
+        <input type="submit" value="Doplň text ilustrací">
+    </form>
+</div>
