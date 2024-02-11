@@ -3,7 +3,6 @@
 
 import common
 
-common.header()
+common.header('_static')
 common.write_out_file('intro.html')
 common.footer()
-
