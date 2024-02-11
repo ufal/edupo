@@ -236,6 +236,32 @@ form.standard button {
     margin-top: 40px;
 }
 
+/* *** Form selects ************* */
+
+form.standard select {
+    gap: 12px;
+    appearance: none;
+    min-width: 280px;
+    align-self: center;
+    color: var(--blue);
+    font-size: medium;
+    padding: 16px 36px 16px 56px;
+    color: white;
+    border: 1px solid white;
+    background: transparent;
+    border-radius: 30px;
+    
+    background-repeat: no-repeat;
+    filter: brightness(0) invert(1);
+    background-size: 21px 21px;
+    background-position: 24px center;
+    background-image: url(../fa-symbols/regular/chevron-down.svg);
+}
+
+form.standard select option {
+    color: var(--blue);
+}
+
 /* *** Form links *************** */
 
 .link-list {
