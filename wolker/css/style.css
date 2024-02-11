@@ -91,3 +91,10 @@ main {
     width: 512px;
     margin: auto;
 }
+
+.horizontal-forms-holder {
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+    gap: 50px;
+}

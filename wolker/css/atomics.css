@@ -20,6 +20,10 @@
     margin-top: 50px;
 }
 
+.offset-bottom {
+    margin-bottom: 50px;
+}
+
 .max-block-width {
     max-width: 768px;
     margin-left: auto;
@@ -91,6 +95,10 @@ form.standard button {
     font-family: "IBMPlexMono";
 }
 
+form.standard.half {
+    width: 50%;
+}
+
 /* *** Form buttons ************* */
 
 form.form-as-button button,
@@ -100,7 +108,7 @@ form.standard button {
     align-self: center;
     color: var(--blue);
     font-size: medium;
-    padding: 16px 36px;
+    padding: 0 36px;
     background: white;
     border-radius: 30px;
 
@@ -108,6 +116,18 @@ form.standard button {
     position: relative;
     overflow: hidden;
     z-index: 1;
+}
+
+form.form-as-button button.big,
+form.standard button.big {
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+form.form-as-button button.small,
+form.standard button.small {
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
 form.form-as-button button:hover:before,
@@ -176,6 +196,11 @@ form.standard button.show-loading:before {
     background-position: center;
     background-repeat: no-repeat;
     background-image: url('../images/tube-spinner.svg');
+}
+
+form.form-as-button button.small.show-loading:before,
+form.standard button.small.show-loading:before {
+    background-size: 25px 25px;
 }
 
 form.form-as-button button.big.show-loading:before,
