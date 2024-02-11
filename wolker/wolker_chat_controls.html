@@ -1,12 +1,12 @@
 <div id="chat-response">
     <p class="title">Dokonči verš</p>
     
-    <form class="standard" method="post">
+    <form class="standard" method="post" onsubmit="this.submit.classList.add('show-loading')">
         <textarea name="text" rows="4" cols="60"></textarea>
         <input type="hidden" name="thread_id" value="THREAD_ID">
         <input type="hidden" name="assistant_id" value="ASSISTANT_ID">
 
-        <button type="submit" class="big" value="Odpovědět">
+        <button name="submit" type="submit" class="big" value="Odpovědět">
             <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
             Odpovědět
         </button>
