@@ -5,13 +5,18 @@
 
 <div class="horizontal-forms-holder offset-top">
     <form method="post" class="standard small half" action="share.py">
-        <p>Sdílej výsledek s ostatními. Promítneme ho v galerii. Vybrané příspěvky budou zveřejněny v knize a na sociálních sítích.</p>
         <input name="image" type="hidden" value="IMAGE">
         <input name="thread_id" type="hidden" value="THREAD_ID">
         <input name="title" type="hidden" value="TITLE">
-        Obrázek můžeš doprovodit textem: <input name="text" size=50>
-        <br>
-        Uveď své jméno nebo přezdívku, jestli chceš: <input name="author">
-        <br>
-        <input name="submit" type="submit" value="Sdílet">
+
+        <!-- TODO: vypouští se <input name="author">, takže je potřeba to zohlednit na backendu -->
+        
+        <textarea name="text" rows="4" cols="60" placeholder="Napiš sem popis obrázku a své jméno, profil nebo přezdívku"></textarea>
+
+        <p>Výsledek můžeš veřejně sdílet. Promítneme ho v galerii a možná i v knize na soc. sítích</p>
+
+        <button type="submit" name="submit" class="small">
+            <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
+            Sdílet
+        </button>
     </form>
