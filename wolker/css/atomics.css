@@ -99,6 +99,10 @@ form.standard.half {
     width: 50%;
 }
 
+form.standard:first-child {
+    margin-top: 0;
+}
+
 /* *** Form buttons ************* */
 
 form.form-as-button button,
