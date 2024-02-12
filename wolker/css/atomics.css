@@ -189,6 +189,11 @@ form.standard button.show-loading {
     transition: color 200ms ease;
 }
 
+form.form-as-button button.show-loading,
+form.standard button.show-loading {
+    pointer-events: none;
+}
+
 form.form-as-button button:active .fa-icon,
 form.form-as-button button.show-loading .fa-icon,
 form.standard button:active .fa-icon,
