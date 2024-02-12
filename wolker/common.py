@@ -116,6 +116,8 @@ def getctime(item):
 
 def slideshow_choose_candidate():
     candidates = os.listdir(OUTPUTDIR)
+    if not candidates:
+        return 'empty_gallery.html'
 
     # randomly choose whether to use weights or not
     if random.randint(0, 1) == 0:
