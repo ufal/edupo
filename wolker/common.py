@@ -144,7 +144,7 @@ def slideshow():
 
 def gallery(typ=''):
     files = []
-    files.append(return_file('header.html'))
+    files.append(return_file('header_static.html'))
     
     if typ == 'admin':
         files.append(return_file('gallery_admin_head.html'))
