@@ -158,6 +158,7 @@ hr {
     flex-direction: row;
     align-items: start;
     gap: 50px;
+    justify-content: center;
 }
 
 #generated-img {
