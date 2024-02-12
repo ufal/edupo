@@ -254,7 +254,7 @@ def wolker_chat(text='', typ='poem', title='', assistant_id='asst_oEwl7wnhGDi5JD
     files = []
 
     if not title:
-        title = f'{typ2text[typ]} {title}'
+        title = f'{typ2text[typ]} {text}'
 
     # TODO check for errors
     # invoke the chatbot
