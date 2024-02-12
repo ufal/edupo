@@ -168,3 +168,19 @@ main {
     flex-direction: column;
     min-height: 100%;
 }
+
+/* *** Credits ****************** */
+
+#credits {
+    height: 100%;
+}
+
+#credits ul.cols {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+}
+
+#credits ul.cols li .small {
+    font-size: small;
+}
