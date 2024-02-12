@@ -4,14 +4,14 @@
         <input type="hidden" name="title" value="TITLE">
 
         <!-- Vypouští se input author (místo něj posílám text), takže to asi bude potřeba zohlednit -->
-        <textarea name="text" rows="1" cols="60" placeholder="Napiš sem popis obrázku a své jméno, profil nebo přezdívku"></textarea>
+        <textarea name="text" rows="1" cols="60" placeholder="Napiš sem popis a své jméno, profil nebo přezdívku"></textarea>
         <p>Výsledek můžeš veřejně sdílet. Promítneme ho<br>v galerii a možná i v knize na soc. sítích</p>
         <button type="submit" name="submit" class="small" value="Sdílej text">
             <img class="fa-icon blue" src="./fa-symbols/regular/paper-plane.svg">
             Sdílet
         </button>
     </form>
-    <form method="post" class="standard half" action="wolker_image.py">
+    <form method="post" class="standard half" action="wolker_image.py" onsubmit="this.submit.classList.add('show-loading')">
         <input type="hidden" name="thread_id" value="THREAD_ID">
         <input type="hidden" name="title" value="TITLE">
         <input type="hidden" name="prefix" value="Popis ilustrace k textu: ">
