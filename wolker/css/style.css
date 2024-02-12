@@ -161,7 +161,8 @@ hr {
 }
 
 #generated-img {
-    width: 512px;
+    width: 100%;
+    max-width: 512px;
     margin: auto;
 }
 
