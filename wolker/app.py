@@ -1,7 +1,7 @@
 import bottle
 import common
 
-DEFAULTPAGE = 'welcome'
+DEFAULTPAGE = 'intro'
 def get_page():
     page = bottle.request.params.get('page', DEFAULTPAGE)
     if not page.isidentifier():
@@ -25,7 +25,7 @@ def static(root, directory, filename):
 @bottle.route('/wtr/', method='ANY')
 @bottle.route('/wtr/index.py', method='ANY')
 def intro():
-    return common.page('intro.html', get_replacements())
+    return common.indexpage()
 
 # serve simple generic pages
 @bottle.route('/wtr/page.py', method='ANY')

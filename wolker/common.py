@@ -12,7 +12,7 @@ import wolker_interactive
 import html
 
 OUTPUTDIR = 'genouts'
-DEFAULTPAGE = 'welcome'
+DEFAULTPAGE = 'intro'
 
 def get_filename():
     return datetime.now().strftime("%Y%m%d%H%M%S")
@@ -87,6 +87,12 @@ def page(page=None, replacements={}):
     header = return_file('header.html')
     body = _replace_and_return_file(page, replacements)
     footer = return_file('footer.html')
+    return header, body, footer
+
+def indexpage():
+    header = return_file('header_static.html')
+    body = return_file('intro.html')
+    footer = return_file('footer_with_links.html')
     return header, body, footer
 
 # show public post
