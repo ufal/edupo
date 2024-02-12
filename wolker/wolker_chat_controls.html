@@ -1,39 +1,16 @@
 <div id="chat-response">
-    <p class="title">Dokonči verš</p>
+    <p class="title">COMMAND</p>
     
     <form class="standard" method="post" onsubmit="this.submit.classList.add('show-loading')">
         <textarea name="text" rows="4" cols="60" placeholder="Piš sem" required></textarea>
+        <input type="hidden" name="typ" value="TYP">
+        <input type="hidden" name="title" value="TITLE">
         <input type="hidden" name="thread_id" value="THREAD_ID">
         <input type="hidden" name="assistant_id" value="ASSISTANT_ID">
 
         <button name="submit" type="submit" class="big" value="Odpovědět">
             <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
             Odpovědět
-        </button>
-    </form>
-</div>
-
-<div class="horizontal-forms-holder offset-top">
-    <form method="post" class="standard half" action="share.py">
-        <input type="hidden" name="thread_id" value="THREAD_ID">
-
-        <!-- Vypouští se input author (místo něj posílám text), takže to asi bude potřeba zohlednit -->
-        <textarea name="text" rows="1" cols="60" placeholder="Napiš sem popis obrázku a své jméno, profil nebo přezdívku"></textarea>
-        <p>Výsledek můžeš veřejně sdílet. Promítneme ho<br>v galerii a možná i v knize na soc. sítích</p>
-        <button type="submit" name="submit" class="small" value="Sdílej text">
-            <img class="fa-icon blue" src="./fa-symbols/regular/paper-plane.svg">
-            Sdílet
-        </button>
-    </form>
-    <form method="post" class="standard half" action="wolker_image.py">
-        <input type="hidden" name="replacements" value="thread_id,text">
-        <input type="hidden" name="thread_id" value="THREAD_ID">
-
-        <textarea name="text" rows="1" cols="60" placeholder="Napiš sem popis doprovodného obrázku">TEXT</textarea>
-        
-        <button type="submit" name="submit" class="small" value="Doplň text ilustrací">
-            <img class="fa-icon blue" src="./fa-symbols/light/arrow-right.svg">
-            Vygenerovat obrázek k textu
         </button>
     </form>
 </div>

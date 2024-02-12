@@ -231,8 +231,30 @@ def wolker_image(title, prefix, text, replacements):
     
     return files
 
-def wolker_chat(text='', assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk', thread_id=None):
+typ2text = {
+        'chat': 'Konverzace na téma',
+        'cowrite': 'Báseň na téma',
+        'essay': 'Úvaha na téma',
+        'poem': 'Báseň na téma',
+        }
+
+typ2command = {
+        'chat': 'Odpovědět',
+        'cowrite': 'Dokonči verš',
+        }
+
+
+def wolker_chat(text='', typ='poem', title='', assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk', thread_id=None):
+    """Chat with Wolker persona.
+
+    text = user input
+    typ = chat/cowrite/essay/poem
+    title = 'Báseň na téma ...'
+    """
     files = []
+
+    if not title:
+        title = f'{typ2text[typ]} {title}'
 
     # TODO check for errors
     # invoke the chatbot
@@ -250,9 +272,20 @@ def wolker_chat(text='', assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk', thread_id
             {'CONTENT': nl2BR(message)}))
     files.append(replace_and_return_file(
         'wolker_chat_footer.html', {}))
+    if typ in ('chat', 'cowrite'):
+        files.append(replace_and_return_file(
+            'wolker_chat_controls.html', {
+                'COMMAND': typ2command[typ],
+                'THREAD_ID': thread_id,
+                'ASSISTANT_ID': assistant_id,
+                'TITLE': title,
+                'TYP': typ,
+                }))
     files.append(replace_and_return_file(
-        'wolker_chat_controls.html',
-        {'THREAD_ID': thread_id, 'ASSISTANT_ID': assistant_id}))
+        'wolker_chat_share.html', {
+            'THREAD_ID': thread_id,
+            'TITLE': title,
+            }))
     files.append(return_file('footer.html'))
     
     return files
