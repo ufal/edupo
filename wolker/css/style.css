@@ -73,6 +73,10 @@ main {
     align-self: stretch;
 }
 
+hr {
+    width: 100%;
+}
+
 /* *** Welcome ****************** */
 
 #welcome {
