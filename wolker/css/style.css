@@ -94,36 +94,34 @@ hr {
 @keyframes roll-from-left {
     from {
         opacity: 0;
-        margin-left: -100%;
+        transform: translateX(-100%);
     }
     to {
         opacity: 1;
-        margin-left: 0;
+        transform: translateX(0);
     }
 }
 
 @keyframes roll-from-right {
     from {
         opacity: 0;
-        margin-right: -100%;
+        transform: translateX(100%);
     }
     to {
         opacity: 1;
-        margin-right: 0;
+        transform: translateX(0);
     }
 }
 
 #chat {
     gap: 20px;
     display: flex;
-    max-width: 768px;
-    margin-left: auto;
-    margin-right: auto;
     flex-direction: column;
 }
 
 #chat > p {
-    margin: 0;
+    margin: 0 auto;
+    max-width: 768px;
     font-size: x-large;
 }
 
@@ -136,11 +134,11 @@ hr {
 }
 
 #chat > p.animate:nth-last-child(2) {
-    animation: roll-from-left .3s ease-in;
+    animation: roll-from-left .6s ease-out;
 }
 
 #chat > p.animate:nth-last-child(1) {
-    animation: roll-from-right .3s ease-in;
+    animation: roll-from-right .6s ease-out;
 }
 
 #chat-response .title {
