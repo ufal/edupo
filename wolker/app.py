@@ -72,7 +72,7 @@ def slideshow():
 
 # admin gallery: at different path and password protect!
 import hashlib
-USER_HASH = 'f4f263e439cf40925e6a412387a9472a6773c2580212a4fb50d224d3a817de17'
+USER_HASH = '9f0979733e0ab763cd9585b34e267246201d81c4df6279be00693ecfbc9952fb'
 PASS_HASH = '572d8c4a6ed4c265b6572650e2025146a418be4865955a1ce7a0b5e1b0b4c1e3'
 def check_hash(text, hexhash):
     return hexhash == hashlib.sha256(text.encode()).hexdigest()
