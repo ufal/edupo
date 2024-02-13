@@ -83,7 +83,7 @@ def check_hash(text, hexhash):
 def auth_check(username, password):
     return check_hash(username, USER_HASH) and check_hash(password, PASS_HASH)
 
-@bottle.route('/panwtr/gallery.py')
+@bottle.route('/panwtr/gallery.py', method='ANY')
 @bottle.auth_basic(auth_check)
 def admin_gallery():
     return common.gallery('admin', bottle.request.params.delete)
