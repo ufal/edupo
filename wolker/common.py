@@ -218,7 +218,7 @@ def wolker_feel(title='', text=''):
 
 def error(message=''):
     files = []
-    files.append(return_file('header.html'))
+    files.append(return_file('header_root.html'))
     files.append(replace_and_return_file('error.html', {'ERROR': message}))
     files.append(return_file('footer.html'))
     return files

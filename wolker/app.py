@@ -21,6 +21,10 @@ def get_replacements(names=[]):
 def static(root, directory, filename):
     return bottle.static_file(filename, directory)
 
+@bottle.route('/<directory:path:re:(css|fa-symbols|fonts).*>/<filename>')
+def static_root(directory, filename):
+    return bottle.static_file(filename, directory)
+
 # intro
 @bottle.route('/wtr/', method='ANY')
 @bottle.route('/wtr/index.py', method='ANY')
@@ -98,7 +102,9 @@ def error_401(e):
 
 # public post: at different path!
 @bottle.route('/')
+@bottle.route('/index.py')
 @bottle.route('/wolker/')
+@bottle.route('/wolker/index.py')
 def public_home():
     return bottle.redirect('/wolker/credits')
 
