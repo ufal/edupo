@@ -104,7 +104,7 @@ def indexpage():
 def creditspublic():
     header = return_file('header_static.html')
     body = return_file('credits.html')
-    footer = return_file('footer.html')
+    footer = return_file('footer_public.html')
     return header, body, footer
 
 # show public post
@@ -117,7 +117,7 @@ def post(key):
     else:
         body = f"Nelze zobrazit soubor se zadaným klíčem '{key}'"
 
-    footer = return_file('footer.html')
+    footer = return_file('footer_public.html')
 
     return header, body, footer
 
