@@ -159,12 +159,15 @@ def slideshow():
     ]
     return [return_file(f) for f in files]
 
-def gallery(typ=''):
+def gallery(typ='', delete=''):
     files = []
     files.append(return_file('header_static.html'))
     
     if typ == 'admin':
         files.append(return_file('gallery_admin_head.html'))
+        if delete:
+            os.remove(f'{OUTPUTDIR}/{delete}')
+    
     files.append(return_file('gallery_head.html'))
 
     postfiles = os.listdir(OUTPUTDIR)
@@ -175,6 +178,8 @@ def gallery(typ=''):
             key, _ = filename.split('.')
             files.append(replace_and_return_file(
                     'gallery_admin_sharebutton.html', {'KEY': key}))
+            files.append(replace_and_return_file(
+                    'gallery_admin_deletebutton.html', {'DELETE': filename}))
         files.append(return_file('gallery_sep.html'))
     files.append(return_file('footer.html'))
     
