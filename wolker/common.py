@@ -152,12 +152,15 @@ def slideshow_choose_candidate():
 
 def slideshow():
     candidate = slideshow_choose_candidate()
-    files = [
-        'header_refresh.html',
-        candidate,
-        'footer.html',
-    ]
-    return [return_file(f) for f in files]
+    time = 20
+    replacements = {'TIME': str(time)}
+
+    files = []
+    files.append(replace_and_return_file(
+            'header_refresh.html', replacements))
+    files.append(return_file(candidate))
+    files.append(return_file('footer.html'))
+    return files
 
 def gallery(typ='', delete=''):
     files = []
