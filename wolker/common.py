@@ -101,6 +101,12 @@ def indexpage():
     footer = return_file('footer_with_links.html')
     return header, body, footer
 
+def creditspublic():
+    header = return_file('header_static.html')
+    body = return_file('credits.html')
+    footer = return_file('footer.html')
+    return header, body, footer
+
 # show public post
 def post(key):
     header = return_file('header_static.html')

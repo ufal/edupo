@@ -97,6 +97,15 @@ def error_401(e):
     return common.error('Nejste přihlášeni platným jménem a heslem! ' + str(e))
 
 # public post: at different path!
+@bottle.route('/')
+@bottle.route('/wolker/')
+def public_home():
+    return bottle.redirect('/wolker/credits')
+
+@bottle.route('/wolker/credits')
+def credits_public():
+    return common.creditspublic()
+
 @bottle.route('/wolker/<key>')
 def public_post(key):
     return common.post(key)
