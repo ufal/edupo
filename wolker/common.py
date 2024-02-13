@@ -36,12 +36,15 @@ def get_replacements(form, names=None):
     return replacements
 
 def _replace_and_return_file(filename, replacements):
-    with open(filename) as infile:
-        text = infile.read()
-        for key in replacements:
-            value = BR2br(html.escape(replacements[key], quote=True))
-            text = text.replace(key, value)
-        return text
+    try:
+        with open(filename) as infile:
+            text = infile.read()
+            for key in replacements:
+                value = BR2br(html.escape(replacements[key], quote=True))
+                text = text.replace(key, value)
+            return text
+    except Exception as e:
+        return _replace_and_return_file('error.html', {'ERROR': str(e)}))
 
 def replace_and_write_out_file(filename=None, replacements={}):
     print(replace_and_return_file(filename, replacements))
