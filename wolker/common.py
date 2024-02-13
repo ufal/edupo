@@ -205,6 +205,12 @@ def wolker_feel(title='', text=''):
     footer = return_file('footer.html')
     return header, body, footer
 
+def error(message=''):
+    files = []
+    files.append(return_file('header.html'))
+    files.append(replace_and_return_file('error.html', {'ERROR': message}))
+    files.append(return_file('footer.html'))
+    return files
 
 def wolker_image(title, prefix, text, replacements):
     files = []
@@ -214,9 +220,11 @@ def wolker_image(title, prefix, text, replacements):
         title = f"{title}: "
     prompt = f"{title}{prefix}{text}"
 
-    # TODO check for errors
     files.append(prompt_in_comment(prompt))
-    image, prompt = get_image_for_line(prompt)
+    try:
+        image, prompt = get_image_for_line(prompt)
+    except Exception as e:
+        return error(str(e))
     files.append(prompt_in_comment(prompt))
     replacements['IMAGE'] = image
     
@@ -266,10 +274,12 @@ def wolker_chat(text='', typ='poem', title='', assistant_id='asst_oEwl7wnhGDi5JD
     if not title:
         title = f'{typ2text[typ]} {text}'
 
-    # TODO check for errors
     # invoke the chatbot
-    messages, roles, thread_id = wolker_interactive.talk_threaded(
+    try:
+        messages, roles, thread_id = wolker_interactive.talk_threaded(
             text, assistant_id, thread_id)
+    except Exception as e:
+        return error(str(e))
 
     # compose the page
     files.append(return_file('header.html'))

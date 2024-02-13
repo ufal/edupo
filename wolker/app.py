@@ -72,7 +72,7 @@ def slideshow():
 
 # admin gallery: at different path and password protect!
 import hashlib
-USER_HASH = '9f0979733e0ab763cd9585b34e267246201d81c4df6279be00693ecfbc9952fb'
+USER_HASH = '45a9b0809a297ff07bf70e2479709bfbe16dec18be8ba673b5b6131dff495f75'
 PASS_HASH = '572d8c4a6ed4c265b6572650e2025146a418be4865955a1ce7a0b5e1b0b4c1e3'
 def check_hash(text, hexhash):
     return hexhash == hashlib.sha256(text.encode()).hexdigest()
@@ -83,6 +83,18 @@ def auth_check(username, password):
 @bottle.auth_basic(auth_check)
 def admin_gallery():
     return common.gallery('admin')
+
+@bottle.error()
+def error_generic(e):
+    return common.error(e)
+
+@bottle.error(404)
+def error_404(e):
+    return common.error('Tato stránka neexistuje! ' + str(e))
+
+@bottle.error(401)
+def error_401(e):
+    return common.error('Nejste přihlášeni platným jménem a heslem! ' + str(e))
 
 # public post: at different path!
 @bottle.route('/wolker/<key>')
