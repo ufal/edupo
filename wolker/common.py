@@ -44,7 +44,7 @@ def _replace_and_return_file(filename, replacements):
                 text = text.replace(key, value)
             return text
     except Exception as e:
-        return _replace_and_return_file('error.html', {'ERROR': str(e)}))
+        return _replace_and_return_file('error.html', {'ERROR': str(e)})
 
 def replace_and_write_out_file(filename=None, replacements={}):
     print(replace_and_return_file(filename, replacements))
