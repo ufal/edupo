@@ -12,6 +12,7 @@ import wolker_interactive
 import html
 
 OUTPUTDIR = 'genouts'
+OUTPUTDIRP = 'genoutsp'
 DEFAULTPAGE = 'intro'
 
 def get_filename():
@@ -99,7 +100,7 @@ def indexpage():
 def post(key):
     header = return_file('header_static.html')
     
-    filename = f'{OUTPUTDIR}/{key}.html'
+    filename = f'{OUTPUTDIRP}/{key}.html'
     if key and key.isnumeric() and os.path.isfile(filename):
         body = return_file(filename)
     else:
@@ -337,6 +338,8 @@ def share_page(form):
     # write out into file
     filename_out = get_filename()
     with open(f'{OUTPUTDIR}/{filename_out}.html', 'w') as outfile:
+        print(*result, sep='\n', file=outfile)
+    with open(f'{OUTPUTDIRP}/{filename_out}.html', 'w') as outfile:
         print(*result, sep='\n', file=outfile)
 
     # get and show sharing QR code
