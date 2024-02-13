@@ -83,6 +83,11 @@ def nl2BR(text):
 def BR2br(text):
     return text.replace('[BR]', '<br>')
 
+import re
+def remove_refs(text):
+    # 【11†zdroj】
+    return re.sub(r'【[^】]*】', '', text)
+
 # for handling bottle
 def page(page=None, replacements={}):
     header = return_file('header.html')
@@ -234,7 +239,7 @@ def wolker_image(title, prefix, text, replacements):
         for message, role in zip(messages, roles):
             conversation.append(replace_and_return_file(
                 f'wolker_chat_message_{role}.html',
-                {'CONTENT': nl2BR(message)}))
+                {'CONTENT': remove_refs(nl2BR(message))}))
 
     files.append(replace_and_return_file(
         'result_image.html', replacements).replace(
@@ -289,7 +294,7 @@ def wolker_chat(text='', typ='poem', title='', assistant_id='asst_oEwl7wnhGDi5JD
         # role is user or assistant
         files.append(replace_and_return_file(
             f'wolker_chat_message_{role}.html',
-            {'CONTENT': nl2BR(message)}))
+            {'CONTENT': remove_refs(nl2BR(message))}))
     files.append(replace_and_return_file(
         'wolker_chat_footer.html', {}))
     if typ in ('chat', 'cowrite'):
@@ -319,7 +324,7 @@ def share_page(form):
     def append(field, value):
         text = replace_and_return_file(
                 f'share_{field}.html',
-                {'CONTENT': nl2BR(value)})
+                {'CONTENT': remove_refs(nl2BR(value))})
         result.append(text)
 
     def get_append(field):
