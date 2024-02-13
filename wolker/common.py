@@ -219,6 +219,17 @@ def wolker_image(title, prefix, text, replacements):
     files.append(prompt_in_comment(prompt))
     replacements['IMAGE'] = image
     
+    if replacements['THREAD_ID']:
+        conversation = []
+        messages, roles = wolker_interactive.get_thread_messages(replacements['THREAD_ID'])
+        for message, role in zip(messages, roles):
+            conversation.append(replace_and_return_file(
+                f'wolker_chat_message_{role}.html',
+                {'CONTENT': nl2BR(message)}))
+        replacements['CONVERSATION'] = '\n'.join(conversation)
+    else:
+        replacements['CONVERSATION'] = ''
+
     files.append(replace_and_return_file(
         'result_image.html', replacements))
     if replacements['PREVFULL']:
