@@ -272,7 +272,7 @@ typ2text = {
 
 typ2command = {
         'chat': 'Odpovědět',
-        'cowrite': 'Dokonči verš',
+        'cowrite': 'Napiš další dva verše',
         }
 
 
