@@ -2,7 +2,33 @@
 #coding: utf-8
 
 def titles():
-    return  ['Okna', 'Pokora', 'Těžká hodina']
+    return  [
+        'Těžká hodina',
+        'Světlušky',
+        'Dům v noci',
+        'Dnešek',
+        'Svatý Kopeček',
+        'Housle',
+        'Kamna',
+        'Žák',
+        'Nemocné děti',
+        'Jarmark',
+        'Moře je modrý pták…',
+        'Ztracené dni',
+        'Portréty mých klasiků – Cicero',
+        'Povzdech básníkův',
+        'Dva kamarády…',
+        'Homo non sibi natus, sed patriae',
+        'Chtěl bych…',
+        'Slečna Cantarell  ',
+        'Měsíčkovi – závistníku',
+        'Prstýnku',
+        'Milenci',
+        'Večer',
+        'Muž',
+        'Sloky',
+        'Umírající',
+            ]
 
 def poems():
     return  [
