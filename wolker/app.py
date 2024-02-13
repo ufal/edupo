@@ -76,7 +76,7 @@ USER_HASH = 'f4f263e439cf40925e6a412387a9472a6773c2580212a4fb50d224d3a817de17'
 PASS_HASH = '572d8c4a6ed4c265b6572650e2025146a418be4865955a1ce7a0b5e1b0b4c1e3'
 def check_hash(text, hexhash):
     return hexhash == hashlib.sha256(text.encode()).hexdigest()
-def auth_basic(username, password):
+def auth_check(username, password):
     return check_hash(username, USER_HASH) and check_hash(password, PASS_HASH)
 
 @bottle.route('/panwtr/gallery.py')
