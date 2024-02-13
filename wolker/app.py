@@ -21,9 +21,9 @@ def get_replacements(names=[]):
 def static(root, directory, filename):
     return bottle.static_file(filename, directory)
 
-@bottle.route('/<directory:path:re:(css|fa-symbols|fonts).*>/<filename>')
-def static_root(directory, filename):
-    return bottle.static_file(filename, directory)
+#@bottle.route('/<directory:path:re:(css|fa-symbols|fonts).*>/<filename>')
+#def static_root(directory, filename):
+#    return bottle.static_file(filename, directory)
 
 # intro
 @bottle.route('/wtr/', method='ANY')
