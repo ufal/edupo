@@ -61,6 +61,13 @@ h1 {
     font-family: "PTSerif-Regular";
 }
 
+h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: "PTSerif-Regular";
+}
+
 p {
     font-size: large;
     font-family: "PTSerif-Regular";
