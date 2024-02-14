@@ -7,10 +7,12 @@ with open('apikey.txt') as infile:
 from openai import OpenAI
 import time
 
+MAXTIME=180
+
 client = OpenAI(
     api_key=apikey
 )
-ASSISTANT_ID = 'asst_j2pqoIQ3dHKf1BwpywJh0RUg'
+ASSISTANT_ID = 'asst_kZPGslLLlaNpwKPj6HOmoCAH'
 
 def get_thread_messages(thread_id):
     # extract response text
@@ -39,7 +41,9 @@ def talk_threaded(message="Napište báseň o přírodě ve městě.",
     if not thread_id:
         thread = client.beta.threads.create()
         thread_id = thread.id
-    
+
+    starttime = time.time()
+
     # add message to thread
     msg = client.beta.threads.messages.create(
         thread_id=thread_id,
@@ -56,10 +60,12 @@ def talk_threaded(message="Napište báseň o přírodě ve městě.",
     # wait for answer
     while not run.status == "completed":
         time.sleep(1)
+        if time.time() - starttime > MAXTIME:
+            raise Exception('Max time reached')
         run = client.beta.threads.runs.retrieve(
             thread_id=thread_id,
             run_id=run.id
-        )
+        )        
 
     result, roles = get_thread_messages(thread_id)
 
