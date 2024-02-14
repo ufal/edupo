@@ -151,14 +151,14 @@ def slideshow_choose_candidate():
     return f'{OUTPUTDIR}/{candidate}'
 
 def slideshow():
-    candidate = slideshow_choose_candidate()
+    candidate = return_file(slideshow_choose_candidate())
     time = min(60, 5 + len(candidate)//35)
     replacements = {'TIME': str(time)}
 
     files = []
     files.append(replace_and_return_file(
             'header_refresh.html', replacements))
-    files.append(return_file(candidate))
+    files.append(candidate)
     files.append(return_file('footer.html'))
     return files
 
