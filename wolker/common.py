@@ -348,7 +348,8 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
             {'CONTENT': remove_refs(nl2BR(message))}))
     files.append(replace_and_return_file(
         'wolker_chat_footer.html', {}))
-    if typ in ('chat', 'cowrite'):
+    if thread_id and typ in ('chat', 'cowrite'):
+        # not thread_id = running on backup
         files.append(replace_and_return_file(
             'wolker_chat_controls.html', {
                 'COMMAND': typ2command[typ],
@@ -356,11 +357,21 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
                 'TITLE': title,
                 'TYP': typ,
                 }))
-    files.append(replace_and_return_file(
-        'wolker_chat_share.html', {
-            'THREAD_ID': thread_id,
-            'TITLE': title,
-            }))
+    if thread_id:
+        files.append(replace_and_return_file(
+            'wolker_chat_share.html', {
+                'THREAD_ID': thread_id,
+                'TITLE': title,
+                'TEXT': '',
+                }))
+    else:
+        # running on backup
+        files.append(replace_and_return_file(
+            'wolker_chat_share.html', {
+                'THREAD_ID': '',
+                'TITLE': title,
+                'TEXT': reply,
+                }))
     files.append(return_file('footer.html'))
     
     return files
