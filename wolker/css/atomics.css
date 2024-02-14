@@ -73,6 +73,10 @@ p {
     font-family: "PTSerif-Regular";
 }
 
+p:empty {
+    display: none;
+}
+
 /* *** Forms ******************** */
 
 p.note {
