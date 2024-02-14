@@ -190,7 +190,7 @@ def gallery(typ='', delete=''):
 
 def prompt_in_comment(prompt):
     escaped_prompt = prompt.replace('>', ' >')
-    return f'<!-- {escaped_prompt} -->'
+    return f'<!-- {escaped_prompt} -->\n'
 
 import poems
 def get_poem_htmls_KARUSEL_UNUSED():
