@@ -411,6 +411,7 @@ def share_page(form):
     # construct result
     get_append('title')
     get_append('text')
+    get_append('zalozni')
     for message, role in zip(messages, roles):
         append(f'message_{role}', message)
     get_append('image')

@@ -61,7 +61,7 @@ def wolker_feel():
 @bottle.route('/wtr/share.py', method='ANY')
 def share_page():
     form = {}
-    for field in ['thread_id', 'title', 'text', 'image', 'author']:
+    for field in ['thread_id', 'title', 'text', 'image', 'author', 'zalozni']:
         form[field] = bottle.request.params.getunicode(field, '')
     return common.share_page(form)
 
