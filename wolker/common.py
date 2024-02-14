@@ -281,6 +281,11 @@ def wolker_image(title, prefix, text, replacements):
             conversation.append(replace_and_return_file(
                 f'wolker_chat_message_{role}.html',
                 {'CONTENT': remove_refs(nl2BR(message))}))
+    if replacements['ZALOZNI']:
+        # running on backup chat
+        conversation.append(replace_and_return_file(
+            f'wolker_chat_message_user.html',
+            {'CONTENT': remove_refs(nl2BR(replacements['ZALOZNI']))}))
 
     files.append(replace_and_return_file(
         'result_image.html', replacements).replace(
@@ -362,7 +367,7 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
             'wolker_chat_share.html', {
                 'THREAD_ID': thread_id,
                 'TITLE': title,
-                'TEXT': '',
+                'ZALOZNI': '',
                 }))
     else:
         # running on backup
@@ -370,7 +375,7 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
             'wolker_chat_share.html', {
                 'THREAD_ID': '',
                 'TITLE': title,
-                'TEXT': reply,
+                'ZALOZNI': reply,
                 }))
     files.append(return_file('footer.html'))
     
