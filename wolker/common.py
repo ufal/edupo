@@ -343,7 +343,7 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
             return error(str(e))
 
     replacements = {
-            'COMMAND': typ2command[typ],
+            'COMMAND': typ2command.get(typ, 'Odpovědět'),
             'THREAD_ID': thread_id,
             'TITLE': title,
             'TYP': typ,
