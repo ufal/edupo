@@ -152,7 +152,7 @@ def slideshow_choose_candidate():
 
 def slideshow():
     candidate = slideshow_choose_candidate()
-    time = 20
+    time = min(60, 5 + len(candidate)//35)
     replacements = {'TIME': str(time)}
 
     files = []
