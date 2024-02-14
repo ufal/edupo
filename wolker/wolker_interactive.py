@@ -13,8 +13,8 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO)
 
-# MAXTIME=180
-MAXTIME=10
+MAXTIME=100
+SLEEPTIME=10
 
 client = OpenAI(
     api_key=apikey
@@ -66,7 +66,7 @@ def talk_threaded(message="Napište báseň o přírodě ve městě.",
 
     # wait for answer
     while not run.status == "completed":
-        time.sleep(5)
+        time.sleep(SLEEPTIME)
         spenttime = time.time() - starttime 
         logging.info(f'Time spent waiting so far: {spenttime}')
         if spenttime > MAXTIME:
