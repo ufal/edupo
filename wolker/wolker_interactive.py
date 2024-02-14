@@ -7,6 +7,12 @@ with open('apikey.txt') as infile:
 from openai import OpenAI
 import time
 
+import logging
+logging.basicConfig(
+    format='%(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO)
+
 MAXTIME=180
 
 client = OpenAI(
@@ -71,8 +77,36 @@ def talk_threaded(message="Napište báseň o přírodě ve městě.",
 
     return result, roles, thread_id
 
+def talk_simple(prompt, system_message="Jsi básník Jiří Wolker."):
+    messages = [
+        {"role": "system", "content": system_message},
+        {"role": "user", "content": prompt},
+    ]
+    
+    # This is the limit of the model
+    model_max_tokens = 2048
+
+    # How many tokens to generate max
+    max_tokens = 500
+
+    # Model identifier
+    model = "gpt-3.5-turbo"
+    
+    response = client.chat.completions.create(
+        model = model,
+        messages = messages,
+        max_tokens = max_tokens,
+        )
+    result = response.choices[0].message.content
+    
+    return result
+
+
 if __name__=="__main__":
     while True:
         message = input()
+        print('SIMPLE:')
+        print(talk_simple(message))
+        print('FULL:')
         print(talk(message))
 

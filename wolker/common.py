@@ -11,6 +11,12 @@ from image_generation import get_image_for_line
 import wolker_interactive
 import html
 
+import logging
+logging.basicConfig(
+    format='%(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO)
+
 OUTPUTDIR = 'genouts'
 OUTPUTDIRP = 'genoutsp'
 DEFAULTPAGE = 'intro'
@@ -20,6 +26,14 @@ typ2asst = {
         'cowrite': 'asst_ZeRapbBHiUvH07rFbpleUItR',
         'essay': 'asst_87p5hReXdE0VoYwhgnKeoW01',
         'poem': 'asst_jK6u91feyP2NscO6pEAoAeBN',
+        }
+
+# only for backup
+typ2sysmsg = {
+        'chat': 'Chatuj s uživatelem. Používej spisovný jazyk.',
+        'cowrite': 'Střídej se s uživatelem v psaní básně. Napiš vždy dva řádky obsahující dva krátké verše. Piš jen text básně, nic jiného na výstup nepiš. Začínáš ty. Báseň je na následující téma:',
+        'essay': 'Napiš úvahu či esej na téma zvolené uživatelem. Esej by měla být stručnější, asi tak 5-10 vět. Piš jen text eseje, nic jiného na výstup nepiš. Esej napiš na následující téma:',
+        'poem': 'Vytvoř báseň na téma zvolené uživatelem. Báseň by měla být spíš kratší, ideálně na 2 sloky. Piš jen text básně, nic jiného na výstup nepiš. Báseň je na následující téma:',
         }
 
 def get_asst_id(typ='chat'):
@@ -313,7 +327,15 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
         messages, roles, thread_id = wolker_interactive.talk_threaded(
             text, assistant_id, thread_id)
     except Exception as e:
-        return error(str(e))
+        logging.warning(str(e))
+        try:
+            reply = wolker_interactive.talk_simple(
+                    text, typ2sysmsg[typ])
+            messages = [text, reply]
+            roles = ['user', 'assistant']
+            thread_id = None
+        except Exception as e:
+            return error(str(e))
 
     # compose the page
     files.append(return_file('header.html'))
