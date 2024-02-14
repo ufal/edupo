@@ -322,8 +322,6 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
     """
     assistant_id = get_asst_id(typ)
     
-    files = []
-
     if not title:
         title = f'{typ2text[typ]} {text}'
 
@@ -331,52 +329,71 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
     try:
         messages, roles, thread_id = wolker_interactive.talk_threaded(
             text, assistant_id, thread_id)
+        reply = ''
     except Exception as e:
+        # backup
         logging.warning(str(e))
         try:
             reply = wolker_interactive.talk_simple(
                     text, typ2sysmsg[typ])
             messages = [text, reply]
             roles = ['user', 'assistant']
-            thread_id = None
+            thread_id = ''
         except Exception as e:
             return error(str(e))
 
+    replacements = {
+            'COMMAND': typ2command[typ],
+            'THREAD_ID': thread_id,
+            'TITLE': title,
+            'TYP': typ,
+            'ZALOZNI': reply,
+            'TEXT': '',
+            }
+
     # compose the page
+    files = []
     files.append(return_file('header.html'))
-    files.append(replace_and_return_file(
-        'wolker_chat_head.html', {}))
+    files.append(return_file('wolker_chat_head.html'))
     for message, role in zip(messages, roles):
         # role is user or assistant
         files.append(replace_and_return_file(
             f'wolker_chat_message_{role}.html',
             {'CONTENT': remove_refs(nl2BR(message))}))
-    files.append(replace_and_return_file(
-        'wolker_chat_footer.html', {}))
+    files.append(return_file('wolker_chat_footer.html'))
     if thread_id and typ in ('chat', 'cowrite'):
-        # not thread_id = running on backup
+        # not thread_id = running on backup, no chatting
         files.append(replace_and_return_file(
-            'wolker_chat_controls.html', {
-                'COMMAND': typ2command[typ],
-                'THREAD_ID': thread_id,
-                'TITLE': title,
-                'TYP': typ,
-                }))
-    if thread_id:
-        files.append(replace_and_return_file(
-            'wolker_chat_share.html', {
-                'THREAD_ID': thread_id,
-                'TITLE': title,
-                'ZALOZNI': '',
-                }))
+            'wolker_chat_controls.html', replacements))
+    files.append(replace_and_return_file(
+        'wolker_chat_share.html', replacements))
+    files.append(return_file('footer.html'))
+    
+    return files
+
+def wolker_chat_illustrate(form, replacements):
+    if 'thread_id' in form:
+        messages, roles = wolker_interactive.get_thread_messages(form['thread_id'])
+    elif 'zalozni' in form:
+        messages = [form['zalozni']]
+        roles = ['assistant']
     else:
-        # running on backup
+        # this is weird
+        messages = []
+        roles = []
+
+    # compose the page
+    files = []
+    files.append(return_file('header.html'))
+    files.append(return_file('wolker_chat_head.html'))
+    for message, role in zip(messages, roles):
+        # role is user or assistant
         files.append(replace_and_return_file(
-            'wolker_chat_share.html', {
-                'THREAD_ID': '',
-                'TITLE': title,
-                'ZALOZNI': reply,
-                }))
+            f'wolker_chat_message_{role}.html',
+            {'CONTENT': remove_refs(nl2BR(message))}))
+    files.append(return_file('wolker_chat_footer.html'))
+    files.append(replace_and_return_file(
+        'wolker_chat_share.html', replacements))
     files.append(return_file('footer.html'))
     
     return files

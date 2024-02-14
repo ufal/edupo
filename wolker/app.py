@@ -53,6 +53,12 @@ def wolker_chat():
             form.title,
             form.thread_id)
 
+@bottle.route('/wtr/wolker_chat_illustrate.py', method='ANY')
+def wolker_chat_illustrate():
+    form = bottle.request.params
+    replacements = get_replacements()
+    return common.wolker_chat_illustrate(form, replacements)
+
 @bottle.route('/wtr/welcome_wolker_feel.py', method='ANY')
 def wolker_feel():
     form = bottle.request.params
