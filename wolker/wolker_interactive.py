@@ -10,7 +10,7 @@ import time
 client = OpenAI(
     api_key=apikey
 )
-ASSISTANT_ID = 'asst_oEwl7wnhGDi5JDvAdE92GgWk'
+ASSISTANT_ID = 'asst_j2pqoIQ3dHKf1BwpywJh0RUg'
 
 def get_thread_messages(thread_id):
     # extract response text

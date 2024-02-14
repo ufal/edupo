@@ -51,7 +51,6 @@ def wolker_chat():
             form.text,
             form.get('typ', 'poem'),
             form.title,
-            form.getunicode('assistant_id', 'asst_oEwl7wnhGDi5JDvAdE92GgWk'),
             form.thread_id)
 
 @bottle.route('/wtr/welcome_wolker_feel.py', method='ANY')

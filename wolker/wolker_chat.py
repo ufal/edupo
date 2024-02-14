@@ -10,6 +10,5 @@ if __name__=="__main__":
     text = form.getvalue("text", "")
     typ = form.getvalue("typ", "poem")
     title = form.getvalue("title", "")
-    assistant_id = form.getvalue('assistant_id', 'asst_oEwl7wnhGDi5JDvAdE92GgWk')
     thread_id = form.getvalue("thread_id", None)
-    print(*common.wolker_chat(text, typ, title, assistant_id, thread_id), sep='\n')
+    print(*common.wolker_chat(text, typ, title, thread_id), sep='\n')

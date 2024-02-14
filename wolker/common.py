@@ -15,6 +15,16 @@ OUTPUTDIR = 'genouts'
 OUTPUTDIRP = 'genoutsp'
 DEFAULTPAGE = 'intro'
 
+typ2asst = {
+        'chat': 'asst_kZPGslLLlaNpwKPj6HOmoCAH',
+        'cowrite': 'asst_ZeRapbBHiUvH07rFbpleUItR',
+        'essay': 'asst_87p5hReXdE0VoYwhgnKeoW01',
+        'poem': 'asst_jK6u91feyP2NscO6pEAoAeBN',
+        }
+
+def get_asst_id(typ='chat'):
+    return typ2asst[typ]
+
 def get_filename():
     return datetime.now().strftime("%Y%m%d%H%M%S")
     # + random.randrange(10000000, 100000000) ... randseed je time takže bych potřeboval seed
@@ -284,13 +294,15 @@ typ2command = {
         }
 
 
-def wolker_chat(text='', typ='poem', title='', assistant_id='asst_oEwl7wnhGDi5JDvAdE92GgWk', thread_id=None):
+def wolker_chat(text='', typ='poem', title='', thread_id=None):
     """Chat with Wolker persona.
 
     text = user input
     typ = chat/cowrite/essay/poem
     title = 'Báseň na téma ...'
     """
+    assistant_id = get_asst_id(typ)
+    
     files = []
 
     if not title:
@@ -319,7 +331,6 @@ def wolker_chat(text='', typ='poem', title='', assistant_id='asst_oEwl7wnhGDi5JD
             'wolker_chat_controls.html', {
                 'COMMAND': typ2command[typ],
                 'THREAD_ID': thread_id,
-                'ASSISTANT_ID': assistant_id,
                 'TITLE': title,
                 'TYP': typ,
                 }))
