@@ -15,6 +15,11 @@ import logging
 import random
 from openai import OpenAI
 
+import logging
+logging.basicConfig(
+    format='%(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO)
 ### Image generation
 
 HASH_WIDTH_BYTES = sys.hash_info.width//8
@@ -71,7 +76,6 @@ def generate_image_openai(prompt, filename):
         apikey = infile.read().strip()
     
     client = OpenAI(
-        organization='org-926n4JNQeMTeU94X6FKZS8c3',
         api_key=apikey
     )
     
@@ -89,11 +93,21 @@ def generate_image_openai(prompt, filename):
 
     return response.data[0].revised_prompt
 
+def translate(text):
+    url = 'http://lindat.mff.cuni.cz/services/translation/api/v2/models/cs-en'
+    data = {"input_text": text}
+    headers = {"accept": "text/plain"}
+    response = requests.post(url, data = data, headers = headers)
+    return response.text
+
 def generate_image(prompt, seed, filename):
     try:
         return generate_image_openai(prompt, filename)
-    except:
-        generate_image_sd(prompt, seed, filename)
+    except Exception as e:
+        # print(e)
+        logging.warning('DALLE does not generate: ' + str(e))
+        prompt_en = translate(prompt)
+        generate_image_sd(prompt_en, seed, filename)
         return prompt
 
 def _get_image_for_line(line, seed):
@@ -106,7 +120,6 @@ def _get_image_for_line(line, seed):
     except Exception as e:
         message = f'Cannot generate image "{filename}" for "{line}": {e}'
         logging.warning(message)
-        print(message)
         filename = "DEFAULTIMAGE"
     
     return filename, prompt

@@ -8,7 +8,6 @@ from openai import OpenAI
 import time
 
 client = OpenAI(
-    organization='org-926n4JNQeMTeU94X6FKZS8c3',
     api_key=apikey
 )
 ASSISTANT_ID = 'asst_oEwl7wnhGDi5JDvAdE92GgWk'
