@@ -77,6 +77,10 @@ p:empty {
     display: none;
 }
 
+.bold {
+    font-weight: bold;
+}
+
 /* *** Forms ******************** */
 
 p.note {
