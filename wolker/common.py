@@ -19,6 +19,7 @@ logging.basicConfig(
 
 OUTPUTDIR = 'genouts'
 OUTPUTDIRP = 'genoutsp'
+LIKEDIR = 'likes'
 DEFAULTPAGE = 'intro'
 
 typ2asst = {
@@ -186,7 +187,7 @@ def slideshow():
     files.append(return_file('footer.html'))
     return files
 
-def gallery(typ='', delete=''):
+def gallery(typ='', delete='', like=''):
     files = []
     files.append(return_file('header_static.html'))
     
@@ -194,20 +195,38 @@ def gallery(typ='', delete=''):
         files.append(return_file('gallery_admin_head.html'))
         if delete:
             os.remove(f'{OUTPUTDIR}/{delete}')
+        if like:
+            with open(f'{LIKEDIR}/{like}', 'w'):
+                pass
+        likes = set(os.listdir(LIKEDIR))
     
     files.append(return_file('gallery_head.html'))
 
     postfiles = os.listdir(OUTPUTDIR)
     postfiles.sort(reverse=True)
+    prev = ''
     for filename in postfiles:
+        files.append(replace_and_return_file(
+                'gallery_sep.html', {'ID': filename}))
+        if typ == 'admin':
+            if filename in likes:
+                files.append(replace_and_return_file(
+                        'gallery_admin_like.html', {'LIKE': filename}))
+            else:
+                files.append(replace_and_return_file(
+                        'gallery_admin_likebutton.html', {'LIKE': filename}))
+
         files.append(return_file(f'{OUTPUTDIR}/{filename}'))
         if typ == 'admin':
             key, _ = filename.split('.')
             files.append(replace_and_return_file(
                     'gallery_admin_sharebutton.html', {'KEY': key}))
             files.append(replace_and_return_file(
-                    'gallery_admin_deletebutton.html', {'DELETE': filename}))
-        files.append(return_file('gallery_sep.html'))
+                    'gallery_admin_deletebutton.html', {
+                        'DELETE': filename,
+                        'LIKE': prev,
+                        }))
+        prev = filename
     files.append(return_file('footer.html'))
     
     return files

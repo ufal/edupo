@@ -91,7 +91,9 @@ def auth_check(username, password):
 @bottle.route('/panwtr/gallery.py', method='ANY')
 @bottle.auth_basic(auth_check)
 def admin_gallery():
-    return common.gallery('admin', bottle.request.params.delete)
+    return common.gallery('admin',
+            bottle.request.params.delete,
+            bottle.request.params.like)
 
 @bottle.error()
 def error_generic(e):
