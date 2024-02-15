@@ -4,6 +4,7 @@
 import common
 import cgi
 
+common.httpheader()
 form = cgi.FieldStorage()
 key = form.getvalue("key", "")
 print(*common.post(key), sep="\n")
