@@ -23,7 +23,7 @@ def static(root, directory, filename):
 
 @bottle.route('/favicon.ico')
 def favicon():
-    return bottle.static_file('favicon.ico')
+    return bottle.static_file('favicon.ico', root='/')
 
 #@bottle.route('/<directory:path:re:(css|fa-symbols|fonts).*>/<filename>')
 #def static_root(directory, filename):
