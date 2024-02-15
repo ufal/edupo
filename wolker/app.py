@@ -21,13 +21,9 @@ def get_replacements(names=[]):
 def static(root, directory, filename):
     return bottle.static_file(filename, directory)
 
-@bottle.route('/favicon.ico')
-def favicon():
-    return bottle.static_file('favicon.ico', root='')
-
-#@bottle.route('/<directory:path:re:(css|fa-symbols|fonts).*>/<filename>')
-#def static_root(directory, filename):
-#    return bottle.static_file(filename, directory)
+@bottle.route('/<filename:re:(favicon.ico|robots.txt)>')
+def static_root(filename):
+    return bottle.static_file(filename, root='')
 
 # intro
 @bottle.route('/wtr/', method='ANY')
