@@ -112,15 +112,10 @@ def generate_image(prompt, seed, filename):
 
 def _get_image_for_line(line, seed):
     prompt = line
-    try:
-        filename = text2id(line) + '_' + str(seed)
-        filename_full = f'{IMGDIR}/{filename}.png'
-        if not os.path.isfile(filename_full):
-            prompt = generate_image(line, seed, filename_full)
-    except Exception as e:
-        message = f'Cannot generate image "{filename}" for "{line}": {e}'
-        logging.warning(message)
-        filename = "DEFAULTIMAGE"
+    filename = text2id(line) + '_' + str(seed)
+    filename_full = f'{IMGDIR}/{filename}.png'
+    if not os.path.isfile(filename_full):
+        prompt = generate_image(line, seed, filename_full)
     
     return filename, prompt
 
