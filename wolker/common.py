@@ -196,7 +196,7 @@ def gallery(typ='', delete='', like='', delike=''):
         if delete:
             os.remove(f'{OUTPUTDIR}/{delete}')
         if delike:
-            os.remove(f'{LIKEDIR}/{like}')
+            os.remove(f'{LIKEDIR}/{delike}')
         if like:
             with open(f'{LIKEDIR}/{like}', 'w'):
                 pass
