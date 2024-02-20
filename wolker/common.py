@@ -187,7 +187,7 @@ def slideshow():
     files.append(return_file('footer.html'))
     return files
 
-def gallery(typ='', delete='', like=''):
+def gallery(typ='', delete='', like='', delike=''):
     files = []
     files.append(return_file('header_static.html'))
     
@@ -195,6 +195,8 @@ def gallery(typ='', delete='', like=''):
         files.append(return_file('gallery_admin_head.html'))
         if delete:
             os.remove(f'{OUTPUTDIR}/{delete}')
+        if delike:
+            os.remove(f'{LIKEDIR}/{like}')
         if like:
             with open(f'{LIKEDIR}/{like}', 'w'):
                 pass
@@ -212,6 +214,8 @@ def gallery(typ='', delete='', like=''):
             if filename in likes:
                 files.append(replace_and_return_file(
                         'gallery_admin_like.html', {'LIKE': filename}))
+                files.append(replace_and_return_file(
+                        'gallery_admin_delikebutton.html', {'LIKE': filename}))
             else:
                 files.append(replace_and_return_file(
                         'gallery_admin_likebutton.html', {'LIKE': filename}))

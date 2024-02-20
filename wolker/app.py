@@ -93,7 +93,9 @@ def auth_check(username, password):
 def admin_gallery():
     return common.gallery('admin',
             bottle.request.params.delete,
-            bottle.request.params.like)
+            bottle.request.params.like,
+            bottle.request.params.delike,
+            )
 
 @bottle.error()
 def error_generic(e):
