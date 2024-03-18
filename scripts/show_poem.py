@@ -40,7 +40,11 @@ if 'cs_sumarization' in j[0]:
     print()
 
 if 'categories' in j[0]:
-    print("KATEGORIE:", *j[0]['categories'])
+    c = j[0]['categories']
+    if type(c) == str:
+        print("KATEGORIE:", c)
+    else:
+        print("KATEGORIE:", *c)
     print()
 
 
