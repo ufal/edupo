@@ -35,6 +35,10 @@ if 'sumarization' in j[0]:
     print("SHRNUTÍ EN:", j[0]['sumarization'])
     print()
 
+if 'cs_sumarization_trans' in j[0]:
+    print("SHRNUTÍ EN -> MT -> CS:", j[0]['cs_sumarization_trans'])
+    print()
+
 if 'cs_sumarization' in j[0]:
     print("SHRNUTÍ CS:", j[0]['cs_sumarization'])
     print()
