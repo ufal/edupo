@@ -7,9 +7,8 @@ echo '<ul>'
 cd ccv-new-summary-gpt4
 for f in *
 do
-    echo '<li>'$f
-    echo '<a href="show_poem.sh?ccv-new-summary/'$f'">Mixtral</a>'
-    echo '<a href="show_poem.sh?ccv-new-summary-gpt4/'$f'">GPT4</a>'
+    echo '<li>'
+    echo '<a href="show_poem2.sh?ccv-new-summary/'$f':ccv-new-summary-gpt4/'$f'">'$f'</a>'
 done
 echo '</ul>'
 
