@@ -10,7 +10,7 @@ logging.basicConfig(
     level=logging.INFO)
 
 import json
-
+import string
 from string import Template
 
 # Reads in file
@@ -22,6 +22,10 @@ with open(filename) as infile:
 
 with open('html/show_poem_html.html') as infile:
     html = Template(infile.read())
+with open('html/stanza.html') as infile:
+    stanza_html = Template(infile.read())
+with open('html/verse.html') as infile:
+    verse_html = Template(infile.read())
 
 replacements = {}
 
@@ -38,12 +42,28 @@ replacements[''] = ''
 
 # print("SLOKY:", len(j[0]["body"]))
 
-verses = []
+# rhyme is 1-based
+# nonrhyming = None, converts to 0
+RYM = ' ' + 10*string.ascii_uppercase
+
+stanzas_html = []
 for stanza in j[0]["body"]:
+    verses_html = []
     for verse in stanza:
-        verses.append(verse["text"])
-    verses.append('')
-replacements['text'] = '\n'.join(verses)
+        rhyme = 0 if verse["rhyme"] == None else verse["rhyme"]
+        verses_html.append(verse_html.substitute(
+            text=verse["text"],
+            rhyme=rhyme,
+            rym=RYM[int(rhyme)],
+            ))
+    stanzas_html.append(stanza_html.substitute(
+        verses='\n'.join(verses_html)
+        ))
+        
+    # TODO možná restartovat číslování rýmu po každé sloce
+    # (ale někdy jde rýmování napříč slokama)
+
+replacements['body'] = '\n'.join(stanzas_html)
 
 print(html.substitute(replacements))
 
