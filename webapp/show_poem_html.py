@@ -58,15 +58,32 @@ replacements[''] = ''
 # nonrhyming = None, converts to 0
 RYM = ' ' + 10*string.ascii_uppercase
 
+METRUM = {
+    'J': "jamb",
+    'T': "trochej",
+    'D': "daktyl",
+        }
+
+def get_metrum(metre):
+    if metre in METRUM:
+        return METRUM[metre]
+    else:
+        return f"metrum {metre}"
+
 stanzas_html = []
 for stanza in j[0]["body"]:
     verses_html = []
     for verse in stanza:
         rhyme = 0 if verse["rhyme"] == None else verse["rhyme"]
+        try:
+            metre = list(verse["metre"][0].keys())[0]
+        except:
+            metre = '?'
         verses_html.append(verse_html.substitute(
             text=verse["text"],
             rhyme=rhyme,
             rym=RYM[int(rhyme)],
+            metrum=get_metrum(metre),
             ))
     stanzas_html.append(stanza_html.substitute(
         verses='\n'.join(verses_html)
