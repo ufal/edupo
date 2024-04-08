@@ -31,13 +31,32 @@ def get_j0_key(j, key1, default=''):
     try:
         return j[0][key1]
     except:
+        logging.warning(f"Missing {key1} in data.")
         return default
 
 def get_j0_key_key(j, key1, key2, default=''):
     try:
         return j[0][key1][key2]
     except:
+        logging.warning(f"Missing {key1} {key2} in data.")
         return default
+
+def get_metre(verse):
+    try:
+        return list(verse["metre"][0].keys())[0]
+    except:
+        logging.warning(f"Missing metre in data.")
+        return '?'
+
+def get_rhyme(verse):
+    try:
+        rhyme = 0 if verse["rhyme"] == None else verse["rhyme"]
+        int(rhyme)
+        return rhyme
+    except:
+        logging.warning(f"Missing valid rhyme in data.")
+        return 0
+
 
 replacements = {}
 
@@ -74,11 +93,8 @@ stanzas_html = []
 for stanza in j[0]["body"]:
     verses_html = []
     for verse in stanza:
-        rhyme = 0 if verse["rhyme"] == None else verse["rhyme"]
-        try:
-            metre = list(verse["metre"][0].keys())[0]
-        except:
-            metre = '?'
+        rhyme = get_rhyme(verse)
+        metre = get_metre(verse)
         verses_html.append(verse_html.substitute(
             text=verse["text"],
             rhyme=rhyme,
