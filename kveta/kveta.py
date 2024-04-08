@@ -73,13 +73,34 @@ k.rhyme(6, 0.95, 0.95)
 k.htmlprint()
 
 
-output = {
-    'pie_data': k.pie_data_,
-    'object': {
-        'metres': k.overall_probs_,
-        'poem': k.poem_,
-    },
-}
+#output = {
+#    'pie_data': k.pie_data_,
+#    'object': {
+#        'metres': k.overall_probs_,
+#        'poem': k.poem_,
+#    },
+#}
+
+# Change the rhyming format to CCV style
+rc = dict()
+cur_num = 0
+for i, v in enumerate(k.poem_):
+    minimum = i
+    for x in v["rhyme"]:
+        if x < minimum:
+            minimum = x
+    if not minimum in rc:
+        cur_num += 1
+        rc[minimum] = cur_num
+    k.poem_[i]["rhyme"] = rc[minimum]
+
+# Change the JSON structure to resemble CCV
+output = [
+    { 
+        "pie_data": k.pie_data_,
+        "body": [ k.poem_ ]
+    }
+]
 
 if filename[-4:] == ".txt":
     filename = filename[:-4]
