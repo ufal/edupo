@@ -94,10 +94,15 @@ for i, v in enumerate(k.poem_):
         rc[minimum] = cur_num
     k.poem_[i]["rhyme"] = rc[minimum]
 
+# Put metres from k.pie_data_ into verses
+for i, v in enumerate(k.poem_):
+    k.poem_[i]["metre"] = [ {"T": k.pie_data_[i]} ]
+
+
 # Change the JSON structure to resemble CCV
 output = [
     { 
-        "pie_data": k.pie_data_,
+        "metres": k.overall_probs_,
         "body": [ k.poem_ ]
     }
 ]
