@@ -27,15 +27,27 @@ with open('html/stanza.html') as infile:
 with open('html/verse.html') as infile:
     verse_html = Template(infile.read())
 
+def get_j0_key(j, key1, default=''):
+    try:
+        return j[0][key1]
+    except:
+        return default
+
+def get_j0_key_key(j, key1, key2, default=''):
+    try:
+        return j[0][key1][key2]
+    except:
+        return default
+
 replacements = {}
 
-replacements['p_title'] = j[0]["biblio"]["p_title"]
-replacements['p_author'] = j[0]["p_author"]["name"]
-replacements['schools'] = ', '.join(j[0]["p_schools"])
-replacements['born'] = j[0]["p_author"]["born"]
-replacements['died'] = j[0]["p_author"]["died"]
-replacements['b_title'] = j[0]["biblio"]["b_title"]
-replacements['year'] = j[0]["biblio"]["year"]
+replacements['p_title'] = get_j0_key_key(j, "biblio", "p_title")
+replacements['p_author'] = get_j0_key_key(j, "p_author", "name")
+replacements['schools'] = ', '.join(get_j0_key(j, "p_schools", []))
+replacements['born'] = get_j0_key_key(j, "p_author", "born")
+replacements['died'] = get_j0_key_key(j, "p_author", "died")
+replacements['b_title'] = get_j0_key_key(j, "biblio", "b_title")
+replacements['year'] = get_j0_key_key(j, "biblio", "year")
 replacements['filename'] = filename
 replacements[''] = ''
 replacements[''] = ''
