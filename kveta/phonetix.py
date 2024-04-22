@@ -198,11 +198,14 @@ class Phonetix:
         Process bigrams <ou>, <eu>, <au>
         TODO: dictionary || random forest classification
         '''
+
         self.replace((
             ('(₅|₆)au', r'\1A'),
             ('(₅|₆)eu', r'\1E'),
             ('(₅|₆)ou', r'\1O'),
-            ('ou', 'O')
+            ('ou', 'O'),
+            ('o₇u', 'ou'), # ₇ is used here as a sign in places where ou is not a diphtong
+            # TODO: v některých případech sem patří také ráz "glottal stop"
         ))
 
     def yat(self):
@@ -394,7 +397,10 @@ class Phonetix:
         for i, l in enumerate(poem):
             text_string = str()
             for j, w in enumerate(l['words']):
-                text_string += w['token'] + ' '
+                if 'nodip' in w:
+                    text_string += w['nodip'] + ' '
+                else:
+                    text_string += w['token'] + ' '
                 if 'punct' in w and re.search(r'[.;?!,\-\–]', w['punct']):
                        text_string += (' – ')
                      
