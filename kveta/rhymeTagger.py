@@ -167,18 +167,28 @@ class RhymeTagger:
   def tagging(self, data):
     '''Perform tagging'''
     rhymes = defaultdict(set)
+    list_of_final_VCVCs = []
     
     # Tag rhymes according to SAMPA
     for i, val in enumerate(data):
+        
+      list_of_final_VCVCs.append( self._split_to_components( data[i]['sampa'] ) )
+
       for j in range(i-self.settings['window'], i):         
         if j < 0:
           continue
         if self.settings['stanza_limit'] and data[i]['stanza'] != data[j]['stanza']:
           continue
-        score = self._rhyme_score(data[i]['sampa'], 
-                                  data[j]['sampa'], 
-                                  data[i]['word'], 
-                                  data[j]['word'])
+
+        c1 = self._split_to_components( data[i]['sampa'] ) 
+        c2 = self._split_to_components( data[j]['sampa'] ) 
+
+        if len(c1) > len(c2):
+            c1 = c1[:len(c2)]
+        elif len(c2) > len(c1):
+            c2 = c2[:len(c1)]
+      
+        score = self._rhyme_score(c1, c2, data[i]['word'], data[j]['word'])
                                   
         if ( score > self.settings['probability_sampa_min'] ): # and data[i]['word'] != data[j]['word'] ):
           rhymes[i].add(j)   
@@ -224,18 +234,11 @@ class RhymeTagger:
               
       # Perform evaluation
       self._eval(data, rhymes)
-    return rhymes
+    return rhymes, list_of_final_VCVCs
                           
-  def _rhyme_score(self, sampa1, sampa2, word1, word2):
+  def _rhyme_score(self, c1, c2, word1, word2):
     '''Probability of being rhyme based on SAMPA'''
     score = [1,1]
-    c1 = self._split_to_components( sampa1 )
-    c2 = self._split_to_components( sampa2 )
-        
-    if len(c1) > len(c2):
-      c1 = c1[:len(c2)]
-    elif len(c2) > len(c1):
-      c2 = c2[:len(c1)]
    
     if c1 == c2:
       return 1

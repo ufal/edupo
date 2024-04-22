@@ -30,10 +30,12 @@ class RhymeDetection:
                               'sampa': xsampa,
                               'stanza': l['stanza']})
 
-        r = self.tagger.tagging(fin_words)
+        r, list_of_final_VCVCs = self.tagger.tagging(fin_words)
+        assert len(r) == len(list_of_final_VCVCs)
         
         for i,l in enumerate(poem):
             poem[i]['rhyme'] = list(r[i])
+            poem[i]['final_VCVC'] = " ".join(list_of_final_VCVCs[i])[::-1] # join CVCVs and reverse them to get the natural order
         return poem  
             
 
