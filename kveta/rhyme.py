@@ -75,7 +75,7 @@ class RhymeDetection:
             't': 't',        
             'd': 'd',        
             'ť': 'c',        
-            'ď': 'J\\',        
+            'ď': 'J!',        
             'k': 'k',        
             'g': 'g',        
 

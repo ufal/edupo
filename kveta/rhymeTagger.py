@@ -19,7 +19,7 @@ class RhymeTagger:
                 probability_sampa_min = 0.95, 
                 probability_ngram_min = 0.95):
 
-      self.syllable_peaks = "iye2E9{a&IYU1}@836Mu7oVOAQ0="
+      self.syllable_peaks = "iye2E9{a&IYU1}@836Mu7oVOA0=" # TODO: DM vyhodil jsem Q, aby to nerozdelovalo Q\
       self.sampa_dict = defaultdict(dict)
       self.word_f = defaultdict(int)
       self.word_gf = defaultdict(int)
@@ -91,7 +91,6 @@ class RhymeTagger:
 
     for i, c in enumerate(sampa):
       sampa[i] = re.sub(r"^$", r'#', sampa[i]) 
-
 
     return sampa
   
@@ -167,12 +166,11 @@ class RhymeTagger:
   def tagging(self, data):
     '''Perform tagging'''
     rhymes = defaultdict(set)
-    list_of_final_VCVCs = []
+    list_of_final_CVCVs = []
     
     # Tag rhymes according to SAMPA
     for i, val in enumerate(data):
-        
-      list_of_final_VCVCs.append( self._split_to_components( data[i]['sampa'] ) )
+      list_of_final_CVCVs.append( self._split_to_components( data[i]['sampa'] ) )
 
       for j in range(i-self.settings['window'], i):         
         if j < 0:
@@ -187,6 +185,11 @@ class RhymeTagger:
             c1 = c1[:len(c2)]
         elif len(c2) > len(c1):
             c2 = c2[:len(c1)]
+
+        # DM: the group may end with C only if shorter than 3
+        if len(c1) >= 4 and c1[-1][-1] not in self.syllable_peaks:
+            c1 = c1[:-1]
+            c2 = c2[:-1]
       
         score = self._rhyme_score(c1, c2, data[i]['word'], data[j]['word'])
                                   
@@ -234,7 +237,7 @@ class RhymeTagger:
               
       # Perform evaluation
       self._eval(data, rhymes)
-    return rhymes, list_of_final_VCVCs
+    return rhymes, list_of_final_CVCVs
                           
   def _rhyme_score(self, c1, c2, word1, word2):
     '''Probability of being rhyme based on SAMPA'''
