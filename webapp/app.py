@@ -9,7 +9,7 @@ print(__name__)
 
 @app.route("/")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    return "<p>Vítejte v EduPo!</p>"
 
 @app.route("/prdel")
 def prdel_world():
