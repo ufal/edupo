@@ -54,10 +54,11 @@ def generuj(schema='AABB'):
    
     return result
 
-try:
-    poet_start = sys.argv[1]
-except:
-    poet_start = 'AABB'
+if __name__=="__main__":
+    try:
+        poet_start = sys.argv[1]
+    except:
+        poet_start = 'AABB'
 
-verses = generuj(poet_start)
-print(*verses, sep='\n')
+    verses = generuj(poet_start)
+    print(*verses, sep='\n')

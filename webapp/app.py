@@ -3,6 +3,7 @@
 
 from flask import Flask
 import os
+from gen import generuj
 
 app = Flask(__name__)
 print(__name__)
@@ -14,6 +15,11 @@ def hello_world():
 @app.route("/prdel")
 def prdel_world():
     return "<p>Hello, Prdel!</p>"
+
+@app.route("/gen")
+def call_generuj(poet_start = 'AABB'):
+    verses = generuj(poet_start)
+    return '<br>'.join(verses)
 
 @app.route("/tajnejkill")
 def kill():
