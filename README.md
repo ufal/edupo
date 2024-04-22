@@ -1,2 +1,7 @@
 # edupo
 EduPo: Generování české poezie v edukačním a multimediálním prostředí
+
+## maintainers
+- ptakopysk (Rudolf Rosa): the head of the team
+- davidmarecek (David Mareček), tomasmcz (Tomáš Musil): team members
+- jarda-edupo: a virtual shared user 
