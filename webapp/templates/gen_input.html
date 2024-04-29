@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>Generovat báseň</title>
+    <style>
+        input {display: block;}
+    </style>
+</head>
+<body>
+
+    <h1>Generovat báseň</h1>
+
+    <form method="post" action="gen">
+        Rýmové schéma:
+        <input type="text"
+               name="rhyme_scheme"
+               placeholder="AABB"
+               pattern="[A-Z]*"
+               title="Rýmové schéma za použití velkých písmen abecedy, např. ABBA"
+               autofocus
+        >
+        <input name="submit" type="submit" value="Generovat">
+    </form>
+
+</body>
+</html>
+

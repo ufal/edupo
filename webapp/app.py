@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 import os
 from gen import generuj
 from show_poem_html import show_file 
@@ -24,7 +24,7 @@ def get_post_arg(key, default=None):
 
 @app.route("/")
 def hello_world():
-    return "<p>Vítejte v EduPo!</p>"
+    return render_template('gen_input.html')
 
 @app.route("/prdel")
 def prdel_world():
