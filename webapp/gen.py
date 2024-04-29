@@ -54,6 +54,8 @@ def generuj(rhyme_scheme='AABB'):
             verse = line
         result.append(verse.strip())
    
+    # TODO vracet zvlášť raw data a zvlášť clean výstup
+    # TODO výhledově možná rovnou vracet v JSON formátu
     return result
 
 if __name__=="__main__":

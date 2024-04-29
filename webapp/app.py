@@ -37,8 +37,11 @@ def prdel_world():
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     rhyme_scheme = get_post_arg('rhyme_scheme', 'AABB', True)
+    app.logger.info(f"Generate poem with scheme {rhyme_scheme}")
     poet_start = rhyme_scheme
     verses = generuj(poet_start)
+    clean_verses = verses[-len(rhyme_scheme)-1:]
+    app.logger.info(f"Generated poem {clean_verses}")
     return '<br>'.join(verses)
 
 @app.route("/show")
