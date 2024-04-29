@@ -15,8 +15,8 @@ import torch
 tokenizer = AutoTokenizer.from_pretrained("jinymusim/gpt-czech-poet")
 model = AutoModelForCausalLM.from_pretrained("jinymusim/gpt-czech-poet")
 
-def generuj(schema='AABB'):
-    poet_start = schema
+def generuj(rhyme_scheme='AABB'):
+    poet_start = f'# {rhyme_scheme} #'
     result = []
 
     # tokenize input
@@ -28,7 +28,7 @@ def generuj(schema='AABB'):
             max_length=256,
             do_sample=True,
             top_p=0.7,
-            no_repeat_ngram_size=2,
+            # no_repeat_ngram_size=2,
             pad_token_id= tokenizer.pad_token_id,
             eos_token_id = tokenizer.eos_token_id
             )
@@ -39,9 +39,9 @@ def generuj(schema='AABB'):
     result = decoded_cont.split('\n')
     header = result[0]
     try:
-        schema, year = header.split(' # ')
+        _, schema, year = header.split('#')
     except:
-        schema = poet_start
+        schema = rhyme_scheme
         year = '?'
     poem = result[1:]
 
@@ -56,9 +56,9 @@ def generuj(schema='AABB'):
 
 if __name__=="__main__":
     try:
-        poet_start = sys.argv[1]
+        rhyme_scheme = sys.argv[1]
     except:
-        poet_start = 'AABB'
+        rhyme_scheme = 'AABB'
 
-    verses = generuj(poet_start)
+    verses = generuj(rhyme_scheme)
     print(*verses, sep='\n')
