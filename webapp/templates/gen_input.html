@@ -3,10 +3,26 @@
         <input type="text"
                name="rhyme_scheme"
                placeholder="AABB"
-               pattern="[A-Z]*"
-               title="Rýmové schéma za použití velkých písmen abecedy, např. ABBA"
+               pattern="|[ABCX]{4}|[ABCX]{6}"
+               title="Rýmové schéma za použití 4 nebo 6 velkých písmen abecedy (A, B, C, X), např. ABBA"
                autofocus
         >
+        <p>Generátor umí čtyřverší a šestiverší. Rýmující verše se označují
+        stejným písmenem, nerýmující se verš se označuje X.</p>
+        <p>Nejběžnější schémata:</p>
+        <ul>
+            <li>ABAB</li>
+            <li>XXXX</li>
+            <li>XAXA</li>
+            <li>XXXXXX</li>
+            <li>AABB</li>
+            <li>ABBA</li>
+            <li>AABBCC</li>
+            <li>AAXX</li>
+            <li>ABABXX</li>
+            <li>ABABCC</li>
+        </ul>
+
         <input name="submit" type="submit" value="Generovat">
     </form>
 
