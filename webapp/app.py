@@ -24,7 +24,7 @@ def get_post_arg(key, default=None):
 
 @app.route("/")
 def hello_world():
-    return render_template('gen_input.html')
+    return render_template('index.html')
 
 @app.route("/prdel")
 def prdel_world():
