@@ -27,7 +27,9 @@ def generuj(rhyme_scheme='AABB'):
             tokenized_poet_start, 
             max_length=256,
             do_sample=True,
-            top_p=0.7,
+            # top_p=0.7,
+            top_k=50,
+            temperature=1,
             # no_repeat_ngram_size=2,
             pad_token_id= tokenizer.pad_token_id,
             eos_token_id = tokenizer.eos_token_id
