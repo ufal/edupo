@@ -23,7 +23,6 @@ for a in authors:
     if a['identity'] in a_dict:
         assert a_dict[a['identity']]['born'] == a['born']
         assert a_dict[a['identity']]['died'] == a['died']
-        # if a_dict[a['identity']]['name'] != a['name']: print(a_dict[a['identity']]['name'], '|', a['name'])
     else:
         a_dict[a['identity']] = a
 print('Done.')
@@ -48,18 +47,42 @@ for b in jsons:
     b_dict[id]['author'] = b['b_author']['identity']
 print('Done.')
 
+print('Creating poems table.', end=' ')
+p_dict = {}
+for id, b in enumerate(jsons):
+    p_dict[id] = dict()
+    p_dict[id]['id'] = id
+    book_id = int(b['book_id'])
+    assert book_id in b_dict
+    p_dict[id]['book_id'] = book_id
+    p_dict[id]['author'] = b['p_author']['identity']
+    p_dict[id]['schools'] = b['schools']
+    p_dict[id]['title'] = b['biblio']['p_title']
+    p_dict[id]['poem_id_corp'] = b['poem_id']
+    p_dict[id]['schemes'] = b['schemes']
+    p_dict[id]['body'] = b['body']
+print('Done.')
+
 print('Creating new database.', end=' ')
 con = sqlite3.connect("new.db")
 cur = con.cursor()
-cur.execute("CREATE TABLE authors (identity STRING, born YEAR, died YEAR, PRIMARY KEY (identity));")
+cur.execute("CREATE TABLE authors (identity STRING PRIMARY KEY, born YEAR, died YEAR);")
 for a in a_dict.values():
     cur.execute("INSERT INTO authors VALUES (?, ?, ?);", (a['identity'], a['born'], a['died']))
-cur.execute("CREATE TABLE books (id INT, title STRING, subtitle STRING, author STRING, motto STRING, motto_aut STRING," + \
-            " publisher STRING, edition STRING, place STRING, dedication STRING, pages STRING, year YEAR, signature STRING, PRIMARY KEY (id));")
+cur.execute("CREATE TABLE books (id INT PRIMARY KEY, title STRING, subtitle STRING, author STRING REFERENCES authors(identity), motto STRING, motto_aut STRING," + \
+            " publisher STRING, edition STRING, place STRING, dedication STRING, pages STRING, year YEAR, signature STRING);")
 for b in b_dict.values():
     cur.execute("INSERT INTO books VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
                 (b['id'], b['b_title'], b['b_subtitle'], b['author'], b['motto'], b['motto_aut'], b['publisher'], b['edition'],
                  b['place'], b['dedication'], b['pages'], b['year'], b['signature']))
+cur.execute("CREATE TABLE poems (id INT PRIMARY KEY, book_id INT REFERENCES books(id), author STRING REFERENCES authors(identity)," + \
+            " title STRING, poem_id_corp STRING," + \
+            " schools JSON, schemes JSON, body JSON, duplicate_plechac INT REFERENCES poems(id), duplicate_tm INT REFERENCES poems(id));")
+for p in p_dict.values():
+    cur.execute("INSERT INTO poems VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                (p['id'], p['book_id'], p['author'], p['title'], p['poem_id_corp'],
+                 json.dumps(p['schools']), json.dumps(p['schemes']), json.dumps(p['body']),
+                 None, None))
 con.commit()
 print('Done.')
 
