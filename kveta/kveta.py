@@ -7,6 +7,7 @@ import preprocessing
 import morph
 import phonetix
 import line2vec
+import syllables
 import meter
 import rhyme
 import pprint
@@ -31,7 +32,9 @@ class Kveta:
     def phonetics(self):
         ptx = phonetix.Phonetix()
         self.poem_ = ptx.transcript_poem(self.poem_)     
-
+    def syllables(self):
+        syl = syllables.Syllables()
+        self.poem_ = syl.split_words_to_syllables(self.poem_)
     def line2vec(self):
         l2v = line2vec.Line2Vec()
         self.poem_ = l2v.tag(self.poem_)
@@ -65,6 +68,7 @@ k = Kveta(text)
 k.preprocessing()
 k.pos_tagging()
 k.phonetics()
+k.syllables()
 k.line2vec()
 k.meter()
 #k.rhyme(rwindow, rpsounds, rpngrams)
