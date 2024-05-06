@@ -111,6 +111,17 @@ output = [
     }
 ]
 
+# Copy the streses and S/W/V into indivisual syllables
+for i, v in enumerate(k.poem_):
+    swv = v["metre"][0]["T"]["pattern"]
+    stress = v["sections"]
+    pointer = 0
+    for j, w in enumerate(v["words"]):
+        for l, s in enumerate(w["syllables"]):
+            k.poem_[i]["words"][j]["syllables"][l]["position"] = swv[pointer]
+            k.poem_[i]["words"][j]["syllables"][l]["stress"] = stress[pointer]
+            pointer += 1
+
 if filename[-4:] == ".txt":
     filename = filename[:-4]
 
