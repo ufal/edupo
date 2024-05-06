@@ -11,8 +11,9 @@ logging.basicConfig(
 
 import json
 import string
-from string import Template
 from collections import defaultdict
+
+from flask import render_template
 
 # TODO rewrite using Jinja probably?
 # from flask import render_template
@@ -53,36 +54,26 @@ def get_rhyme(verse):
 def show(data):
     data = defaultdict(str, data)
 
-    with open('html/show_poem_html.html') as infile:
-        html = Template(infile.read())
-    with open('html/stanza.html') as infile:
-        stanza_html = Template(infile.read())
-    with open('html/verse.html') as infile:
-        verse_html = Template(infile.read())
-
-    stanzas_html = []
-    
+    data['stanzas'] = []
     for stanza in data['body']:
-        verses_html = []
+        verses = []
         for verse in stanza:
             rhyme = get_rhyme(verse)
             metre = get_metre(verse)
-            verses_html.append(verse_html.substitute(
-                text=verse["text"],
-                rhyme=rhyme,
-                rym=RYM[int(rhyme)],
-                metrum=get_metrum(metre),
-                ))
-        stanzas_html.append(stanza_html.substitute(
-            verses='\n'.join(verses_html)
-            ))
+            verses.append({
+                'text': verse["text"],
+                'rhyme': rhyme,
+                'rym': RYM[int(rhyme)],
+                'metrum': get_metrum(metre),
+                })
+        data['stanzas'].append({
+            'verses': verses,
+            })
             
         # TODO možná restartovat číslování rýmu po každé sloce
         # (ale někdy jde rýmování napříč slokama)
 
-    data['stanzas'] = '\n'.join(stanzas_html)
-    
-    return html.substitute(data)
+    return render_template('show_poem_html.html', **data)
 
 
 # Reads in file
