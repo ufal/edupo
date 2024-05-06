@@ -14,10 +14,13 @@ print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
 
+sqlite3.register_converter("json", json.loads)
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DBFILE)
+        db = g._database = sqlite3.connect(DBFILE,
+                detect_types=sqlite3.PARSE_DECLTYPES)
         db.row_factory = sqlite3.Row
     return db
 
@@ -75,9 +78,7 @@ def call_show():
             sql = f'SELECT * FROM {table} WHERE id={poemid}'
             result = db.execute(sql).fetchone()
         assert result != None 
-        data = defaultdict(str, result)
-        data['body'] = json.loads(result['body'])
-        html = show_poem_html.show(data)
+        html = show_poem_html.show(result)
         return html
 
 @app.route("/tajnejkill")
