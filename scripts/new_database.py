@@ -45,6 +45,7 @@ for b in jsons:
                 continue
         b_dict[id][k] = b['biblio'][k]
     b_dict[id]['author'] = b['b_author']['identity']
+    b_dict[id]['author_name'] = b['b_author']['name']
 print('Done.')
 
 print('Creating poems table.', end=' ')
@@ -56,6 +57,7 @@ for id, b in enumerate(jsons):
     assert book_id in b_dict
     p_dict[id]['book_id'] = book_id
     p_dict[id]['author'] = b['p_author']['identity']
+    p_dict[id]['author_name'] = b['p_author']['name']
     p_dict[id]['schools'] = b['schools']
     p_dict[id]['title'] = b['biblio']['p_title']
     p_dict[id]['poem_id_corp'] = b['poem_id']
@@ -69,23 +71,21 @@ cur = con.cursor()
 cur.execute("CREATE TABLE authors (identity STRING PRIMARY KEY, born YEAR, died YEAR);")
 for a in a_dict.values():
     cur.execute("INSERT INTO authors VALUES (?, ?, ?);", (a['identity'], a['born'], a['died']))
-cur.execute("CREATE TABLE books (id INT PRIMARY KEY, title STRING, subtitle STRING, author STRING REFERENCES authors(identity), motto STRING, motto_aut STRING," + \
+cur.execute("CREATE TABLE books (id INT PRIMARY KEY, title STRING, subtitle STRING, author STRING REFERENCES authors(identity)," + \
+            " author_name STRING, motto STRING, motto_aut STRING," + \
             " publisher STRING, edition STRING, place STRING, dedication STRING, pages STRING, year YEAR, signature STRING);")
 for b in b_dict.values():
-    cur.execute("INSERT INTO books VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-                (b['id'], b['b_title'], b['b_subtitle'], b['author'], b['motto'], b['motto_aut'], b['publisher'], b['edition'],
+    cur.execute("INSERT INTO books VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                (b['id'], b['b_title'], b['b_subtitle'], b['author'], b['author_name'], b['motto'], b['motto_aut'], b['publisher'], b['edition'],
                  b['place'], b['dedication'], b['pages'], b['year'], b['signature']))
 cur.execute("CREATE TABLE poems (id INT PRIMARY KEY, book_id INT REFERENCES books(id), author STRING REFERENCES authors(identity)," + \
-            " title STRING, poem_id_corp STRING," + \
+            " author_name STRING, title STRING, poem_id_corp STRING," + \
             " schools JSON, schemes JSON, body JSON, duplicate_plechac INT REFERENCES poems(id), duplicate_tm INT REFERENCES poems(id));")
 for p in p_dict.values():
-    cur.execute("INSERT INTO poems VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-                (p['id'], p['book_id'], p['author'], p['title'], p['poem_id_corp'],
+    cur.execute("INSERT INTO poems VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                (p['id'], p['book_id'], p['author'], p['author_name'], p['title'], p['poem_id_corp'],
                  json.dumps(p['schools']), json.dumps(p['schemes']), json.dumps(p['body']),
                  None, None))
 con.commit()
 print('Done.')
-
-# get books
-
 cur.close()
