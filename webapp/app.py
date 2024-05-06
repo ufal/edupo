@@ -13,7 +13,7 @@ app = Flask(__name__)
 print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
-#DBFILE='/net/projects/EduPo/data/new_copy.db'
+DBFILE='/net/projects/EduPo/data/new_copy.db'
 
 sqlite3.register_converter("json", json.loads)
 
@@ -74,9 +74,8 @@ def call_show():
     if poemid.endswith('.json'):
         return show_poem_html.show_file(poemid)
     else:
-        table = get_post_arg('table', 'poems', True)
         with get_db() as db:
-            sql = f'SELECT * FROM {table} WHERE id={poemid}'
+            sql = f'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id={poemid} AND books.id=poems.book_id AND authors.identity=poems.author'
             result = db.execute(sql).fetchone()
         assert result != None 
         html = show_poem_html.show(result)

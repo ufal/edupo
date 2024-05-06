@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
     <meta charset="utf-8">
-    <title>{{ title }}</h1</title>
+    <title>{{ title }}</title>
     <link rel="stylesheet" id="style" href="static/show_poem_rich.css" />
     <script>
         function set_style(style) {
@@ -14,12 +14,17 @@
 
     <h1>{{ title }}</h1>
 
-    <h2>{{ author }}</h2>
+    <h2>{{ author_name }}</h2>
 
-    <p class="author">{{ schools }} {{ born }}-{{ died }}</p>
+    <p class="author">
+    {% if author != author_name %}vlastním jménem {{ author }},{% endif %}
+    {% if schools %}{{ schools }} {% endif %}
+    {{ born }}-{{ died }}
+    </p>
     
     {% if b_title %}
-    <p class="book">Sbírka: {{ b_title }}, {{ year }}</p>
+    <p class="book">{{ b_title }}{% if subtitle %}: {{ subtitle }}{% endif %}
+    ({{ publisher }}, {{ place }}, {{ year }})</p>
     {% endif %}
     
     <p class="id">{{ id }}</p>
