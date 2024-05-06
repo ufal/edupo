@@ -3,14 +3,10 @@
 <head>
     <meta charset="utf-8">
     <title>$p_title</title>
-    <link rel="stylesheet" id="style_rich" href="static/show_poem_rich.css" />
-    <link rel="stylesheet" id="style_plain" href="static/show_poem_plain.css" disabled />
+    <link rel="stylesheet" id="style" href="static/show_poem_rich.css" />
     <script>
         function set_style(style) {
-            for ( i=0; i<document.styleSheets.length; i++) {
-                void(document.styleSheets.item(i).disabled=true);
-            }
-            document.getElementById('style_' + style).disabled=false;
+            document.getElementById('style').href='static/show_poem_'+style+'.css';
         }
     </script>
 </head>
