@@ -94,7 +94,7 @@ def call_showauthor():
     author = get_post_arg('author', 'Sova, Antonín', True)
     with get_db() as db:
         sql = 'SELECT id, title FROM poems WHERE author=?'
-        result = db.execute(sql, (author.)).fetchall()
+        result = db.execute(sql, (author,)).fetchall()
     assert result != None 
     return render_template('showauthor.html', author=author, rows=result)
 
