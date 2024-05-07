@@ -17,14 +17,15 @@
     <h2>{{ author_name }}</h2>
 
     <p class="author">
-    {% if author != author_name %}vlastním jménem {{ author }},{% endif %}
-    {{ born }}-{{ died }}
-    {% for school in schools %}{{ school }} {% endfor %}
+    {% if author != author_name %}vlastním jménem {{ author }}, {% endif %}
+    {{ born }}-{{ died }}{% for school in schools %}, {{ school }}{% endfor %}
     </p>
     
     {% if b_title %}
-    <p class="book">sbírka {{ b_title }}{% if subtitle %}: {{ subtitle }}{% endif %}
-    ({{ publisher }}) {{ place }}, {{ year }}</p>
+    <p class="book">
+    sbírka {{ b_title }}{% if subtitle %}: {{ subtitle }}{% endif %}
+    ({{ publisher }}) {{ place }}, {{ year }}
+    </p>
     {% endif %}
     
     <p class="id">{{ id }}</p>
