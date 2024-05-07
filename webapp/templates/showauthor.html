@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>EduPo</title>
+</head>
+<body>
+
+<h1>EduPo</h1>
+
+<h2>{{ author }}</h2>
+
+<h2>Zobrazit báseň</h2>
+
+<ul>
+{% for row in rows %}
+    <li>
+        <a href="show?poemid={{ row.id }}">{{ row.title }}</a>
+    </li>
+{% endfor %}
+</ul>
+
+</body>
+</html>
+

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>EduPo</title>
+</head>
+<body>
+
+<h1>EduPo</h1>
+
+<h2>Zobrazit autora</h2>
+
+<ul>
+{% for row in rows %}
+    <li>
+        <a href="showauthor?author={{ row.author }}"
+            >{{ row.author }}
+            (počet básní: {{ row.count }})</a>
+    </li>
+{% endfor %}
+</ul>
+
+</body>
+</html>
+

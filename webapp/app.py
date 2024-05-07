@@ -75,11 +75,29 @@ def call_show():
         return show_poem_html.show_file(poemid)
     else:
         with get_db() as db:
-            sql = f'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id={poemid} AND books.id=poems.book_id AND authors.identity=poems.author'
-            result = db.execute(sql).fetchone()
+            sql = 'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id=? AND books.id=poems.book_id AND authors.identity=poems.author'
+            result = db.execute(sql, (poemid,)).fetchone()
         assert result != None 
         html = show_poem_html.show(result)
         return html
+
+@app.route("/showlist", methods=['GET', 'POST'])
+def call_showlist():
+    with get_db() as db:
+        sql = 'SELECT COUNT(id) as count, author FROM poems GROUP BY author ORDER BY count DESC'
+        result = db.execute(sql).fetchall()
+    assert result != None 
+    return render_template('showlist.html', rows=result)
+
+@app.route("/showauthor", methods=['GET', 'POST'])
+def call_showauthor():
+    author = get_post_arg('author', 'Sova, Antonín', True)
+    with get_db() as db:
+        sql = 'SELECT id, title FROM poems WHERE author=?'
+        result = db.execute(sql, (author.)).fetchall()
+    assert result != None 
+    return render_template('showauthor.html', author=author, rows=result)
+
 
 @app.route("/tajnejkill")
 def kill():
