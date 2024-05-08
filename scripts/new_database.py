@@ -88,4 +88,13 @@ for p in p_dict.values():
                  None, None))
 con.commit()
 print('Done.')
+
+print('Fixing bugs in the data.', end=' ')
+
+cur.execute('UPDATE books SET year=1876 WHERE id=1264;')
+con.commit()
+
+print('Done.')
+
 cur.close()
+con.close()

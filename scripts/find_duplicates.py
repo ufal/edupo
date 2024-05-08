@@ -26,9 +26,9 @@ for i, poem in jsons:
     poems.append('\n\n'.join(sloky))
     ids.append(i)
 
-k = 5000
+k = 10000
 max_l = len(poems)
-lsh = LSH(no_of_bands=25)
+lsh = LSH(no_of_bands=50)
 
 for i in range((max_l//k)+1):
     start_from = i*k
