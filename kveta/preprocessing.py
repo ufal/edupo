@@ -21,11 +21,10 @@ def stanza_separator(text):
     # Split stanzas into lines and create a poem object
     poem_obj = list()
     for i,x in enumerate(stanzas):
-        stanzas[i] = stanzas[i].split('\n')
-        for y in stanzas[i]:
+        for y in x.split('\n'):
             poem_obj.append({
                 'text': y.strip(),
-                'stanza': i,
+                'stanza' : i,
                 'words': list(),
             })
 
