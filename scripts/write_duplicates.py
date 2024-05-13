@@ -33,7 +33,7 @@ for d  in list(dupl.values()):
         continue
     visited.add(id)
     lst = cur.execute('SELECT year, poems.id FROM poems JOIN books ON poems.book_id=books.id WHERE poems.id IN ({})'.format(','.join(d))).fetchall()
-    lst = [(y, i) if (y != 'neuveden') else (9999, i) for y, i in lst]
+    lst = [(y, i) if (y != 'neuveden') else (0, i) for y, i in lst]
     print(lst)
     lst.sort()
     kanonic = lst[-1][1]
