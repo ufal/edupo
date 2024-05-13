@@ -43,5 +43,5 @@ for c, a in counts:
                 print(a[0], b[0], distance(p1, p2), r)
             i += 1
             if i % 100000 == 0:
-                print(i, i/total, time.time() - t_start, "ETA:", (time.time() - t_start) * total / (i* 60), "mins",
+                print(i, i/total, time.time() - t_start, "ETA:", (((time.time() - t_start) / i) * (total - i)) / 60, "mins",
                       file=sys.stderr)
