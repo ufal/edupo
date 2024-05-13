@@ -16,7 +16,6 @@ jsons = [json.loads(j[0]) for j in jsons]
 print('Done in {:.2f} s.'.format(time.time() - cas))
 
 print('Creating authors table.', end=' ')
-# get authors
 authors = [j['p_author'] for j in jsons] + [j['b_author'] for j in jsons]
 a_dict = {}
 for a in authors:
@@ -27,14 +26,23 @@ for a in authors:
         a_dict[a['identity']] = a
 print('Done.')
 
+def norm_year(year):
+    if year == 'neuveden':
+        return 0
+    if year[0] == '[' and year[-1] == ']':
+        year = year[1:-1]
+    return int(year)
+
 print('Creating books table.', end=' ')
-# get authors
 b_dict = {}
 for b in jsons:
     id = int(b['book_id'])
     if id in b_dict:
         for k in b['biblio']:
             if k == 'p_title':
+                continue
+            if k == 'year':
+                assert b_dict[id][k] == norm_year(b['biblio'][k]), (id, k, b_dict[id][k], norm_year(b['biblio'][k]))
                 continue
             assert b_dict[id][k] == b['biblio'][k], (id, k, b_dict[id][k], b['biblio'][k])
         assert b_dict[id]['author'] == b['b_author']['identity']
@@ -43,6 +51,9 @@ for b in jsons:
     for k in b['biblio']:
         if k == 'p_title':
                 continue
+        if k == 'year':
+            b_dict[id][k] = norm_year(b['biblio'][k])
+            continue
         b_dict[id][k] = b['biblio'][k]
     b_dict[id]['author'] = b['b_author']['identity']
     b_dict[id]['author_name'] = b['b_author']['name']
@@ -91,7 +102,8 @@ print('Done.')
 
 print('Fixing bugs in the data.', end=' ')
 
-cur.execute('UPDATE books SET year=1876 WHERE id=1264;')
+# Nové národní písně | Horký, Karel
+cur.execute('UPDATE books SET year=1915 WHERE id=1687;')
 con.commit()
 
 print('Done.')

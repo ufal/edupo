@@ -28,7 +28,7 @@ for i, poem in jsons:
 
 k = 10000
 max_l = len(poems)
-lsh = LSH(no_of_bands=50)
+lsh = LSH(no_of_bands=25)
 
 for i in range((max_l//k)+1):
     start_from = i*k
@@ -36,7 +36,7 @@ for i in range((max_l//k)+1):
     print('Processing', start_from, 'to', up_to, 'out of', max_l, 'poems', file=sys.stderr)
     start = time.time()
     # Generate MinHash signatures
-    signatures = MinHash(poems[i*k: min((i+1)*k, max_l)], n_gram=5, permutations=100, hash_bits=64, seed=7)
+    signatures = MinHash(poems[i*k: min((i+1)*k, max_l)], n_gram=5, permutations=100, hash_bits=64, seed=9)
     end = time.time()
     print('Generating MinHash signatures took', end - start, 'seconds,', (end - start)/k, 'per poem,',
           ((end - start)* (max_l- up_to) / k / 60), 'minutes estimated for all poems', file=sys.stderr)
