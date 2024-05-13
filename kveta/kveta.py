@@ -51,16 +51,7 @@ class Kveta:
         self.html_, self.pie_data_ = html.stringify(self.poem_, self.overall_probs_, mscore)
 
 
-if __name__=="__main__":
-    filename = sys.argv[1]
-
-    # read poem
-    text = ""
-    with open(filename) as f:
-        for line in f:
-            text += line
-    f.close()
-
+def okvetuj(text):
     # Get parameters
 
     k = Kveta(text)
@@ -126,6 +117,23 @@ if __name__=="__main__":
                 k.poem_[i]["words"][j]["syllables"][l]["stress"] = stress[pointer]
                 pointer += 1
 
+    return output, k
+
+
+if __name__=="__main__":
+    filename = sys.argv[1]
+
+    # read poem
+    text = ""
+    with open(filename) as f:
+        for line in f:
+            text += line
+    f.close()
+
+    # run Kveta
+    output, k = okvetuj(text)
+    
+    # write output
     if filename[-4:] == ".txt":
         filename = filename[:-4]
 
@@ -136,3 +144,5 @@ if __name__=="__main__":
     with open(filename+'.html', 'w', encoding='utf-8') as h:
         h.write(k.html_)
     h.close()
+
+
