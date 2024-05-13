@@ -99,7 +99,12 @@ for i, v in enumerate(k.poem_):
 
 # Put metres from k.pie_data_ into verses
 for i, v in enumerate(k.poem_):
-    k.poem_[i]["metre"] = [ {"T": k.pie_data_[i]} ]
+    letter = "T"
+    if k.pie_data_[i]["metre"] == "iamb":
+        letter = "J"
+    elif k.pie_data_[i]["metre"] == "dactyl":
+        letter = "D"
+    k.poem_[i]["metre"] = [ {letter: k.pie_data_[i]} ]
 
 
 # Change the JSON structure to resemble CCV
