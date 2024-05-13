@@ -1,10 +1,10 @@
 [
     {
         "metres": {
-            "SWSWSWSWSWS": 0.6171666829737334,
-            "SWWSWWSWWSW": 0.3297748024378661,
-            "WSWWSWWSWWS": 0.3173015498830426,
-            "WSWSWSWSWSW": 0.1873744543596514
+            "SWWSWWSWWSW": 0.32975309898257943,
+            "WSWSWSWSWSW": 0.18770445064768773,
+            "SWSWSWSWSWS": 0.6171260654086274,
+            "WSWWSWWSWWS": 0.3175794339607142
         },
         "body": [
             [
@@ -10436,7 +10436,7 @@
                                 ],
                                 "nextLong": [
                                     0,
-                                    1
+                                    0
                                 ]
                             }
                         },
@@ -10445,11 +10445,34 @@
                             "lemma": "nitro",
                             "morph": "NNNS6-----A----",
                             "sentence": 3,
-                            "cft": "ňítru",
-                            "syllables": [],
+                            "cft": "ňitru",
+                            "syllables": [
+                                {
+                                    "ph_consonants": "ň",
+                                    "ph_vowels": "i",
+                                    "ph_end_consonants": "",
+                                    "ort_consonants": "n",
+                                    "ort_vowels": "i",
+                                    "ort_end_consonants": "",
+                                    "length": 0,
+                                    "position": "S",
+                                    "stress": "1"
+                                },
+                                {
+                                    "ph_consonants": "tr",
+                                    "ph_vowels": "u",
+                                    "ph_end_consonants": "",
+                                    "ort_consonants": "tr",
+                                    "ort_vowels": "u",
+                                    "ort_end_consonants": "",
+                                    "length": 0,
+                                    "position": "W",
+                                    "stress": "0"
+                                }
+                            ],
                             "vec": {
                                 "lengths": [
-                                    1,
+                                    0,
                                     0
                                 ],
                                 "initial": [
@@ -10491,10 +10514,10 @@
                             "cft": "skrita",
                             "syllables": [
                                 {
-                                    "ph_consonants": "ňtr_skr",
+                                    "ph_consonants": "skr",
                                     "ph_vowels": "i",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "_skr",
+                                    "ort_consonants": "skr",
                                     "ort_vowels": "y",
                                     "ort_end_consonants": "",
                                     "length": 0,
