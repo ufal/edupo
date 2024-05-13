@@ -42,7 +42,7 @@ class Morphodita:
                 lemma = self.lemmas[i]
                 token = self.tokens[i]
 
-                str_lemma = re.sub('\-.*$|\:.*$| *\^.*$| *;.*$|\,.*$', '', lemma.lemma)
+                str_lemma = re.sub(r'\-.*$|\:.*$| *\^.*$| *;.*$|\,.*$', '', lemma.lemma)
                 str_token = text[token.start : token.start + token.length]
 
 
