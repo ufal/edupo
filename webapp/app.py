@@ -9,6 +9,11 @@ import sqlite3
 import json
 from collections import defaultdict
 
+
+import sys
+sys.path.append("../kveta")
+from kveta import okvetuj
+
 app = Flask(__name__)
 print(__name__)
 
@@ -98,6 +103,11 @@ def call_showauthor():
     assert result != None 
     return render_template('showauthor.html', author=author, rows=result)
 
+@app.route("/analyze", methods=['GET', 'POST'])
+def call_analyze():
+    text = get_post_arg('text', 'Matce pro kacířství syna vzali,\nna jesuitu jej vychovali;', True)
+    output, k = okvetuj(text)
+    return output
 
 @app.route("/tajnejkill")
 def kill():
