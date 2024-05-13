@@ -28,6 +28,9 @@ METRUM = {
     'D': "daktyl",
         }
 
+# non breaking space
+NBSP = ' '
+
 def get_metrum(metre):
     if metre in METRUM:
         return METRUM[metre]
@@ -64,10 +67,14 @@ def show(data, syllformat=False):
             if syllformat:
                 for word in verse["words"]:
                     for syllable in word["syllables"]:
-                        syllable["ort_consonants"] = syllable["ort_consonants"].replace('_', ' ')
+                        syllable["ort_consonants"] = syllable["ort_consonants"].replace('_', NBSP)
                         syllables.append(syllable)
                     # mark end of word
-                    syllables[-1]["class"] = "endofword"
+                    # syllables[-1]["class"] = "endofword"
+                    syllables[-1]["after"] = ""
+                    if "punct" in word:
+                        syllables[-1]["after"] += word["punct"]
+                    syllables[-1]["after"] += NBSP
             verses.append({
                 'text': verse["text"],
                 'syllables': syllables,

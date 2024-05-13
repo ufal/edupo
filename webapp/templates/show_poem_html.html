@@ -46,21 +46,35 @@
                     <td class="meter">{{ verse.metrum }}</td>
                     <td class="rhyme">{{ verse.rym }}</td>
                     {% if verse.syllables %}
-                    <td class="verse">
-                        {% for syllable in verse.syllables %}
-                        <div class="syllable {{ syllable.class }}">
-                        <div class="syllpart">
-                            {{ syllable.ort_consonants }}
-                        </div>
-                        <div class="syllpart">
-                            {{ syllable.ort_vowels }}
-                        </div>
-                        <div class="syllpart">
-                            {{ syllable.ort_end_consonants }}
-                        </div>
-                        </div>
-                        {% endfor %}
-                    </td>
+                    <td class="verse">{%
+                        for syllable in verse.syllables
+                        %}<span class="syllable {{ syllable.class }}">{%
+                            if syllable.ort_consonants
+                            %}<span class="syllpart ort_consonants">{{
+                                syllable.ort_consonants
+                                }}</span>{%
+                            endif
+                            %}{%
+                            if syllable.ort_vowels
+                            %}<span class="syllpart ort_vowels">{{
+                                syllable.ort_vowels
+                                }}</span>{%
+                            endif
+                            %}{%
+                            if syllable.ort_end_consonants
+                            %}<span class="syllpart ort_end_consonants">{{
+                                syllable.ort_end_consonants
+                                }}</span>{%
+                            endif
+                            %}{%
+                            if syllable.after
+                            %}<span class="syllpart after">{{
+                                syllable.after
+                                }}</span>{%
+                            endif
+                            %}</span>{%
+                        endfor
+                    %}</td>
                     {% else %}
                     <td>{{ verse.text }}</td>
                     {% endif %}
