@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>{{ title }}</title>
+    <link rel="stylesheet" href="static/show_poem_base.css" />
     <link rel="stylesheet" id="style" href="static/show_poem_rich.css" />
     <script>
         function set_style(style) {
@@ -44,7 +45,25 @@
             <tr class="verse{{ verse.rhyme }}">
                     <td class="meter">{{ verse.metrum }}</td>
                     <td class="rhyme">{{ verse.rym }}</td>
+                    {% if verse.syllables %}
+                    <td class="verse">
+                        {% for syllable in verse.syllables %}
+                        <div class="syllable {{ syllable.class }}">
+                        <div class="syllpart">
+                            {{ syllable.ort_consonants }}
+                        </div>
+                        <div class="syllpart">
+                            {{ syllable.ort_vowels }}
+                        </div>
+                        <div class="syllpart">
+                            {{ syllable.ort_end_consonants }}
+                        </div>
+                        </div>
+                        {% endfor %}
+                    </td>
+                    {% else %}
                     <td>{{ verse.text }}</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </table>
@@ -54,3 +73,6 @@
 </body>
 </html>
 
+<!--
+{{ json|safe }}
+-->

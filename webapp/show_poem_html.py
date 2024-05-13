@@ -51,7 +51,7 @@ def get_rhyme(verse):
         return 0
 
 
-def show(data):
+def show(data, syllformat=False):
     data = defaultdict(str, data)
 
     data['stanzas'] = []
@@ -60,8 +60,17 @@ def show(data):
         for verse in stanza:
             rhyme = get_rhyme(verse)
             metre = get_metre(verse)
+            syllables = []
+            if syllformat:
+                for word in verse["words"]:
+                    for syllable in word["syllables"]:
+                        syllable["ort_consonants"] = syllable["ort_consonants"].replace('_', ' ')
+                        syllables.append(syllable)
+                    # mark end of word
+                    syllables[-1]["class"] = "endofword"
             verses.append({
                 'text': verse["text"],
+                'syllables': syllables,
                 'rhyme': rhyme,
                 'rym': RYM[int(rhyme)],
                 'metrum': get_metrum(metre),
@@ -72,6 +81,8 @@ def show(data):
             
         # TODO možná restartovat číslování rýmu po každé sloce
         # (ale někdy jde rýmování napříč slokama)
+
+    data["json"] = json.dumps(data, indent=4, ensure_ascii=False)
 
     return render_template('show_poem_html.html', **data)
 
@@ -109,7 +120,7 @@ def show_file(filename = '78468.json'):
     data['id'] = filename
     data['body'] = j[0]["body"]
 
-    return show(data)
+    return show(data, True)
 
 if __name__=="__main__":
     filename = sys.argv[1]

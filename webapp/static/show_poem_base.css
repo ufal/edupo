@@ -1,0 +1,16 @@
+.stanza {margin-bottom: 1em; }
+
+.verse {
+    display: flex;
+    align-items: baseline;
+}
+
+.syllable {
+    display: flex;
+    align-items: baseline;
+}
+
+.endofword {
+    margin-right: 0.5ex;
+}
+
