@@ -64,7 +64,7 @@ class Syllables:
                     if non_syllabic_word[0] != "":
                         syllables[0]["ph_consonants"] = non_syllabic_word[0] + "_" + syllables[0]["ph_consonants"]
                         syllables[0]["ort_consonants"] = non_syllabic_word[1] + "_" + syllables[0]["ort_consonants"]
-                        non_sylabic_word = ["", ""]
+                        non_syllabic_word = ["", ""]
                 else:
                     non_syllabic_word = [ph_consonants, ortographic[o_pos:]]
 
