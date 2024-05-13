@@ -42,11 +42,11 @@
         {% for stanza in stanzas %}
             <table class="stanza" cellspacing="0" cellpadding="0">
             {% for verse in stanza.verses %}
-            <tr class="verse{{ verse.rhyme }}">
+            <tr class="verse verse{{ verse.rhyme }}">
                     <td class="meter">{{ verse.metrum }}</td>
                     <td class="rhyme">{{ verse.rym }}</td>
                     {% if verse.syllables %}
-                    <td class="verse">{%
+                    <td class="versetext">{%
                         for syllable in verse.syllables
                         %}<span class="syllable {{ syllable.class }}">{%
                             if syllable.ort_consonants
@@ -56,7 +56,7 @@
                             endif
                             %}{%
                             if syllable.ort_vowels
-                            %}<span class="syllpart ort_vowels">{{
+                            %}<span class="syllpart ort_vowels position{{ syllable.position }} stress{{ syllable.stress }}">{{
                                 syllable.ort_vowels
                                 }}</span>{%
                             endif

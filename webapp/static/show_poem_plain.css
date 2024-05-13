@@ -4,3 +4,11 @@
 
 .rhyme {display: none;}
 
+span.syllable {
+    display: contents;
+}
+
+span.syllpart {
+    display: contents;
+}
+

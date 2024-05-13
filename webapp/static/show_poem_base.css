@@ -1,18 +1,9 @@
-.stanza {margin-bottom: 1em; }
+table.stanza {
+    margin-bottom: 1em;
+}
 
-.verse {
+td.versetext {
     display: flex;
     align-items: baseline;
 }
-
-.syllable {
-    display: flex;
-    align-items: baseline;
-    display: contents;
-}
-
-.syllpart {
-    display: contents;
-}
-
 

@@ -2,6 +2,43 @@
 
 .rhyme {font-weight: bold; padding: 0 1ex 0 1ex;}
 
+tr.verse {
+   height: 2.5em; 
+}
+
+td.versetext {
+    padding-top: 1ex;
+}
+
+span.syllable {
+    display: contents;
+}
+
+span.syllpart {
+    display: block;
+}
+
+span.positionS {
+    border-top: 3px solid gray;
+}
+
+span.positionW {
+    border-top: 1px solid gray;
+}
+
+span.stress1 {
+    border-bottom: 3px solid black;
+}
+
+span.stress0 {
+    border-bottom: 1px solid black;
+}
+
+
+
+
+
+
 .verse0 {background-color: #fff}
 .verseNone {background-color: #fff}
 
