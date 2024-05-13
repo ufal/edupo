@@ -1,10 +1,10 @@
 [
     {
         "metres": {
-            "WSWSWSWSWSW": 0.1873744543596514,
-            "WSWWSWWSWWS": 0.3173015498830426,
+            "SWSWSWSWSWS": 0.6171666829737334,
             "SWWSWWSWWSW": 0.3297748024378661,
-            "SWSWSWSWSWS": 0.6171666829737334
+            "WSWWSWWSWWS": 0.3173015498830426,
+            "WSWSWSWSWSW": 0.1873744543596514
         },
         "body": [
             [
@@ -916,10 +916,10 @@
                             "cft": "po",
                             "syllables": [
                                 {
-                                    "ph_consonants": "k_p",
+                                    "ph_consonants": "p",
                                     "ph_vowels": "o",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "k_p",
+                                    "ort_consonants": "p",
                                     "ort_vowels": "o",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -963,10 +963,10 @@
                             "cft": "letex",
                             "syllables": [
                                 {
-                                    "ph_consonants": "k_l",
+                                    "ph_consonants": "l",
                                     "ph_vowels": "e",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "k_l",
+                                    "ort_consonants": "l",
                                     "ort_vowels": "e",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -6526,10 +6526,10 @@
                             "cft": "celí",
                             "syllables": [
                                 {
-                                    "ph_consonants": "s_c",
+                                    "ph_consonants": "c",
                                     "ph_vowels": "e",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "s_c",
+                                    "ort_consonants": "c",
                                     "ort_vowels": "e",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -8311,10 +8311,10 @@
                             "cft": "domu",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_d",
+                                    "ph_consonants": "d",
                                     "ph_vowels": "o",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "v_d",
+                                    "ort_consonants": "d",
                                     "ort_vowels": "o",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -9328,10 +9328,10 @@
                             "cft": "kref",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_kr",
+                                    "ph_consonants": "kr",
                                     "ph_vowels": "e",
                                     "ph_end_consonants": "f",
-                                    "ort_consonants": "v_kr",
+                                    "ort_consonants": "kr",
                                     "ort_vowels": "e",
                                     "ort_end_consonants": "v",
                                     "length": 0,
@@ -9374,10 +9374,10 @@
                             "cft": "Xa",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_X",
+                                    "ph_consonants": "X",
                                     "ph_vowels": "a",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "v_",
+                                    "ort_consonants": "",
                                     "ort_vowels": "a",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -9421,10 +9421,10 @@
                             "cft": "mízu",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_m",
+                                    "ph_consonants": "m",
                                     "ph_vowels": "í",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "v_m",
+                                    "ort_consonants": "m",
                                     "ort_vowels": "í",
                                     "ort_end_consonants": "",
                                     "length": 1,
@@ -9674,10 +9674,10 @@
                             "cft": "nejXen",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_n",
+                                    "ph_consonants": "n",
                                     "ph_vowels": "e",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "v_n",
+                                    "ort_consonants": "n",
                                     "ort_vowels": "e",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -9739,10 +9739,10 @@
                             "cft": "na",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_n",
+                                    "ph_consonants": "n",
                                     "ph_vowels": "a",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "v_n",
+                                    "ort_consonants": "n",
                                     "ort_vowels": "a",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -9786,10 +9786,10 @@
                             "cft": "retex",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_r",
+                                    "ph_consonants": "r",
                                     "ph_vowels": "e",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "v_r",
+                                    "ort_consonants": "r",
                                     "ort_vowels": "e",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -11790,10 +11790,10 @@
                             "cft": "jej",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_j",
+                                    "ph_consonants": "j",
                                     "ph_vowels": "e",
                                     "ph_end_consonants": "j",
-                                    "ort_consonants": "v_j",
+                                    "ort_consonants": "j",
                                     "ort_vowels": "e",
                                     "ort_end_consonants": "j",
                                     "length": 0,
@@ -11836,10 +11836,10 @@
                             "cft": "volá",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_v",
+                                    "ph_consonants": "v",
                                     "ph_vowels": "o",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "v_v",
+                                    "ort_consonants": "v",
                                     "ort_vowels": "o",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -11902,10 +11902,10 @@
                             "cft": "matki",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_m",
+                                    "ph_consonants": "m",
                                     "ph_vowels": "a",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "v_m",
+                                    "ort_consonants": "m",
                                     "ort_vowels": "a",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -13441,10 +13441,10 @@
                             "cft": "sledu",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_sl",
+                                    "ph_consonants": "sl",
                                     "ph_vowels": "e",
                                     "ph_end_consonants": "",
-                                    "ort_consonants": "v_sl",
+                                    "ort_consonants": "sl",
                                     "ort_vowels": "e",
                                     "ort_end_consonants": "",
                                     "length": 0,
@@ -13824,10 +13824,10 @@
                             "cft": "snex",
                             "syllables": [
                                 {
-                                    "ph_consonants": "f_sn",
+                                    "ph_consonants": "sn",
                                     "ph_vowels": "e",
                                     "ph_end_consonants": "x",
-                                    "ort_consonants": "v_sn",
+                                    "ort_consonants": "sn",
                                     "ort_vowels": "e",
                                     "ort_end_consonants": "ch",
                                     "length": 0,
