@@ -91,10 +91,11 @@ def okvetuj(text):
     # Put metres from k.pie_data_ into verses
     for i, v in enumerate(k.poem_):
         letter = "T"
-        if k.pie_data_[i]["metre"] == "iamb":
-            letter = "J"
-        elif k.pie_data_[i]["metre"] == "dactyl":
-            letter = "D"
+        #if k.pie_data_[i]["metre"] == "iamb":
+        #    letter = "J"
+        #elif k.pie_data_[i]["metre"] == "dactyl":
+        #    letter = "D"
+        #TODO: Tady se to musí vyřešit líp. Podle KCV tu má bejt dict s klíči, T, J, D, ... ale blbě se s tim pak bude pracovat. Zatim tam dávám všude T
         k.poem_[i]["metre"] = [ {letter: k.pie_data_[i]} ]
 
 
