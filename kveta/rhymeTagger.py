@@ -166,12 +166,9 @@ class RhymeTagger:
   def tagging(self, data):
     '''Perform tagging'''
     rhymes = defaultdict(set)
-    list_of_final_CVCVs = []
     
     # Tag rhymes according to SAMPA
     for i, val in enumerate(data):
-      list_of_final_CVCVs.append( self._split_to_components( data[i]['sampa'] ) )
-
       for j in range(i-self.settings['window'], i):         
         if j < 0:
           continue
@@ -237,7 +234,7 @@ class RhymeTagger:
               
       # Perform evaluation
       self._eval(data, rhymes)
-    return rhymes, list_of_final_CVCVs
+    return rhymes
                           
   def _rhyme_score(self, c1, c2, word1, word2):
     '''Probability of being rhyme based on SAMPA'''

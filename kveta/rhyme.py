@@ -24,18 +24,21 @@ class RhymeDetection:
         fin_words = []
         for l in poem:
             xsampa = self.cft_to_xsampa(l['words'][-1]['cft'])
+            
+            # přidální případné předchozí slabičné předložky
+            if len(l['words']) >=2 and l['words'][-2]["vec"] and l['words'][-2]["vec"]["prep"][0] == 1:
+                xsampa = self.cft_to_xsampa(l['words'][-2]['cft']) + xsampa
+
             if l['words'][-1]['morph'][0] in ('N','A','D','V','C') and l['words'][-1]['lemma'] != 'být':
                 xsampa = "'" + xsampa
             fin_words.append({'word': l['words'][-1]['token'],
                               'sampa': xsampa,
                               'stanza': l['stanza']})
 
-        r, list_of_final_VCVCs = self.tagger.tagging(fin_words)
-        assert len(r) == len(list_of_final_VCVCs)
+        r = self.tagger.tagging(fin_words)
         
         for i,l in enumerate(poem):
             poem[i]['rhyme'] = list(r[i])
-            poem[i]['final_VCVC'] = " ".join(list_of_final_VCVCs[i])[::-1] # join CVCVs and reverse them to get the natural order
         return poem  
             
 
