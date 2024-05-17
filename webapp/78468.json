@@ -1,10 +1,10 @@
 [
     {
         "metres": {
-            "WSWSWSWSWSW": 0.18770445064768773,
-            "SWSWSWSWSWS": 0.6171260654086274,
+            "SWWSWWSWWSW": 0.32975309898257943,
             "WSWWSWWSWWS": 0.3175794339607142,
-            "SWWSWWSWWSW": 0.32975309898257943
+            "SWSWSWSWSWS": 0.6171260654086274,
+            "WSWSWSWSWSW": 0.18770445064768773
         },
         "body": [
             [
@@ -353,7 +353,7 @@
                             }
                         }
                     ],
-                    "rhyme": 0
+                    "rhyme": 1
                 },
                 {
                     "text": "na jesuitu jej vychovali;",
@@ -673,7 +673,7 @@
                             }
                         }
                     ],
-                    "rhyme": 0
+                    "rhyme": 1
                 },
                 {
                     "text": "a když přišla k němu po letech,",
@@ -1037,7 +1037,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "o pravdu když se synem se přela,",
@@ -1438,7 +1438,7 @@
                             }
                         }
                     ],
-                    "rhyme": 2
+                    "rhyme": 3
                 },
                 {
                     "text": "Písmem jeho slova vyvracela,",
@@ -1758,7 +1758,7 @@
                             }
                         }
                     ],
-                    "rhyme": 2
+                    "rhyme": 3
                 },
                 {
                     "text": "seč mateřské hrudi stačil dech –",
@@ -2085,7 +2085,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "jesuita, nechtě slyšet matky,",
@@ -2406,7 +2406,7 @@
                             }
                         }
                     ],
-                    "rhyme": 3
+                    "rhyme": 4
                 },
                 {
                     "text": "bořící slov jeho smysl vratký,",
@@ -2753,7 +2753,7 @@
                             }
                         }
                     ],
-                    "rhyme": 3
+                    "rhyme": 4
                 },
                 {
                     "text": "po bubnu sáh’ s paličkami v spěch:",
@@ -3099,7 +3099,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "aby matku přehlušil i duši",
@@ -3445,7 +3445,7 @@
                             }
                         }
                     ],
-                    "rhyme": 4
+                    "rhyme": 5
                 },
                 {
                     "text": "do napiaté kůže hlučně buší.",
@@ -3811,7 +3811,7 @@
                             }
                         }
                     ],
-                    "rhyme": 4
+                    "rhyme": 5
                 },
                 {
                     "text": "Přešly věky – stále tytéž děje:",
@@ -4159,7 +4159,7 @@
                             }
                         }
                     ],
-                    "rhyme": 5
+                    "rhyme": 6
                 },
                 {
                     "text": "jesuita syn se stále chvěje,",
@@ -4506,7 +4506,7 @@
                             }
                         }
                     ],
-                    "rhyme": 5
+                    "rhyme": 6
                 },
                 {
                     "text": "matky výčitkám by nepodleh’.",
@@ -4807,7 +4807,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "Připomíná-li mu dávné časy,",
@@ -5155,7 +5155,7 @@
                             }
                         }
                     ],
-                    "rhyme": 6
+                    "rhyme": 7
                 },
                 {
                     "text": "Řím kdy vodil do Čech divé chasy,",
@@ -5556,7 +5556,7 @@
                             }
                         }
                     ],
-                    "rhyme": 6
+                    "rhyme": 7
                 },
                 {
                     "text": "aby hrůzu nesly ve stín střech,",
@@ -5909,7 +5909,7 @@
                             }
                         }
                     ],
-                    "rhyme": 7
+                    "rhyme": 8
                 },
                 {
                     "text": "aby mučily a zabíjely",
@@ -6228,7 +6228,7 @@
                             }
                         }
                     ],
-                    "rhyme": 8
+                    "rhyme": 9
                 },
                 {
                     "text": "toho, kdo se nevzdá s duší celý –",
@@ -6612,7 +6612,7 @@
                             }
                         }
                     ],
-                    "rhyme": 8
+                    "rhyme": 9
                 },
                 {
                     "text": "buben béře s paličkami v spěch:",
@@ -6930,7 +6930,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "aby matku přehlušil i duši,",
@@ -7277,7 +7277,7 @@
                             }
                         }
                     ],
-                    "rhyme": 9
+                    "rhyme": 10
                 },
                 {
                     "text": "do napiaté kůže hlučně buší.",
@@ -7643,7 +7643,7 @@
                             }
                         }
                     ],
-                    "rhyme": 9
+                    "rhyme": 10
                 },
                 {
                     "text": "Když se ptá ho, zdali věří tomu,",
@@ -8045,7 +8045,7 @@
                             }
                         }
                     ],
-                    "rhyme": 10
+                    "rhyme": 11
                 },
                 {
                     "text": "čím jej drží v jesuitů domu,",
@@ -8401,7 +8401,7 @@
                             }
                         }
                     ],
-                    "rhyme": 10
+                    "rhyme": 11
                 },
                 {
                     "text": "čím jej sytí ve vysokých zdech,",
@@ -8755,7 +8755,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "zda ta víra, jejíž nosí řízu,",
@@ -9130,7 +9130,7 @@
                             }
                         }
                     ],
-                    "rhyme": 11
+                    "rhyme": 12
                 },
                 {
                     "text": "přešla také v jeho krev a mízu,",
@@ -9513,7 +9513,7 @@
                             }
                         }
                     ],
-                    "rhyme": 11
+                    "rhyme": 12
                 },
                 {
                     "text": "je-li v srdci, nejen na retech,",
@@ -9879,7 +9879,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "svědomí zda jemu nevyčítá,",
@@ -10199,7 +10199,7 @@
                             }
                         }
                     ],
-                    "rhyme": 12
+                    "rhyme": 13
                 },
                 {
                     "text": "že jen lež jest v jeho nitru skryta –",
@@ -10609,7 +10609,7 @@
                             }
                         }
                     ],
-                    "rhyme": 12
+                    "rhyme": 13
                 },
                 {
                     "text": "buben béře s paličkami v spěch:",
@@ -10927,7 +10927,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "aby matku přehlušil i duši,",
@@ -11274,7 +11274,7 @@
                             }
                         }
                     ],
-                    "rhyme": 13
+                    "rhyme": 14
                 },
                 {
                     "text": "do napiaté kůže hlučně buší.",
@@ -11640,7 +11640,7 @@
                             }
                         }
                     ],
-                    "rhyme": 13
+                    "rhyme": 14
                 },
                 {
                     "text": "A když v úzkosti jej volá matky:",
@@ -12023,7 +12023,7 @@
                             }
                         }
                     ],
-                    "rhyme": 14
+                    "rhyme": 15
                 },
                 {
                     "text": "Vrať se, synu, vrať se ke mně zpátky,",
@@ -12453,7 +12453,7 @@
                             }
                         }
                     ],
-                    "rhyme": 14
+                    "rhyme": 15
                 },
                 {
                     "text": "kde jsi zakotvil, je cizí břeh!",
@@ -12808,7 +12808,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "Vrať se na cesty svých dávných dědů,",
@@ -13209,7 +13209,7 @@
                             }
                         }
                     ],
-                    "rhyme": 15
+                    "rhyme": 16
                 },
                 {
                     "text": "hledej dále pravdu v jejich sledu;",
@@ -13565,7 +13565,7 @@
                             }
                         }
                     ],
-                    "rhyme": 15
+                    "rhyme": 16
                 },
                 {
                     "text": "snad je jinde, nežli v jejich snech,",
@@ -13929,7 +13929,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "ale jen ji hledej, jen jdi za ní,",
@@ -14358,7 +14358,7 @@
                             }
                         }
                     ],
-                    "rhyme": 16
+                    "rhyme": 17
                 },
                 {
                     "text": "jenom lež ať není tvojí paní – –",
@@ -14732,7 +14732,7 @@
                             }
                         }
                     ],
-                    "rhyme": 16
+                    "rhyme": 17
                 },
                 {
                     "text": "buben béře s paličkami v spěch:",
@@ -15050,7 +15050,7 @@
                             }
                         }
                     ],
-                    "rhyme": 1
+                    "rhyme": 2
                 },
                 {
                     "text": "aby matku přehlušil i duši,",
@@ -15397,7 +15397,7 @@
                             }
                         }
                     ],
-                    "rhyme": 17
+                    "rhyme": 18
                 },
                 {
                     "text": "do napiaté kůže hlučně buší.",
@@ -15763,7 +15763,7 @@
                             }
                         }
                     ],
-                    "rhyme": 17
+                    "rhyme": 18
                 }
             ]
         ]
