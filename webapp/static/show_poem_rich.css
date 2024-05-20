@@ -3,11 +3,11 @@
 .rhyme {font-weight: bold; padding: 0 1ex 0 1ex;}
 
 tr.verse {
-   height: 2.5em; 
+   height: 50px; 
 }
 
 td.versetext {
-    padding-top: 1ex;
+    padding-top: 10px;
 }
 
 span.syllable {
@@ -16,6 +16,13 @@ span.syllable {
 
 span.syllpart {
     display: block;
+    padding-top: 3px;
+    padding-bottom: 5px;
+}
+
+span.ort_vowels {
+    min-width: 1ex;
+    text-align: center;
 }
 
 span.positionS {
@@ -24,6 +31,8 @@ span.positionS {
 
 span.positionW {
     border-top: 1px solid gray;
+    border-top-left-radius: 1ex;
+    border-top-right-radius: 1ex;
 }
 
 span.stress1 {
@@ -32,6 +41,8 @@ span.stress1 {
 
 span.stress0 {
     border-bottom: 1px solid black;
+    border-bottom-left-radius: 1ex;
+    border-bottom-right-radius: 1ex;
 }
 
 span.rhyming {
