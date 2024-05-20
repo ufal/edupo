@@ -1,5 +1,6 @@
 from ufal.morphodita import *
 import re
+import os
 
 class Morphodita:
     
@@ -9,7 +10,9 @@ class Morphodita:
         Initialize MorphoDiTa
         '''
         
-        self.tagger = Tagger.load('dicts/czech-morfflex-pdt-161115.tagger')
+        filepath = os.path.join(os.path.dirname(__file__),
+                'dicts', 'czech-morfflex-pdt-161115.tagger')
+        self.tagger = Tagger.load(filepath)
         self.forms = Forms()
         self.lemmas = TaggedLemmas()
         self.tokens = TokenRanges()

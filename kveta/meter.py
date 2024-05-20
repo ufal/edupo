@@ -2,6 +2,7 @@ import re
 import math
 import pprint
 import json
+import os
 
 class Meter:
     
@@ -16,14 +17,16 @@ class Meter:
         self.feet_ = ('SW', 'SWW')
     
 
-    def analyze(self, poem, model='trained_models/random_forest.json'):
+    def analyze(self, poem, model='random_forest.json'):
         '''
         Analyze meters
         '''
+        filepath = os.path.join(os.path.dirname(__file__),
+                'trained_models', model)
 
         self.poem_ = poem
         self._g_component()
-        overall_probs = self._m_component(model)
+        overall_probs = self._m_component(filepath)
 
         return self.poem_, overall_probs
 

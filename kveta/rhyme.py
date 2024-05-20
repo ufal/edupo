@@ -1,5 +1,6 @@
 import re
 from rhymeTagger import RhymeTagger
+import os
 
 class RhymeDetection:
     
@@ -13,7 +14,11 @@ class RhymeDetection:
                                   window=window, 
                                   probability_sampa_min=probability_sampa_min, 
                                   probability_ngram_min=probability_ngram_min)
-        self.tagger.load_model(model='trained_models/rhymes.json')
+        
+
+        filepath = os.path.join(os.path.dirname(__file__),
+                'trained_models', 'rhymes.json')
+        self.tagger.load_model(model=filepath)
        
 
     def tag(self, poem):
