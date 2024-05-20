@@ -79,10 +79,13 @@ def call_generuj():
     rhyme_scheme = get_post_arg('rhyme_scheme', 'AABB', True)
     app.logger.info(f"Generate poem with scheme {rhyme_scheme}")
     poet_start = rhyme_scheme
-    verses = generuj(poet_start)
-    clean_verses = verses[-len(rhyme_scheme)-1:]
+    raw_output = generuj(poet_start)
+    clean_verses = raw_output[-len(rhyme_scheme)-1:]
     app.logger.info(f"Generated poem {clean_verses}")
-    return '<br>'.join(verses)
+    return render_template('show_poem_gen.html',
+            clean_verses=clean_verses,
+            raw='\n'.join(raw_output)
+            )
 
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():

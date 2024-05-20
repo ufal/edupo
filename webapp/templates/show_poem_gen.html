@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>Vygenerovaná báseň</title>
+    <link rel="stylesheet" href="static/show_poem_gen.css" />
+</head>
+<body>
+
+    <div>
+    <form method="post" action="analyze">
+        <textarea name="text" hidden="hidden">{%
+        for verse in clean_verses
+        %}{{
+        verse
+        }}
+{%
+        endfor
+        %}</textarea>
+        <input name="submit" type="submit" value="Analyzovat">
+    </form>
+    </div>
+
+    <hr>
+
+    <p class="stanza">
+        {% for verse in clean_verses %}
+        {{ verse }}<br>
+        {% endfor %}
+    </p>
+
+    <hr>
+    
+    <pre class="raw">{{ raw }}</pre>
+
+</body>
+</html>
