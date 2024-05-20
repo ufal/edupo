@@ -77,7 +77,7 @@ def show(data, syllformat=False):
                     syllables[-1]["after"] += NBSP
             verses.append({
                 'text': verse["text"],
-                'stanza': verse["stanza"],
+                'stanza': verse.get("stanza", 0),
                 'syllables': syllables,
                 'rhyme': rhyme,
                 'rym': RYM[int(rhyme)],

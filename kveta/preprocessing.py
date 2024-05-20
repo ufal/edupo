@@ -37,6 +37,7 @@ def _clean_text(text):
     '''
 
     # Unify newline symbol
+    text = re.sub('\r\n', '\n', text)
     text = re.sub('\r', '\n', text)
     # Remove numbers
     text = re.sub('[0-9]+', ' ', text)

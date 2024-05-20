@@ -107,7 +107,9 @@ def call_showauthor():
 def call_analyze():
     text = get_post_arg('text', 'Matce pro kacířství syna vzali,\nna jesuitu jej vychovali;', True)
     output, k = okvetuj(text)
-    return output
+    poem_json = output[0]
+    html = show_poem_html.show(poem_json, True)
+    return html
 
 @app.route("/tajnejkill")
 def kill():
