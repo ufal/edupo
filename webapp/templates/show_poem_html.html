@@ -50,19 +50,31 @@
                         for syllable in verse.syllables
                         %}<span class="syllable {{ syllable.class }}">{%
                             if syllable.ort_consonants
-                            %}<span class="syllpart ort_consonants">{{
+                            %}<span class="syllpart ort_consonants {%
+                                if syllable.rhyme_from == "c"
+                                %} rhyming {%
+                                endif
+                                %}">{{
                                 syllable.ort_consonants
                                 }}</span>{%
                             endif
                             %}{%
                             if syllable.ort_vowels
-                            %}<span class="syllpart ort_vowels position{{ syllable.position }} stress{{ syllable.stress }}">{{
+                            %}<span class="syllpart ort_vowels position{{ syllable.position }} stress{{ syllable.stress }} {%
+                                if syllable.rhyme_from == "c" or syllable.rhyme_from == "v"
+                                %} rhyming {%
+                                endif
+                                %}">{{
                                 syllable.ort_vowels
                                 }}</span>{%
                             endif
                             %}{%
                             if syllable.ort_end_consonants
-                            %}<span class="syllpart ort_end_consonants">{{
+                            %}<span class="syllpart ort_end_consonants {%
+                                if syllable.rhyme_from == "c" or syllable.rhyme_from == "v"
+                                %} rhyming {%
+                                endif
+                                %}">{{
                                 syllable.ort_end_consonants
                                 }}</span>{%
                             endif
