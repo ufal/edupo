@@ -101,7 +101,7 @@ def okvetuj(text):
             rhyme_clusters.append([i])
         else:
             rhyme_clusters[minimum2cluster[minimum]].append(i)
-        k.poem_[i]["rhyme"] = minimum2cluster[minimum]
+        k.poem_[i]["rhyme"] = minimum2cluster[minimum] + 1
 
     # Fill rhyme_from attribute - values 'v' (from vovel), 'c' (from consonants), 'ec' (from the ending consonants)
     for c in rhyme_clusters:
