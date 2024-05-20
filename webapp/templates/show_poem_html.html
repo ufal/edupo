@@ -34,6 +34,32 @@
     <p>
         <button onclick="set_style('plain')">Bez anotace</button>
         <button onclick="set_style('rich')">S anotací</button>
+
+
+    {% if not stanzas[0].verses[0].syllables %}
+    <form method="post" action="analyze">
+        <textarea name="text" hidden="hidden">{%
+        for stanza in stanzas
+        %}{%
+        for verse in stanza.verses
+        %}{%
+        if verse.stanza and verse.stanza != stanza.verses[loop.index0-1].stanza
+        %}
+{%
+        endif
+        %}{{
+        verse.text
+        }}
+{%
+        endfor
+        %}
+{%
+        endfor
+        %}</textarea>
+        <input name="submit" type="submit" value="Analyzovat">
+    </form>
+    {% endif %}
+
     </p>
 
     <hr>
