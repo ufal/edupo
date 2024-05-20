@@ -55,6 +55,17 @@ def get_post_arg(key, default=None, nonempty=False):
         result = default
     return result
 
+def add_metadata_to_dict(poem, fields=[
+    'id', 'author', 'author_name', 'title', 'schools', 'b_title',
+    'born', 'died', 'subtitle', 'publisher', 'place', 'year',
+    ]):
+    for field in fields:
+        value = get_post_arg(field, '')
+        if value == 'None':
+            value = ''
+        poem[field] = value
+    return poem
+
 @app.route("/")
 def hello_world():
     return render_template('index.html')
@@ -108,6 +119,8 @@ def call_analyze():
     text = get_post_arg('text', 'Matce pro kacířství syna vzali,\nna jesuitu jej vychovali;', True)
     output, k = okvetuj(text)
     poem_json = output[0]
+    add_metadata_to_dict(poem_json)
+    poem_json['schools'] = [poem_json['schools']]
     html = show_poem_html.show(poem_json, True)
     return html
 

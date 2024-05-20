@@ -71,10 +71,11 @@ def show(data, syllformat=False):
                         syllables.append(syllable)
                     # mark end of word
                     # syllables[-1]["class"] = "endofword"
-                    syllables[-1]["after"] = ""
-                    if "punct" in word:
-                        syllables[-1]["after"] += word["punct"]
-                    syllables[-1]["after"] += NBSP
+                    if syllables:
+                        syllables[-1]["after"] = ""
+                        if "punct" in word:
+                            syllables[-1]["after"] += word["punct"]
+                        syllables[-1]["after"] += NBSP
             verses.append({
                 'text': verse["text"],
                 'stanza': verse.get("stanza", 0),

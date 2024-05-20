@@ -7,3 +7,7 @@ td.versetext {
     align-items: baseline;
 }
 
+form {
+    display: inline;
+}
+
