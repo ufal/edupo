@@ -57,14 +57,16 @@ class RhymeDetection:
                rhyme_clusters.append([i])
             else:
                rhyme_clusters[minimum2cluster[minimum]].append(i)
-            poem[i]["rhyme"] = minimum2cluster[minimum] + 1
 
-        # Fill rhyme_from attribute - values 'v' (from vovel), 'c' (from consonants), 'ec' (from the ending consonants)
+        # do "rhyme" u veršů vyplníme číslo klastru
+        # do "rhyme_from" u slabik vyplníme od které pozice se rýmují, možné hodnoty: 'v' (from vovel), 'c' (from consonants), 'ec' (from the ending consonants)
+        cluster_number = 0
         for c in rhyme_clusters:
             if len(c) == 1:
                 # no rhyming
                 poem[c[0]]["rhyme"] = 0
             else:
+                cluster_number += 1
                 # nejdřív otestujeme, jestli se v klastru nachází jednoslabičné slovo (bez předložky)
                 exists_monosyllabic_word = 0
                 for l in c:
@@ -85,6 +87,8 @@ class RhymeDetection:
                     else:
                         poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c' # jednoslabičné slovo bez předložky končící samohláskou
                         monosyllabic_word = 1
+                    # a označíme verš číslem klastru
+                    poem[l]["rhyme"] = cluster_number
         return poem  
             
 
