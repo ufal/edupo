@@ -181,6 +181,7 @@ class RhymeTagger:
         # DM: the group may end with C only if shorter than 3
         if len(c1) >= 3 and c1[-1][-1] not in self.syllable_peaks:
             c1 = c1[:-1]
+        if len(c2) >= 3 and c2[-1][-1] not in self.syllable_peaks:
             c2 = c2[:-1]
         
         # Both groups must have the same length
