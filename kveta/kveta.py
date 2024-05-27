@@ -75,66 +75,6 @@ def okvetuj(text):
     #    },
     #}
 
-    # Change the rhyming format to CCV style
-    #rc = dict()
-    #cur_num = 0
-    #for i, v in enumerate(k.poem_):
-    #    minimum = i
-    #    for x in v["rhyme"]:
-    #        if x < minimum:
-    #            minimum = x
-    #    if not minimum in rc:
-    #        cur_num += 1
-    #        rc[minimum] = cur_num
-    #    k.poem_[i]["rhyme"] = rc[minimum]
-
-    # Change the rhyming format to CCV style
-    #minimum2cluster = dict()
-    #rhyme_clusters = []
-    #for i, v in enumerate(k.poem_):
-    #    minimum = i
-    #    for x in v["rhyme"]:
-    #        if x < minimum:
-    #            minimum = x
-    #    if not minimum in minimum2cluster:
-    #        minimum2cluster[minimum] = len(rhyme_clusters)
-    #        rhyme_clusters.append([i])
-    #    else:
-    #        rhyme_clusters[minimum2cluster[minimum]].append(i)
-    #    k.poem_[i]["rhyme"] = minimum2cluster[minimum] + 1
-
-    # Fill rhyme_from attribute - values 'v' (from vovel), 'c' (from consonants), 'ec' (from the ending consonants)
-    #for c in rhyme_clusters:
-    #    if len(c) == 1:
-    #        # no rhyming
-    #        # TODO: jak to má v tomto případě vypadat?
-    #        jenabytunecobylo = 1
-    #    else:
-    #        for l in c:
-    #            if len(k.poem_[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
-    #                k.poem_[l]["words"][-1]["syllables"][-2]["rhyme_from"] = 'v'
-    #                k.poem_[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
-    #            elif len(k.poem_[l]["words"]) >= 2 and k.poem_[l]["words"][-2]["vec"] and k.poem_[l]["words"][-2]["vec"]["prep"][0] == 1: # jednoslabičné slovo za slabičkou předložkou
-    #                k.poem_[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
-    #                k.poem_[l]["words"][-2]["syllables"][-1]["rhyme_from"] = 'v'
-    #            elif k.poem_[l]["words"][-1]["syllables"][-1]["ph_end_consonants"]: # jednoslabičné slovo bez předložky končící souhláskou
-    #                k.poem_[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'v'
-    #            else:
-    #                k.poem_[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c' # jednoslabičné slovo bez předložky končící samohláskou
-            # TODO: co když jsou v rámci klastru některá slova jednoslabičná a některá např. tříslabičná?
-
-
-
-    # Put metres from k.pie_data_ into verses
-    for i, v in enumerate(k.poem_):
-        letter = "T"
-        #if k.pie_data_[i]["metre"] == "iamb":
-        #    letter = "J"
-        #elif k.pie_data_[i]["metre"] == "dactyl":
-        #    letter = "D"
-        #TODO: Tady se to musí vyřešit líp. Podle KCV tu má bejt dict s klíči, T, J, D, ... ale blbě se s tim pak bude pracovat. Zatim tam dávám všude T
-        k.poem_[i]["metre"] = [ {letter: k.pie_data_[i]} ]
-
 
     # Change the JSON structure to resemble CCV
     output = [
@@ -144,9 +84,17 @@ def okvetuj(text):
         }
     ]
 
-    # Copy the streses and S/W/V into indivisual syllables
+    # Put metres from k.pie_data_ into verses
+    # and copy the streses and S/W/V into individual syllables
     for i, v in enumerate(k.poem_):
-        swv = v["metre"][0]["T"]["pattern"]
+        letter = "T"
+        if k.pie_data_[i]["metre"] == "iamb":
+            letter = "J"
+        elif k.pie_data_[i]["metre"] == "dactyl":
+            letter = "D"
+        k.poem_[i]["metre"] = [ {letter: k.pie_data_[i]} ]
+        
+        swv = v["metre"][0][letter]["pattern"]
         stress = v["sections"]
         pointer = 0
         for j, w in enumerate(v["words"]):
