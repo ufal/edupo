@@ -93,7 +93,11 @@
 
             <tr class="verse verse{{ verse.rhymeclass }}">
                     <td class="meter">{{ verse.metrum }}</td>
-                    <td class="rhyme">{{ verse.rhymeletter }}</td>
+                    <td class="rhyme">{{
+                        verse.rhymeletter
+                        }}<sub class="rhymesubscript">{{
+                            verse.rhymesubscript
+                        }}</sub><sup> </sup></td>
                     {% if verse.syllables %}
                     <td class="versetext">{%
                         for syllable in verse.syllables

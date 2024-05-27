@@ -58,8 +58,8 @@ def get_rhyme_letter(rhyme):
         return string.ascii_uppercase[index]
 
 def get_rhyme_subscript(rhyme):
-    if rhyme == 0:
-        return 1
+    if rhyme <= 26:
+        return ''
     else:
         return (rhyme-1) // 26 + 1
 
