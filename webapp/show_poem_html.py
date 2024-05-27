@@ -53,6 +53,17 @@ def get_rhyme(verse):
         logging.warning(f"Missing valid rhyme in data.")
         return 0
 
+def get_info(verse):
+    metre = get_metre(verse)
+
+    pattern, foot, clause = (
+        verse["metre"][0][metre][key]
+        for key in ['pattern', 'foot', 'clause'])
+
+    sections = verse['sections']
+
+    return f"{metre}-{foot}-{clause} {pattern} {sections}"
+
 
 def show(data, syllformat=False):
     data = defaultdict(str, data)
@@ -77,13 +88,6 @@ def show(data, syllformat=False):
                             syllables[-1]["after"] += word["punct"]
                         syllables[-1]["after"] += NBSP
             
-            try:
-                info = '-'.join([
-                    str(verse["metre"][0][metre][key])
-                    for key in ['pattern', 'foot', 'clause']])
-            except:
-                info = '?'
-
             verses.append({
                 'text': verse["text"],
                 'stanza': verse.get("stanza", 0),
@@ -91,7 +95,7 @@ def show(data, syllformat=False):
                 'rhyme': rhyme,
                 'rym': RYM[int(rhyme)],
                 'metrum': get_metrum(metre),
-                'info': f"{metre}-{info}",
+                'info': get_info(verse),
                 })
         data['stanzas'].append({
             'verses': verses,

@@ -57,7 +57,10 @@ span.rhyming {
 
 .verseinfo {
     padding-left: 1ex;
-    color: gray;
+    color: #aaa;
+    background-color: white;
+    font-family: monospace;
+    font-size: x-small;
 }
 
 
