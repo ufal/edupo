@@ -4,6 +4,8 @@
 
 .rhyme {display: none;}
 
+.verseinfo {display: none;}
+
 span.syllable {
     display: contents;
 }

@@ -76,6 +76,14 @@ def show(data, syllformat=False):
                         if "punct" in word:
                             syllables[-1]["after"] += word["punct"]
                         syllables[-1]["after"] += NBSP
+            
+            try:
+                info = '-'.join([
+                    str(verse["metre"][0][metre][key])
+                    for key in ['pattern', 'foot', 'clause']])
+            except:
+                info = '?'
+
             verses.append({
                 'text': verse["text"],
                 'stanza': verse.get("stanza", 0),
@@ -83,6 +91,7 @@ def show(data, syllformat=False):
                 'rhyme': rhyme,
                 'rym': RYM[int(rhyme)],
                 'metrum': get_metrum(metre),
+                'info': f"{metre}-{info}",
                 })
         data['stanzas'].append({
             'verses': verses,
