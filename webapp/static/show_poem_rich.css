@@ -55,14 +55,13 @@ span.rhyming {
 }
 
 
-.verseinfo {
+.meterinfo, .stressinfo {
     padding-left: 1ex;
     color: #aaa;
     background-color: white;
     font-family: monospace;
     font-size: x-small;
 }
-
 
 
 .verse0 {background-color: #fff}
