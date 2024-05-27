@@ -34,6 +34,8 @@ class RhymeDetection:
             if len(l['words']) >=2 and l['words'][-2]["vec"] and l['words'][-2]["vec"]["prep"][0] == 1:
                 xsampa = self.cft_to_xsampa(l['words'][-2]['cft']) + xsampa
 
+            
+
             if l['words'][-1]['morph'][0] in ('N','A','D','V','C') and l['words'][-1]['lemma'] != 'být':
                 xsampa = "'" + xsampa
             fin_words.append({'word': l['words'][-1]['token'],
@@ -69,7 +71,7 @@ class RhymeDetection:
                     if len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"]) == 1 or (poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 0)):
                         exists_monosyllabic_word = 1
                         break
-                # nyní označujeme začátek rytmu
+                # nyní označujeme začátky rýmujících se částí
                 for l in c:
                     if not exists_monosyllabic_word and len(poem[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
                         poem[l]["words"][-1]["syllables"][-2]["rhyme_from"] = 'v'
@@ -99,7 +101,7 @@ class RhymeDetection:
 
         return {
             'a': 'a', 
-            'e': 'e',
+            'e': 'E',
             'i': 'I',
             'o': 'o',
             'u': 'u',
