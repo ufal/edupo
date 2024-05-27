@@ -68,7 +68,8 @@ def get_info(verse):
 def show(data, syllformat=False):
     data = defaultdict(str, data)
 
-    data['stanzas'] = []
+    # convert verses into a simpler format for displaying
+    stanzas = []
     for stanza in data['body']:
         verses = []
         for verse in stanza:
@@ -78,6 +79,7 @@ def show(data, syllformat=False):
             if syllformat:
                 for word in verse["words"]:
                     for syllable in word["syllables"]:
+                        syllable = syllable.copy()
                         syllable["ort_consonants"] = syllable["ort_consonants"].replace('_', NBSP)
                         syllables.append(syllable)
                     # mark end of word
@@ -98,17 +100,17 @@ def show(data, syllformat=False):
                 'info': get_info(verse),
                 })
 
-        data['stanzas'].append({
+        stanzas.append({
             'verses': verses,
             })
             
         # TODO možná restartovat číslování rýmu po každé sloce
         # (ale někdy jde rýmování napříč slokama)
 
-    data["json"] = json.dumps(data, indent=4, ensure_ascii=False)
+    jsondump = json.dumps(data, indent=4, ensure_ascii=False)
 
-    return render_template('show_poem_html.html', **data)
-
+    return render_template('show_poem_html.html',
+            stanzas=stanzas, json=jsondump, **data)
 
 # Reads in file
 def show_file(filename = '78468.json'):
