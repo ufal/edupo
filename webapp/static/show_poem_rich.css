@@ -1,11 +1,14 @@
 .id {color: gray; }
 
 td.meter {
+    padding: 0 1ex 0 1ex;
+    background-color: white;
 }
 
 td.rhyme {
     font-weight: bold;
     padding: 0 1ex 0 1ex;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 table.stanza {
@@ -19,6 +22,11 @@ tr.verse {
 
 td.versetext {
     padding-top: 10px;
+}
+
+td.versetext, td.versetextplain {
+    padding-left: 1ex;
+    padding-right: 1ex;
 }
 
 span.syllable {
