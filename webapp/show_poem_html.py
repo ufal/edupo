@@ -52,12 +52,23 @@ def get_rhyme(verse):
 # nonrhyming = None, converts to 0
 def get_rhyme_letter(rhyme):
     if rhyme == 0:
-        return ' ', 1
+        return NBSP
     else:
         index = (rhyme-1) % 26
-        subscript = (rhyme-1) // 26 + 1
-        letter = string.ascii_uppercase[index]
-        return letter, subscript
+        return string.ascii_uppercase[index]
+
+def get_rhyme_subscript(rhyme):
+    if rhyme == 0:
+        return 1
+    else:
+        return (rhyme-1) // 26 + 1
+
+def get_rhyme_class(rhyme):
+    if rhyme == 0:
+        return 0
+    else:
+        # modulo 12, 1-based
+        return (rhyme-1)%12+1
 
 def show(data, syllformat=False):
     data = defaultdict(str, data)
@@ -84,14 +95,14 @@ def show(data, syllformat=False):
                             syllables[-1]["after"] += word["punct"]
                         syllables[-1]["after"] += NBSP
             
-            rhymeletter, rhymesubscript = get_rhyme_letter(rhyme)
             verses.append({
                 'text': verse["text"],
                 'stanza': verse.get("stanza", 0),
                 'syllables': syllables,
-                'rhymeclass': f'verse{(rhyme-1)%12}' if rhyme else 'verseNone',
-                'rhymeletter': rhymeletter,
-                'rhymesubscript': rhymesubscript,
+                # NOTE: classes verseNone and verse1..verse12 harwired in CSS
+                'rhymeclass': get_rhyme_class(rhyme),
+                'rhymeletter': get_rhyme_letter(rhyme),
+                'rhymesubscript': get_rhyme_subscript(rhyme),
                 'metrum': get_metrum(metre),
                 'rythm': verse["sections"],
                 'pattern': verse["metre"][0][metre]['pattern'],

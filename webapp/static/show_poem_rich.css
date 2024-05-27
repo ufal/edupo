@@ -68,17 +68,18 @@ span.rhyming {
 }
 
 .verseNone {background-color: #fff}
+.verse0 {background-color: #fff}
 
-.verse0 {background-color: #fcc}
-.verse1 {background-color: #cfc}
-.verse2 {background-color: #ccf}
-.verse3 {background-color: #ffc}
-.verse4 {background-color: #fcf}
-.verse5 {background-color: #cff}
-.verse6 {background-color: #faa}
-.verse7 {background-color: #afa}
-.verse8 {background-color: #aaf}
-.verse9 {background-color: #ffa}
-.verse10 {background-color: #faf}
-.verse11 {background-color: #aff}
+.verse1 {background-color: #fcc}
+.verse2 {background-color: #cfc}
+.verse3 {background-color: #ccf}
+.verse4 {background-color: #ffc}
+.verse5 {background-color: #fcf}
+.verse6 {background-color: #cff}
+.verse7 {background-color: #faa}
+.verse8 {background-color: #afa}
+.verse9 {background-color: #aaf}
+.verse10 {background-color: #ffa}
+.verse11 {background-color: #faf}
+.verse12 {background-color: #aff}
 
