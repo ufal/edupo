@@ -1,6 +1,15 @@
 .id {color: gray; }
 
-.rhyme {font-weight: bold; padding: 0 1ex 0 1ex;}
+td.meter {
+    /*background-color: rgba(255, 255, 255, 0.5);*/
+}
+
+td.rhyme {
+    font-weight:
+    bold;
+    padding: 0 1ex 0 1ex;
+    /*background-color: rgba(255, 255, 255, 0.5);*/
+}
 
 table.stanza {
     margin-bottom: 1em;
@@ -23,6 +32,7 @@ span.syllpart {
     display: block;
     padding-top: 3px;
     padding-bottom: 5px;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 span.ort_vowels {
@@ -40,8 +50,17 @@ span.positionW {
     border-top-right-radius: 1ex;
 }
 
+span.beforestress1 {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) );
+}
+
 span.stress1 {
     border-bottom: 3px solid black;
+    background-color: rgba(255, 255, 255, 0);
+}
+
+span.afterstress1 {
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) );
 }
 
 span.stress0 {
