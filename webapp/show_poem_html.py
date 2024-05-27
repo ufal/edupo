@@ -18,10 +18,6 @@ from flask import render_template
 # TODO rewrite using Jinja probably?
 # from flask import render_template
 
-# rhyme is 1-based
-# nonrhyming = None, converts to 0
-RYM = ' ' + 10*string.ascii_uppercase
-
 METRUM = {
     'J': "jamb",
     'T': "trochej",
@@ -47,11 +43,21 @@ def get_metre(verse):
 def get_rhyme(verse):
     try:
         rhyme = 0 if verse["rhyme"] == None else verse["rhyme"]
-        int(rhyme)
-        return rhyme
+        return int(rhyme)
     except:
         logging.warning(f"Missing valid rhyme in data.")
         return 0
+
+# rhyme is 1-based
+# nonrhyming = None, converts to 0
+def get_rhyme_letter(rhyme):
+    if rhyme == 0:
+        return ' ', 1
+    else:
+        index = (rhyme-1) % 26
+        subscript = (rhyme-1) // 26 + 1
+        letter = string.ascii_uppercase[index]
+        return letter, subscript
 
 def show(data, syllformat=False):
     data = defaultdict(str, data)
@@ -78,12 +84,14 @@ def show(data, syllformat=False):
                             syllables[-1]["after"] += word["punct"]
                         syllables[-1]["after"] += NBSP
             
+            rhymeletter, rhymesubscript = get_rhyme_letter(rhyme)
             verses.append({
                 'text': verse["text"],
                 'stanza': verse.get("stanza", 0),
                 'syllables': syllables,
-                'rhyme': rhyme,
-                'rym': RYM[int(rhyme)],
+                'rhyme0based': rhyme-1 if rhyme else 'None',
+                'rhymeletter': rhymeletter,
+                'rhymesubscript': rhymesubscript,
                 'metrum': get_metrum(metre),
                 'rythm': verse["sections"],
                 'pattern': verse["metre"][0][metre]['pattern'],
