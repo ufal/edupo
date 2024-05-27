@@ -30,11 +30,11 @@ class HTMLprint:
         for i,l in enumerate(self.poem_):
 
             syll = 0
-            output[i]['rhyme'][0] = ' '.join("#{0}".format(n+1) for n in l['rhyme'])
+            #output[i]['rhyme'][0] = ' '.join("#{0}".format(n+1) for n in l['rhyme'])
             
-            for r in l['rhyme']:
-                if r < i:
-                    count_rhymes += 1
+            #for r in l['rhyme']:
+            #    if r < i:
+            #        count_rhymes += 1
 
             for j,w in enumerate(l['words']):
 
@@ -87,7 +87,7 @@ class HTMLprint:
                 self.html_ += '</div>'
                 
             first = False
-        self.html_ += '<div class="kveta-stats-rhyme"># rhymes: {0}</div>'.format(count_rhymes)
+        #self.html_ += '<div class="kveta-stats-rhyme"># rhymes: {0}</div>'.format(count_rhymes)
         self.html_ += '</div>'
         
         for i,l in enumerate(self.poem_):

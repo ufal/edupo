@@ -41,9 +41,41 @@ class RhymeDetection:
                               'stanza': l['stanza']})
 
         r = self.tagger.tagging(fin_words)
-        
-        for i,l in enumerate(poem):
-            poem[i]['rhyme'] = list(r[i])
+
+        # Change the rhyming format to CCV style
+        minimum2cluster = dict()
+        rhyme_clusters = []
+        for i, v in enumerate(poem):
+            minimum = i
+            for x in r[i]:
+                if x < minimum:
+                    minimum = x
+            if not minimum in minimum2cluster:
+               minimum2cluster[minimum] = len(rhyme_clusters)
+               rhyme_clusters.append([i])
+            else:
+               rhyme_clusters[minimum2cluster[minimum]].append(i)
+            poem[i]["rhyme"] = minimum2cluster[minimum] + 1
+
+        # Fill rhyme_from attribute - values 'v' (from vovel), 'c' (from consonants), 'ec' (from the ending consonants)
+        for c in rhyme_clusters:
+            if len(c) == 1:
+                # no rhyming
+                # TODO: jak to má v tomto případě vypadat?
+                poem[c[0]]["rhyme"] = 0
+            else:
+                for l in c:
+                    if len(poem[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
+                        poem[l]["words"][-1]["syllables"][-2]["rhyme_from"] = 'v'
+                        poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
+                    elif len(poem[l]["words"]) >= 2 and poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 1: # jednoslabičné slovo za slabičkou předložkou
+                        poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
+                        poem[l]["words"][-2]["syllables"][-1]["rhyme_from"] = 'v'
+                    elif poem[l]["words"][-1]["syllables"][-1]["ph_end_consonants"]: # jednoslabičné slovo bez předložky končící souhláskou
+                        poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'v'
+                    else:
+                        poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c' # jednoslabičné slovo bez předložky končící samohláskou
+                # TODO: co když jsou v rámci klastru některá slova jednoslabičná a některá např. tříslabičná?
         return poem  
             
 
