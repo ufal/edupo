@@ -91,7 +91,7 @@
             <table class="stanza" cellspacing="0" cellpadding="0">
             {% endif %}
 
-            <tr class="verse verse{{ verse.rhyme0based % 12 }}">
+            <tr class="verse {{ rhymeclass }}">
                     <td class="meter">{{ verse.metrum }}</td>
                     <td class="rhyme">{{ verse.rhymeletter }}</td>
                     {% if verse.syllables %}

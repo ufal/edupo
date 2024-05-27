@@ -89,7 +89,7 @@ def show(data, syllformat=False):
                 'text': verse["text"],
                 'stanza': verse.get("stanza", 0),
                 'syllables': syllables,
-                'rhyme0based': rhyme-1 if rhyme else 'None',
+                'rhymeclass': f'verse{(rhyme-1)%12}' if rhyme else 'verseNone',
                 'rhymeletter': rhymeletter,
                 'rhymesubscript': rhymesubscript,
                 'metrum': get_metrum(metre),
