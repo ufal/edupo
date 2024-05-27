@@ -98,10 +98,6 @@ def show(data, syllformat=False):
                 'info': get_info(verse),
                 })
 
-            # TODO hack, zrušit
-            if 'metre' in verse["metre"][0][metre]:
-                verses[-1]['metrum'] = verse["metre"][0][metre]['metre']
-
         data['stanzas'].append({
             'verses': verses,
             })
