@@ -104,9 +104,21 @@
                         %}<span class="syllable {{ syllable.class }}"
                             >{%
                             if syllable.ort_consonants
-                            %}<span class="syllpart ort_consonants beforestress{{
+                            %}<span class="syllpart ort_consonants beforeposition{{
+                                    syllable.position
+                                }} beforestress{{
                                     syllable.stress
-                                }} afterstress{%
+                                }} afterposition{%
+                                    if not verse.syllables[loop.index0-1].after
+                                %}{{
+                                    verse.syllables[loop.index0-1].position
+                                }}{%
+                                    else
+                                %}{{
+                                    W
+                                }}{%
+                                    endif
+                                %} afterstress{%
                                     if not verse.syllables[loop.index0-1].after
                                 %}{{
                                     verse.syllables[loop.index0-1].stress
@@ -136,7 +148,11 @@
                             endif
                             %}{%
                             if syllable.ort_end_consonants or syllable.after
-                            %}<span class="syllpart ort_end_consonants after afterstress{{ syllable.stress }} {%
+                            %}<span class="syllpart ort_end_consonants after afterposition{{
+                                    syllable.position
+                                }} afterstress{{
+                                    syllable.stress
+                                }} {%
                                 if syllable.rhyme_from == "c" or syllable.rhyme_from == "v"
                                 %} rhyming {%
                                 endif
