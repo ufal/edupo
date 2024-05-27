@@ -61,21 +61,28 @@ class RhymeDetection:
         for c in rhyme_clusters:
             if len(c) == 1:
                 # no rhyming
-                # TODO: jak to má v tomto případě vypadat?
                 poem[c[0]]["rhyme"] = 0
             else:
+                # nejdřív otestujeme, jestli se v klastru nachází jednoslabičné slovo (bez předložky)
+                exists_monosyllabic_word = 0
                 for l in c:
-                    if len(poem[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
+                    if len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"]) == 1 or (poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 0)):
+                        exists_monosyllabic_word = 1
+                        break
+                # nyní označujeme začátek rytmu
+                for l in c:
+                    if not exists_monosyllabic_word and len(poem[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
                         poem[l]["words"][-1]["syllables"][-2]["rhyme_from"] = 'v'
                         poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
-                    elif len(poem[l]["words"]) >= 2 and poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 1: # jednoslabičné slovo za slabičkou předložkou
+                    elif not exists_monosyllabic_word and len(poem[l]["words"]) >= 2 and poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 1: # jednoslabičné slovo za slabičkou předložkou
                         poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
                         poem[l]["words"][-2]["syllables"][-1]["rhyme_from"] = 'v'
                     elif poem[l]["words"][-1]["syllables"][-1]["ph_end_consonants"]: # jednoslabičné slovo bez předložky končící souhláskou
                         poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'v'
+                        monosyllabic_word = 1
                     else:
                         poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c' # jednoslabičné slovo bez předložky končící samohláskou
-                # TODO: co když jsou v rámci klastru některá slova jednoslabičná a některá např. tříslabičná?
+                        monosyllabic_word = 1
         return poem  
             
 
