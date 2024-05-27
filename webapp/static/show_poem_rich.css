@@ -63,6 +63,9 @@ span.rhyming {
     font-size: x-small;
 }
 
+.stressinfo {
+    width: 1px;
+}
 
 .verse0 {background-color: #fff}
 .verseNone {background-color: #fff}
