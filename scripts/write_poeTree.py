@@ -6,18 +6,11 @@ import sqlite3
 
 db_filename = "new.db"
 
-db = sqlite3.connect(db_filename)
+with sqlite3.connect(db_filename) as db:
+    db.execute("BEGIN TRANSACTION;")
+    db.execute("ALTER TABLE authors ADD COLUMN wiki STRING;")
 
-cur = db.cursor()
-
-#cur.execute("ALTER TABLE authors ADD COLUMN wiki STRING;")
-
-for au, wik in a:
-    id = cur.execute("SELECT DISTINCT author FROM poems WHERE author_name = ?;", (au,)).fetchall()[0][0]
-    print(id)
-    cur.execute("UPDATE authors SET wiki = ? WHERE identity = ?;", (wik, id))
-
-db.commit()
-
-db.close()
-    
+    for au, wik in a:
+        id = db.execute("SELECT DISTINCT author FROM poems WHERE author_name = ?;", (au,)).fetchall()[0][0]
+        print(id)
+        db.execute("UPDATE authors SET wiki = ? WHERE identity = ?;", (wik, id))    
