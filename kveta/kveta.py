@@ -87,8 +87,10 @@ def okvetuj(text):
     # Put metres from k.pie_data_ into verses
     # and copy the streses and S/W/V into individual syllables
     for i, v in enumerate(k.poem_):
-        letter = "T"
-        if k.pie_data_[i]["metre"] == "iamb":
+        letter = "N"
+        if k.pie_data_[i]["metre"] == "trochee":
+            letter = "T"
+        elif k.pie_data_[i]["metre"] == "iamb":
             letter = "J"
         elif k.pie_data_[i]["metre"] == "dactyl":
             letter = "D"
