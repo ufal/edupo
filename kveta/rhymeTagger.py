@@ -188,7 +188,7 @@ class RhymeTagger:
         #    c2 = c2[:-1]
         
         # DM: the group may end with C only if it starts with '#'
-        if c1[0][0] != '#' and c2[-1][-1] not in self.syllable_peaks:
+        if c1[0][0] != '#' and c1[-1][-1] not in self.syllable_peaks:
             c1 = c1[:-1]
         if c2[0][0] != '#' and c2[-1][-1] not in self.syllable_peaks:
             c2 = c2[:-1]
