@@ -62,15 +62,15 @@ class Phonetix:
         Remove remaining punctuation.
         '''
         self.replace((
-            (r'[.;?!,]+', '₆'),
-            (' [\-\–]+ ', '₆'),
-            ('^|$', '₆'),
-            ('(\s)', r' '),
+            (r'[.;?!,]+', r'₆'),
+            (r' [\-\–]+ ', r'₆'),
+            (r'^|$', r'₆'),
+            (r'(\s)', r' '),
             # ('₆(\s)', r'₆\1₆'),
             # ('([^₆])(\s)', r'\1 \2 '),
-            (r'["#$%&\'()*+/:;<=>@[\]^_`{|}~–]|[0-9]', ' '),
-            (' +', '₅'),
-            ('₅*₆+₅*', '₆'),
+            (r'["#$%&\'()*+/:;<=>@[\]^_`{|}~–]|[0-9]', r' '),
+            (r' +', r'₅'),
+            (r'₅*₆+₅*', r'₆'),
         ))
 
     def lowercase(self):
@@ -127,11 +127,11 @@ class Phonetix:
         Process words with hyphen
         '''
         self.replace((
-            ('([jmnňřrlaáeéiíoóuúůyýě])\-(li|liž)(₅|₆)', r'\1₁\2\3'),
-            ('([ěo])\-', r'\1₄'),
-            ('\-(li|liž)(₅|₆)', r'₂\1\2'),
-            ('\-', '₆'),
-            ('₅*₆+₅*', '₆'),
+            (r'([jmnňřrlaáeéiíoóuúůyýě])\-(li|liž)(₅|₆)', r'\1₁\2\3'),
+            (r'([ěo])\-', r'\1₄'),
+            (r'\-(li|liž)(₅|₆)', r'₂\1\2'),
+            (r'\-', r'₆'),
+            (r'₅*₆+₅*', r'₆'),
         ))
 
     def diphthongs1(self):
@@ -412,3 +412,71 @@ class Phonetix:
                 poem[i]['words'][j]['cft'] = t[j]
                 
         return poem
+
+    def phoebe2cft(self, poem):
+        phoebe2cft_dict = {
+            'a': 'a',
+            'e': 'e',
+            'i': 'i',
+            'o': 'o',
+            'u': 'u',
+
+            'A': 'á',
+            'E': 'é',
+            'I': 'í',
+            'O': 'ó',
+            'U': 'ú',
+
+            '0': 'O',
+            '1': 'A',
+            '2': 'E',
+
+            'Q': 'R',
+            'L': 'L',
+
+            'p': 'p',
+            'b': 'b',
+            't': 't',
+            'd': 'd',
+            'T': 'ť',
+            'D': 'ď',
+            'k': 'k',
+            'g': 'g',
+
+            'f': 'f',
+            'v': 'v',
+            's': 's',
+            'z': 'z',
+            'S': 'š',
+            'Z': 'ž',
+            'x': 'x',
+            #    'X',
+            'h': 'h',
+            'G': 'G', #je to v KČV?
+
+            'c': 'c',
+            '3': 'č',
+            'm': 'm',
+            'n': 'n',
+            'N': 'ň',
+            '5': 'V',
+            '6': 'W',
+            'C': 'Z',
+            #'Ž': 'č',
+
+            'r': 'r',
+            'l': 'l',
+            'j': 'j',
+            'R': 'ř', # 'P\\',
+            'P': 'Ř', #: 'Q\\',
+        }
+        for i, l in enumerate(poem):
+            for j, w in enumerate(l['words']):
+                cft = ""
+                for c in w["phoebe"]:
+                    cft += phoebe2cft_dict[c]
+                poem[i]['words'][j]['cft'] = cft
+        return poem
+    
+
+                                    

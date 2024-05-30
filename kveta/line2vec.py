@@ -218,7 +218,7 @@ class Line2Vec:
                 sections += '1' + '0' * (len(w['vec']['lengths']) - 1)
             elif ( j == 0 
             or    ('punct' in self.poem_[i]['words'][j-1]
-            and    re.search('[\.\;\?\!\,\-\–]', self.poem_[i]['words'][j-1]['punct']))):
+            and    re.search(r'[\.\;\?\!\,\-\–]', self.poem_[i]['words'][j-1]['punct']))):
                 sections += 'n'
             else:
                 if w['vec']['content'][0] == 1:

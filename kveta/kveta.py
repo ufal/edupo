@@ -31,9 +31,15 @@ class Kveta:
     def phonetics(self):
         ptx = phonetix.Phonetix()
         self.poem_ = ptx.transcript_poem(self.poem_)     
+    
+    def phoebe2cft(self):
+        ptx = phonetix.Phonetix()
+        self.poem_ = ptx.phoebe2cft(self.poem_)     
+    
     def syllables(self):
         syl = syllables.Syllables()
         self.poem_ = syl.split_words_to_syllables(self.poem_)
+    
     def line2vec(self):
         l2v = line2vec.Line2Vec()
         self.poem_ = l2v.tag(self.poem_)
@@ -50,6 +56,14 @@ class Kveta:
         html = htmlprint.HTMLprint()
         self.html_, self.pie_data_ = html.stringify(self.poem_, self.overall_probs_, mscore)
 
+    def read_ccv(self, data):
+        # sesypej strofy do jednoho pole a přidej atribut stanza
+        self.poem_ = []
+        for i, stanza in enumerate(data):
+            print(stanza)
+            for line in stanza:
+                line["stanza"] = i
+                self.poem_.append(line)
 
 def okvetuj(text):
     # Get parameters
@@ -106,6 +120,17 @@ def okvetuj(text):
                 pointer += 1
 
     return output, k
+
+def okvetuj_ccv(data):
+
+    k = Kveta("")
+    k.read_ccv(data)
+    k.phoebe2cft()
+    k.syllables()
+
+    data = k.poem_
+
+    return data
 
 
 if __name__=="__main__":

@@ -4,8 +4,7 @@
 import sys
 sys.path.append("../kveta")
 from kveta import okvetuj
-# TODO
-# from kveta import okvetuj_korpus
+from kveta import okvetuj_ccv
 
 
 import sqlite3
@@ -37,11 +36,13 @@ if __name__=="__main__":
         # body už je ten JSON už jako DICT
         data = result['body']
 
+    print("INPUT:")
     print(data)
     
-    # TODO:
-    # output = okvetuj_korpus(data)
-    # print(output)
+    output = okvetuj_ccv(data)
+
+    print("OUTPUT:")
+    print(output)
 
     # a pak výhledově možná ještě TODO to uložit do databáze, ale to později
 
