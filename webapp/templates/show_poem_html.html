@@ -81,14 +81,12 @@
     <hr>
 
     <div class="body">
+        <table class="stanza" cellspacing="0" cellpadding="0">
         {% for stanza in stanzas %}
-            <table class="stanza" cellspacing="0" cellpadding="0">
             {% for verse in stanza.verses %}
             
             {% if verse.stanza and verse.stanza != stanza.verses[loop.index0-1].stanza  %}
-            </table>
-            <br>
-            <table class="stanza" cellspacing="0" cellpadding="0">
+            <tr class="stanzabreak"><td><br></td></tr>
             {% endif %}
 
             <tr class="verse verse{{ verse.rhymeclass }}">
@@ -181,9 +179,9 @@
                     <td class="meterinfo">{{ verse.metrum }}-{{ verse.foot}}-{{ verse.clause }}</td>
                 </tr>
             {% endfor %}
-            </table>
-            <br>
+            <tr class="stanzabreak"><td><br></td></tr>
         {% endfor %}
+        </table>
     </div>
 
 </body>

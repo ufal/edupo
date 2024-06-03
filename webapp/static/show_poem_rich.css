@@ -11,10 +11,9 @@ td.rhyme {
     background-color: rgba(255, 255, 255, 0.5);
 }
 
-table.stanza {
-    margin-bottom: 1em;
+tr.stanzabreak {
+    height: 2em;
 }
-
 
 tr.verse {
    height: 50px; 

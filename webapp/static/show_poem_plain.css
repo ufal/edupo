@@ -15,3 +15,7 @@ span.syllpart {
     display: contents;
 }
 
+tr.stanzabreak {
+    height: 1em;
+}
+
