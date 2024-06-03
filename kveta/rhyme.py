@@ -30,11 +30,9 @@ class RhymeDetection:
         for l in poem:
             xsampa = self.cft_to_xsampa(l['words'][-1]['cft'])
             
-            # přidální případné předchozí slabičné předložky
-            if len(l['words']) >=2 and l['words'][-2]["vec"] and l['words'][-2]["vec"]["prep"][0] == 1:
+            # přidální případné předchozí neslabičné nebo slabičné předložky
+            if len(l['words']) >=2 and (l['words'][-2]['token'] in ['s', 'z', 'v', 'k'] or l['words'][-2]["vec"] and l['words'][-2]["vec"]["prep"][0] == 1):
                 xsampa = self.cft_to_xsampa(l['words'][-2]['cft']) + xsampa
-
-            
 
             if l['words'][-1]['morph'][0] in ('N','A','D','V','C') and l['words'][-1]['lemma'] != 'být':
                 xsampa = "'" + xsampa

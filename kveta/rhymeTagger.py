@@ -200,7 +200,7 @@ class RhymeTagger:
             c2 = c2[:len(c1)]
 
         score = self._rhyme_score(c1, c2, data[i]['word'], data[j]['word'])
-        print(c1, c2, data[i]['word'], data[j]['word'], score)
+        #print(c1, c2, data[i]['word'], data[j]['word'], score)
                                   
         if ( score > self.settings['probability_sampa_min'] ): # and data[i]['word'] != data[j]['word'] ):
           rhymes[i].add(j)   

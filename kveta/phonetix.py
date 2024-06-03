@@ -302,14 +302,22 @@ class Phonetix:
         for i in range(len(self.t)-2, 0, -1):
             follower = self.t[i+1:]
 
+            # neslabičné předložky voiced > unvoiced
+            if i > 0 and len(follower) > 1 and re.match('^[₅₆][vz]₅', self.t[i-1:i+2]):
+                if re.match('^₅[{0}]'.format(self.unvoic), follower):
+                    self.t = self.t[:i] + self.unvoic[self.voic.index(self.t[i])] + follower
             # voiced > unvoiced
-            if self.t[i] in self.voic:
+            elif self.t[i] in self.voic:
                 if (re.match('^[{0}₅₆₂₄₁X]'.format(self.unvoic), follower)
                 or  re.match('^ř[{0}₅₆₁]'.format(self.unvoic), follower)):
                     self.t = self.t[:i] + self.unvoic[self.voic.index(self.t[i])] + follower
 
+            # neslabičné předložky unvoiced > voiced
+            if i > 0 and len(follower) > 1 and re.match('^[₅₆][ks]₅', self.t[i-1:i+2]):
+                if re.match('^₅[{0}]'.format(self.voic), follower):
+                    self.t = self.t[:i] + self.voic[self.unvoic.index(self.t[i])] + follower
             # unvoiced > voiced
-            if self.t[i] in self.unvoic:
+            elif self.t[i] in self.unvoic:
                 if re.match('^ř?[{0}]'.format(self.voic[0] + self.voic[2:]), follower):
                     self.t = self.t[:i] + self.voic[self.unvoic.index(self.t[i])] + follower
                 if (re.match('ř?[₂₄X₁]ř?[{0}]'.format(self.voic), follower)
