@@ -60,7 +60,7 @@ class Kveta:
         # sesypej strofy do jednoho pole a přidej atribut stanza
         self.poem_ = []
         for i, stanza in enumerate(data):
-            print(stanza)
+            #print(stanza)
             for line in stanza:
                 line["stanza"] = i
                 self.poem_.append(line)
@@ -108,6 +108,8 @@ def okvetuj(text):
             letter = "J"
         elif k.pie_data_[i]["metre"] == "dactyl":
             letter = "D"
+        elif k.pie_data_[i]["metre"] == "amphibrach":
+            letter = "A"
         k.poem_[i]["metre"] = [ {letter: k.pie_data_[i]} ]
         
         swv = v["metre"][0][letter]["pattern"]
