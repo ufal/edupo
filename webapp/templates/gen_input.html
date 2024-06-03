@@ -1,4 +1,5 @@
     <form method="post" action="gen">
+        <p>
         Rýmové schéma:
         <input type="text"
                name="rhyme_scheme"
@@ -7,21 +8,63 @@
                title="Rýmové schéma za použití 4 nebo 6 velkých písmen abecedy (A, B, C, X), např. ABBA"
                autofocus
         >
-        <p>Generátor umí čtyřverší a šestiverší. Rýmující verše se označují
-        stejným písmenem, nerýmující se verš se označuje X.</p>
-        <p>Nejběžnější schémata:</p>
-        <ul>
-            <li>ABAB</li>
-            <li>XXXX</li>
-            <li>XAXA</li>
-            <li>XXXXXX</li>
-            <li>AABB</li>
-            <li>ABBA</li>
-            <li>AABBCC</li>
-            <li>AAXX</li>
-            <li>ABABXX</li>
-            <li>ABABCC</li>
-        </ul>
+        Generátor umí čtyřverší a šestiverší. Rýmující verše se označují
+        stejným písmenem, nerýmující se verš se označuje X.
+        Nejběžnější schémata: ABAB, XXXX, XAXA, XXXXXX, AABB, ABBA, AABBCC, AAXX, ABABXX, ABABCC
+        </p>
+        
+        <p>Metrum:
+        <select name="metre" disabled>
+        <option value="">náhodně</option>
+        <option value="T">trochej</option>
+        <option value="J">jamb</option>
+        <option value="D">daktyl</option>
+        </select>
+        </p>
+
+        <p>Pevná forma:
+        <select name="form" disabled>
+        <option value="">ne</option>
+        <option value="sonet">sonet</option>
+        </select>
+        </p>
+
+        <p>Téma/motiv:
+        <input type="text"
+               name="motiv"
+               disabled
+        >
+        </p>
+
+        <p>První slovo:
+        <input type="text"
+               name="start"
+               disabled
+        >
+        </p>
+
+        <p>Typ lyriky:
+        <select name="lyrika_style" disabled>
+        <option value="">ne</option>
+        <option value="přírodní">přírodní</option>
+        <option value="milostná">milostná</option>
+        </select>
+        </p>
+
+        <p>Styl autora:
+        <select name="author_style" disabled>
+        <option value="">ne</option>
+        <option value="Mácha">Mácha</option>
+        </select>
+        </p>
+
+        <p>Styl školy:
+        <select name="school_style" disabled>
+        <option value="">ne</option>
+        <option value="ruchovci">ruchovci</option>
+        </select>
+        </p>
+
 
         <input name="submit" type="submit" value="Generovat">
     </form>

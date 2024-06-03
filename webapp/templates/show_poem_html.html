@@ -21,7 +21,23 @@
     <h2>{{ author_name }}</h2>
     <p class="author">
     {% if author != author_name %}vlastním jménem {{ author }}, {% endif %}
-    {{ born }}-{{ died }}{% for school in schools %}, {{ school }}{% endfor %}
+    {%
+    if born or died
+    %}{%
+    if born
+    %}{{born}}{%
+    else
+    %}?{%
+    endif
+    %}-{%
+    if died
+    %}{{died}}{%
+    else
+    %}?{%
+    endif
+    %}{%
+    endif
+    %}{% for school in schools %}, {{ school }}{% endfor %}
     </p>
     {% endif %}
     
@@ -39,6 +55,7 @@
     <div>
         <button onclick="set_style('plain')">Bez anotace</button>
         <button onclick="set_style('rich')">S anotací</button>
+        <button disabled>Generovat novou báseň ve stylu této básně</button>
 
     {% if not stanzas[0].verses[0].syllables %}
     <form method="post" action="analyze">
