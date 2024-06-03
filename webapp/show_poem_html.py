@@ -36,12 +36,30 @@ def get_metrum(metre):
     else:
         return f"metrum {metre}"
 
+# pokud je pro jeden verš anotováno víc meter,
+# zobrazit jen to nejnormálnější metrum
+
+METRE_PRIORITY = defaultdict(int)
+METRE_PRIORITY['T'] = 5
+METRE_PRIORITY['J'] = 4
+METRE_PRIORITY['D'] = 3
+METRE_PRIORITY['A'] = 2
+METRE_PRIORITY['N'] = 1
+METRE_PRIORITY['?'] = -1
+
 def get_metre(verse):
     try:
-        return list(verse["metre"][0].keys())[0]
+        metre = '?'
+        metre_index = 0
+        for index, metredict in enumerate(verse["metre"]):
+            metre_candidate = list(metredict.keys())[0]
+            if METRE_PRIORITY[metre_candidate] > METRE_PRIORITY[metre]:
+                metre = metre_candidate
+                metre_index = index
+        return metre, metre_index
     except:
         logging.warning(f"Missing metre in data.")
-        return '?'
+        return '?', 0
 
 def get_rhyme(verse):
     try:
@@ -82,7 +100,7 @@ def show(data, syllformat=False):
         verses = []
         for verse in stanza:
             rhyme = get_rhyme(verse)
-            metre = get_metre(verse)
+            metre, metre_index = get_metre(verse)
             syllables = []
             if syllformat:
                 for word in verse["words"]:
@@ -108,9 +126,9 @@ def show(data, syllformat=False):
                 'rhymesubscript': get_rhyme_subscript(rhyme),
                 'metrum': get_metrum(metre),
                 'rythm': verse["sections"],
-                'pattern': verse["metre"][0][metre]['pattern'],
-                'foot': verse["metre"][0][metre]['foot'],
-                'clause': verse["metre"][0][metre]['clause'],
+                'pattern': verse["metre"][metre_index][metre]['pattern'],
+                'foot': verse["metre"][metre_index][metre]['foot'],
+                'clause': verse["metre"][metre_index][metre]['clause'],
                 })
 
         stanzas.append({
