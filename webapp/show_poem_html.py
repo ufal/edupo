@@ -22,6 +22,7 @@ METRUM = {
     'J': "jamb",
     'T': "trochej",
     'D': "daktyl",
+    'A': "amfibrach",
         }
 
 # non breaking space
