@@ -123,7 +123,10 @@ def call_analyze():
     output, k = okvetuj(text)
     poem_json = output[0]
     add_metadata_to_dict(poem_json)
-    poem_json['schools'] = [poem_json['schools']]
+    if poem_json['schools']:
+        poem_json['schools'] = [poem_json['schools']]
+    else:
+        poem_json['schools'] = []
     html = show_poem_html.show(poem_json, True)
     return html
 
