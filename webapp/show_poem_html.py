@@ -23,7 +23,9 @@ METRUM = {
     'T': "trochej",
     'D': "daktyl",
     'A': "amfibrach",
-        }
+    'N': "neurčeno",
+    'alex': "alexandrín (jamb)",
+}
 
 # non breaking space
 NBSP = ' '
