@@ -104,18 +104,18 @@ def show(data, syllformat=False):
             syllables = []
             if syllformat:
                 for word in verse["words"]:
-                    for syllable in word["syllables"]:
-                        syllable = syllable.copy()
-                        syllable["ort_consonants"] = syllable["ort_consonants"].replace('_', NBSP)
-                        syllables.append(syllable)
-                    # mark end of word
-                    # syllables[-1]["class"] = "endofword"
-                    if syllables:
-                        syllables[-1]["after"] = ""
-                        if "punct" in word:
-                            syllables[-1]["after"] += word["punct"]
-                        syllables[-1]["after"] += NBSP
-            
+                    if word["syllables"]:
+                        for syllable in word["syllables"]:
+                            syllable = syllable.copy()
+                            syllable["ort_consonants"] = syllable["ort_consonants"].replace('_', NBSP)
+                            syllables.append(syllable)
+                        # mark end of word
+                        if syllables:
+                            syllables[-1]["after"] = ""
+                            if "punct" in word:
+                                syllables[-1]["after"] += word["punct"]
+                            syllables[-1]["after"] += NBSP
+                
             verses.append({
                 'text': verse["text"],
                 'stanza': verse.get("stanza", 0),
