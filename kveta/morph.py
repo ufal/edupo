@@ -56,7 +56,7 @@ class Morphodita:
                 for prefix in nodip_prefixes:
                     if str_lemma.startswith(prefix+'u'):
                         suffix = str_lemma[len(prefix):]
-                        if len(suffix) == 0:
+                        if len(suffix) <= 1:
                             continue
                         # tag the suffix
                         forms2 = Forms()
