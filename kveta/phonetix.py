@@ -351,8 +351,8 @@ class Phonetix:
             # self.voic+self.unvoic+'řŘmnňMNrljv'), r'\1\2P\3'),
 
             # dočasně přidávám 'sedm' a 'osm' než Aleš ověří pravidla
-            ('sedm([ ₂₄X])', r'sedP\1'),
-            ('osm([ ₂₄X])', r'osP\1'),
+            ('sedm([₅₆₂₄X{0}])'.format(self.voic+self.unvoic+'mnňMNrlRLjvPB'), r'sedP\1'),
+            ('osm([₅₆₂₄X{0}])'.format(self.voic+self.unvoic+'mnňMNrlRLjvPB'), r'osP\1'),
 
         ))
 

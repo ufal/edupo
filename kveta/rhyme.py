@@ -119,7 +119,9 @@ class RhymeDetection:
             'O': 'o_u',
 
             'R': 'r=',        
-            'L': 'l=',        
+            'L': 'l=',       
+            'P': 'm=',
+            'B': 'n=',
         
             'p': 'p',        
             'b': 'b',        
