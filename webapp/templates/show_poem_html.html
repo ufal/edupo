@@ -106,6 +106,10 @@
         {% if 'D' in present_metres %}
         <p><b>daktyl</b>: trojslabičné metrum s přízvukem na první slabice</p>
         {% endif %}
+        {% if 'A' in present_metres %}
+        <p><b>amfibrach</b>: trojslabičné metrum s přízvukem na druhé slabice</p>
+        {% endif %}
+    </div>
     </div>
 
 
@@ -119,7 +123,7 @@
             {% endif %}
 
             <tr class="verse verse{{ verse.rhymeclass }}">
-                    <td class="meter">{{ verse.metrum }}</td>
+                <td class="meter metre{{ verse.metre }}">{{ verse.metrum }}</td>
                     <td class="rhyme">{{
                         verse.rhymeletter
                         }}<sub class="rhymesubscript">{{

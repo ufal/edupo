@@ -44,22 +44,20 @@ METRE_PRIORITY['T'] = 5
 METRE_PRIORITY['J'] = 4
 METRE_PRIORITY['D'] = 3
 METRE_PRIORITY['A'] = 2
-METRE_PRIORITY['N'] = 1
-METRE_PRIORITY['?'] = -1
+METRE_PRIORITY['N'] = -1
 
 def get_metre(verse):
+    metre = 'N'
+    metre_index = 0
     try:
-        metre = '?'
-        metre_index = 0
         for index, metredict in enumerate(verse["metre"]):
             metre_candidate = list(metredict.keys())[0]
-            if METRE_PRIORITY[metre_candidate] > METRE_PRIORITY[metre]:
+            if METRE_PRIORITY[metre_candidate] >= METRE_PRIORITY[metre]:
                 metre = metre_candidate
                 metre_index = index
-        return metre, metre_index
     except:
         logging.warning(f"Missing metre in data.")
-        return '?', 0
+    return metre, metre_index
 
 def get_rhyme(verse):
     try:
@@ -127,6 +125,7 @@ def show(data, syllformat=False):
                 'rhymeclass': get_rhyme_class(rhyme),
                 'rhymeletter': get_rhyme_letter(rhyme),
                 'rhymesubscript': get_rhyme_subscript(rhyme),
+                'metre': metre,
                 'metrum': get_metrum(metre),
                 'rythm': verse["sections"],
                 'pattern': verse["metre"][metre_index][metre]['pattern'],

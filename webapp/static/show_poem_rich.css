@@ -3,6 +3,7 @@
 td.meter {
     padding: 0 1ex 0 1ex;
     background-color: white;
+    text-align: center;
 }
 
 td.rhyme {
@@ -84,6 +85,43 @@ span.stress0 {
     border-top-left-radius: 1ex;
     border-top-right-radius: 1ex;
 }
+
+td.metreT {
+    background: linear-gradient(to left, rgb(255, 255, 255) 40%, rgb(150, 150, 150) 60% );
+}
+
+td.metreT:after {
+    content: '\a_ .';
+    white-space: pre;
+}
+
+td.metreJ {
+    background: linear-gradient(to right, rgb(255, 255, 255) 40%, rgb(150, 150, 150) 60% );
+}
+
+td.metreJ:after {
+    content: '\a . _';
+    white-space: pre;
+}
+
+td.metreD {
+    background: linear-gradient(to left, rgb(255, 255, 255) 60%, rgb(150, 150, 150) 80% );
+}
+
+td.metreD:after {
+    content: '\a_ . .';
+    white-space: pre;
+}
+
+td.metreA {
+    background: linear-gradient(to left, rgb(255, 255, 255) 30%, rgb(150, 150, 150) 40%, rgb(150, 150, 150) 60%, rgb(255, 255, 255) 70% );
+}
+
+td.metreA:after {
+    content: '\a. _ .';
+    white-space: pre;
+}
+
 
 span.rhyming {
     font-weight: bold;
