@@ -94,6 +94,8 @@ def get_rhyme_class(rhyme):
 def show(data, syllformat=False):
     data = defaultdict(str, data)
 
+    present_metres = set()
+
     # convert verses into a simpler format for displaying
     stanzas = []
     for stanza in data['body']:
@@ -101,6 +103,7 @@ def show(data, syllformat=False):
         for verse in stanza:
             rhyme = get_rhyme(verse)
             metre, metre_index = get_metre(verse)
+            present_metres.add(metre)
             syllables = []
             if syllformat:
                 for word in verse["words"]:
@@ -141,7 +144,7 @@ def show(data, syllformat=False):
     jsondump = json.dumps(data, indent=4, ensure_ascii=False)
 
     return render_template('show_poem_html.html',
-            stanzas=stanzas, json=jsondump, **data)
+            stanzas=stanzas, present_metres=present_metres, json=jsondump, **data)
 
 # Reads in file
 def show_file(filename = '78468.json'):

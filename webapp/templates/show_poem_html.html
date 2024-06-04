@@ -96,6 +96,18 @@
     </div>
 
     <hr>
+    <div id="metreinfo">
+        {% if 'T' in present_metres %}
+        <p><b>trochej</b>: dvouslabičné metrum s přízvukem na první slabice</p>
+        {% endif %}
+        {% if 'J' in present_metres %}
+        <p><b>jamb</b>: dvouslabičné metrum s přízvukem na druhé slabice</p>
+        {% endif %}
+        {% if 'D' in present_metres %}
+        <p><b>daktyl</b>: trojslabičné metrum s přízvukem na první slabice</p>
+        {% endif %}
+    </div>
+
 
     <div class="body">
         <table class="stanza" cellspacing="0" cellpadding="0">

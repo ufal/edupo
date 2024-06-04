@@ -118,3 +118,11 @@ span.rhyming {
 .verse11 {background-color: #faf}
 .verse12 {background-color: #aff}
 
+#metreinfo {
+    float: right;
+    background-color: #ffd;
+    border: 1px dashed #ff0;
+    padding: 0 1ex 0 1ex;
+}
+
+
