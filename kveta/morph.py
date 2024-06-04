@@ -68,6 +68,7 @@ class Morphodita:
                         self.tagger.tag(forms2,lemmas2,0) # The last argument is 0 since we don't want to use morphological guesser.
                         # if suffix was not recognized by the tagger (tag X) or suffix is in the list
                         if lemmas2[0].tag[0] != 'X' or suffix in nodip_nolemma_suffixes:
+                            print(suffix, lemmas2[0].tag)
                             p = str_token.find(prefix) + len(prefix) 
                             nodip = str_token[:p] + '₇' + str_token[p:] # ₇ is used here as a sign in places where ou is not a diphtong
                             #print("SUCCESS", nodip)

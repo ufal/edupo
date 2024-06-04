@@ -224,6 +224,7 @@ class RhymeTagger:
           if self.settings['stanza_limit'] and data[i]['stanza'] != data[j]['stanza']:
             continue
           score = self._ngram_score(data[i]['word'], data[j]['word'])
+          print('NGRAM', data[i]['word'], data[j]['word'], score)
           if ( score > self.settings['probability_ngram_min'] ): # and data[i]['word'] != data[j]['word'] ):
             rhymes[i].add(j)
             rhymes[j].add(i)
