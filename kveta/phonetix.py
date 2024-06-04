@@ -349,6 +349,11 @@ class Phonetix:
             # self.voic+self.unvoic+'řŘmnňMNrljv'), r'\1\2B\3'),
             # ('([{0}])([{1}])m([ ₂₄X])'.format(self.voic+self.unvoic+self.son,
             # self.voic+self.unvoic+'řŘmnňMNrljv'), r'\1\2P\3'),
+
+            # dočasně přidávám 'sedm' a 'osm' než Aleš ověří pravidla
+            ('sedm([ ₂₄X])', r'sedP\1'),
+            ('osm([ ₂₄X])', r'osP\1'),
+
         ))
 
     def unvoic_r(self):
