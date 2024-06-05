@@ -82,7 +82,8 @@ class Morphodita:
 
 
                 # ...otherwise append token tags to current line
-                else:                    features = {'token': str_token,
+                else:
+                    features = {'token': str_token,
                                 'lemma': str_lemma,
                                 'morph': lemma.tag,
                                 'sentence': s
