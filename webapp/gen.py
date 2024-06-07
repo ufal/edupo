@@ -16,13 +16,16 @@ import random
 tokenizer = AutoTokenizer.from_pretrained("jinymusim/gpt-czech-poet")
 model = AutoModelForCausalLM.from_pretrained("jinymusim/gpt-czech-poet")
 
-def generuj(rhyme_scheme='AABB', metre='J', year=1900):
+def generuj(rhyme_scheme='AABB', metre='J', firstline='', year=1900):
 
     if not metre:
         metre = random.choice(['J', 'T', 'D'])
 
     poet_start = f'# {rhyme_scheme} # {year}\n{metre} #'
-    result = []
+    if firstline:
+        # TODO format:
+        # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
+        poet_start += firstline
 
     # tokenize input
     tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt')
