@@ -90,9 +90,8 @@ def get_rhyme_class(rhyme):
         return (rhyme-1)%12+1
 
 def show(data, syllformat=False):
-    jsondump = json.dumps(data, indent=4, ensure_ascii=False)
     data = defaultdict(str, data)
-    data['json'] = jsondump
+    data['json'] = json.dumps(data, indent=4, ensure_ascii=False)
     
     if data['id']:
         imgfile = f"static/genimg/{data['id']}.png"
