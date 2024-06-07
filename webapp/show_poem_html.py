@@ -69,9 +69,9 @@ def get_rhyme(verse):
 
 # rhyme is 1-based
 # nonrhyming = None, converts to 0
-def get_rhyme_letter(rhyme):
+def get_rhyme_letter(rhyme, nonrhyming=NBSP):
     if rhyme == 0:
-        return NBSP
+        return nonrhyming
     else:
         index = (rhyme-1) % 26
         return string.ascii_uppercase[index]
@@ -103,6 +103,8 @@ def show(data, syllformat=False):
     
     # convert verses into a simpler format for displaying
     data['stanzas'] = []
+    michal_rhyme_scheme = ''
+    michal_lines = []
     data['present_metres'] = set()
     for stanza in data['body']:
         verses = []
@@ -141,12 +143,25 @@ def show(data, syllformat=False):
                 'clause': verse["metre"][metre_index][metre]['clause'],
                 })
 
+            michal_rhyme_scheme += get_rhyme_letter(rhyme, 'X')
+            ending = 'TODO'
+            # J # 7 # ilý # a k sobě tiskna milý
+            michal_lines.append(f"{metre} # {len(syllables)} # {ending} # {verse['text']}")
+
         data['stanzas'].append({
             'verses': verses,
             })
             
+        
         # TODO možná restartovat číslování rýmu po každé sloce
         # (ale někdy jde rýmování napříč slokama)
+    
+    # TODO ted jen 4verší a 6verší
+    michal_rhyme_scheme = michal_rhyme_scheme[:6]
+    # # AABB # 1900
+    michal_first_line = f"# {michal_rhyme_scheme} # {data['year']}\n" 
+    data['michalformat'] = michal_first_line + "\n".join(michal_lines)
+    data['michalformat1line'] = michal_first_line + michal_lines[0]
 
     return render_template('show_poem_html.html', **data)
 
