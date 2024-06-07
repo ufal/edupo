@@ -96,10 +96,10 @@ def show(data, syllformat=False):
     
     if data['id']:
         imgfile = f"static/genimg/{data['id']}.png"
-        os.path.isfile(imgfile):
+        if os.path.isfile(imgfile):
             data['imgfile'] = imgfile
         ttsfile = f"static/gentts/{data['id']}.mp3"
-        os.path.isfile(ttsfile):
+        if os.path.isfile(ttsfile):
             data['ttsfile'] = ttsfile
     
     # convert verses into a simpler format for displaying
