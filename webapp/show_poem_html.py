@@ -2,7 +2,7 @@
 #coding: utf-8
 
 import sys
-
+import os
 import logging
 logging.basicConfig(
     format='%(asctime)s %(message)s',
@@ -90,18 +90,27 @@ def get_rhyme_class(rhyme):
         return (rhyme-1)%12+1
 
 def show(data, syllformat=False):
+    jsondump = json.dumps(data, indent=4, ensure_ascii=False)
     data = defaultdict(str, data)
-
-    present_metres = set()
-
+    data['json'] = jsondump
+    
+    if data['id']:
+        imgfile = f"static/genimg/{data['id']}.png"
+        os.path.isfile(imgfile):
+            data['imgfile'] = imgfile
+        ttsfile = f"static/gentts/{data['id']}.mp3"
+        os.path.isfile(ttsfile):
+            data['ttsfile'] = ttsfile
+    
     # convert verses into a simpler format for displaying
-    stanzas = []
+    data['stanzas'] = []
+    data['present_metres'] = set()
     for stanza in data['body']:
         verses = []
         for verse in stanza:
             rhyme = get_rhyme(verse)
             metre, metre_index = get_metre(verse)
-            present_metres.add(metre)
+            data['present_metres'].add(metre)
             syllables = []
             if syllformat:
                 for word in verse["words"]:
@@ -133,17 +142,14 @@ def show(data, syllformat=False):
                 'clause': verse["metre"][metre_index][metre]['clause'],
                 })
 
-        stanzas.append({
+        data['stanzas'].append({
             'verses': verses,
             })
             
         # TODO možná restartovat číslování rýmu po každé sloce
         # (ale někdy jde rýmování napříč slokama)
 
-    jsondump = json.dumps(data, indent=4, ensure_ascii=False)
-
-    return render_template('show_poem_html.html',
-            stanzas=stanzas, present_metres=present_metres, json=jsondump, **data)
+    return render_template('show_poem_html.html', **data)
 
 # Reads in file
 def show_file(filename = '78468.json'):
