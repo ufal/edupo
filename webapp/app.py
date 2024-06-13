@@ -2,6 +2,7 @@
 #coding: utf-8
 
 from flask import Flask, request, render_template, g
+from itertools import groupby
 import os
 from gen import generuj
 import show_poem_html
@@ -113,10 +114,15 @@ def call_showlist():
 def call_showauthor():
     author = get_post_arg('author', 'Sova, Antonín', True)
     with get_db() as db:
-        sql = 'SELECT id, title FROM poems WHERE author=?'
-        result = db.execute(sql, (author,)).fetchall()
-    assert result != None 
-    return render_template('showauthor.html', author=author, rows=result)
+        sql = 'SELECT id, title, book_id FROM poems WHERE author=?'
+        poems = db.execute(sql, (author,)).fetchall()
+        data = []
+        for book_id, p in groupby(poems, lambda p: p[2]):
+            book = db.execute('SELECT title, year FROM books WHERE id = ?', (book_id,)).fetchone()
+            # TODO sort poems according to corpus_id
+            data.append({'book': book, 'poems': list(p)})
+    data.sort(key=lambda x: x['book'][1])
+    return render_template('showauthor.html', author=author, rows=data)
 
 @app.route("/analyze", methods=['GET', 'POST'])
 def call_analyze():
