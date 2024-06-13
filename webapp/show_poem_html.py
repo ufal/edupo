@@ -2,7 +2,7 @@
 #coding: utf-8
 
 import sys
-
+import os
 import logging
 logging.basicConfig(
     format='%(asctime)s %(message)s',
@@ -69,9 +69,9 @@ def get_rhyme(verse):
 
 # rhyme is 1-based
 # nonrhyming = None, converts to 0
-def get_rhyme_letter(rhyme):
+def get_rhyme_letter(rhyme, nonrhyming=NBSP):
     if rhyme == 0:
-        return NBSP
+        return nonrhyming
     else:
         index = (rhyme-1) % 26
         return string.ascii_uppercase[index]
@@ -91,17 +91,27 @@ def get_rhyme_class(rhyme):
 
 def show(data, syllformat=False):
     data = defaultdict(str, data)
-
-    present_metres = set()
-
+    data['json'] = json.dumps(data, indent=4, ensure_ascii=False)
+    
+    if data['id']:
+        imgfile = f"static/genimg/{data['id']}.png"
+        if os.path.isfile(imgfile):
+            data['imgfile'] = imgfile
+        ttsfile = f"static/gentts/{data['id']}.mp3"
+        if os.path.isfile(ttsfile):
+            data['ttsfile'] = ttsfile
+    
     # convert verses into a simpler format for displaying
-    stanzas = []
+    data['stanzas'] = []
+    michal_rhyme_scheme = ''
+    michal_lines = []
+    data['present_metres'] = set()
     for stanza in data['body']:
         verses = []
         for verse in stanza:
             rhyme = get_rhyme(verse)
             metre, metre_index = get_metre(verse)
-            present_metres.add(metre)
+            data['present_metres'].add(metre)
             syllables = []
             if syllformat:
                 for word in verse["words"]:
@@ -133,17 +143,27 @@ def show(data, syllformat=False):
                 'clause': verse["metre"][metre_index][metre]['clause'],
                 })
 
-        stanzas.append({
+            michal_rhyme_scheme += get_rhyme_letter(rhyme, 'X')
+            ending = 'TODO'
+            # J # 7 # ilý # a k sobě tiskna milý
+            michal_lines.append(f"{metre} # {len(syllables)} # {ending} # {verse['text']}")
+
+        data['stanzas'].append({
             'verses': verses,
             })
             
+        
         # TODO možná restartovat číslování rýmu po každé sloce
         # (ale někdy jde rýmování napříč slokama)
+    
+    # TODO ted jen 4verší a 6verší
+    michal_rhyme_scheme = michal_rhyme_scheme[:6]
+    # # AABB # 1900
+    michal_first_line = f"# {michal_rhyme_scheme} # {data['year']}\n" 
+    data['michalformat'] = michal_first_line + "\n".join(michal_lines)
+    data['michalformat1line'] = michal_first_line + michal_lines[0]
 
-    jsondump = json.dumps(data, indent=4, ensure_ascii=False)
-
-    return render_template('show_poem_html.html',
-            stanzas=stanzas, present_metres=present_metres, json=jsondump, **data)
+    return render_template('show_poem_html.html', **data)
 
 # Reads in file
 def show_file(filename = '78468.json'):

@@ -69,7 +69,7 @@ class Morphodita:
                         # if suffix was not recognized by the tagger (tag X) or suffix is in the list
                         if lemmas2[0].tag[0] != 'X' or suffix in nodip_nolemma_suffixes:
                             print(suffix, lemmas2[0].tag)
-                            p = str_token.find(prefix) + len(prefix) 
+                            p = str_token.find(prefix) + len(prefix)
                             nodip = str_token[:p] + '₇' + str_token[p:] # ₇ is used here as a sign in places where ou is not a diphtong
                             #print("SUCCESS", nodip)
                         break
@@ -78,7 +78,8 @@ class Morphodita:
                 # previous word (if any)
                 if lemma.tag.startswith('Z'):
                     if len(poem[l]['words']) > 0:
-                        poem[l]['words'][-1]['punct'] = text[token.start : token.start + token.length]                
+                        poem[l]['words'][-1]['punct'] = text[token.start : token.start + token.length]
+
 
                 # ...otherwise append token tags to current line
                 else:

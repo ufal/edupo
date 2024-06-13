@@ -56,6 +56,10 @@
         <button onclick="set_style('plain')">Bez anotace</button>
         <button onclick="set_style('rich')">S anotací</button>
         <button disabled>Generovat novou báseň ve stylu této básně</button>
+        <button disabled>Generovat ilustrační obrázek k této básni</button>
+        <button disabled>Přečíst báseň pomocí automatické syntézi řeči</button>
+        <!-- {{ michalformat }} -->
+        <!-- {{ michalformat1line }} -->
 
     {% if not stanzas[0].verses[0].syllables %}
     <form method="post" action="analyze">

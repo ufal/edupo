@@ -223,11 +223,13 @@ class RhymeTagger:
             continue
           if self.settings['stanza_limit'] and data[i]['stanza'] != data[j]['stanza']:
             continue
-          score = self._ngram_score(data[i]['word'], data[j]['word'])
+
+          ## DM: I am commenting out the possibity of adding rhymes from the dictionary (not based on VCVC)
+          #score = self._ngram_score(data[i]['word'], data[j]['word'])
           #print('NGRAM', data[i]['word'], data[j]['word'], score)
-          if ( score > self.settings['probability_ngram_min'] ): # and data[i]['word'] != data[j]['word'] ):
-            rhymes[i].add(j)
-            rhymes[j].add(i)
+          #if ( score > self.settings['probability_ngram_min'] ): # and data[i]['word'] != data[j]['word'] ):
+          #  rhymes[i].add(j)
+          #  rhymes[j].add(i)
     # Add rhymes to new training set
     for i in rhymes:
       for j in rhymes[i]:         

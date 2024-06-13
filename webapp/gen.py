@@ -11,13 +11,25 @@ logging.basicConfig(
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+import random
 
 tokenizer = AutoTokenizer.from_pretrained("jinymusim/gpt-czech-poet")
 model = AutoModelForCausalLM.from_pretrained("jinymusim/gpt-czech-poet")
 
-def generuj(rhyme_scheme='AABB'):
-    poet_start = f'# {rhyme_scheme} #'
-    result = []
+def generuj(rhyme_scheme='AABB', metre='J', firstword='', firstline='', year=1900):
+
+    if not metre:
+        metre = random.choice(['J', 'T', 'D'])
+
+    poet_start = f'# {rhyme_scheme} # {year}\n{metre} #'
+    if firstline:
+        # TODO format:
+        # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
+        poet_start += firstline + '\n'
+    elif firstword:
+        # TODO format:
+        # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
+        poet_start += firstword
 
     # tokenize input
     tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt')
