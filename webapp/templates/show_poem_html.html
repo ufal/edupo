@@ -180,6 +180,12 @@
                                 %}">{{
                                 syllable.ort_vowels
                                 }}</span>{%
+                            else
+                            %}<span class="syllpart ort_vowels position{{ syllable.position }} stress{{ syllable.stress }} {%
+                                if syllable.rhyme_from == "c" or syllable.rhyme_from == "v"
+                                %} rhyming {%
+                                endif
+                                %}">&nbsp;</span>{%
                             endif
                             %}{%
                             if syllable.ort_end_consonants or syllable.after
