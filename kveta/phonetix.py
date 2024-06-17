@@ -380,8 +380,8 @@ class Phonetix:
         Přidání švy nakonec neslabičných souhláskových skupin, které nejsou předložkami
         '''
         self.replace((
-            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₆)', r'\1\2@\3'),
-            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₆)', r'\1\2@\3'),
+            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₅|₆)', r'\1\2@\3'),
+            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₅|₆)', r'\1\2@\3'),
             # opakuji ten samý řádek, protože když následuje jedno hned po druhém, neopraví se obojí
         ))
 
