@@ -136,6 +136,17 @@ def call_analyze():
     html = show_poem_html.show(poem_json, True)
     return html
 
+@app.route("/search", methods=['GET', 'POST'])
+def call_search():
+    html = ''
+    query = get_post_arg('query', '')
+    with get_db() as db:
+        sql = f'SELECT id, title, book_id, author FROM poems WHERE body LIKE ?'
+        poems = db.execute(sql, (f'%{query}%',)).fetchall()
+        for poem in poems:
+            html += f'<li><a href="show?poemid={poem["id"]}">{poem["id"]} {poem["author"]}: {poem["title"]}'
+    return html
+
 @app.route("/tajnejkill")
 def kill():
     os._exit(0)
