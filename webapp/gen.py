@@ -33,11 +33,22 @@ def clean(verses):
 
     return result
 
-def generuj(rhyme_scheme='AABB', metre='J', firstword='', firstline='', year=1900):
+RHYME_SCHEMES = {
+    4: ['ABAB', 'XXXX', 'XAXA', 'AAXX', 'AABB', 'ABBA'],
+    6: ['AABBCC', 'XXXXXX', 'ABABXX', 'ABABCC'],
+    }
+
+def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, firstword='', firstline='', year=1900):
+
+    if verses_count not in (4, 6):
+        verses_count = random.choice([4, 6])
 
     # TODO this now also allows thing the model cannot generate
     if not re.match(r'^[A-Z]+$', rhyme_scheme):
-        rhyme_scheme = random.choice(['ABAB', 'XXXX', 'XAXA', 'XXXXXX', 'AABB', 'ABBA', 'AABBCC', 'AAXX', 'ABABXX', 'ABABCC'])
+        rhyme_scheme = random.choice(RHYME_SCHEMES[verses_count])
+
+    # this is probably not needed here unless verses_count is used for something
+    verses_count = len(rhyme_scheme)
 
     if not metre:
         metre = random.choice(['J', 'T', 'D'])

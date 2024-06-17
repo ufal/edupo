@@ -1,3 +1,11 @@
+    <script>
+        function update_datalist(source_id, target_id) {
+            selected = document.getElementById(source_id).value;
+            document.getElementById(target_id).setAttribute('list', target_id + '_datalist' + selected);
+        }
+
+    </script>
+
     <form method="post" action="gen">
         <p>Metrum:
         <select name="metre">
@@ -9,7 +17,14 @@
         </select>
         </p>
 
-        <p>TODO počet veršů (4/6)</p>
+        <p>Počet veršů:
+        <select name="verses_count" id="verses_count"
+            onchange="update_datalist('verses_count', 'rhyme_scheme')">
+        <option value="0">náhodně</option>
+        <option value="4">4</option>
+        <option value="6">6</option>
+        </select>
+        </p>
 
         <p>
         Rýmové schéma:
@@ -18,10 +33,11 @@
                placeholder="AABB"
                pattern="|[ABCX]{4}|[ABCX]{6}|náhodně"
                title="Rýmové schéma za použití 4 nebo 6 velkých písmen abecedy (A, B, C, X), např. ABBA"
-               list=rhyme_schemes
+               list=rhyme_scheme_datalist0
+               id="rhyme_scheme"
                autofocus
         >
-        <datalist id="rhyme_schemes">
+        <datalist id="rhyme_scheme_datalist0">
         <option>náhodně</option>
         <option>AABB</option>
         <option>ABAB</option>
@@ -29,6 +45,22 @@
         <option>XAXA</option>
         <option>AAXX</option>
         <option>XXXX</option>
+        <option>AABBCC</option>
+        <option>ABABCC</option>
+        <option>ABABXX</option>
+        <option>XXXXXX</option>
+        </datalist>
+        <datalist id="rhyme_scheme_datalist4">
+        <option>náhodně</option>
+        <option>AABB</option>
+        <option>ABAB</option>
+        <option>ABBA</option>
+        <option>XAXA</option>
+        <option>AAXX</option>
+        <option>XXXX</option>
+        </datalist>
+        <datalist id="rhyme_scheme_datalist6">
+        <option>náhodně</option>
         <option>AABBCC</option>
         <option>ABABCC</option>
         <option>ABABXX</option>
