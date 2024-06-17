@@ -130,6 +130,16 @@ def okvetuj_ccv(data):
     k.phoebe2cft()
     k.syllables()
 
+    # evaluate counts of syllables
+    for i, l in enumerate(k.poem_):
+        syll_cnt_our = 0
+        for j, w in enumerate(l['words']):
+            if w["syllables"]:
+                syll_cnt_our += len(w["syllables"])
+        syll_cnt_ccv = len(l["sections"])
+        if syll_cnt_our != syll_cnt_ccv:
+            print(l['text'])
+
     data = k.poem_
 
     return data
