@@ -380,10 +380,8 @@ class Phonetix:
         Přidání švy nakonec neslabičných souhláskových skupin, které nejsou předložkami
         '''
         self.replace((
-            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž])(₆)', r'\1\2@\3'),
-            ('(₅|₆)([bcZčŽdďfghjmnňpqřŘštťwxž])(₅|₆)', r'\1\2@\3'),
-            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž][bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₅|₆)', r'\1\2@\3'),
-            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž][bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₅|₆)', r'\1\2@\3'),
+            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₆)', r'\1\2@\3'),
+            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₆)', r'\1\2@\3'),
             # opakuji ten samý řádek, protože když následuje jedno hned po druhém, neopraví se obojí
         ))
 
@@ -437,6 +435,9 @@ class Phonetix:
             t = re.sub('[₁₂₃₄]', '', t)
             t = t.strip().split(' ')
             for j, w in enumerate(l['words']):
+                # pokud je slovem neslabičná předložka, které fonetika přidala nakonec švu, musí se tato šva odstranit
+                if poem[i]['words'][j]['morph'][0] == 'R' and t[j][-1] == '@':
+                    t[j] = t[j][:-1]
                 poem[i]['words'][j]['cft'] = t[j]
                 
         return poem
