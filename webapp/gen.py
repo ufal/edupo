@@ -12,11 +12,32 @@ logging.basicConfig(
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 import random
+import re
 
 tokenizer = AutoTokenizer.from_pretrained("jinymusim/gpt-czech-poet")
 model = AutoModelForCausalLM.from_pretrained("jinymusim/gpt-czech-poet")
 
+END_PUNCT = set(['.', '?', '!'])
+def clean(verses):
+    result = []
+    last = '.'
+    for verse in verses:
+        if verse:
+            if last in END_PUNCT:
+                verse = verse.capitalize()
+            last = verse[-1]
+            result.append(verse)
+    # should not end with ,
+    if result[-1][-1] == ',':
+        result[-1] = result[-1][:-1] + '.'
+
+    return result
+
 def generuj(rhyme_scheme='AABB', metre='J', firstword='', firstline='', year=1900):
+
+    # TODO this now also allows thing the model cannot generate
+    if not re.match(r'^[A-Z]+$', rhyme_scheme):
+        rhyme_scheme = random.choice(['ABAB', 'XXXX', 'XAXA', 'XXXXXX', 'AABB', 'ABBA', 'AABBCC', 'AAXX', 'ABABXX', 'ABABCC'])
 
     if not metre:
         metre = random.choice(['J', 'T', 'D'])
@@ -65,10 +86,10 @@ def generuj(rhyme_scheme='AABB', metre='J', firstword='', firstline='', year=190
         except:
             verse = line
         result.append(verse.strip())
-   
-    # TODO vracet zvlášť raw data a zvlášť clean výstup
+    
     # TODO výhledově možná rovnou vracet v JSON formátu
-    return result
+    clean_verses = clean(result[-len(rhyme_scheme)-1:])
+    return result, clean_verses
 
 if __name__=="__main__":
     try:

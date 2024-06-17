@@ -78,12 +78,12 @@ def prdel_world():
 
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
-    rhyme_scheme = get_post_arg('rhyme_scheme', 'AABB', True)
+    # empty or 'náhodně' means random
+    rhyme_scheme = get_post_arg('rhyme_scheme', '')
     metre = get_post_arg('metre')
     app.logger.info(f"Generate poem with scheme {rhyme_scheme}")
     poet_start = rhyme_scheme
-    raw_output = generuj(poet_start, metre)
-    clean_verses = raw_output[-len(rhyme_scheme)-1:]
+    raw_output, clean_verses = generuj(poet_start, metre)
     app.logger.info(f"Generated poem {clean_verses}")
     return render_template('show_poem_gen.html',
             clean_verses=clean_verses,
