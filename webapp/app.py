@@ -28,6 +28,8 @@ def get_db():
         db = g._database = sqlite3.connect(DBFILE,
                 detect_types=sqlite3.PARSE_DECLTYPES)
         db.row_factory = sqlite3.Row
+        db.enable_load_extension(True)
+        db.load_extension("./regex0")
     return db
 
 # close db connection at end of handling request
@@ -140,9 +142,15 @@ def call_analyze():
 def call_search():
     html = ''
     query = get_post_arg('query', '')
+    use_regex = get_post_arg('use_regex', False)
+    if use_regex:
+        operation = 'REGEXP'
+    else:
+        operation = 'LIKE'
+        query = f'%{query}%'
     with get_db() as db:
-        sql = f'SELECT id, title, book_id, author FROM poems WHERE body LIKE ?'
-        poems = db.execute(sql, (f'%{query}%',)).fetchall()
+        sql = f'SELECT id, title, book_id, author FROM poems WHERE body {operation} ?'
+        poems = db.execute(sql, (query,)).fetchall()
         for poem in poems:
             html += f'<li><a href="show?poemid={poem["id"]}">{poem["id"]} {poem["author"]}: {poem["title"]}'
     return html
