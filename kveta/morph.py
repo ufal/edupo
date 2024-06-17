@@ -53,8 +53,9 @@ class Morphodita:
                 nodip = ""
                 nodip_prefixes = ["anglo", "bystro", "celo", "dlouho", "dobro", "do", "eko", "kraso", "krátko", "indo", "jedno", "jiho", "lehko", "makro", "malo", "mikro", "mnoho", "mravo", "nízko", "novo", "polo", "pro", "po", "prvo", "pseudo", "rychlo", "samo", "severo", "sladko", "staro", "sto", "středo", "těžko", "velko", "věro", "vnitro", "východo", "vysoko", "západo", "zlato", "zlo"]
                 nodip_nolemma_suffixes = ["uchý", "učka", "učkově", "učkový", "učně", "učný", "učovat", "uk", "uka", "ukově", "ukový"]
+                excluded_lemmas = ["proud", "proudit", "proudově", "proudový", "proudící"]
                 for prefix in nodip_prefixes:
-                    if str_lemma.startswith(prefix+'u'):
+                    if str_lemma.startswith(prefix+'u') and not str_lemma in excluded_lemmas:
                         suffix = str_lemma[len(prefix):]
                         if len(suffix) <= 1:
                             continue
@@ -68,7 +69,7 @@ class Morphodita:
                         self.tagger.tag(forms2,lemmas2,0) # The last argument is 0 since we don't want to use morphological guesser.
                         # if suffix was not recognized by the tagger (tag X) or suffix is in the list
                         if lemmas2[0].tag[0] != 'X' or suffix in nodip_nolemma_suffixes:
-                            print(suffix, lemmas2[0].tag)
+                            #print(suffix, lemmas2[0].tag)
                             p = str_token.find(prefix) + len(prefix)
                             nodip = str_token[:p] + '₇' + str_token[p:] # ₇ is used here as a sign in places where ou is not a diphtong
                             #print("SUCCESS", nodip)
