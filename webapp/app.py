@@ -9,7 +9,7 @@ import show_poem_html
 import sqlite3
 import json
 from collections import defaultdict
-
+import re
 
 import sys
 sys.path.append("../kveta")
@@ -143,16 +143,19 @@ def call_search():
     html = ''
     query = get_post_arg('query', '')
     use_regex = get_post_arg('use_regex', False)
-    if use_regex:
-        operation = 'REGEXP'
-    else:
-        operation = 'LIKE'
-        query = f'%{query}%'
     with get_db() as db:
-        sql = f'SELECT id, title, book_id, author FROM poems WHERE body {operation} ?'
-        poems = db.execute(sql, (query,)).fetchall()
-        for poem in poems:
-            html += f'<li><a href="show?poemid={poem["id"]}">{poem["id"]} {poem["author"]}: {poem["title"]}'
+        if use_regex:
+            # sql = f'SELECT id, title, author, regex_capture(captures, 0) as entire_match FROM poems WHERE body REGEXP ?'
+            sql = f'SELECT id, title, author, body FROM poems WHERE body REGEXP ?'
+            poems = db.execute(sql, (query,)).fetchall()
+            for poem in poems:
+                rematch = re.findall(query, str(poem['body']))
+                html += f'<li><a href="show?poemid={poem["id"]}">{poem["id"]} {poem["author"]}: {poem["title"]}</a> <kbd>{rematch}</kbd>'
+        else:
+            sql = f'SELECT id, title, author FROM poems WHERE body LIKE ?'
+            poems = db.execute(sql, (f'%{query}%',)).fetchall()
+            for poem in poems:
+                html += f'<li><a href="show?poemid={poem["id"]}">{poem["id"]} {poem["author"]}: {poem["title"]}'
     return html
 
 @app.route("/tajnejkill")
