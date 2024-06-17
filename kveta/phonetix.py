@@ -383,6 +383,8 @@ class Phonetix:
             ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž])(₆)', r'\1\2@\3'),
             ('(₅|₆)([bcZčŽdďfghjmnňpqřŘštťwxž])(₅|₆)', r'\1\2@\3'),
             ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž][bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₅|₆)', r'\1\2@\3'),
+            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž][bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₅|₆)', r'\1\2@\3'),
+            # opakuji ten samý řádek, protože když následuje jedno hned po druhém, neopraví se obojí
         ))
 
 
