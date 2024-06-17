@@ -1,4 +1,16 @@
     <form method="post" action="gen">
+        <p>Metrum:
+        <select name="metre">
+        <option value="">náhodně</option>
+        <option value="T">trochej</option>
+        <option value="J">jamb</option>
+        <option value="D">daktyl</option>
+        <option value="N">volný</option>
+        </select>
+        </p>
+
+        <p>TODO počet veršů (4/6)</p>
+
         <p>
         Rýmové schéma:
         <input type="text"
@@ -27,20 +39,14 @@
         <!-- Nejběžnější schémata: ABAB, XXXX, XAXA, XXXXXX, AABB, ABBA, AABBCC, AAXX, ABABXX, ABABCC -->
         </p>
         
-        <p>Metrum:
-        <select name="metre">
-        <option value="">náhodně</option>
-        <option value="T">trochej</option>
-        <option value="J">jamb</option>
-        <option value="D">daktyl</option>
-        <option value="N">volný</option>
-        </select>
-        </p>
+        <p>TODO rozměr (počet stop) -- buď stejný pro celou báseň, nebo pro
+        jednotlivé rýmy; není to nutně totéž jako počet slabik (m/f/a se liší
+        počtem slabik při stejném rozměru)</p>
 
         <p>Pevná forma:
         <select name="form" disabled>
         <option value="">ne</option>
-        <option value="sonet">sonet</option>
+        <option value="sonet">italský sonet</option>
         </select>
         </p>
 
