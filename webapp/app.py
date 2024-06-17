@@ -140,6 +140,7 @@ def call_analyze():
 
 @app.route("/search", methods=['GET', 'POST'])
 def call_search():
+    # TODO do this nicely
     html = ''
     query = get_post_arg('query', '')
     use_regex = get_post_arg('use_regex', False)
@@ -149,7 +150,7 @@ def call_search():
             sql = f'SELECT id, title, author, body FROM poems WHERE body REGEXP ?'
             poems = db.execute(sql, (query,)).fetchall()
             for poem in poems:
-                rematch = re.findall(query, str(poem['body']))
+                rematch = re.findall(query.replace('"', "'"), str(poem['body']))
                 html += f'<li><a href="show?poemid={poem["id"]}">{poem["id"]} {poem["author"]}: {poem["title"]}</a> <kbd>{rematch}</kbd>'
         else:
             sql = f'SELECT id, title, author FROM poems WHERE body LIKE ?'
