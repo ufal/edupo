@@ -6,8 +6,8 @@ class Syllables:
         '''
         Initialize Syllables
         '''
-        self.SYLLABLE_PEAKS = "aeiouáéíóúAEORLBP"
-        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y", "o": "o", "u": "u", "á": "á", "é": "é", "í": "í|ý", "ó": "ó", "ú": "ú|ů", "A": "au", "E": "eu", "O": "ou", "R": "r", "L": "l", "P": "m", "B": "n"}
+        self.SYLLABLE_PEAKS = "aeiouáéíóúAEORLBP@"
+        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y", "o": "o", "u": "u", "á": "á", "é": "é", "í": "í|ý", "ó": "ó", "ú": "ú|ů", "A": "au", "E": "eu", "O": "ou", "R": "r", "L": "l", "P": "m", "B": "n", "@": "@"}
         self.LONG_PEAKS = "áéíóúAEO"
 
     def split_words_to_syllables(self, poem):
@@ -46,6 +46,20 @@ class Syllables:
                                                       "ort_vowels": ort_vowels,
                                                       "ort_end_consonants": "",
                                                       "length": length})
+                                    o_pos += len(v)
+                                    found = True
+                                    ph_consonants = ""
+                                    ort_consonants = ""
+                                    break
+                                elif v == '@' and o_pos == len(ortographic) - 1:
+                                    # pokud je na konci souhláskové skupiny šva
+                                    syllables.append({"ph_consonants": ph_consonants,
+                                                      "ph_vowels": ph_vowels,
+                                                      "ph_end_consonants": "",
+                                                      "ort_consonants": ort_consonants,
+                                                      "ort_vowels": "",
+                                                      "ort_end_consonants": "",
+                                                      "length": 0})
                                     o_pos += len(v)
                                     found = True
                                     ph_consonants = ""

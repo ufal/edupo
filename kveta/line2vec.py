@@ -57,7 +57,7 @@ class Line2Vec:
         for s in cft:
             if s in ('á', 'é', 'í', 'ó', 'ú', 'A', 'O', 'E'):
                 lengths.append(1)
-            if s in ('a', 'e', 'i', 'o', 'u', 'R', 'L', 'M', 'N', 'P', 'B'):
+            if s in ('a', 'e', 'i', 'o', 'u', 'R', 'L', 'M', 'N', 'P', 'B', '@'):
                 lengths.append(0)
 
         return lengths

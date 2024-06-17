@@ -375,6 +375,17 @@ class Phonetix:
             ('(₅|₆)({[0]})'.format(self.v), r'\1X\2'),
         ))
 
+    def final_schwa(self):
+        '''
+        Přidání švy nakonec neslabičných souhláskových skupin, které nejsou předložkami
+        '''
+        self.replace((
+            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž])(₆)', r'\1\2@\3'),
+            ('(₅|₆)([bcZčŽdďfghjmnňpqřŘštťwxž])(₅|₆)', r'\1\2@\3'),
+            ('(₅|₆)([bcZčŽdďfghjkmnňpqřŘsštťvwxzž][bcZčŽdďfghjkmnňpqřŘsštťvwxzž]+)(₅|₆)', r'\1\2@\3'),
+        ))
+
+
     def transcript(self, text):
         '''
         GENERAL TRANSCRIPTION FUNCTION
@@ -400,6 +411,8 @@ class Phonetix:
         self.sonant()
         self.unvoic_r()
         self.initial_glottal_stop()
+        self.final_schwa()
+
         return self.t
 
     def transcript_poem(self, poem):
