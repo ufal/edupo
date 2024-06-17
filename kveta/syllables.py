@@ -53,6 +53,7 @@ class Syllables:
                                     break
                                 elif v == '@' and o_pos == len(ortographic) - 1:
                                     # pokud je na konci souhláskové skupiny šva
+                                    ort_consonants += ortographic[o_pos:]
                                     syllables.append({"ph_consonants": ph_consonants,
                                                       "ph_vowels": ph_vowels,
                                                       "ph_end_consonants": "",
