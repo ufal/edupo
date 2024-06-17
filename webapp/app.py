@@ -141,7 +141,7 @@ def call_analyze():
 @app.route("/search", methods=['GET', 'POST'])
 def call_search():
     # TODO do this nicely
-    html = ''
+    results = []
     query = get_post_arg('query', '')
     use_regex = get_post_arg('use_regex', False)
     with get_db() as db:
@@ -150,14 +150,22 @@ def call_search():
             sql = f'SELECT id, title, author, body FROM poems WHERE body REGEXP ?'
             poems = db.execute(sql, (query,)).fetchall()
             for poem in poems:
-                rematch = re.findall(query.replace('"', "'"), str(poem['body']))
-                html += f'<li><a href="show?poemid={poem["id"]}">{poem["id"]} {poem["author"]}: {poem["title"]}</a> <kbd>{rematch}</kbd>'
+                results.append({
+                    'id': poem["id"],
+                    'author': poem["author"],
+                    'title': poem["title"],
+                    'match': re.findall(query.replace('"', "'"), str(poem['body']))
+                    })
         else:
             sql = f'SELECT id, title, author FROM poems WHERE body LIKE ?'
             poems = db.execute(sql, (f'%{query}%',)).fetchall()
             for poem in poems:
-                html += f'<li><a href="show?poemid={poem["id"]}">{poem["id"]} {poem["author"]}: {poem["title"]}'
-    return html
+                results.append({
+                    'id': poem["id"],
+                    'author': poem["author"],
+                    'title': poem["title"],
+                    })
+    return render_template('show_search_result.html', query=query, results=results)
 
 @app.route("/tajnejkill")
 def kill():
