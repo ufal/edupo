@@ -19,7 +19,6 @@ app = Flask(__name__)
 print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
-DBFILE='/net/projects/EduPo/data/new_copy.db'
 
 sqlite3.register_converter("json", json.loads)
 
