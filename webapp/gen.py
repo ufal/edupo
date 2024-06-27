@@ -38,7 +38,8 @@ RHYME_SCHEMES = {
     6: ['AABBCC', 'XXXXXX', 'ABABXX', 'ABABCC'],
     }
 
-def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, firstword='', firstline='', year=1900):
+def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
+        firstword='', firstline='', year=1900):
 
     if verses_count not in (4, 6):
         verses_count = random.choice([4, 6])
@@ -53,7 +54,10 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, firstword='', firstl
     if not metre:
         metre = random.choice(['J', 'T', 'D'])
 
-    poet_start = f'# {rhyme_scheme} # {year}\n{metre} #'
+    if syllables_count not in range(1,20):
+        syllables_count = random.choice(range(6, 13))
+
+    poet_start = f'# {rhyme_scheme} # {year}\n{metre} # {syllables_count} #'
     if firstline:
         # TODO format:
         # D # 11 # eště # po letech v polích jsem ohlížel se ještě,

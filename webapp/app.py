@@ -81,10 +81,12 @@ def call_generuj():
     # empty or 'náhodně' means random
     rhyme_scheme = get_post_arg('rhyme_scheme', '')
     verses_count = int(get_post_arg('verses_count', 0, True))
+    syllables_count = int(get_post_arg('syllables_count', 0, True))
     metre = get_post_arg('metre')
     app.logger.info(f"Generate poem with scheme {rhyme_scheme}")
     poet_start = rhyme_scheme
-    raw_output, clean_verses = generuj(poet_start, metre, verses_count)
+    raw_output, clean_verses = generuj(
+            poet_start, metre, verses_count, syllables_count)
     app.logger.info(f"Generated poem {clean_verses}")
     return render_template('show_poem_gen.html',
             clean_verses=clean_verses,
