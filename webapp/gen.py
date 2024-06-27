@@ -17,6 +17,53 @@ import re
 tokenizer = AutoTokenizer.from_pretrained("jinymusim/gpt-czech-poet")
 model = AutoModelForCausalLM.from_pretrained("jinymusim/gpt-czech-poet")
 
+def _generate(poet_start,
+        stop_strings=None,
+        temperature=1,
+        force_words_ids=None):
+
+    """
+    
+    
+    stop_strings(`str or List[str]`, *optional*):
+            A string or a list of strings that should terminate generation if the model outputs them.
+
+    force_words_ids(`List[List[int]]` or `List[List[List[int]]]`, *optional*):
+            List of token ids that must be generated. If given a `List[List[int]]`, this is treated as a simple list of
+            words that must be included, the opposite to `bad_words_ids`. If given `List[List[List[int]]]`, this
+            triggers a [disjunctive constraint](https://github.com/huggingface/transformers/issues/14081), where one
+            can allow different forms of each word.
+
+
+    """
+
+
+    # tokenize input
+    tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt')
+
+    # generated a continuation to it
+    out = model.generate(
+            tokenized_poet_start, 
+            max_length=256,
+            do_sample=True,
+            # top_p=0.7,
+            top_k=50,
+            # no_repeat_ngram_size=2,
+            pad_token_id= tokenizer.pad_token_id,
+            eos_token_id = tokenizer.eos_token_id,
+            stop_strings=stop_strings,
+            temperature=temperature,
+            force_words_ids=force_words_ids,
+            )
+
+    # Decode Poet
+    result = tokenizer.decode(out[0], skip_special_tokens=True)
+    cont_length = len(tokenized_poet_start[0])
+    continuation = tokenizer.decode(out[0][cont_length:], skip_special_tokens=True)
+
+    # tuple of: (full text, only the generated continuation)
+    return result, continuation
+
 END_PUNCT = set(['.', '?', '!'])
 def clean(verses):
     result = []
@@ -67,26 +114,9 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
         poet_start += firstword
 
-    # tokenize input
-    tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt')
+    result, _ = _generate(poet_start)
+    result = result.split('\n')
 
-    # generated a continuation to it
-    out = model.generate(
-            tokenized_poet_start, 
-            max_length=256,
-            do_sample=True,
-            # top_p=0.7,
-            top_k=50,
-            temperature=1,
-            # no_repeat_ngram_size=2,
-            pad_token_id= tokenizer.pad_token_id,
-            eos_token_id = tokenizer.eos_token_id
-            )
-
-    # Decode Poet
-    decoded_cont = tokenizer.decode(out[0], skip_special_tokens=True)
-
-    result = decoded_cont.split('\n')
     header = result[0]
     try:
         _, schema, year = header.split('#')
