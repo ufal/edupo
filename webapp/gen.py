@@ -20,26 +20,16 @@ model = AutoModelForCausalLM.from_pretrained("jinymusim/gpt-czech-poet")
 def _generate(poet_start,
         stop_strings=None,
         temperature=1,
+        encourage_words=[],
         force_words_ids=None):
 
     """
-    
-    
     stop_strings(`str or List[str]`, *optional*):
             A string or a list of strings that should terminate generation if the model outputs them.
             The original implementation did not work for me, so I did my own
             with eos_token_id, but this requires the stop_strings to be full
             tokens (so e.g. ' #' instead of just '#').
-
-    force_words_ids(`List[List[int]]` or `List[List[List[int]]]`, *optional*):
-            List of token ids that must be generated. If given a `List[List[int]]`, this is treated as a simple list of
-            words that must be included, the opposite to `bad_words_ids`. If given `List[List[List[int]]]`, this
-            triggers a [disjunctive constraint](https://github.com/huggingface/transformers/issues/14081), where one
-            can allow different forms of each word.
-
-
     """
-
 
     # tokenize input
     tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt')
@@ -52,17 +42,37 @@ def _generate(poet_start,
             for s in stop_strings:
                 eos_tokens.append(tokenizer.encode(s)[0])
 
+    """
+    force_words_ids(`List[List[int]]` or `List[List[List[int]]]`, *optional*):
+            List of token ids that must be generated. If given a `List[List[int]]`, this is treated as a simple list of
+            words that must be included, the opposite to `bad_words_ids`. If given `List[List[List[int]]]`, this
+            triggers a [disjunctive constraint](https://github.com/huggingface/transformers/issues/14081), where one
+            can allow different forms of each word.
+    """
+    force_words_ids = None
+    if encourage_words:
+        force_words_ids = []
+        for word in encourage_words:
+            force_words_ids.extend(tokenizer.encode(word))
+        force_words_ids = [force_words_ids]
+    # this requires constrained beam-search decoding
+    # which requires do_sample=False and num_beams>1
+    # see https://huggingface.co/docs/transformers/generation_strategies
+    # and seems to work very badly
+
+
     # generated a continuation to it
     out = model.generate(
             tokenized_poet_start,
             max_length=256,
-            do_sample=True,
+            #do_sample=True,
             # top_p=0.7,
             top_k=50,
             # no_repeat_ngram_size=2,
             pad_token_id= tokenizer.pad_token_id,
             eos_token_id = eos_tokens,
             temperature=temperature,
+            num_beams=5,
             force_words_ids=force_words_ids,
             )
 
@@ -93,7 +103,7 @@ RHYME_SCHEMES = {
     }
 
 def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
-        first_word='', first_line='', year=1900):
+        first_word='', encourage_words=[], first_line='', year=1900):
 
     if verses_count not in (4, 6):
         verses_count = random.choice([4, 6])
@@ -123,7 +133,7 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         poet_start = _generate(poet_start, stop_strings=' #')
         poet_start = f"{poet_start} {first_word}"
 
-    result = _generate(poet_start)
+    result = _generate(poet_start, encourage_words=encourage_words)
     result = result.split('\n')
 
     header = result[0]
