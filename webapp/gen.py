@@ -27,6 +27,9 @@ def _generate(poet_start,
     
     stop_strings(`str or List[str]`, *optional*):
             A string or a list of strings that should terminate generation if the model outputs them.
+            The original implementation did not work for me, so I did my own
+            with eos_token_id, but this requires the stop_strings to be full
+            tokens (so e.g. ' #' instead of just '#').
 
     force_words_ids(`List[List[int]]` or `List[List[List[int]]]`, *optional*):
             List of token ids that must be generated. If given a `List[List[int]]`, this is treated as a simple list of
@@ -41,28 +44,32 @@ def _generate(poet_start,
     # tokenize input
     tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt')
 
+    eos_tokens = [tokenizer.eos_token_id]
+    if stop_strings:
+        if isinstance(stop_strings, str):
+            eos_tokens.append(tokenizer.encode(stop_strings)[0])
+        elif isinstance(stop_strings, list):
+            for s in stop_strings:
+                eos_tokens.append(tokenizer.encode(s)[0])
+
     # generated a continuation to it
     out = model.generate(
-            tokenized_poet_start, 
+            tokenized_poet_start,
             max_length=256,
             do_sample=True,
             # top_p=0.7,
             top_k=50,
             # no_repeat_ngram_size=2,
             pad_token_id= tokenizer.pad_token_id,
-            eos_token_id = tokenizer.eos_token_id,
-            stop_strings=stop_strings,
+            eos_token_id = eos_tokens,
             temperature=temperature,
             force_words_ids=force_words_ids,
             )
 
     # Decode Poet
     result = tokenizer.decode(out[0], skip_special_tokens=True)
-    cont_length = len(tokenized_poet_start[0])
-    continuation = tokenizer.decode(out[0][cont_length:], skip_special_tokens=True)
-
-    # tuple of: (full text, only the generated continuation)
-    return result, continuation
+    
+    return result
 
 END_PUNCT = set(['.', '?', '!'])
 def clean(verses):
@@ -86,7 +93,7 @@ RHYME_SCHEMES = {
     }
 
 def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
-        firstword='', firstline='', year=1900):
+        first_word='', first_line='', year=1900):
 
     if verses_count not in (4, 6):
         verses_count = random.choice([4, 6])
@@ -105,16 +112,18 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         syllables_count = random.choice(range(6, 13))
 
     poet_start = f'# {rhyme_scheme} # {year}\n{metre} # {syllables_count} #'
-    if firstline:
-        # TODO format:
-        # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
-        poet_start += firstline + '\n'
-    elif firstword:
-        # TODO format:
-        # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
-        poet_start += firstword
+    # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
+    if first_line:
+        # !! TODO fix this !!
+        ending_hint = first_line[:3]  
+        # !! TODO set syllables_count properly !!
+        poet_start = f"{poet_start} # {ending_hint} # {first_line}\n"
+    elif first_word:
+        # generate ending hint
+        poet_start = _generate(poet_start, stop_strings=' #')
+        poet_start = f"{poet_start} {first_word}"
 
-    result, _ = _generate(poet_start)
+    result = _generate(poet_start)
     result = result.split('\n')
 
     header = result[0]

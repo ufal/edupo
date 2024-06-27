@@ -83,10 +83,12 @@ def call_generuj():
     verses_count = int(get_post_arg('verses_count', 0, True))
     syllables_count = int(get_post_arg('syllables_count', 0, True))
     metre = get_post_arg('metre')
-    app.logger.info(f"Generate poem with scheme {rhyme_scheme}")
+    first_word = get_post_arg('first_word', '').strip()
+    app.logger.info(f"Generate poem with '{rhyme_scheme}' scheme, '{metre}' metre, {verses_count} verses, {syllables_count} syllables, starting '{first_word}'")
     poet_start = rhyme_scheme
     raw_output, clean_verses = generuj(
-            poet_start, metre, verses_count, syllables_count)
+            poet_start, metre, verses_count, syllables_count,
+            first_word)
     app.logger.info(f"Generated poem {clean_verses}")
     return render_template('show_poem_gen.html',
             clean_verses=clean_verses,
