@@ -91,12 +91,12 @@ for b in b_dict.values():
                  b['place'], b['dedication'], b['pages'], b['year'], b['signature']))
 cur.execute("CREATE TABLE poems (id INT PRIMARY KEY, book_id INT REFERENCES books(id), author STRING REFERENCES authors(identity)," + \
             " author_name STRING, title STRING, poem_id_corp STRING," + \
-            " schools JSON, schemes JSON, body JSON, duplicate_tm INT REFERENCES poems(id));")
+            " schools JSON, schemes JSON, body JSON);")
 for p in p_dict.values():
-    cur.execute("INSERT INTO poems VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+    cur.execute("INSERT INTO poems VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
                 (p['id'], p['book_id'], p['author'], p['author_name'], p['title'], p['poem_id_corp'],
-                 json.dumps(p['schools']), json.dumps(p['schemes']), json.dumps(p['body']),
-                 None, None))
+                 json.dumps(p['schools'], ensure_ascii=False), json.dumps(p['schemes'], ensure_ascii=False), json.dumps(p['body'], ensure_ascii=False),
+                ))
 con.commit()
 print('Done.')
 
