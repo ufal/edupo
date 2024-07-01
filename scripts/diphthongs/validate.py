@@ -1,0 +1,24 @@
+import sys
+
+from hyphenator import Hyphenator
+
+with open(sys.argv[1], 'r') as f:
+    patterns = f.read().splitlines()
+
+with open(sys.argv[2], 'r') as f:
+    data = f.read().splitlines()
+
+hyp = Hyphenator(patterns)
+
+correct = 0
+incorrect = 0
+for word in data:
+    test = ''.join(x for x in word if x != '-')
+    test_out = '-'.join(hyp.hyphenate_word(test))
+    if test_out == word:
+        correct += 1
+    else:
+        print(test, test_out, word)
+        incorrect += 1
+
+print(f'Correct: {correct}, Incorrect: {incorrect}, Accuracy: {correct / (correct + incorrect)}')
