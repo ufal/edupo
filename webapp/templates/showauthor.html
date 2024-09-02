@@ -13,7 +13,13 @@
     <ul>
     {% for poem in row.poems %}
     <li>
-        <a href="show?poemid={{ poem.id }}">{{ poem.title }}</a>
+        <a href="show?poemid={{ poem.id }}">
+    {% if poem.title %}
+        {{ poem.title }}
+    {% else %}
+        Bez názvu ({{ poem.body[0][0]['text'] }}...)
+    {% endif %}
+        </a>
     </li>
     {% endfor %}
 </ul>

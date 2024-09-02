@@ -2,7 +2,11 @@
 <html lang="cs">
 <head>
     <meta charset="utf-8">
+    {% if title %}
     <title>{{ title }}</title>
+    {% else %}
+    <title>Bez názvu ({{ body[0][0]['text'] }}...)</title>
+    {% endif %}
     <link rel="stylesheet" href="static/show_poem_base.css" />
     <link rel="stylesheet" id="style" href="static/show_poem_rich.css" />
     <script>
@@ -15,6 +19,8 @@
 
     {% if title %}
     <h1>{{ title }}</h1>
+    {% else %}
+    <h1>Bez názvu ({{ body[0][0]['text'] }}...)</h1>
     {% endif %}
 
     {% if author_name %}

@@ -120,7 +120,7 @@ def call_showlist():
 def call_showauthor():
     author = get_post_arg('author', 'Sova, Antonín', True)
     with get_db() as db:
-        sql = 'SELECT id, title, book_id FROM poems WHERE author=?'
+        sql = 'SELECT id, title, book_id, body FROM poems WHERE author=?'
         poems = db.execute(sql, (author,)).fetchall()
         data = []
         for book_id, p in groupby(poems, lambda p: p[2]):
@@ -159,16 +159,18 @@ def call_search():
                     'id': poem["id"],
                     'author': poem["author"],
                     'title': poem["title"],
+                    'body': poem["body"],
                     'match': re.findall(query.replace('"', "'"), str(poem['body']))
                     })
         else:
-            sql = f'SELECT id, title, author FROM poems WHERE body LIKE ?'
+            sql = f'SELECT id, title, author, body FROM poems WHERE body LIKE ?'
             poems = db.execute(sql, (f'%{query}%',)).fetchall()
             for poem in poems:
                 results.append({
                     'id': poem["id"],
                     'author': poem["author"],
                     'title': poem["title"],
+                    'body': poem["body"],
                     })
     return render_template('show_search_result.html', query=query, results=results)
 

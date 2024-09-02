@@ -15,7 +15,12 @@
     <li>
         {{ result.id }}
         <a href="show?poemid={{ result.id }}">{{ result.author }}:
-            {{ result.title }}</a>
+    {% if result.title %}
+        {{ result.title }}
+    {% else %}
+        Bez názvu ({{ result.body[0][0]['text'] }}...)
+    {% endif %}
+    </a>
         <kbd>{{result.match}}</kbd>
     </li>
 {% endfor %}
