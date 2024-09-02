@@ -1,6 +1,10 @@
 from ufal.morphodita import *
 import re
 import os
+import sys
+
+sys.path.append(os.path.abspath('../scripts/diphthongs'))
+from hyphenator import Hyphenator
 
 class Morphodita:
     
@@ -17,6 +21,11 @@ class Morphodita:
         self.lemmas = TaggedLemmas()
         self.tokens = TokenRanges()
         self.tokenizer = self.tagger.newTokenizer()
+
+        # initialize Hyphenator for detecting diphtongs
+        with open("../scripts/diphthongs/corpus.patterns", 'r') as f:
+            patterns = f.read().splitlines()
+        self.hyp = Hyphenator(patterns)
 
     def tag(self, poem):
         '''
@@ -49,31 +58,38 @@ class Morphodita:
                 str_token = text[token.start : token.start + token.length]
 
 
-                # TODO: mark non-diphtong candidates
+                # mark non-diphtong candidates using rules
+                #nodip = ""
+                #nodip_prefixes = ["anglo", "bystro", "celo", "dlouho", "dobro", "do", "eko", "kraso", "krátko", "indo", "jedno", "jiho", "lehko", "makro", "malo", "mikro", "mnoho", "mravo", "nízko", "novo", "polo", "pro", "po", "prvo", "pseudo", "rychlo", "samo", "severo", "sladko", "staro", "sto", "středo", "těžko", "velko", "věro", "vnitro", "východo", "vysoko", "západo", "zlato", "zlo"]
+                #nodip_nolemma_suffixes = ["uchý", "učka", "učkově", "učkový", "učně", "učný", "učovat", "uk", "uka", "ukově", "ukový"]
+                #excluded_lemmas = ["proud", "proudit", "proudově", "proudový", "proudící"]
+                #for prefix in nodip_prefixes:
+                #    if str_lemma.startswith(prefix+'u') and not str_lemma in excluded_lemmas:
+                #        suffix = str_lemma[len(prefix):]
+                #        if len(suffix) <= 1:
+                #            continue
+                #        # tag the suffix
+                #        forms2 = Forms()
+                #        lemmas2 = TaggedLemmas()
+                #        tokens2 = TokenRanges()
+                #        tokenizer2 = self.tagger.newTokenizer()
+                #        tokenizer2.setText(suffix)
+                #        tokenizer2.nextSentence(forms2,tokens2)
+                #        self.tagger.tag(forms2,lemmas2,0) # The last argument is 0 since we don't want to use morphological guesser.
+                #        # if suffix was not recognized by the tagger (tag X) or suffix is in the list
+                #        if lemmas2[0].tag[0] != 'X' or suffix in nodip_nolemma_suffixes:
+                #            #print(suffix, lemmas2[0].tag)
+                #            p = str_token.find(prefix) + len(prefix)
+                #            nodip = str_token[:p] + '₇' + str_token[p:] # ₇ is used here as a sign in places where ou is not a diphtong
+                #            #print("SUCCESS", nodip)
+                #        break
+
+                # mark non-diphtongs candidates using Tomáš's Hyphenator
                 nodip = ""
-                nodip_prefixes = ["anglo", "bystro", "celo", "dlouho", "dobro", "do", "eko", "kraso", "krátko", "indo", "jedno", "jiho", "lehko", "makro", "malo", "mikro", "mnoho", "mravo", "nízko", "novo", "polo", "pro", "po", "prvo", "pseudo", "rychlo", "samo", "severo", "sladko", "staro", "sto", "středo", "těžko", "velko", "věro", "vnitro", "východo", "vysoko", "západo", "zlato", "zlo"]
-                nodip_nolemma_suffixes = ["uchý", "učka", "učkově", "učkový", "učně", "učný", "učovat", "uk", "uka", "ukově", "ukový"]
-                excluded_lemmas = ["proud", "proudit", "proudově", "proudový", "proudící"]
-                for prefix in nodip_prefixes:
-                    if str_lemma.startswith(prefix+'u') and not str_lemma in excluded_lemmas:
-                        suffix = str_lemma[len(prefix):]
-                        if len(suffix) <= 1:
-                            continue
-                        # tag the suffix
-                        forms2 = Forms()
-                        lemmas2 = TaggedLemmas()
-                        tokens2 = TokenRanges()
-                        tokenizer2 = self.tagger.newTokenizer()
-                        tokenizer2.setText(suffix)
-                        tokenizer2.nextSentence(forms2,tokens2)
-                        self.tagger.tag(forms2,lemmas2,0) # The last argument is 0 since we don't want to use morphological guesser.
-                        # if suffix was not recognized by the tagger (tag X) or suffix is in the list
-                        if lemmas2[0].tag[0] != 'X' or suffix in nodip_nolemma_suffixes:
-                            #print(suffix, lemmas2[0].tag)
-                            p = str_token.find(prefix) + len(prefix)
-                            nodip = str_token[:p] + '₇' + str_token[p:] # ₇ is used here as a sign in places where ou is not a diphtong
-                            #print("SUCCESS", nodip)
-                        break
+                segments = self.hyp.hyphenate_word(str_token)
+                if len(segments) > 1:
+                    nodip = '₇'.join(segments)
+
 
                 # If token is a punctuation mark store it as attribute of 
                 # previous word (if any)
