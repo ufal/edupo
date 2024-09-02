@@ -200,11 +200,15 @@ class Phonetix:
         '''
 
         self.replace((
-            ('(₅|₆)au', r'\1A'),
-            ('(₅|₆)eu', r'\1E'),
-            ('(₅|₆)ou', r'\1O'),
+            #('(₅|₆)au', r'\1A'),
+            #('(₅|₆)eu', r'\1E'),
+            #('(₅|₆)ou', r'\1O'),
             ('ou', 'O'),
             ('o₇u', 'ou'), # ₇ is used here as a sign in places where ou is not a diphtong
+            ('au', 'A'),
+            ('a₇u', 'au'), # ₇ is used here as a sign in places where au is not a diphtong
+            ('eu', 'E'),
+            ('e₇u', 'eu'), # ₇ is used here as a sign in places where eu is not a diphtong
             # TODO: v některých případech sem patří také ráz "glottal stop"
         ))
 
