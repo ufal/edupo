@@ -100,6 +100,10 @@ def show(data, syllformat=False):
         ttsfile = f"static/gentts/{data['id']}.mp3"
         if os.path.isfile(ttsfile):
             data['ttsfile'] = ttsfile
+        motivesfile = f"static/genmotives/{data['id']}.txt"
+        if os.path.isfile(motivesfile):
+            with open(motivesfile) as infile:
+                data['motives'] = infile.read()
     
     # convert verses into a simpler format for displaying
     data['stanzas'] = []

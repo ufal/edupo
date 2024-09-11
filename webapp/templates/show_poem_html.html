@@ -58,6 +58,11 @@
     <p class="id">{{ id }}</p>
     {% endif %}
 
+    {% if motives %}
+    <p class="motivescaption">Automaticky určené motivy:</p>
+    <pre class="motives">{{ motives }}</pre>
+    {% endif %}
+
     <div>
         <button onclick="set_style('plain')">Bez anotace</button>
         <button onclick="set_style('rich')">S anotací</button>
@@ -100,6 +105,31 @@
         endfor
         %}</textarea>
         <input name="submit" type="submit" value="Analyzovat">
+    </form>
+    {% endif %}
+
+    {% if id and not motives %}
+    <form method="post" action="genmotives">
+        <input type="hidden" name="poemid" value="{{ id }}">
+        <textarea name="text" hidden="hidden">{%
+        for stanza in stanzas
+        %}{%
+        for verse in stanza.verses
+        %}{%
+        if verse.stanza and verse.stanza != stanza.verses[loop.index0-1].stanza
+        %}
+{%
+        endif
+        %}{{
+        verse.text
+        }}
+{%
+        endfor
+        %}
+{%
+        endfor
+        %}</textarea>
+        <input name="submit" type="submit" value="Určit motivy">
     </form>
     {% endif %}
 
