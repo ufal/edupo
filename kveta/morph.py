@@ -23,7 +23,7 @@ class Morphodita:
         self.tokenizer = self.tagger.newTokenizer()
 
         # initialize Hyphenator for detecting diphtongs
-        with open("../scripts/diphthongs/corpus.patterns", 'r') as f:
+        with open("../scripts/diphthongs/diphthongs.patterns", 'r') as f:
             patterns = f.read().splitlines()
         self.hyp = Hyphenator(patterns)
 
