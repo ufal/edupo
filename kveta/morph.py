@@ -86,7 +86,7 @@ class Morphodita:
 
                 # mark non-diphtongs candidates using Tomáš's Hyphenator
                 nodip = ""
-                segments = self.hyp.hyphenate_word(str_token)
+                segments = self.hyp.hyphenate_word(str_token.lower())
                 if len(segments) > 1:
                     nodip = '₇'.join(segments)
 
