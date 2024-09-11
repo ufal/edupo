@@ -7,5 +7,7 @@ deploy_db:
 deploy_dicts:
 	scp -r $D/tools/kveta/dicts $D/tools/kveta/trained_models jardadupo:$D/tools/kveta
 
+deploy_apikey:
+	scp $D/data/apikey.txt jardadupo:$D/data/apikey.txt
 
 
