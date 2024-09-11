@@ -6,11 +6,22 @@
     <style>
         /*input {display: block;}*/
         textarea {width: 80%; height: 20em;}
+        .logo {max-width: 100%; max-height: 10em;}
+        html {background-color: whitesmoke;}
+        body {
+            font-family: sans-serif;
+            margin: 2em 2em 2em 2em;
+            padding: 1em 1em 1em 1em;
+            background-color: ivory;
+        }
+
     </style>
 </head>
 <body>
 
 <h1>EduPo</h1>
+TODO Možná rozbočení jestli jsem učitel nebo student. (Plus varianta pro exponát v
+Didaktikonu.)
 
 <h2>Generovat báseň</h2>
 {% include 'gen_input.html' %}
@@ -43,6 +54,12 @@ Najít báseň podle části textu (může to trvat dlouho)
 
 {% include 'search_input.html' %}
 
+<h2>Chat s básníkem</h2>
+Chceme tohle taky?
+<ul>
+    <li><a href="https://chatgpt.com/g/g-nK2NG9nHG-jiri-wolker-2-0">Chat s Jiřím Wolkerem</a></li>
+</ul>
+
 <h2>Dozvědět se více</h2>
 TODO Tady nějaké vzdělávací materiály které připraví ÚČL a ÚFAL ve spolupráci
 s DID.
@@ -57,6 +74,21 @@ TODO
     <li>Metodika</li>
     <li>Pracovni lísty</li>
 </ul>
+
+<h2>Tiráž</h2>
+
+<p>Aplikace byla vytvořena v rámci projektu <a href="https://ufal.mff.cuni.cz/grants/edupo">EduPo</a>.</p>
+
+<a href="https://www.tacr.cz/"><img src="static/LOGOLINK_SIGMA_RED.png" class="logo"
+    alt="Tento projekt je spolufinancován se státní podporou Technologické agentury ČR v rámci Programu SIGMA DC3."
+    title="Tento projekt je spolufinancován se státní podporou Technologické agentury ČR v rámci Programu SIGMA DC3."
+    ></a>
+
+<p>TODO logo ÚFAL, DIDAKTIKON, AVČR, VŠVU.</p>
+
+<p>TODO poděkování Lindatu.</p>
+
+<p>Software je zveřejněný <a href="https://github.com/ufal/edupo">na GitHubu</a> pod <a href="https://wiki.pirati.cz/kci/mit_licence">MIT licencí</a>.</p>
 
 </body>
 </html>
