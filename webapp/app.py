@@ -161,7 +161,7 @@ def call_search():
     with get_db() as db:
         if use_regex:
             # sql = f'SELECT id, title, author, regex_capture(captures, 0) as entire_match FROM poems WHERE body REGEXP ?'
-            sql = f'SELECT id, title, author, body FROM poems WHERE body REGEXP ?'
+            sql = f'SELECT id, title, author, body FROM poems WHERE body REGEXP ? LIMIT 20'
             poems = db.execute(sql, (query,)).fetchall()
             for poem in poems:
                 results.append({
@@ -172,7 +172,7 @@ def call_search():
                     'match': re.findall(query.replace('"', "'"), str(poem['body']))
                     })
         else:
-            sql = f'SELECT id, title, author, body FROM poems WHERE body LIKE ?'
+            sql = f'SELECT id, title, author, body FROM poems WHERE body LIKE ? LIMIT 20'
             poems = db.execute(sql, (f'%{query}%',)).fetchall()
             for poem in poems:
                 results.append({
