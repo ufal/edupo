@@ -108,11 +108,36 @@
         >
         </p>
 
-        <p>První slovo:
-        <input type="text"
-               name="first_word"
-               placeholder="myš"
+        <p>První slova veršů:
+        (TODO placeholder = náhodné slovo?)
+        Lze vypnit jen první slovo prvního verše, anebo i první slova dalších
+        veršů...
+        <ol>
+        <li><input type="text"
+               name="first_words"
+               placeholder="Muž"
         >
+        <li><input type="text"
+               name="first_words"
+               placeholder="Žena"
+        >
+        <li><input type="text"
+               name="first_words"
+               placeholder="Banán"
+        >
+        <li><input type="text"
+               name="first_words"
+               placeholder="Mušle"
+        >
+        <li><input type="text"
+               name="first_words"
+               placeholder="Lanýž"
+        >
+        <li><input type="text"
+               name="first_words"
+               placeholder="Hrob"
+        >
+        </ol>
         </p>
 
         <p>Typ lyriky:
@@ -121,6 +146,15 @@
         <option value="přírodní">přírodní</option>
         <option value="milostná">milostná</option>
         </select>
+        </p>
+
+        <p>Lyrický subjekt (rod, stáří, pocit...):
+        <select name="lyrika_subjekt" disabled>
+        <option value="">neurčeno</option>
+        <option value="muž">muž</option>
+        <option value="žena">žena</option>
+        </select>
+        
         </p>
 
         <p>Styl autora:

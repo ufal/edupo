@@ -45,12 +45,18 @@ def close_connection(exception):
 # NOTE takhle pokud POSTuju tak se nedostanu k parametrum zadanym v URL; tj.
 # nechceme dělat POST z formuláře kde by cílová URL obsahovala i GET parametry
 # (to asi stejně nechceme)
-def get_post_arg(key, default=None, nonempty=False):
+def get_post_arg(key, default=None, nonempty=False, isarray=False):
     result = default
     if request.method == 'POST':
-        result = request.form.get(key, default)
+        if isarray:
+            result = request.form.getlist(key)
+        else:
+            result = request.form.get(key, default)
     elif request.method == 'GET':
-        result = request.args.get(key, default)
+        if isarray:
+            result = request.args.getlist(key)
+        else:
+            result = request.args.get(key, default)
     else:
         # TODO probably should not happen
         assert False, "Unexpected method " + str(request.method)
@@ -84,12 +90,14 @@ def call_generuj():
     verses_count = int(get_post_arg('verses_count', 0, True))
     syllables_count = int(get_post_arg('syllables_count', 0, True))
     metre = get_post_arg('metre')
-    first_word = get_post_arg('first_word', '').strip()
-    app.logger.info(f"Generate poem with '{rhyme_scheme}' scheme, '{metre}' metre, {verses_count} verses, {syllables_count} syllables, starting '{first_word}'")
+    first_words = get_post_arg('first_words', isarray=True, default=[])
+    app.logger.warn(first_words)
+    first_words = [word.strip() for word in first_words if word.strip() != '']
+    app.logger.info(f"Generate poem with '{rhyme_scheme}' scheme, '{metre}' metre, {verses_count} verses, {syllables_count} syllables, starting '{first_words}'")
     poet_start = rhyme_scheme
     raw_output, clean_verses = generuj(
             poet_start, metre, verses_count, syllables_count,
-            first_word)
+            first_words)
     app.logger.info(f"Generated poem {clean_verses}")
     return render_template('show_poem_gen.html',
             clean_verses=clean_verses,

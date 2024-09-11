@@ -80,7 +80,7 @@ RHYME_SCHEMES = {
     }
 
 def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
-        first_word='', first_line='', year=1900):
+        first_words=[], first_line='', year=1900):
 
     if verses_count not in (4, 6):
         verses_count = random.choice([4, 6])
@@ -105,10 +105,14 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         ending_hint = first_line[:3]  
         # !! TODO set syllables_count properly !!
         poet_start = f"{poet_start} # {ending_hint} # {first_line}\n"
-    elif first_word:
+    elif first_words:
+        assert type(first_words) == list, "first_words must be list"
+        if len(first_words) > 1:
+            logging.warn('Setting multiple first words not implemented yet, just using the first word!')
         # generate ending hint
         poet_start = _generate(poet_start, stop_strings=' #')
-        poet_start = f"{poet_start} {first_word}"
+        poet_start = f"{poet_start} {first_words[0]}"
+        # TODO force starts of following lines as well
 
     result = _generate(poet_start)
     result = result.split('\n')
