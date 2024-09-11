@@ -90,9 +90,7 @@ class Line2Vec:
         Annotate monosyllabic prepositions proper
         '''
        
-        mpps = ('před','od','ob','ku','ke','do','ve','pod','nad','přes',
-                'při','bez','se','ze','za','u','pod','pro','zpod', 'o', 'po', 
-                'na')       
+        mpps = ('bez','dle','do','ke','ku','na','nad','o','ob','od','po','pod','pro','před','přes','při','se','u','ve','vně','za','ze','zpod')       
        
         if token.lower() in mpps and morph[0] == 'R':
             return len(lengths) * [1]
@@ -127,7 +125,6 @@ class Line2Vec:
 
             else:
                 self.poem_[i]['words'][j]['vec']['prevPrep'] = len(lengths) * [0]
-
 
     def _prev_init(self, i, j):
         '''
@@ -211,16 +208,20 @@ class Line2Vec:
             if len(w['vec']) == 0:
                 continue
 
-
+            # pokud je to jednoslabičná předložka (viz seznam)
             if w['vec']['prep'][0] == 1:
                 sections += 'R'
+            # pokud je víceslabičné
             elif len(w['vec']['lengths']) > 1:
+                # dej 1 na zažátek a zbytek nuly
                 sections += '1' + '0' * (len(w['vec']['lengths']) - 1)
+            # pokud jde o první jednoslabičné slovo nebo je před ním interpunkce 
             elif ( j == 0 
             or    ('punct' in self.poem_[i]['words'][j-1]
             and    re.search(r'[\.\;\?\!\,\-\–]', self.poem_[i]['words'][j-1]['punct']))):
                 sections += 'n'
             else:
+                # pokud je plnovýznamové
                 if w['vec']['content'][0] == 1:
                     sections += 'M'
                 else:
