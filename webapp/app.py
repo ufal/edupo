@@ -10,6 +10,7 @@ import sqlite3
 import json
 from collections import defaultdict
 import re
+import random
 
 import sys
 sys.path.append("../kveta")
@@ -97,7 +98,7 @@ def call_generuj():
 
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
-    poemid = get_post_arg('poemid', '78468.json', True)
+    poemid = get_post_arg('poemid', random.randint(0,80229), True)
     if poemid.endswith('.json'):
         return show_poem_html.show_file(poemid)
     else:
