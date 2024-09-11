@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+touch pat0
+
 ./patgen $1 pat0 $1.out czech-utf8.tra << EOF
 1 9
 1 15
