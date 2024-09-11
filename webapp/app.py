@@ -11,6 +11,7 @@ import json
 from collections import defaultdict
 import re
 import random
+from openai_helper import *
 
 import sys
 sys.path.append("../kveta")
@@ -182,6 +183,12 @@ def call_search():
                     'body': poem["body"],
                     })
     return render_template('show_search_result.html', query=query, results=results)
+
+@app.route("/openaigenerate", methods=['GET', 'POST'])
+def call_generate_openai():
+    prompt = get_post_arg('prompt', 'Máte rádi ptakopysky?')
+    result = generate_with_openai_simple(prompt)
+    return render_template('openaigenerate.html', prompt=prompt, result=result)
 
 @app.route("/tajnejkill")
 def kill():
