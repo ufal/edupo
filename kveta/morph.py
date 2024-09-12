@@ -31,21 +31,41 @@ class Morphodita:
         l = 0 # line index
         t = 0 # token index
         s = 0 # sentence index
+
+        split_token = False
+        split_token_end = 0
+        split_token_form = ""
+        split_token_range = ""
+        split_token_tags = []
         
         for line in response.json()["result"].split("\n"):
+            print(line)
             sent_id = re.match("^# sent_id = (\d+)", line)
             if sent_id:
                 s = sent_id.groups()[0]
             if line and line[0].isdigit():
                 items = line.split("\t")
-                
-                # If token is a punctuation mark (tag starts with Z) store it as attribute of previous word (if any)
-                if items[4].startswith('Z'):
+                if '-' in items[0]: # if the token is split into more nodes (e.g. aby -> aby + by)
+                    split_token = True
+                    split_token_form = items[1]
+                    split_token_range = items[9]
+                    split_token_end = items[0].split("-")[-1]
+                    split_token_tags = []
+                    continue
+                elif split_token and items[0] < split_token_end:
+                    split_token_tags.append(items[4])
+                    continue
+                elif items[4].startswith('Z'): # if token is a punctuation mark (tag starts with Z) store it as attribute of previous word (if any)
                     if len(poem[l]['words']) > 0:
                         poem[l]['words'][-1]['punct'] = items[1]
-
                 # ...otherwise append token tags to current line
                 else:
+                    if split_token and items[0] == split_token_end:
+                        items[1] = split_token_form
+                        items[9] = split_token_range
+                        items[4] = "|".join(split_token_tags) + "|" + items[4]
+                        split_token = False
+
                     features = {'token': items[1],
                                 'lemma': items[2],
                                 'morph': items[4],
@@ -63,7 +83,12 @@ class Morphodita:
                 
                     
                 # If the token is followed by a newline (e.g. TokenRange=45:49 and there is a newline on the position 49), increase the line index
-                if text[int(items[9].split(":")[-1])] == '\n':
+                #print(items[9])
+                #if text[int(items[9].split(":")[-1])] == '\n':
+                #    l += 1
+
+                # If the token is followed by a newline, increase the line index
+                if 'SpacesAfter=\n' in items[9]:
                     l += 1
             
         return poem
