@@ -9,6 +9,7 @@ import line2vec
 import syllables
 import meter
 import rhyme
+import figures
 import pprint
 import json
 import operator
@@ -52,6 +53,10 @@ class Kveta:
         rt = rhyme.RhymeDetection(window=rwindow, probability_sampa_min=rpsounds, probability_ngram_min=rpngrams)
         self.poem_ = rt.tag(self.poem_)
 
+    def figures(self):
+        fig = figures.Figures()
+        self.poem_ = fig.analyze(self.poem_)
+
     def htmlprint(self, mscore=0.5):
         html = htmlprint.HTMLprint()
         self.html_, self.pie_data_ = html.stringify(self.poem_, self.overall_probs_, mscore)
@@ -77,6 +82,7 @@ def okvetuj(text):
     k.meter()
     #k.rhyme(rwindow, rpsounds, rpngrams)
     k.rhyme(6, 0.95, 0.95)
+    k.figures()
     #k.htmlprint(mscore)
     k.htmlprint()
 
