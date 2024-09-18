@@ -209,6 +209,7 @@
                     {% endif %}
                     <td class="stressinfo">{{ verse.rythm }} {{ verse.pattern }}</td>
                     <td class="meterinfo">{{ verse.metrum }}-{{ verse.foot}}-{{ verse.clause }}</td>
+                    <td class="otherinfo">{% if verse.narrators_gender %}Rod lyrického subjektu: {{ verse.narrators_gender }}{% endif %}</td>
                 </tr>
             {% endfor %}
             <tr class="stanzabreak"><td><br></td></tr>

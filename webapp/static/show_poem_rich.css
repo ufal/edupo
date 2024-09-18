@@ -144,6 +144,13 @@ span.rhyming {
     font-size: x-small;
 }
 
+.otherinfo {
+    padding-left: 1ex;
+    color: #333;
+    background-color: white;
+    font-size: x-small;
+}
+
 .stressinfo {
     width: 1px;
 }

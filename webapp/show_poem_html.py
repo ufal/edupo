@@ -301,6 +301,7 @@ def show(data, syllformat=False):
                 'pattern': verse["metre"][metre_index][metre]['pattern'],
                 'foot': verse["metre"][metre_index][metre]['foot'],
                 'clause': verse["metre"][metre_index][metre]['clause'],
+                'narrators_gender': verse.get('narrators_gender', ''),
                 })
 
             michal_rhyme_scheme += get_rhyme_letter(rhyme, 'X')
