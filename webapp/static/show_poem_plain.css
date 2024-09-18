@@ -24,3 +24,7 @@ tr.stanzabreak {
     height: 1em;
 }
 
+.motivescaption, .motives {
+    display: none;
+}
+
