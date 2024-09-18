@@ -170,85 +170,38 @@
                             verse.rhymesubscript
                         }}</sub><sup> </sup></td>
                     {% if verse.syllables %}
-                    <td class="versetext">{%
-                        for syllable in verse.syllables
-                        %}<span class="syllable {{ syllable.class }}"
-                            >{%
-                            if syllable.ort_consonants
-                            %}<span class="syllpart ort_consonants beforeposition{{
-                                    syllable.position
-                                }} beforestress{{
-                                    syllable.stress
-                                }} afterposition{%
-                                    if not verse.syllables[loop.index0-1].after
-                                %}{{
-                                    verse.syllables[loop.index0-1].position
-                                }}{%
-                                    else
-                                %}{{
-                                    W
-                                }}{%
-                                    endif
-                                %} afterstress{%
-                                    if not verse.syllables[loop.index0-1].after
-                                %}{{
-                                    verse.syllables[loop.index0-1].stress
-                                }}{%
-                                    else
-                                %}{{
-                                    0
-                                }}{%
-                                    endif
-                                %}{%
-                                if syllable.rhyme_from == "c"
-                                %} rhyming {%
-                                endif
-                                %}">{{
-                                syllable.ort_consonants
-                                }}</span>{%
-                            endif
-                            %}{%
-                            if syllable.ort_vowels
-                            %}<span class="syllpart ort_vowels position{{ syllable.position }} stress{{ syllable.stress }} {%
-                                if syllable.rhyme_from == "c" or syllable.rhyme_from == "v"
-                                %} rhyming {%
-                                endif
-                                %}">{{
-                                syllable.ort_vowels
-                                }}</span>{%
-                            else
-                            %}<span class="syllpart ort_vowels position{{ syllable.position }} stress{{ syllable.stress }} {%
-                                if syllable.rhyme_from == "c" or syllable.rhyme_from == "v"
-                                %} rhyming {%
-                                endif
-                                %}">&nbsp;</span>{%
-                            endif
-                            %}{%
-                            if syllable.ort_end_consonants or syllable.after
-                            %}<span class="syllpart ort_end_consonants after afterposition{{
-                                    syllable.position
-                                }} afterstress{{
-                                    syllable.stress
-                                }} {%
-                                if syllable.rhyme_from == "c" or syllable.rhyme_from == "v"
-                                %} rhyming {%
-                                endif
-                                %}">{%
-                                if syllable.ort_end_consonants
-                                %}{{
-                                    syllable.ort_end_consonants
-                                }}{%
-                                endif
-                                %}{%
-                                if syllable.after
-                                %}{{
-                                    syllable.after
-                                }}{%
-                                endif
-                                %}</span>{%
-                            endif
-                            %}</span
+                    <td class="versetext"
                         >{%
+                        for syllable in verse.syllables
+                        %}{%
+                            if syllable.parts
+                            %}<span class="syllable"
+                                >{%
+                                for part in syllable.parts
+                                %}<span class="{%
+                                    for class in part.classes
+                                    %}{{
+                                        class
+                                    }} {%
+                                    endfor
+                                    %}"
+                                    >{{
+                                        part.text
+                                    }}</span
+                                >{%
+                                endfor
+                            %}</span
+                            >{%
+                            endif
+                            %}{%
+                            if syllable.after
+                            %}<span class="after"
+                                    >{{
+                                        syllable.after
+                                    }}</span
+                            >{%
+                            endif
+                        %}{%
                         endfor
                     %}</td>
                     {% else %}

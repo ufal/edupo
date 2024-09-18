@@ -33,6 +33,10 @@ span.syllable {
     display: contents;
 }
 
+span.after {
+    display: contents;
+}
+
 span.syllpart {
     display: block;
     padding-top: 3px;

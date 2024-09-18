@@ -16,6 +16,10 @@ span.syllpart {
     display: contents;
 }
 
+span.after {
+    display: contents;
+}
+
 tr.stanzabreak {
     height: 1em;
 }

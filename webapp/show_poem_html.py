@@ -89,6 +89,79 @@ def get_rhyme_class(rhyme):
         # modulo 12, 1-based
         return (rhyme-1)%12+1
 
+def construct_syllable_parts(syllable, previous_syllable):
+    result = []
+    # consonants before
+    if syllable["ort_consonants"]:
+        part = {}
+        part['text'] = syllable["ort_consonants"].replace('_', NBSP)
+        part['classes'] = []
+        part['classes'].append('syllpart')
+        part['classes'].append('ort_consonants')
+        # position and stress
+        if syllable["ort_vowels"]:
+            # vowels follow so mark in standard way
+            part['classes'].append('beforeposition' +
+                    syllable["position"])
+            part['classes'].append('beforestress' +
+                    syllable["stress"])
+            # TODO maybe mark prev stress only if
+            # there is no afterstresws or something
+            # like that
+            prev_position = 'W'
+            prev_stress = '0'
+            if not previous_syllable["after"]:
+                prev_position = previous_syllable["position"]
+                prev_stress = previous_syllable["stress"]
+            part['classes'].append('afterposition' +
+                prev_position)
+            part['classes'].append('afterstress' +
+                prev_stress)
+        else:
+            # no vowels, so we need to mark stress on
+            # the consonants already
+            part['classes'].append('position' +
+                    syllable["position"])
+            part['classes'].append('stress' +
+                    syllable["stress"])
+        # rhyming TODO
+        if syllable.get("rhyme_from", "") == "c":
+            part['classes'].append('rhyming')
+        result.append(part)
+    # vowel
+    if syllable["ort_vowels"]:
+        part = {}
+        part['text'] = syllable["ort_vowels"]
+        part['classes'] = []
+        part['classes'].append('syllpart')
+        part['classes'].append('ort_vowels')
+        # position and stress
+        part['classes'].append('position' +
+                syllable["position"])
+        part['classes'].append('stress' +
+                syllable["stress"])
+        # rhyming TODO
+        if syllable.get("rhyme_from", ""):
+            part['classes'].append('rhyming')
+        result.append(part)
+    # consonants after (= end of verse)
+    if syllable["ort_end_consonants"]:
+        part = {}
+        part['text'] = syllable["ort_end_consonants"]
+        part['classes'] = []
+        part['classes'].append('syllpart')
+        part['classes'].append('ort_end_consonants')
+        # position and stress
+        part['classes'].append('afterposition' +
+                syllable["position"])
+        part['classes'].append('afterstress' +
+                syllable["stress"])
+        # rhyming TODO
+        if syllable.get("rhyme_from", ""):
+            part['classes'].append('rhyming')
+        result.append(part)
+    return result
+
 def show(data, syllformat=False):
     data = defaultdict(str, data)
     data['json'] = json.dumps(data, indent=4, ensure_ascii=False)
@@ -118,18 +191,28 @@ def show(data, syllformat=False):
             data['present_metres'].add(metre)
             syllables = []
             if syllformat:
+                # initialize with empty initial syllable so that we can easily
+                # check against prev syllable and also so that we can add "after"
+                # to it
+                syllables = [{
+                    "parts": [],
+                    "position": "W",
+                    "stress": "0",
+                    "after": ""}]
                 for word in verse["words"]:
-                    if word["syllables"]:
-                        for syllable in word["syllables"]:
-                            syllable = syllable.copy()
-                            syllable["ort_consonants"] = syllable["ort_consonants"].replace('_', NBSP)
-                            syllables.append(syllable)
-                        # mark end of word
-                        if syllables:
-                            syllables[-1]["after"] = ""
-                            if "punct" in word:
-                                syllables[-1]["after"] += word["punct"]
-                            syllables[-1]["after"] += NBSP
+                    # add all syllables
+                    for syllable in word["syllables"]:
+                        parts = construct_syllable_parts(syllable, syllables[-1])
+                        syllables.append({
+                            "parts": parts,
+                            "position": syllable["position"],
+                            "stress": syllable["stress"],
+                            "after": ""})
+                    # mark end of word
+                    if "punct" in word:
+                        syllables[-1]["after"] += word["punct"]
+                    if not syllables[-1]["after"].endswith(NBSP):
+                        syllables[-1]["after"] += NBSP
                 
             verses.append({
                 'text': verse["text"],
