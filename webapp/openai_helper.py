@@ -21,7 +21,7 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500):
             model=model,
             messages=messages,
             max_tokens=max_tokens,
-            temperature=1,
+            temperature=0,
             top_p=1,
             stop=[],  # can be e.g. stop = ['\n']
             presence_penalty=0,
