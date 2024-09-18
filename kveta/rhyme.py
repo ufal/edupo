@@ -62,7 +62,7 @@ class RhymeDetection:
         for c in rhyme_clusters:
             if len(c) == 1:
                 # no rhyming
-                poem[c[0]]["rhyme"] = 0
+                poem[c[0]]["rhyme"] = None 
             else:
                 cluster_number += 1
                 # nejdřív otestujeme, jestli se v klastru nachází jednoslabičné slovo (bez předložky)
