@@ -189,8 +189,8 @@ def mark_rhyming(parts, span):
             elif span == 'c':
                 # only last consonant is rhyming
                 # need to split the part into two
-                part0 = {'classes': ['syllpart', 'ort_consonants']}
-                part1 = {'classes': ['syllpart', 'ort_consonants', 'rhyming']}
+                part0 = {'classes': []}
+                part1 = {'classes': []}
                 # text
                 if part['text'].endswith('ch'):
                     part0['text'] = part['text'][:-2]
@@ -198,15 +198,17 @@ def mark_rhyming(parts, span):
                 else:
                     part0['text'] = part['text'][:-1]
                     part1['text'] = part['text'][-1:]
-                # classes
+                # mark classes
                 for classname in part['classes']:
-                    if classname == 'position' or classname == 'stress':
-                        # consonant carries vowel markings
+                    if classname in ['syllpart', 'ort_consonants']:
+                        part0['classes'].append(classname)
                         part1['classes'].append(classname)
                     elif classname.startswith('after'):
                         part0['classes'].append(classname)
-                    elif classname.startswith('before'):
+                    else:
+                        # before, position, stress
                         part1['classes'].append(classname)
+                part1['classes'].append('rhyming')
             # else 'v': initial consonant cluster does not rhyme
         else:
             # vowels and end consonants are always rhyming
