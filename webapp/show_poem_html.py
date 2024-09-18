@@ -89,6 +89,26 @@ def get_rhyme_class(rhyme):
         # modulo 12, 1-based
         return (rhyme-1)%12+1
 
+def get_reduplicant_type(words):
+    # TODO format conversion, remove later
+    syllables = []
+    for word in words:
+        for syllable in word["syllables"]:
+            syllables.append(syllable)
+    if len(syllables) == 0 or not syllables[-1].get("rhyme_from", ""):
+        # No syllable, no rhyme
+        return '0'
+    elif len(syllables) >= 2 and syllables[-2].get("rhyme_from", ""):
+        # Penultimate (and necessarily ultimate)  syllable rhymes
+        return '2'
+    else:
+        rhyme_from = syllables[-1]["rhyme_from"]
+        if rhyme_from == 'c':
+            return '1o'
+        else:
+            assert rhyme_from == 'v'
+            return '1c'
+
 def construct_syllable_parts(syllable, previous_syllable):
     result = []
     # consonants before
@@ -124,9 +144,6 @@ def construct_syllable_parts(syllable, previous_syllable):
                     syllable["position"])
             part['classes'].append('stress' +
                     syllable["stress"])
-        # rhyming TODO
-        if syllable.get("rhyme_from", "") == "c":
-            part['classes'].append('rhyming')
         result.append(part)
     # vowel
     if syllable["ort_vowels"]:
@@ -140,9 +157,6 @@ def construct_syllable_parts(syllable, previous_syllable):
                 syllable["position"])
         part['classes'].append('stress' +
                 syllable["stress"])
-        # rhyming TODO
-        if syllable.get("rhyme_from", ""):
-            part['classes'].append('rhyming')
         result.append(part)
     # consonants after (= end of verse)
     if syllable["ort_end_consonants"]:
@@ -156,11 +170,51 @@ def construct_syllable_parts(syllable, previous_syllable):
                 syllable["position"])
         part['classes'].append('afterstress' +
                 syllable["stress"])
-        # rhyming TODO
-        if syllable.get("rhyme_from", ""):
-            part['classes'].append('rhyming')
         result.append(part)
     return result
+
+def mark_rhyming(parts, span):
+    """
+    parts = list of parts, part = dict of text and classes
+    span = a (all), v (from vowel), c (from last consonant preceding vowel)
+    """
+    part0 = None
+    part1 = None
+    for part in parts:
+        if "ort_consonants" in part["classes"]:
+            # initial consonant cluster
+            if span == 'a':
+                # everything is rhyming
+                part['classes'].append('rhyming')
+            elif span == 'c':
+                # only last consonant is rhyming
+                # need to split the part into two
+                part0 = {'classes': ['syllpart', 'ort_consonants']}
+                part1 = {'classes': ['syllpart', 'ort_consonants', 'rhyming']}
+                # text
+                if part['text'].endswith('ch'):
+                    part0['text'] = part['text'][:-2]
+                    part1['text'] = part['text'][-2:]
+                else:
+                    part0['text'] = part['text'][:-1]
+                    part1['text'] = part['text'][-1:]
+                # classes
+                for classname in part['classes']:
+                    if classname == 'position' or classname == 'stress':
+                        # consonant carries vowel markings
+                        part1['classes'].append(classname)
+                    elif classname.startswith('after'):
+                        part0['classes'].append(classname)
+                    elif classname.startswith('before'):
+                        part1['classes'].append(classname)
+            # else 'v': initial consonant cluster does not rhyme
+        else:
+            # vowels and end consonants are always rhyming
+            part['classes'].append('rhyming')
+    if part0 and part1:
+        parts.insert(0, part0)
+        parts[1] = part1
+    
 
 def show(data, syllformat=False):
     data = defaultdict(str, data)
@@ -191,6 +245,15 @@ def show(data, syllformat=False):
             data['present_metres'].add(metre)
             syllables = []
             if syllformat:
+                # Reduplicant
+                if "reduplicant_type" in verse:
+                    reduplicant_type = verse["reduplicant_type"]
+                else:
+                    # TODO remove this once the format is refactored
+                    reduplicant_type = get_reduplicant_type(verse["words"])
+                    # TODO default:
+                    # reduplicant_type = '0'
+
                 # initialize with empty initial syllable so that we can easily
                 # check against prev syllable and also so that we can add "after"
                 # to it
@@ -213,7 +276,15 @@ def show(data, syllformat=False):
                         syllables[-1]["after"] += word["punct"]
                     if not syllables[-1]["after"].endswith(NBSP):
                         syllables[-1]["after"] += NBSP
-                
+        
+                if reduplicant_type == '2':
+                    mark_rhyming(syllables[-2]['parts'], 'v')
+                    mark_rhyming(syllables[-1]['parts'], 'a')
+                elif reduplicant_type == '1c':
+                    mark_rhyming(syllables[-1]['parts'], 'v')
+                elif reduplicant_type == '1o':
+                    mark_rhyming(syllables[-1]['parts'], 'c')
+
             verses.append({
                 'text': verse["text"],
                 'stanza': verse.get("stanza", 0),
