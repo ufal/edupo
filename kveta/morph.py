@@ -52,8 +52,11 @@ class Morphodita:
                     newline_after.append(False)
             vertical_input += "\n"
 
+        print(vertical_input)
+
         # perform the UDPipe request to parse the whole poem
-        response = requests.get("https://lindat.mff.cuni.cz/services/udpipe/api/process?input=vertical&tagger&parser&data=" + vertical_input)
+        api_data = {"tagger": True, "parser": True, "input": "vertical", "data": vertical_input}
+        response = requests.post("https://lindat.mff.cuni.cz/services/udpipe/api/process", api_data)
 
         l = 0 # line index
         t = 0 # token index
