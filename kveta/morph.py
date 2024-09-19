@@ -91,7 +91,7 @@ class Morphodita:
                                 }
                     # include the initial punctuation if exists
                     if initial_punctuation:
-                        features['punc_after'] = initial_punctuation
+                        features['punct_before'] = initial_punctuation
                         initial_punctuation = ""
 
                     # mark non-diphtongs candidates using Tomáš's Hyphenator
