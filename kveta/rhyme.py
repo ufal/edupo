@@ -1,6 +1,7 @@
 import re
 from rhymeTagger import RhymeTagger
 import os
+import sys
 
 class RhymeDetection:
     
@@ -73,7 +74,10 @@ class RhymeDetection:
                         break
                 # nyní označujeme začátky rýmujících se částí
                 for l in c:
-                    if not exists_monosyllabic_word and len(poem[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
+                    if not poem[l]["words"][-1]["syllables"]:
+                        # poslední slovo je neslabičné
+                        print("INFO: the last word in line is non-syllabic", file=sys.stderr)
+                    elif not exists_monosyllabic_word and len(poem[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
                         poem[l]["words"][-1]["syllables"][-2]["rhyme_from"] = 'v'
                         poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
                     elif not exists_monosyllabic_word and len(poem[l]["words"]) >= 2 and poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 1: # jednoslabičné slovo za slabičkou předložkou
