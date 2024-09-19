@@ -1,8 +1,9 @@
-#from ufal.morphodita import *
+from ufal.morphodita import *
 import re
 import os
 import sys
 import requests
+import json
 
 sys.path.append(os.path.abspath('../scripts/diphthongs'))
 from hyphenator import Hyphenator
@@ -11,7 +12,18 @@ class Morphodita:
     
     
     def __init__(self):
-
+        '''
+        Initialize MorphoDiTa
+        '''
+        
+        filepath = os.path.join(os.path.dirname(__file__),
+                'dicts', 'czech-morfflex-pdt-161115.tagger')
+        self.tagger = Tagger.load(filepath)
+        self.forms = Forms()
+        self.lemmas = TaggedLemmas()
+        self.tokens = TokenRanges()
+        self.tokenizer = self.tagger.newTokenizer()
+        
         # initialize Hyphenator for detecting diphthongs
         with open("../scripts/diphthongs/diphthongs.patterns", 'r') as f:
             patterns = f.read().splitlines()
@@ -21,50 +33,51 @@ class Morphodita:
         '''
         Perform POS-tagging and lemmatization of the text
         '''
-
+        
         # Merge lines of poem with <newline>
         text = '\n'.join([x['text'] for x in poem]) + '\n'
 
+        # Pass poem to tokenizer
+        self.tokenizer.setText(text)
+
+        vertical_input = ""
+        newline_after = []
+        # Iterate over sentences
+        while self.tokenizer.nextSentence(self.forms, self.tokens):
+            for i, t in enumerate(self.tokens):
+                vertical_input += text[t.start : t.start + t.length] + "\n"
+                if text[t.start + t.length] == "\n":
+                    newline_after.append(True)
+                else:
+                    newline_after.append(False)
+            vertical_input += "\n"
+
         # perform the UDPipe request to parse the whole poem
-        response = requests.get("https://lindat.mff.cuni.cz/services/udpipe/api/process?tokenizer&tagger&parser&data=" + text)
+        response = requests.get("https://lindat.mff.cuni.cz/services/udpipe/api/process?input=vertical&tagger&parser&data=" + vertical_input)
 
         l = 0 # line index
         t = 0 # token index
         s = 0 # sentence index
 
-        split_token = False
-        split_token_end = 0
-        split_token_form = ""
-        split_token_spaces = ""
-        split_token_tags = []
-        
+        initial_punctuation = ""
+
         for line in response.json()["result"].split("\n"):
             sent_id = re.match("^# sent_id = (\d+)", line)
             if sent_id:
                 s = sent_id.groups()[0]
             if line and line[0].isdigit():
                 items = line.split("\t")
-                if '-' in items[0]: # if the token is split into more nodes (e.g. aby -> aby + by)
-                    split_token = True
-                    split_token_form = items[1]
-                    split_token_spaces = items[9]
-                    split_token_end = items[0].split("-")[-1]
-                    split_token_tags = []
-                    continue
-                elif split_token and items[0] < split_token_end:
-                    split_token_tags.append(items[4])
-                    continue
-                elif items[4].startswith('Z'): # if token is a punctuation mark (tag starts with Z) store it as attribute of previous word (if any)
+                # if token is a punctuation mark, store it as the 'punc' attribute of the previous word or punc_before attribute of the next word
+                if items[4][0] == 'Z' or items[1][0] in '’':
                     if len(poem[l]['words']) > 0:
-                        poem[l]['words'][-1]['punct'] = items[1]
+                        if 'punct' in poem[l]['words'][-1]:
+                            poem[l]['words'][-1]['punct'] += " " + items[1]
+                        else:
+                            poem[l]['words'][-1]['punct'] = items[1]
+                    else:
+                        initial_punctuation += items[1]
                 # ...otherwise append token tags to current line
                 else:
-                    if split_token and items[0] == split_token_end:
-                        items[1] = split_token_form
-                        items[9] = split_token_spaces
-                        items[4] = "|".join(split_token_tags) + "|" + items[4]
-                        split_token = False
-
                     features = {'token': items[1],
                                 'lemma': items[2],
                                 'morph': items[4],
@@ -73,16 +86,24 @@ class Morphodita:
                                 'deprel': items[7],
                                 'sentence': s
                                 }
+                    # include the initial punctuation if exists
+                    if initial_punctuation:
+                        features['punc_after'] = initial_punctuation
+                        initial_punctuation = ""
+
                     # mark non-diphtongs candidates using Tomáš's Hyphenator
                     segments = self.hyp.hyphenate_word(items[1].lower())
                     if len(segments) > 1:
                         features['nodip'] = '₇'.join(segments)
                     
                     poem[l]['words'].append(features)
-                
-                # If the token is followed by a newline, increase the line index
-                if 'SpacesAfter=\\n' in items[9]:
+                if newline_after[t]:
                     l += 1
+                t += 1
+
+        with open('test.json', 'w', encoding='utf-8') as f:
+            json.dump(poem, f, ensure_ascii=False, indent=4)
+        f.close()
             
         return poem
 
