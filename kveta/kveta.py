@@ -152,28 +152,38 @@ def okvetuj_ccv(data):
 
 
 if __name__=="__main__":
+    
     filename = sys.argv[1]
+    print("Processing", filename, file=sys.stderr)
 
     # read poem
     text = ""
-    with open(filename) as f:
-        for line in f:
-            text += line
-    f.close()
+    if filename.endswith(".txt"):
+        with open(filename) as f:
+            for line in f:
+                text += line
+        f.close()
+    elif filename.endswith(".json"):
+        f = open(filename)
+        data = json.load(f)
+        for i in range(len(data[0]["body"])):
+            for j in range(len(data[0]["body"][i])):
+                text += data[0]["body"][i][j]["text"] + "\n"
+            text += "\n"
+        f.close()
+    else:
+        print("Only TXT and JSON formats are supported.", file=sys.stderr)
 
     # run Kveta
     output, k = okvetuj(text)
-    
-    # write output
-    if filename[-4:] == ".txt":
-        filename = filename[:-4]
 
-    with open(filename+'.json', 'w', encoding='utf-8') as f:
+    if len(sys.argv) > 2:
+        output_filename = sys.argv[2]
+    elif filename.endswith(".txt"):
+        output_filename = filename[:-3] + "json"
+
+    print("Writing to", output_filename, file=sys.stderr)
+    with open(output_filename, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=4)
     f.close()
-
-    with open(filename+'.html', 'w', encoding='utf-8') as h:
-        h.write(k.html_)
-    h.close()
-
 
