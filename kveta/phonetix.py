@@ -99,6 +99,7 @@ class Phonetix:
             # (r'q([{0}])'.format(vx), r'kv\1'),
             (r'q'.format(vx), r'kv'),
             ('ĺ|ľ', 'lj'),
+            ('â','a'),
         ))
         self.t = self.t.translate(str.maketrans('wäöüëćśń', 'veeyečšň'))
 

@@ -21,7 +21,7 @@ class Figures:
             narrators_gender = ""
 
             for word1 in line['words']:
-                if word1['morph'][0] == 'V' and word1['morph'][7] == '1': # pokud je to sloveso v první osobě
+                if word1['morph'][0] == 'V' and word1['morph'][7] == '1' and word1['morph'][3] == 'S': # pokud je to sloveso v první osobě singuláru
                     for word2 in line['words']:
                         if word1['parent'] == word2['tok_id']:
                             if word2['morph'][2] in ['M','Y']:

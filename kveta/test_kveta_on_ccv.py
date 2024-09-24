@@ -4,11 +4,13 @@ import kveta
 
 DATADIR = "/net/projects/EduPo/data/KCV_komplet/ccv/"
 
-for fname in sorted(os.listdir(DATADIR)):
-    if os.path.isfile(DATADIR+fname) and fname.endswith(".json"):
-        f = open(DATADIR+fname)
+#for fname in sorted(os.listdir(DATADIR)):
+for number in range(12508, 20000):
+    filename = DATADIR + str(number) + ".json"
+    if os.path.isfile(filename) and filename.endswith(".json"):
+        f = open(filename)
         data = json.load(f)
-        print("Testuji soubor", fname, flush=True)
+        print("Testuji soubor", filename, flush=True)
         text = ""
         for i in range(len(data[0]["body"])):
             for j in range(len(data[0]["body"][i])):
