@@ -265,6 +265,8 @@ def show(data, syllformat=False):
                     "stress": "0",
                     "after": ""}]
                 for word in verse["words"]:
+                    if "punct_before" in word:
+                        syllables[-1]["after"] += word["punct_before"]
                     # add all syllables
                     for syllable in word["syllables"]:
                         parts = construct_syllable_parts(syllable, syllables[-1])
