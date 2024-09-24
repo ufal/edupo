@@ -438,7 +438,7 @@ class Phonetix:
                      
             t = self.transcript(text_string)
             t = re.sub('[₅₆]', ' ', t)
-            t = re.sub('[₁₂₃₄]', '', t)
+            t = re.sub('[₁₂₃₄₇]', '', t)
             t = t.strip().split(' ')
             for j, w in enumerate(l['words']):
                 # pokud je slovem neslabičná předložka, které fonetika přidala nakonec švu, musí se tato šva odstranit
