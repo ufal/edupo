@@ -100,6 +100,8 @@ class Phonetix:
             (r'q'.format(vx), r'kv'),
             ('ĺ|ľ', 'lj'),
             ('â','a'),
+            ('ô','o'),
+            ('ç','c'),
         ))
         self.t = self.t.translate(str.maketrans('wäöüëćśń', 'veeyečšň'))
 
@@ -227,6 +229,7 @@ class Phonetix:
             ('fě', 'fje'),
             ('vě', 'vje'),
             ('mě', 'mňe'),
+            ('ě', 'e'),
         ))
 
     def iy(self):
