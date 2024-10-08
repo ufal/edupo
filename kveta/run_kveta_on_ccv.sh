@@ -14,7 +14,7 @@ do
     basename=$(basename ${input_file});
     echo "python kveta.py $input_file $OUTPUT_DIR/$basename" >> $RUN_FILE;
     counter=$((counter+1));
-    if [ $counter -eq 1000 ]; then
+    if [ $counter -eq 10000 ]; then
         sbatch $RUN_FILE;
         echo -e $INTRO > $RUN_FILE;
         counter=0;

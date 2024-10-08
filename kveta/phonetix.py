@@ -99,11 +99,13 @@ class Phonetix:
             # (r'q([{0}])'.format(vx), r'kv\1'),
             (r'q'.format(vx), r'kv'),
             ('ĺ|ľ', 'lj'),
-            ('â','a'),
-            ('ô','o'),
-            ('ç','c'),
+            #('â','a'),
+            #('ô','o'),
+            #('ç','c'),
+            #('ï','i'),
+            #('è','e'),
         ))
-        self.t = self.t.translate(str.maketrans('wäöüëćśń', 'veeyečšň'))
+        self.t = self.t.translate(str.maketrans('†æîâźôêęçïϊàèwäöüëćśńł', 'teiazoeeciiáéveeyečšňl'))
 
     def simplify_con_groups(self):
         '''
@@ -445,8 +447,8 @@ class Phonetix:
             t = t.strip().split(' ')
             for j, w in enumerate(l['words']):
                 # pokud je slovem neslabičná předložka, které fonetika přidala nakonec švu, musí se tato šva odstranit
-                if poem[i]['words'][j]['morph'][0] == 'R' and t[j][-1] == '@':
-                    t[j] = t[j][:-1]
+                if poem[i]['words'][j]['morph'][0] == 'R':
+                    t[j].replace('@','')
                 poem[i]['words'][j]['cft'] = t[j]
                 
         return poem
