@@ -99,11 +99,6 @@ class Phonetix:
             # (r'q([{0}])'.format(vx), r'kv\1'),
             (r'q'.format(vx), r'kv'),
             ('ĺ|ľ', 'lj'),
-            #('â','a'),
-            #('ô','o'),
-            #('ç','c'),
-            #('ï','i'),
-            #('è','e'),
         ))
         self.t = self.t.translate(str.maketrans('†æîâźôêęçïϊàèwäöüëćśńł', 'teiazoeeciiáéveeyečšňl'))
 
@@ -444,12 +439,16 @@ class Phonetix:
             t = self.transcript(text_string)
             t = re.sub('[₅₆]', ' ', t)
             t = re.sub('[₁₂₃₄₇]', '', t)
-            t = t.strip().split(' ')
+            ts = t.strip().split(' ')
             for j, w in enumerate(l['words']):
-                # pokud je slovem neslabičná předložka, které fonetika přidala nakonec švu, musí se tato šva odstranit
-                if poem[i]['words'][j]['morph'][0] == 'R':
-                    t[j].replace('@','')
-                poem[i]['words'][j]['cft'] = t[j]
+                if len(ts) <= j:
+                    print("WARNING: token mismatch during the transcription:", t)
+                    print(l['words'])
+                else:
+                    # pokud je slovem neslabičná předložka, které fonetika přidala nakonec švu, musí se tato šva odstranit
+                    if poem[i]['words'][j]['morph'][0] == 'R':
+                        ts[j].replace('@','')
+                    poem[i]['words'][j]['cft'] = ts[j]
                 
         return poem
 
