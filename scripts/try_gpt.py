@@ -4,7 +4,7 @@
 import openai
 from openai import OpenAI
 
-def generate_with_openai(messages, model="gpt-3.5-turbo", max_tokens=500):
+def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500):
     
     # OPENAI SETUP
     # path to file with authentication key
