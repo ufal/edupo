@@ -169,7 +169,7 @@ def call_genmotives():
     return show(poemid)
 
 @app.route("/genimage", methods=['GET', 'POST'])
-def call_genmotives():
+def call_genimage():
     # TODO
     poemid = get_post_arg('poemid', None)
     text = get_post_arg('text', None)
@@ -177,7 +177,7 @@ def call_genmotives():
     prompt = f"Vygeneruj obrázek, ilustrující následující báseň: {text}"
     image = generate_image_with_openai(text)
     with open(f'static/genimg/{poemid}.png', 'w') as outfile:
-        print(motives, file=outfile)
+        print(image, file=outfile)
     return show(poemid)
 
 @app.route("/search", methods=['GET', 'POST'])
