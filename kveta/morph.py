@@ -19,7 +19,10 @@ class Morphodita:
         
         filepath = os.path.join(os.path.dirname(__file__),
                 'dicts', 'czech-morfflex-pdt-161115.tagger')
+        filepath_morpho = os.path.join(os.path.dirname(__file__),
+                'dicts', 'czech-morfflex-161115.dict')
         self.tagger = Tagger.load(filepath)
+        self.morpho = Morpho.load(filepath_morpho)
         self.forms = Forms()
         self.lemmas = TaggedLemmas()
         self.tokens = TokenRanges()
@@ -38,14 +41,19 @@ class Morphodita:
         # Merge lines of poem with <newline>
         text = '\n'.join([x['text'] for x in poem]) + '\n'
 
+
         # Pass poem to tokenizer
         self.tokenizer.setText(text)
 
         vertical_input = ""
         newline_after = []
+        
         # Iterate over sentences
         while self.tokenizer.nextSentence(self.forms, self.tokens):
+
             for i, t in enumerate(self.tokens):
+
+                # create vertical input for UDPipe
                 vertical_input += text[t.start : t.start + t.length] + "\n"
                 if text[t.start + t.length] == "\n":
                     newline_after.append(True)
@@ -111,6 +119,11 @@ class Morphodita:
                     segments = self.hyp.hyphenate_word(items[1].lower())
                     if len(segments) > 1:
                         features['nodip'] = '₇'.join(segments)
+
+                    # is the word included in the MorphoDita dictionary?
+                    result = self.morpho.analyze(features['token'], self.morpho.GUESSER, self.lemmas)
+                    if result == self.morpho.GUESSER:
+                        features['is_unknown'] = True
                     
                     poem[l]['words'].append(features)
                 if newline_after[t]:
