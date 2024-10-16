@@ -446,8 +446,9 @@ class Phonetix:
                     print(l['words'])
                 else:
                     # pokud je slovem neslabičná předložka, které fonetika přidala nakonec švu, musí se tato šva odstranit
-                    if poem[i]['words'][j]['morph'][0] == 'R':
-                        ts[j].replace('@','')
+                    if poem[i]['words'][j]['morph'][0] == 'R' and ts[j][-1] == '@':
+                        ts[j] = ts[j][:-1]
+
                     poem[i]['words'][j]['cft'] = ts[j]
                 
         return poem
