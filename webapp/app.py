@@ -109,7 +109,7 @@ def call_generuj():
     hash64 = text2id(text)
     poemid = f'{hash64}.txt'
     with open(f'static/poemfiles/{poemid}', 'w') as outfile:
-        json.dump(text, outfile)
+        print(text, file=outfile)
 
     return render_template('show_poem_gen.html',
             clean_verses=clean_verses,
@@ -190,7 +190,7 @@ def call_analyze():
         hash64 = text2id(text)
         poemid = f'{hash64}.json'
         with open(f'static/poemfiles/{poemid}', 'w') as outfile:
-            json.dump(poem_json, outfile)
+            json.dump(poem_json, outfile, ensure_ascii=False, indent=4)
         return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
 
 
