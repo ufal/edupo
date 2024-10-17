@@ -219,18 +219,17 @@ def call_analyze():
     else:
         poem_json['schools'] = []
     
-    if poem_json['id']:
-        data = show_poem_html.show(poem_json, True)
-        html = render_template('show_poem_html.html', **data)
-        text = poemdata2text(data)
-        return return_accepted_type(text, data, html)
-    else:
+    if request.accept_mimetypes.accept_html and not poem_json['id']:
         hash64 = text2id(text)
         poemid = f'{hash64}.json'
         with open(f'static/poemfiles/{poemid}', 'w') as outfile:
             json.dump(poem_json, outfile, ensure_ascii=False, indent=4)
-        # TODO !!! this only works well for HTML but not for JSON or TEXT
         return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
+    else:
+        data = show_poem_html.show(poem_json, True)
+        html = render_template('show_poem_html.html', **data)
+        text = poemdata2text(data)
+        return return_accepted_type(text, data, html)
 
 @app.route("/genmotives", methods=['GET', 'POST'])
 def call_genmotives():
