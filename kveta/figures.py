@@ -36,7 +36,7 @@ class Figures:
 
             if narrators_gender:
                 poem[i]['narrators_gender'] = narrators_gender
-                print("GENDER:", line['text'], narrators_gender)
+#                print("GENDER:", line['text'], narrators_gender)
 
         return poem
 
