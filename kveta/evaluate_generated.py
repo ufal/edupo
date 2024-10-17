@@ -35,8 +35,13 @@ def get_measures(input_txt):
     metre_average_prob = 0
 
     for i in range(len(hints)):
-        if 'metre_probs' in data[0]["body"][0][i] and hints[i][0] in data[0]["body"][0][i]['metre_probs']:
-            metre_average_prob += data[0]["body"][0][i]['metre_probs'][hints[i][0]]
+        if 'metre_probs' in data[0]["body"][0][i]:
+            if hints[i][0] in data[0]["body"][0][i]['metre_probs']:
+                metre_average_prob += data[0]["body"][0][i]['metre_probs'][hints[i][0]]
+            elif hints[i][0] == 'N':
+                # pro neurcite metrum je vzdy vsechno spravne
+                metre_average_prob += 1
+
         syllcount = 0
         for word in data[0]["body"][0][i]['words']:
             if 'is_unknown' in word:
