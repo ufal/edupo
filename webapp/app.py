@@ -161,8 +161,12 @@ def call_analyze():
 def call_genmotives():
     poemid = get_post_arg('poemid', None)
     text = get_post_arg('text', None)
+    title = get_post_arg('title', None)
     assert poemid != None and text != None
-    system = "Jste literární vědec se zaměřením na poezii. Vaším úkolem je určit až 5 hlavních témat básně. Napište pouze tato témata, nic jiného, každé na samostatný řádek. Takto:\n 1. A\n 2. B\n 3. C"
+    basne = 'básně'
+    if title:
+        basne = f'básně {title}'
+    system = f"Jste literární vědec se zaměřením na poezii. Vaším úkolem je určit až 5 hlavních témat {basne}. Napište pouze tato témata, nic jiného, každé na samostatný řádek. Takto:\n 1. A\n 2. B\n 3. C"
     motives = generate_with_openai_simple(text, system)
     with open(f'static/genmotives/{poemid}.txt', 'w') as outfile:
         print(motives, file=outfile)

@@ -72,7 +72,9 @@
         {% if id and not imgfile %}
         <form method="post" action="genimage">
             <input type="hidden" name="poemid" value="{{ id }}">
+            {% if title %}
             <input type="hidden" name="title" value="{{ title }}">
+            {% endif %}
             <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
             <input name="submit" type="submit" value="Generovat ilustrační obrázek k této básni"
             onclick="this.value='Generuji...'; return true;">
@@ -103,7 +105,9 @@
     {% if id and not motives %}
     <form method="post" action="genmotives">
         <input type="hidden" name="poemid" value="{{ id }}">
+        {% if title %}
         <input type="hidden" name="title" value="{{ title }}">
+        {% endif %}
         <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
         <input name="submit" type="submit" value="Určit motivy">
     </form>
