@@ -91,6 +91,9 @@ class Meter:
         for i,line in enumerate(self.poem_):
             self.poem_[i]['metre'] = dict()
 
+            # Defaultní distribuce pro čtyři základní metra
+            self.poem_[i]['metre_probs'] = {'T': 00.1, 'J': 0.01, 'D': 0.01, 'A':0.01 }
+
             for pattern in self.patterns_:    
                 self.poem_[i]['metre'][pattern] = 1
                 position = 0
@@ -122,8 +125,22 @@ class Meter:
                 self.poem_[i]['metre'][pattern] = self.poem_[i]['metre'][pattern] ** (1/len(pattern))
                 overall_probs[pattern] *= self.poem_[i]['metre'][pattern]
 
-                            
-            #pprint.pprint(self.poem_[i]['metre']);input()
+                # Vyplň distribuce pro čtyři základní metra
+                if pattern.startswith('SWW'):
+                    self.poem_[i]['metre_probs']['D'] = self.poem_[i]['metre'][pattern]
+                elif pattern.startswith('WSWW'):
+                    self.poem_[i]['metre_probs']['A'] = self.poem_[i]['metre'][pattern]
+                elif pattern.startswith('SW'):
+                    self.poem_[i]['metre_probs']['T'] = self.poem_[i]['metre'][pattern]
+                elif pattern.startswith('WS'):
+                    self.poem_[i]['metre_probs']['J'] = self.poem_[i]['metre'][pattern]
+
+            # Normalizace 'metre_probs'
+            total = 0
+            for M in ['T', 'J', 'D', 'A']:
+                total += self.poem_[i]['metre_probs'][M]
+            for M in ['T', 'J', 'D', 'A']:
+                self.poem_[i]['metre_probs'][M] /= total
 
         for m in overall_probs:
             overall_probs[m] = overall_probs[m] ** (1/len(self.poem_))
