@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-from flask import Flask, request, render_template, g
+from flask import Flask, request, render_template, g, redirect, url_for
 from itertools import groupby
 import os
 from gen import generuj
@@ -166,18 +166,23 @@ def call_genmotives():
     motives = generate_with_openai_simple(text, system)
     with open(f'static/genmotives/{poemid}.txt', 'w') as outfile:
         print(motives, file=outfile)
-    return show(poemid)
+    return redirect(url_for('call_show', poemid=poemid))
 
 @app.route("/genimage", methods=['GET', 'POST'])
 def call_genimage():
     poemid = get_post_arg('poemid', None)
     text = get_post_arg('text', None)
+    title = get_post_arg('title', None)
     assert poemid != None and text != None
-    prompt = f"Vygeneruj obrázek, ilustrující následující báseň: {text}"
-    image_description = generate_image_with_openai(text, f'static/genimg/{poemid}.png')
+    if title:
+        prompt = f"Vygeneruj obrázek '{title}', ilustrující toto: {text}"
+    else:
+        prompt = f"Vygeneruj obrázek, ilustrující toto: {text}"
+    image_description = generate_image_with_openai(prompt, f'static/genimg/{poemid}.png')
     with open(f'static/genimg/{poemid}.txt', 'w') as outfile:
         print(image_description, file=outfile)
-    return show(poemid)
+    return redirect(url_for('call_show', poemid=poemid))
+    # return show(poemid)
 
 @app.route("/search", methods=['GET', 'POST'])
 def call_search():

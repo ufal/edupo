@@ -39,6 +39,7 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500):
         return None
 
 def generate_with_openai_simple(prompt, system="You are a helpful assistant.", model="gpt-4o-mini", max_tokens=500):
+    print('TEXTGEN Prompt:', show_short(prompt))
     messages=[
         {"role": "system", "content": system},
         {"role": "user", "content": prompt},
@@ -47,6 +48,12 @@ def generate_with_openai_simple(prompt, system="You are a helpful assistant.", m
 
 def sanitize_prompt(prompt):
     return generate_with_openai_simple(f"Uprav prompt od uživatele pro generování obrázku tak, aby byl v souladu se všemi zásadami. Na výstup vydej pouze upravený prompt. Prompt: {prompt}")
+
+def show_short(text, maxlen=100):
+    if len(text) < maxlen:
+        return repr(text)
+    else:
+        return repr(text[:maxlen-20] + '...' + text[-20:])
 
 # https://platform.openai.com/docs/guides/images/usage?context=python
 # https://platform.openai.com/docs/api-reference/images/create
@@ -58,7 +65,9 @@ def generate_image_with_openai(prompt, filename):
     except Exception as e:
         print(e)
     
+    print('IMGGEN Prompt:', show_short(prompt))
     sanitized_prompt = sanitize_prompt(prompt)
+    print('IMGGEN Sanitized:', show_short(sanitized_prompt))
 
     try:
         response = client.images.generate(
