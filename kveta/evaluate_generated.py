@@ -5,23 +5,23 @@ import sys
 sys.path.append("../kveta")
 from kveta import okvetuj
 
-def get_measures(filename):
+def get_measures(input_txt):
 
     text = ""
     hints = []
 
-    with open(filename, 'r') as f:
-        for line in f:
-            line = line.strip()
-            items = line.split('#')
-            if len(items) >= 5:
-                verse = items[4].strip()
-                if verse:
-                    hints.append([items[1].strip(), items[2].strip(), items[3].strip()])
-                    text += verse + "\n"
-            elif line == "":
-                text += "\n"
-    f.close()
+    for line in input_txt.split("\n"):
+        line = line.strip()
+        if line.startswith('#'):
+            line = line[1:].strip()
+        items = line.split('#')
+        if len(items) >= 4:
+            verse = items[3].strip()
+            if verse:
+                hints.append([items[0].strip(), items[1].strip(), items[2].strip()])
+                text += verse + "\n"
+        elif line == "":
+            text += "\n"
 
     data, k = okvetuj(text)
 
@@ -32,12 +32,11 @@ def get_measures(filename):
     unknown_counter = 0
     words_counter = 0
     syllable_count_match = 0
-    meter_match = 0
+    metre_average_prob = 0
 
     for i in range(len(hints)):
-        #if 'metre' in data[0]["body"][0][i] and hints[i][0] in data[0]["body"][0][i]['metre'][0]:
-        #    meter_match += 1
-        #print(data[0]["body"][0][i]['text'], hints[i][0], data[0]["body"][0][i]['metre'][0])
+        if 'metre_probs' in data[0]["body"][0][i] and hints[i][0] in data[0]["body"][0][i]['metre_probs']:
+            metre_average_prob += data[0]["body"][0][i]['metre_probs'][hints[i][0]]
         syllcount = 0
         for word in data[0]["body"][0][i]['words']:
             if 'is_unknown' in word:
@@ -49,12 +48,15 @@ def get_measures(filename):
             syllable_count_match += 1
 
     return {'unknown_words': unknown_counter/words_counter,
-            #'meter_acc': meter_match / len(hints),
+            'metre_average_prob': metre_average_prob / len(hints),
             'syllable_cnt_acc': syllable_count_match / len(hints) }
 
 
 if __name__=="__main__":
 
-    results = get_measures(sys.argv[1])
+    with open(sys.argv[1], 'r') as f:
+        input_text = f.read()
+
+    results = get_measures(input_text)
 
     print(results)
