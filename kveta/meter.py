@@ -135,13 +135,6 @@ class Meter:
                 elif pattern.startswith('WS'):
                     self.poem_[i]['metre_probs']['J'] = self.poem_[i]['metre'][pattern]
 
-            # Normalizace 'metre_probs'
-            total = 0
-            for M in ['T', 'J', 'D', 'A']:
-                total += self.poem_[i]['metre_probs'][M]
-            for M in ['T', 'J', 'D', 'A']:
-                self.poem_[i]['metre_probs'][M] /= total
-
         for m in overall_probs:
             overall_probs[m] = overall_probs[m] ** (1/len(self.poem_))
         return overall_probs
