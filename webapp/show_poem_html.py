@@ -218,25 +218,39 @@ def mark_rhyming(parts, span):
         parts[1] = part1
     
 
+def filename_if_exists(filename):
+    if os.path.isfile(filename):
+        return filename
+    else:
+        return None
+
+def contents_if_exists(filename):
+    if os.path.isfile(filename):
+        with open(filename) as infile:
+            return infile.read()
+    else:
+        return None
+
 def show(data, syllformat=False):
     data = defaultdict(str, data)
     data['json'] = json.dumps(data, indent=4, ensure_ascii=False)
     
     if data['id']:
-        imgfile = f"static/genimg/{data['id']}.png"
-        if os.path.isfile(imgfile):
-            data['imgfile'] = imgfile
-        ttsfile = f"static/gentts/{data['id']}.mp3"
-        if os.path.isfile(ttsfile):
-            data['ttsfile'] = ttsfile
-        motivesfile = f"static/genmotives/{data['id']}.txt"
-        if os.path.isfile(motivesfile):
-            with open(motivesfile) as infile:
-                data['motives'] = infile.read()
+        data['imgfile'] = filename_if_exists(
+                f"static/genimg/{data['id']}.png")
+        data['imgtitle'] = contents_if_exists(
+                f"static/genimg/{data['id']}.txt")
+        data['ttsfile'] = filename_if_exists(
+                f"static/gentts/{data['id']}.mp3")
+        data['motives'] = contents_if_exists(
+                f"static/genmotives/{data['id']}.txt")
     
     # convert verses into a simpler format for displaying
     data['stanzas'] = []
     data['present_metres'] = set()
+    prev_stanza_id = 0
+    # list of lines (empty = empty line)
+    plaintext = list()
     for stanza in data['body']:
         verses = []
         for verse in stanza:
@@ -287,6 +301,11 @@ def show(data, syllformat=False):
                 elif reduplicant_type == '1o':
                     mark_rhyming(syllables[-1]['parts'], 'c')
 
+            if prev_stanza_id != verse.get("stanza", 0):
+                plaintext.append('')
+                prev_stanza_id = verse.get("stanza", 0)
+            plaintext.append(verse["text"])
+            
             verses.append({
                 'text': verse["text"],
                 'stanza': verse.get("stanza", 0),
@@ -304,13 +323,15 @@ def show(data, syllformat=False):
                 'narrators_gender': verse.get('narrators_gender', ''),
                 })
 
+        plaintext.append('')
         data['stanzas'].append({
             'verses': verses,
             })
             
-        
         # TODO možná restartovat číslování rýmu po každé sloce
         # (ale někdy jde rýmování napříč slokama)
+        
+    data['plaintext'] = '\n'.join(plaintext)
     
     return render_template('show_poem_html.html', **data)
 

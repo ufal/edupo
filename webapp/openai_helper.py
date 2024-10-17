@@ -46,8 +46,7 @@ def generate_with_openai_simple(prompt, system="You are a helpful assistant.", m
     return generate_with_openai(messages, model, max_tokens)
 
 def sanitize_prompt(prompt):
-    #return f'Generate an image according the user specification: {prompt}.  Change the prompt so that it is aligned with all policies.'
-    return f'Vygeneruj obrázek podle uživatelského promptu. Uprav prompt tak, aby byl v souladu se všemi zásadami. Prompt: {prompt}'
+    return generate_with_openai_simple(f"Uprav prompt od uživatele pro generování obrázku tak, aby byl v souladu se všemi zásadami. Na výstup vydej pouze upravený prompt. Prompt: {prompt}")
 
 # https://platform.openai.com/docs/guides/images/usage?context=python
 # https://platform.openai.com/docs/api-reference/images/create
@@ -59,10 +58,12 @@ def generate_image_with_openai(prompt, filename):
     except Exception as e:
         print(e)
     
+    sanitized_prompt = sanitize_prompt(prompt)
+
     try:
         response = client.images.generate(
             model="dall-e-3",
-            prompt=sanitize_prompt(prompt),
+            prompt=sanitized_prompt,
             size="1024x1024",
             quality="standard",
             n=1,

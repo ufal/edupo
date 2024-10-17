@@ -179,4 +179,10 @@ span.rhyming {
     display: none;
 }
 
+#genimg {
+    float: right;
+    padding: 1ex 1ex 1ex 1ex;
+    width: 50%;
+}
+
 

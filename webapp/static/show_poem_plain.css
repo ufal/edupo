@@ -8,6 +8,7 @@
 .stressinfo {display: none;}
 .otherinfo {display: none;}
 #metreinfo {display: none;}
+#genimg {display: none;}
 
 span.syllable {
     display: contents;

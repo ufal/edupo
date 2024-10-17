@@ -66,11 +66,19 @@
     <div>
         <button onclick="set_style('plain')">Bez anotace</button>
         <button onclick="set_style('rich')">S anotací</button>
+        
         <button disabled>Generovat novou báseň ve stylu této básně</button>
-        <button disabled>Generovat ilustrační obrázek k této básni</button>
+        
+        {% if id and not imgfile %}
+        <form method="post" action="genimage">
+            <input type="hidden" name="poemid" value="{{ id }}">
+            <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
+            <input name="submit" type="submit" value="Generovat ilustrační obrázek k této básni"
+            onclick="this.value='Generuji...'; return true;">
+        </form>
+        {% endif %}
+        
         <button disabled>Přečíst báseň pomocí automatické syntézy řeči</button>
-        <!-- {{ michalformat }} -->
-        <!-- {{ michalformat1line }} -->
 
     {% if not stanzas[0].verses[0].syllables %}
     <form method="post" action="analyze">
@@ -86,24 +94,7 @@
         <input type="hidden" name="publisher" value="{{ publisher }}">
         <input type="hidden" name="place" value="{{ place }}">
         <input type="hidden" name="year" value="{{ year }}">
-        <textarea name="text" hidden="hidden">{%
-        for stanza in stanzas
-        %}{%
-        for verse in stanza.verses
-        %}{%
-        if verse.stanza and verse.stanza != stanza.verses[loop.index0-1].stanza
-        %}
-{%
-        endif
-        %}{{
-        verse.text
-        }}
-{%
-        endfor
-        %}
-{%
-        endfor
-        %}</textarea>
+        <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
         <input name="submit" type="submit" value="Analyzovat">
     </form>
     {% endif %}
@@ -111,24 +102,7 @@
     {% if id and not motives %}
     <form method="post" action="genmotives">
         <input type="hidden" name="poemid" value="{{ id }}">
-        <textarea name="text" hidden="hidden">{%
-        for stanza in stanzas
-        %}{%
-        for verse in stanza.verses
-        %}{%
-        if verse.stanza and verse.stanza != stanza.verses[loop.index0-1].stanza
-        %}
-{%
-        endif
-        %}{{
-        verse.text
-        }}
-{%
-        endfor
-        %}
-{%
-        endfor
-        %}</textarea>
+        <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
         <input name="submit" type="submit" value="Určit motivy">
     </form>
     {% endif %}
@@ -150,8 +124,10 @@
         <p><b>amfibrach</b>: trojslabičné metrum s přízvukem na druhé slabice</p>
         {% endif %}
     </div>
-    </div>
 
+    {% if imgfile %}
+    <a href="{{ imgfile }}"><img id="genimg" src="{{ imgfile }}" alt="{{ imgtitle }}" title="{{ imgtitle }}"></a>
+    {% endif %}
 
     <div class="body">
         <table class="stanza" cellspacing="0" cellpadding="0">
