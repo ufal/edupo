@@ -155,6 +155,8 @@ def show(poemid):
         data = show_poem_html.show(result)
     
     # TODO the rendering should be lazy!!!
+    # TODO turn this around... maybe each method returns a JSON, and some handling
+    # converts it to the right format...?
 
     text = ''
     if data['author_name']:
