@@ -142,9 +142,6 @@ def call_generuj():
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     poemid = get_post_arg('poemid', str(random.randint(0,80229)), True)
-    return show(poemid)
-
-def show(poemid):
     if poemid.endswith('.json'):
         data = show_poem_html.show_file(poemid)
     else:
@@ -157,16 +154,8 @@ def show(poemid):
     # TODO the rendering should be lazy!!!
     # TODO turn this around... maybe each method returns a JSON, and some handling
     # converts it to the right format...?
-
-    text = ''
-    if data['author_name']:
-        text += data['author_name'] + '\n'
-    if data['title']:
-        text += data['title'] + '\n'
-    text += '\n'
-    text += data['plaintext']
-
     html = render_template('show_poem_html.html', **data)
+    text = poemdata2text(data)
     
     return return_accepted_type(text, data, html)
 
@@ -208,6 +197,16 @@ def text2id(text, add_timestamp=True):
     else:
         return hash64
 
+def poemdata2text(data):
+    text = ''
+    if data['author_name']:
+        text += data['author_name'] + '\n'
+    if data['title']:
+        text += data['title'] + '\n'
+    text += '\n'
+    text += data['plaintext']
+    
+    return text
 
 @app.route("/analyze", methods=['GET', 'POST'])
 def call_analyze():
@@ -221,15 +220,17 @@ def call_analyze():
         poem_json['schools'] = []
     
     if poem_json['id']:
-        html = show_poem_html.show(poem_json, True)
-        return html
+        data = show_poem_html.show(poem_json, True)
+        html = render_template('show_poem_html.html', **data)
+        text = poemdata2text(data)
+        return return_accepted_type(text, data, html)
     else:
         hash64 = text2id(text)
         poemid = f'{hash64}.json'
         with open(f'static/poemfiles/{poemid}', 'w') as outfile:
             json.dump(poem_json, outfile, ensure_ascii=False, indent=4)
+        # TODO !!! this only works well for HTML but not for JSON or TEXT
         return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
-
 
 @app.route("/genmotives", methods=['GET', 'POST'])
 def call_genmotives():
