@@ -336,41 +336,53 @@ def show(data, syllformat=False):
     return render_template('show_poem_html.html', **data)
 
 # Reads in file
-def show_file(filename = '78468.json'):
+def show_file(filename = '78468.json', path='static/poemfiles'):
 
-    with open(filename) as infile:
+    with open(f'{path}/{filename}') as infile:
         j = json.load(infile)
 
-    def get_j0_key(j, key1, default=''):
-        try:
-            return j[0][key1]
-        except:
-            logging.warning(f"Missing {key1} in data.")
-            return default
+    if type(j) == dict:
+        # new format
+        data = j
+        data['id'] = filename
+        return show(data, True)
+    
+    elif type(j) == list:
+        # old format
 
-    def get_j0_key_key(j, key1, key2, default=''):
-        try:
-            return j[0][key1][key2]
-        except:
-            logging.warning(f"Missing {key1} {key2} in data.")
-            return default
+        def get_j0_key(j, key1, default=''):
+            try:
+                return j[0][key1]
+            except:
+                logging.warning(f"Missing {key1} in data.")
+                return default
+
+        def get_j0_key_key(j, key1, key2, default=''):
+            try:
+                return j[0][key1][key2]
+            except:
+                logging.warning(f"Missing {key1} {key2} in data.")
+                return default
 
 
-    data = {}
+        data = {}
 
-    data['title'] = get_j0_key_key(j, "biblio", "p_title")
-    data['author'] = get_j0_key_key(j, "p_author", "name")
-    data['schools'] = ', '.join(get_j0_key(j, "p_schools", []))
-    data['born'] = get_j0_key_key(j, "p_author", "born")
-    data['died'] = get_j0_key_key(j, "p_author", "died")
-    data['b_title'] = get_j0_key_key(j, "biblio", "b_title")
-    data['year'] = get_j0_key_key(j, "biblio", "year")
-    data['id'] = filename
-    data['body'] = j[0]["body"]
+        data['title'] = get_j0_key_key(j, "biblio", "p_title")
+        data['author'] = get_j0_key_key(j, "p_author", "name")
+        data['schools'] = ', '.join(get_j0_key(j, "p_schools", []))
+        data['born'] = get_j0_key_key(j, "p_author", "born")
+        data['died'] = get_j0_key_key(j, "p_author", "died")
+        data['b_title'] = get_j0_key_key(j, "biblio", "b_title")
+        data['year'] = get_j0_key_key(j, "biblio", "year")
+        data['id'] = filename
+        data['body'] = j[0]["body"]
 
-    return show(data, True)
+        return show(data, True)
+    
+    else:
+        assert False, f"Invalid type of root JSON element: {type(j)}"
 
 if __name__=="__main__":
     filename = sys.argv[1]
-    print(show_file(filename))
+    print(show_file(filename), path='.')
      

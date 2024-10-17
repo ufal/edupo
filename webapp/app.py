@@ -144,6 +144,23 @@ def call_showauthor():
     data.sort(key=lambda x: x['book'][1])
     return render_template('showauthor.html', author=author, rows=data)
 
+
+# Adapted from THEaiTRE server
+import base64
+HASH_WIDTH_BYTES = sys.hash_info.width//8
+from datetime import datetime
+def text2id(text, add_timestamp=True):
+    # hash
+    # ! seed is not stable
+    hash_bytes = hash(text).to_bytes(HASH_WIDTH_BYTES, 'big', signed=True)
+    hash64 = base64.urlsafe_b64encode(hash_bytes).decode('ascii')[:-1]
+
+    if add_timestamp:
+        return datetime.now().strftime("%Y-%m-%d_%H-%M-%S_") + hash64
+    else:
+        return hash64
+
+
 @app.route("/analyze", methods=['GET', 'POST'])
 def call_analyze():
     text = get_post_arg('text', 'Matce pro kacířství syna vzali,\nna jesuitu jej vychovali;', True)
@@ -154,8 +171,17 @@ def call_analyze():
         poem_json['schools'] = [poem_json['schools']]
     else:
         poem_json['schools'] = []
-    html = show_poem_html.show(poem_json, True)
-    return html
+    
+    if poem_json['id']:
+        html = show_poem_html.show(poem_json, True)
+        return html
+    else:
+        hash64 = text2id(text)
+        poemid = f'{hash64}.json'
+        with open(f'static/poemfiles/{poemid}', 'w') as outfile:
+            json.dump(poem_json, outfile)
+        return redirect(url_for('call_show', poemid=poemid))
+
 
 @app.route("/genmotives", methods=['GET', 'POST'])
 def call_genmotives():
