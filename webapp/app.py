@@ -22,6 +22,10 @@ print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
 
+# I have not been able to persuade Flask that it is under / locally but under
+# /edupo/ externally so this is a work-around
+EDUPO_SERVER_PATH = os.getenv('EDUPO_SERVER_PATH', '')
+
 sqlite3.register_converter("json", json.loads)
 
 def get_db():
@@ -100,6 +104,13 @@ def call_generuj():
             poet_start, metre, verses_count, syllables_count,
             first_words)
     app.logger.info(f"Generated poem {clean_verses}")
+   
+    text = "\n".join(clean_verses)
+    hash64 = text2id(text)
+    poemid = f'{hash64}.txt'
+    with open(f'static/poemfiles/{poemid}', 'w') as outfile:
+        json.dump(text, outfile)
+
     return render_template('show_poem_gen.html',
             clean_verses=clean_verses,
             raw='\n'.join(raw_output)
@@ -180,7 +191,7 @@ def call_analyze():
         poemid = f'{hash64}.json'
         with open(f'static/poemfiles/{poemid}', 'w') as outfile:
             json.dump(poem_json, outfile)
-        return redirect(url_for('call_show', poemid=poemid))
+        return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
 
 
 @app.route("/genmotives", methods=['GET', 'POST'])
@@ -196,7 +207,7 @@ def call_genmotives():
     motives = generate_with_openai_simple(text, system)
     with open(f'static/genmotives/{poemid}.txt', 'w') as outfile:
         print(motives, file=outfile)
-    return redirect(url_for('call_show', poemid=poemid))
+    return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
 
 @app.route("/genimage", methods=['GET', 'POST'])
 def call_genimage():
@@ -211,7 +222,7 @@ def call_genimage():
     image_description = generate_image_with_openai(prompt, f'static/genimg/{poemid}.png')
     with open(f'static/genimg/{poemid}.txt', 'w') as outfile:
         print(image_description, file=outfile)
-    return redirect(url_for('call_show', poemid=poemid))
+    return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
     # return show(poemid)
 
 @app.route("/search", methods=['GET', 'POST'])

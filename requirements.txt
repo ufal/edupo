@@ -5,3 +5,4 @@ ufal.morphodita
 sqlite-regex
 openai
 requests
+gunicorn

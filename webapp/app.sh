@@ -11,7 +11,7 @@ while true;
 do
     date
     echo Starting server...
-    authbind --deep flask run --host=0.0.0.0 --port 80
+    EDUPO_SERVER_PATH=/edupo authbind --deep gunicorn app:app -b 0.0.0.0:80 --access-logfile=-
     echo Server stopped, waiting $T for restart...
     sleep $T
     echo
