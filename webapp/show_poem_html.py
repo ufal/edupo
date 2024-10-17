@@ -236,8 +236,6 @@ def show(data, syllformat=False):
     
     # convert verses into a simpler format for displaying
     data['stanzas'] = []
-    michal_rhyme_scheme = ''
-    michal_lines = []
     data['present_metres'] = set()
     for stanza in data['body']:
         verses = []
@@ -306,11 +304,6 @@ def show(data, syllformat=False):
                 'narrators_gender': verse.get('narrators_gender', ''),
                 })
 
-            michal_rhyme_scheme += get_rhyme_letter(rhyme, 'X')
-            ending = 'TODO'
-            # J # 7 # ilý # a k sobě tiskna milý
-            michal_lines.append(f"{metre} # {len(syllables)} # {ending} # {verse['text']}")
-
         data['stanzas'].append({
             'verses': verses,
             })
@@ -319,13 +312,6 @@ def show(data, syllformat=False):
         # TODO možná restartovat číslování rýmu po každé sloce
         # (ale někdy jde rýmování napříč slokama)
     
-    # TODO ted jen 4verší a 6verší
-    michal_rhyme_scheme = michal_rhyme_scheme[:6]
-    # # AABB # 1900
-    michal_first_line = f"# {michal_rhyme_scheme} # {data['year']}\n" 
-    data['michalformat'] = michal_first_line + "\n".join(michal_lines)
-    data['michalformat1line'] = michal_first_line + michal_lines[0]
-
     return render_template('show_poem_html.html', **data)
 
 # Reads in file
