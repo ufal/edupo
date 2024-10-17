@@ -331,9 +331,12 @@ def show(data, syllformat=False):
         # TODO možná restartovat číslování rýmu po každé sloce
         # (ale někdy jde rýmování napříč slokama)
         
+    # listify set because JSON cannot serialize sets
+    data['present_metres'] = list(data['present_metres'])
+    
     data['plaintext'] = '\n'.join(plaintext)
     
-    return render_template('show_poem_html.html', **data)
+    return data
 
 # Reads in file
 def show_file(filename = '78468.json', path='static/poemfiles'):
@@ -384,5 +387,7 @@ def show_file(filename = '78468.json', path='static/poemfiles'):
 
 if __name__=="__main__":
     filename = sys.argv[1]
-    print(show_file(filename), path='.')
+    data = show_file(filename, path='.')
+    html = render_template('show_poem_html.html', **data)
+    print(html)
      

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-from flask import Flask, request, render_template, g, redirect, url_for
+from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response
 from itertools import groupby
 import os
 from gen import generuj
@@ -80,13 +80,32 @@ def add_metadata_to_dict(poem, fields=[
         poem[field] = value
     return poem
 
+# our defined order of priorities:
+# 1. HTML (because of web browsers)
+# 2. JSON (for APIs)
+# 3. TEXT (fallback)
+def return_accepted_type(text='', json=None, html=None):
+    if html is not None and request.accept_mimetypes.accept_html:
+        return html
+    elif json is not None and request.accept_mimetypes.accept_json:
+        if type(json) == str:
+            # already JSON
+            return Response(json, mimetype='application/json')
+        else:
+            return jsonify(json)
+    else:
+        return Response(text, mimetype='text/plain')
+
 @app.route("/")
 def hello_world():
     return render_template('index.html')
 
 @app.route("/prdel")
 def prdel_world():
-    return "<p>Hello, Prdel!</p>"
+    text = "Hello, Prdel myš!"
+    return return_accepted_type(text, {'text': text}, f"<p>{text}</p>")
+    # also can use a JSON string as json:
+    # return return_accepted_type(text, "{'text': "+text+"}", f"<p>{text}</p>")
 
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
@@ -111,10 +130,14 @@ def call_generuj():
     with open(f'static/poemfiles/{poemid}', 'w') as outfile:
         print(text, file=outfile)
 
-    return render_template('show_poem_gen.html',
+    data = {'clean_verses': clean_verses, 'raw_output': raw_output}
+
+    html = render_template('show_poem_gen.html',
             clean_verses=clean_verses,
             raw='\n'.join(raw_output)
             )
+    
+    return return_accepted_type(text, data, html)
 
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
@@ -123,15 +146,27 @@ def call_show():
 
 def show(poemid):
     if poemid.endswith('.json'):
-        return show_poem_html.show_file(poemid)
+        data = show_poem_html.show_file(poemid)
     else:
         with get_db() as db:
             sql = 'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id=? AND books.id=poems.book_id AND authors.identity=poems.author'
             result = db.execute(sql, (poemid,)).fetchone()
         assert result != None 
-        html = show_poem_html.show(result)
-        return html
+        data = show_poem_html.show(result)
+    
+    # TODO the rendering should be lazy!!!
 
+    text = ''
+    if data['author_name']:
+        text += data['author_name'] + '\n'
+    if data['title']:
+        text += data['title'] + '\n'
+    text += '\n'
+    text += data['plaintext']
+
+    html = render_template('show_poem_html.html', **data)
+    
+    return return_accepted_type(text, data, html)
 
 @app.route("/showlist", methods=['GET', 'POST'])
 def call_showlist():
