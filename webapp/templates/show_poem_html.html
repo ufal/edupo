@@ -81,7 +81,17 @@
         </form>
         {% endif %}
         
-        <button disabled>Přečíst báseň pomocí automatické syntézy řeči</button>
+        {% if id and not ttsfile %}
+        <form method="post" action="gentts">
+            <input type="hidden" name="poemid" value="{{ id }}">
+            {% if title %}
+            <input type="hidden" name="title" value="{{ title }}">
+            {% endif %}
+            <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
+            <input name="submit" type="submit" value="Přečíst báseň pomocí automatické syntézy řeči"
+            onclick="this.value='Generuji...'; return true;">
+        </form>
+        {% endif %}
 
     {% if not stanzas[0].verses[0].syllables %}
     <form method="post" action="analyze">
@@ -130,6 +140,12 @@
         <p><b>amfibrach</b>: trojslabičné metrum s přízvukem na druhé slabice</p>
         {% endif %}
     </div>
+
+    {% if ttsfile %}
+    <audio autoplay controls>
+        <source src="{{ ttsfile }}" type="audio/mpeg">
+    </audio>
+    {% endif %}
 
     {% if imgfile %}
     <a href="{{ imgfile }}"><img id="genimg" src="{{ imgfile }}" alt="{{ imgtitle }}" title="{{ imgtitle }}"></a>

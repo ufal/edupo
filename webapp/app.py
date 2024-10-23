@@ -262,6 +262,19 @@ def call_genimage():
     return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
     # return show(poemid)
 
+from gtts import gTTS
+@app.route("/gentts", methods=['GET', 'POST'])
+def call_gentts():
+    poemid = get_post_arg('poemid', None)
+    text = get_post_arg('text', None)
+    # title = get_post_arg('title', None)
+    assert poemid != None and text != None
+    filename = f'static/gentts/{poemid}.mp3'
+    tts = gTTS(text, lang='cs', tld='cz', slow=True)
+    tts.save(filename)
+    return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
+    # return show(poemid)
+
 @app.route("/search", methods=['GET', 'POST'])
 def call_search():
     # TODO do this nicely

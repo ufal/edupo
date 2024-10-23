@@ -6,3 +6,4 @@ sqlite-regex
 openai
 requests
 gunicorn
+gTTS
