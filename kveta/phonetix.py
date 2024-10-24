@@ -4,6 +4,7 @@ import string
 import csv
 import pickle
 
+from unidecode import unidecode
 
 class Phonetix:
     '''
