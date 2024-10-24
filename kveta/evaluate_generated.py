@@ -26,13 +26,14 @@ def get_measures(input_txt):
     data, k = okvetuj(text)
 
     if len(data[0]["body"][0]) != len(hints):
-        print("ERROR: The output length is different from the output length:", len(data[0]["body"][0]), len(hints))
+        print("ERROR: The output length is different from the hints length:", len(data[0]["body"][0]), len(hints))
         return {}
 
     unknown_counter = 0
     words_counter = 0
     syllable_count_match = 0
     metre_average_prob = 0
+    rhyme_count = 0
 
     for i in range(len(hints)):
         if 'metre_probs' in data[0]["body"][0][i]:
@@ -51,10 +52,15 @@ def get_measures(input_txt):
                 syllcount += len(word['syllables'])
         if syllcount == int(hints[i][1]):
             syllable_count_match += 1
+        if 'rhyme' in data[0]["body"][0][i] and data[0]["body"][0][i]["rhyme"] != None:
+            rhyme_count += 1
+
 
     return {'unknown_words': unknown_counter/words_counter,
             'metre_average_prob': metre_average_prob / len(hints),
-            'syllable_cnt_acc': syllable_count_match / len(hints) }
+            'syllable_cnt_acc': syllable_count_match / len(hints),
+            'rhyming': rhyme_count / len(hints)
+           }
 
 
 if __name__=="__main__":
