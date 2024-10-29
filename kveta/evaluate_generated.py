@@ -59,15 +59,19 @@ def get_measures(input_txt):
     return {'unknown_words': unknown_counter/words_counter,
             'metre_average_prob': metre_average_prob / len(hints),
             'syllable_cnt_acc': syllable_count_match / len(hints),
-            'rhyming': rhyme_count / len(hints)
-            'correct_lines': len([t for t in text if len(t.strip()) > 0])),
+            'rhyming': rhyme_count / len(hints),
+            'correct_lines': len([t for t in text if len(t.strip()) > 0]),
             }
 
 if __name__=="__main__":
 
     with open(sys.argv[1], 'r') as f:
         input_text = f.read()
-
-    results = get_measures(input_text)
+    
+    try:
+        results = get_measures(input_text)
+    except:
+        print('ERROR while processing file:', sys.argv[1], file=sys.stderr)
+        raise
 
     print(sys.argv[1], results)
