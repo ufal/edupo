@@ -60,8 +60,8 @@ def get_measures(input_txt):
             'metre_average_prob': metre_average_prob / len(hints),
             'syllable_cnt_acc': syllable_count_match / len(hints),
             'rhyming': rhyme_count / len(hints)
-           }
-
+            'correct_lines': len([t for t in text if len(t.strip()) > 0])),
+            }
 
 if __name__=="__main__":
 
@@ -70,4 +70,4 @@ if __name__=="__main__":
 
     results = get_measures(input_text)
 
-    print(results)
+    print(sys.argv[1], results)
