@@ -84,6 +84,8 @@ def add_metadata_to_dict(poem, fields=[
 # 1. HTML (because of web browsers)
 # 2. JSON (for APIs)
 # 3. TEXT (fallback)
+# the text can be text or URL; maybe we should split and distinguish
+# text/plain and text/uri-list
 def return_accepted_type(text='', json=None, html=None):
     if html is not None and request.accept_mimetypes.accept_html:
         return html
@@ -94,6 +96,8 @@ def return_accepted_type(text='', json=None, html=None):
         else:
             return jsonify(json)
     else:
+        if not text.endswith("\n"):
+            text += "\n"
         return Response(text, mimetype='text/plain')
 
 @app.route("/")
@@ -165,21 +169,32 @@ def call_showlist():
         sql = 'SELECT COUNT(id) as count, author FROM poems GROUP BY author ORDER BY count DESC'
         result = db.execute(sql).fetchall()
     assert result != None 
-    return render_template('showlist.html', rows=result)
+    html = render_template('showlist.html', rows=result)
+    text = "\n".join([f"{row['count']}x {row['author']}" for row in result])
+    data = [dict(row) for row in result]
+    return return_accepted_type(text, data, html)
 
 @app.route("/showauthor", methods=['GET', 'POST'])
 def call_showauthor():
     author = get_post_arg('author', 'Sova, Antonín', True)
+    text = [author]
     with get_db() as db:
         sql = 'SELECT id, title, book_id, body FROM poems WHERE author=?'
         poems = db.execute(sql, (author,)).fetchall()
         data = []
+        text.append("SBÍRKY:")
         for book_id, p in groupby(poems, lambda p: p[2]):
             book = db.execute('SELECT title, year FROM books WHERE id = ?', (book_id,)).fetchone()
             # TODO sort poems according to corpus_id
             data.append({'book': book, 'poems': list(p)})
+            text.append(f"{book['title'], book['year']}")
+        text.append("BÁSNĚ:")
+        text.extend([f"{poem['id']}: {poem['title']}" for poem in poems])
     data.sort(key=lambda x: x['book'][1])
-    return render_template('showauthor.html', author=author, rows=data)
+    html = render_template('showauthor.html', author=author, rows=data)
+    
+    # TODO JSON to nevrací
+    return return_accepted_type("\n".join(text), {'author': author, 'books': data}, html)
 
 
 # Adapted from THEaiTRE server
@@ -244,7 +259,10 @@ def call_genmotives():
     motives = generate_with_openai_simple(text, system)
     with open(f'static/genmotives/{poemid}.txt', 'w') as outfile:
         print(motives, file=outfile)
-    return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
+    if request.accept_mimetypes.accept_html:
+        return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
+    else:
+        return return_accepted_type(motives, {'motives': motives.split("\n")})
 
 @app.route("/genimage", methods=['GET', 'POST'])
 def call_genimage():
@@ -259,8 +277,11 @@ def call_genimage():
     image_description = generate_image_with_openai(prompt, f'static/genimg/{poemid}.png')
     with open(f'static/genimg/{poemid}.txt', 'w') as outfile:
         print(image_description, file=outfile)
-    return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
-    # return show(poemid)
+    if request.accept_mimetypes.accept_html:
+        return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
+    else:
+        url = url_for('static', filename=f'genimg/{poemid}.png', _external=True)
+        return return_accepted_type(url, {'url': url, 'description': image_description})
 
 from gtts import gTTS
 @app.route("/gentts", methods=['GET', 'POST'])
@@ -272,8 +293,11 @@ def call_gentts():
     filename = f'static/gentts/{poemid}.mp3'
     tts = gTTS(text, lang='cs', tld='cz', slow=True)
     tts.save(filename)
-    return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
-    # return show(poemid)
+    if request.accept_mimetypes.accept_html:
+        return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
+    else:
+        url = url_for('static', filename=f'gentts/{poemid}.mp3', _external=True)
+        return return_accepted_type(url, {'url': url})
 
 @app.route("/search", methods=['GET', 'POST'])
 def call_search():
@@ -304,7 +328,9 @@ def call_search():
                     'title': poem["title"],
                     'body': poem["body"],
                     })
-    return render_template('show_search_result.html', query=query, results=results)
+    html = render_template('show_search_result.html', query=query, results=results)
+    text = "\n".join([f"{result['id']} ({result['author']}: {result['title']})" for result in results])
+    return return_accepted_type(text, results, html)
 
 @app.route("/openaigenerate", methods=['GET', 'POST'])
 def call_generate_openai():
