@@ -11,7 +11,7 @@ while true;
 do
     date
     echo Starting server...
-    EDUPO_SERVER_PATH=/edupo authbind --deep gunicorn app:app -b 0.0.0.0:80 -w 2 --access-logfile=-
+    EDUPO_SERVER_PATH=/edupo authbind --deep gunicorn app:app -b 0.0.0.0:80 -w 3 --access-logfile=-
     echo Server stopped, waiting $T for restart...
     sleep $T
     echo
