@@ -339,7 +339,12 @@ def show(data, syllformat=False):
     return data
 
 # Reads in file
-def show_file(filename = '78468.json', path='static/poemfiles'):
+def show_file(poemid = '78468', path='static/poemfiles'):
+
+    if poemid.endswith('.json'):
+        filename = poemid
+    else:
+        filename = poemid + '.json'
 
     with open(f'{path}/{filename}') as infile:
         j = json.load(infile)
@@ -347,7 +352,8 @@ def show_file(filename = '78468.json', path='static/poemfiles'):
     if type(j) == dict:
         # new format
         data = j
-        data['id'] = filename
+        if not 'id' in data:
+            data['id'] = poemid
         return show(data, True)
     
     elif type(j) == list:

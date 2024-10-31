@@ -90,19 +90,7 @@
 
     {% if not stanzas[0].verses[0].syllables %}
     <form method="post" action="analyze">
-        <input type="hidden" name="id" value="{{ id }}">
-        <input type="hidden" name="author" value="{{ author }}">
-        <input type="hidden" name="author_name" value="{{ author_name }}">
-        <input type="hidden" name="title" value="{{ title }}">
-        <input type="hidden" name="schools" value="{% for school in schools %}{{ school }} {% endfor %}">
-        <input type="hidden" name="b_title" value="{{ b_title }}">
-        <input type="hidden" name="born" value="{{ born }}">
-        <input type="hidden" name="died" value="{{ died }}">
-        <input type="hidden" name="subtitle" value="{{ subtitle }}">
-        <input type="hidden" name="publisher" value="{{ publisher }}">
-        <input type="hidden" name="place" value="{{ place }}">
-        <input type="hidden" name="year" value="{{ year }}">
-        <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
+        <input type="hidden" name="poemid" value="{{ id }}">
         <input name="submit" type="submit" value="Analyzovat">
     </form>
     {% endif %}

@@ -22,6 +22,8 @@ print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
 
+POEMFILES="static/poemfiles"
+
 # I have not been able to persuade Flask that it is under / locally but under
 # /edupo/ externally so this is a work-around
 EDUPO_SERVER_PATH = os.getenv('EDUPO_SERVER_PATH', '')
@@ -69,17 +71,6 @@ def get_post_arg(key, default=None, nonempty=False, isarray=False):
         result = default
     return result
 
-def add_metadata_to_dict(poem, fields=[
-    'id', 'author', 'author_name', 'title', 'schools', 'b_title',
-    'born', 'died', 'subtitle', 'publisher', 'place', 'year',
-    ]):
-    for field in fields:
-        value = get_post_arg(field, '')
-        if value == 'None':
-            value = ''
-        poem[field] = value
-    return poem
-
 # our defined order of priorities:
 # 1. HTML (because of web browsers)
 # 2. JSON (for APIs)
@@ -100,12 +91,13 @@ def return_accepted_type(text='', json=None, html=None):
             text += "\n"
         return Response(text, mimetype='text/plain')
 
+# TODO do we need to run show_poem_html.show() always?
 def get_poem_by_id(poemid=None):
     if poemid is None:
         poemid = get_post_arg('poemid')
 
-    if poemid.endswith('.json'):
-        data = show_poem_html.show_file(poemid)
+    if os.path.isfile(f"{POEMFILES}/{poemid}.json") or os.path.isfile(f"{POEMFILES}/{poemid}"):
+        data = show_poem_html.show_file(poemid, POEMFILES)
     else:
         with get_db() as db:
             sql = 'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id=? AND books.id=poems.book_id AND authors.identity=poems.author'
@@ -253,31 +245,26 @@ def text2id(text, add_timestamp=True):
 # TODO maybe add 'store' method to just store the poem?
 @app.route("/analyze", methods=['GET', 'POST'])
 def call_analyze():
-    text = get_post_arg('text', 'Matce pro kacířství syna vzali,\nna jesuitu jej vychovali;', True)
-    output, k = okvetuj(text)
-    poem_json = output[0]
-    add_metadata_to_dict(poem_json)
-    if poem_json['schools']:
-        poem_json['schools'] = [poem_json['schools']]
+    poemid = get_post_arg('poemid')
+    if poemid is None:
+        text = get_post_arg('text', 'Matce pro kacířství syna vzali,\nna jesuitu jej vychovali;', True)
+        poemid = text2id(text)
+        data = {'id': poemid}
     else:
-        poem_json['schools'] = []
+        data = get_poem_by_id(poemid)
+        text = poem2text(data)
     
-    if not poem_json['id']:
-        hash64 = text2id(text)
-        poemid = f'{hash64}.json'
-        poem_json['id'] = poemid
-        with open(f'static/poemfiles/{poemid}', 'w') as outfile:
-            json.dump(poem_json, outfile, ensure_ascii=False, indent=4)
-    else:
-        poemid = poem_json['id']
+    data['body'] = okvetuj(text)[0][0]['body']
+    
+    with open(f'static/poemfiles/{poemid}.json', 'w') as outfile:
+        json.dump(data, outfile, ensure_ascii=False, indent=4)
 
     if request.accept_mimetypes.accept_html:
         return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
     else:
-        data = show_poem_html.show(poem_json, True)
-        html = render_template('show_poem_html.html', **data)
+        data = show_poem_html.show(data, True)
         text = poem2text_with_header(data)
-        return return_accepted_type(text, data, html)
+        return return_accepted_type(text, data)
 
 @app.route("/genmotives", methods=['GET', 'POST'])
 def call_genmotives():
