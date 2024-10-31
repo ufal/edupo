@@ -372,5 +372,5 @@ def call_generate_openai():
 
 @app.route("/tajnejkill")
 def kill():
-    os._exit(0)
+    sys.exit(4)
 
