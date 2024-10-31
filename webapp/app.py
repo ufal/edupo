@@ -280,7 +280,7 @@ def call_genimage():
     if request.accept_mimetypes.accept_html:
         return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
     else:
-        url = url_for('static', filename=f'genimg/{poemid}.png', _external=True)
+        url = url_for('static', filename=f'genimg/{poemid}.png')
         return return_accepted_type(url, {'url': url, 'description': image_description})
 
 from gtts import gTTS
@@ -296,7 +296,7 @@ def call_gentts():
     if request.accept_mimetypes.accept_html:
         return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
     else:
-        url = url_for('static', filename=f'gentts/{poemid}.mp3', _external=True)
+        url = url_for('static', filename=f'gentts/{poemid}.mp3')
         return return_accepted_type(url, {'url': url})
 
 @app.route("/search", methods=['GET', 'POST'])
