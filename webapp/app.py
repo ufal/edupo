@@ -100,6 +100,46 @@ def return_accepted_type(text='', json=None, html=None):
             text += "\n"
         return Response(text, mimetype='text/plain')
 
+def get_poem_by_id(poemid=None):
+    if poemid is None:
+        poemid = get_post_arg('poemid')
+
+    if poemid.endswith('.json'):
+        data = show_poem_html.show_file(poemid)
+    else:
+        with get_db() as db:
+            sql = 'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id=? AND books.id=poems.book_id AND authors.identity=poems.author'
+            result = db.execute(sql, (poemid,)).fetchone()
+        assert result != None 
+        data = show_poem_html.show(result)
+    return data
+
+def poem2text(data):
+    """Convert poem (loaded from JSON) to plaintext."""
+
+    # the text itself
+    if data['plaintext']:
+        return data['plaintext']
+    else:
+        plaintext = list()
+        prev_stanza_id = 0
+        for stanza in data['body']:
+            for verse in stanza:
+                stanza_id = verse.get("stanza", 0)
+                if prev_stanza_id != stanza_id:
+                    plaintext.append('')
+                    prev_stanza_id = stanza_id
+                plaintext.append(verse["text"])
+            plaintext.append('')
+        return '\n'.join(plaintext)
+
+def poem2text_with_header(data):
+    text = poem2text(data)
+    author = data['author_name'] if data['author_name'] else 'Anonym'
+    title = data['title'] if data['title'] else 'Bez názvu'
+    
+    return f"{author}:\n{title}\n\n{text}"
+
 @app.route("/")
 def hello_world():
     return render_template('index.html')
@@ -134,32 +174,30 @@ def call_generuj():
     with open(f'static/poemfiles/{poemid}', 'w') as outfile:
         print(text, file=outfile)
 
-    data = {'clean_verses': clean_verses, 'raw_output': raw_output}
+    data = {
+            'clean_verses': clean_verses,
+            'raw_output': raw_output,
+            # 'poemid': poemid,
+            }
 
     html = render_template('show_poem_gen.html',
             clean_verses=clean_verses,
             raw='\n'.join(raw_output)
             )
     
+    # return return_accepted_type(poemid + "\n" + text, data, html)
     return return_accepted_type(text, data, html)
 
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     poemid = get_post_arg('poemid', str(random.randint(0,80229)), True)
-    if poemid.endswith('.json'):
-        data = show_poem_html.show_file(poemid)
-    else:
-        with get_db() as db:
-            sql = 'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id=? AND books.id=poems.book_id AND authors.identity=poems.author'
-            result = db.execute(sql, (poemid,)).fetchone()
-        assert result != None 
-        data = show_poem_html.show(result)
+    data = get_poem_by_id(poemid)
     
     # TODO the rendering should be lazy!!!
     # TODO turn this around... maybe each method returns a JSON, and some handling
     # converts it to the right format...?
     html = render_template('show_poem_html.html', **data)
-    text = poemdata2text(data)
+    text = poem2text_with_header(data)
     
     return return_accepted_type(text, data, html)
 
@@ -212,17 +250,7 @@ def text2id(text, add_timestamp=True):
     else:
         return hash64
 
-def poemdata2text(data):
-    text = ''
-    if data['author_name']:
-        text += data['author_name'] + '\n'
-    if data['title']:
-        text += data['title'] + '\n'
-    text += '\n'
-    text += data['plaintext']
-    
-    return text
-
+# TODO maybe add 'store' method to just store the poem?
 @app.route("/analyze", methods=['GET', 'POST'])
 def call_analyze():
     text = get_post_arg('text', 'Matce pro kacířství syna vzali,\nna jesuitu jej vychovali;', True)
@@ -234,29 +262,33 @@ def call_analyze():
     else:
         poem_json['schools'] = []
     
-    if request.accept_mimetypes.accept_html and not poem_json['id']:
+    if not poem_json['id']:
         hash64 = text2id(text)
         poemid = f'{hash64}.json'
+        poem_json['id'] = poemid
         with open(f'static/poemfiles/{poemid}', 'w') as outfile:
             json.dump(poem_json, outfile, ensure_ascii=False, indent=4)
+
+    if request.accept_mimetypes.accept_html:
         return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
     else:
         data = show_poem_html.show(poem_json, True)
         html = render_template('show_poem_html.html', **data)
-        text = poemdata2text(data)
+        text = poem2text_with_header(data)
         return return_accepted_type(text, data, html)
 
 @app.route("/genmotives", methods=['GET', 'POST'])
 def call_genmotives():
-    poemid = get_post_arg('poemid', None)
-    text = get_post_arg('text', None)
-    title = get_post_arg('title', None)
-    assert poemid != None and text != None
+    poemid = get_post_arg('poemid')
+    data = get_poem_by_id(poemid)
+    
     basne = 'básně'
-    if title:
-        basne = f'básně {title}'
+    if data['title']:
+        basne = f"básně {data['title']}"
     system = f"Jste literární vědec se zaměřením na poezii. Vaším úkolem je určit až 5 hlavních témat {basne}. Napište pouze tato témata, nic jiného, každé na samostatný řádek. Takto:\n 1. A\n 2. B\n 3. C"
-    motives = generate_with_openai_simple(text, system)
+    
+    motives = generate_with_openai_simple(poem2text(data), system)
+    
     with open(f'static/genmotives/{poemid}.txt', 'w') as outfile:
         print(motives, file=outfile)
     if request.accept_mimetypes.accept_html:
@@ -266,15 +298,15 @@ def call_genmotives():
 
 @app.route("/genimage", methods=['GET', 'POST'])
 def call_genimage():
-    poemid = get_post_arg('poemid', None)
-    text = get_post_arg('text', None)
-    title = get_post_arg('title', None)
-    assert poemid != None and text != None
-    if title:
-        prompt = f"Vygeneruj obrázek '{title}', ilustrující toto: {text}"
+    poemid = get_post_arg('poemid')
+    data = get_poem_by_id(poemid)
+    if data['title']:
+        prompt = f"Vygeneruj obrázek '{data['title']}', ilustrující toto: {poem2text(data)}"
     else:
-        prompt = f"Vygeneruj obrázek, ilustrující toto: {text}"
+        prompt = f"Vygeneruj obrázek, ilustrující toto: {poem2text(data)}"
+    
     image_description = generate_image_with_openai(prompt, f'static/genimg/{poemid}.png')
+    
     with open(f'static/genimg/{poemid}.txt', 'w') as outfile:
         print(image_description, file=outfile)
     if request.accept_mimetypes.accept_html:
@@ -286,12 +318,10 @@ def call_genimage():
 from gtts import gTTS
 @app.route("/gentts", methods=['GET', 'POST'])
 def call_gentts():
-    poemid = get_post_arg('poemid', None)
-    text = get_post_arg('text', None)
-    # title = get_post_arg('title', None)
-    assert poemid != None and text != None
+    poemid = get_post_arg('poemid')
+    data = get_poem_by_id(poemid)
     filename = f'static/gentts/{poemid}.mp3'
-    tts = gTTS(text, lang='cs', tld='cz', slow=True)
+    tts = gTTS(poem2text_with_header(data), lang='cs', tld='cz', slow=True)
     tts.save(filename)
     if request.accept_mimetypes.accept_html:
         return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))

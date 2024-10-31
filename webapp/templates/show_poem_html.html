@@ -75,7 +75,6 @@
             {% if title %}
             <input type="hidden" name="title" value="{{ title }}">
             {% endif %}
-            <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
             <input name="submit" type="submit" value="Generovat ilustrační obrázek k této básni"
             onclick="this.value='Generuji...'; return true;">
         </form>
@@ -84,10 +83,6 @@
         {% if id and not ttsfile %}
         <form method="post" action="gentts">
             <input type="hidden" name="poemid" value="{{ id }}">
-            {% if title %}
-            <input type="hidden" name="title" value="{{ title }}">
-            {% endif %}
-            <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
             <input name="submit" type="submit" value="Přečíst báseň pomocí automatické syntézy řeči"
             onclick="this.value='Generuji...'; return true;">
         </form>
@@ -115,10 +110,6 @@
     {% if id and not motives %}
     <form method="post" action="genmotives">
         <input type="hidden" name="poemid" value="{{ id }}">
-        {% if title %}
-        <input type="hidden" name="title" value="{{ title }}">
-        {% endif %}
-        <textarea name="text" hidden="hidden">{{ plaintext }}</textarea>
         <input name="submit" type="submit" value="Určit motivy">
     </form>
     {% endif %}

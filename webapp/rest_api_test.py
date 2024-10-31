@@ -11,8 +11,8 @@ logging.basicConfig(
 
 import requests
 
-base_url = 'https://quest.ms.mff.cuni.cz/edupo/'
-# base_url = 'http://127.0.0.1:5000/'
+# base_url = 'https://quest.ms.mff.cuni.cz/edupo/'
+base_url = 'http://127.0.0.1:5000/'
 
 if False:
     print('BASE')
@@ -53,7 +53,7 @@ if False:
     #print(response.text)
     print(response.json())
 
-if True:
+if False:
     data = {'rhyme_scheme': 'ABBA', 'metre': 'J'}
     headers = {"accept": "text/plain"}
     #headers = {"accept": "application/json"}
@@ -61,4 +61,32 @@ if True:
     response.encoding='utf8'
     print(response.text)
     #print(response.json())
+
+if True:
+    headers = {"accept": "application/json"}
+
+    data = {}
+    response = requests.post(f"{base_url}/gen", data=data, headers=headers)
+    text = "\n".join(response.json()['clean_verses'])
+    print('GENERATED', text, sep="\n")
+
+    data = {"text": text}
+    response = requests.post(f"{base_url}/analyze", data=data, headers=headers)
+    poemid = response.json()['id']
+    print('ANALYZED', poemid)
+    
+    data = {"poemid": poemid}
+    
+    response = requests.post(f"{base_url}/genmotives", data=data, headers=headers)
+    motives = response.json()['motives']
+    print('MOTIVES', *motives, sep="\n")
+
+    response = requests.post(f"{base_url}/genimage", data=data, headers=headers)
+    url = response.json()['url']
+    print('IMAGE', base_url+url)
+
+    response = requests.post(f"{base_url}/gentts", data=data, headers=headers)
+    url = response.json()['url']
+    print('TTS', base_url+url)
+
 
