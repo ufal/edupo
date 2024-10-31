@@ -268,6 +268,8 @@ def call_analyze():
         poem_json['id'] = poemid
         with open(f'static/poemfiles/{poemid}', 'w') as outfile:
             json.dump(poem_json, outfile, ensure_ascii=False, indent=4)
+    else:
+        poemid = poem_json['id']
 
     if request.accept_mimetypes.accept_html:
         return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
