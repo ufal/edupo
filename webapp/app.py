@@ -357,7 +357,4 @@ def call_generate_openai():
     result = generate_with_openai_simple(prompt)
     return render_template('openaigenerate.html', prompt=prompt, result=result)
 
-@app.route("/tajnejkill")
-def kill():
-    sys.exit(4)
 

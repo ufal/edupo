@@ -5,6 +5,6 @@ then
     echo Merging...
 	git merge
     echo Killing server...
-    curl http://127.0.0.1:80/tajnejkill
+    kill -HUP $(cat gunicorn.pid)
 fi >> autodeploy.log
 
