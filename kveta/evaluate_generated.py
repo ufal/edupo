@@ -14,12 +14,10 @@ def get_measures(input_txt):
         line = line.strip()
         if line.startswith('#'):
             line = line[1:].strip()
-        items = line.split('#')
-        if len(items) >= 4 and len(items[0].strip()) > 0 and items[1].strip().isdigit():
-            verse = items[3].strip()
-            if verse:
-                hints.append([items[0].strip(), items[1].strip(), items[2].strip()])
-                text += verse + "\n"
+        items = [v.strip() for v in line.split('#')]
+        if len(items) >= 4 and len(items[0]) > 0 and items[1].isdigit() and len(items[3]) > 2:
+            hints.append([items[0], items[1], items[2]])
+            text += items[3] + "\n"
         elif line == "":
             text += "\n"
 
