@@ -103,7 +103,7 @@ class RhymeDetection:
             if p in ct:
                 xsampa += ct[p]
             else:
-                print('Unknown character', p)
+                print('Unknown character', p, file=sys.stderr)
         return xsampa
 
     def conversion_table(self):        

@@ -65,16 +65,16 @@ class Morphodita:
         api_data = {"tagger": True, "parser": True, "model": "czech-fictree-ud-2.12-230717", "input": "vertical", "data": vertical_input}
         response = requests.post("https://lindat.mff.cuni.cz/services/udpipe/api/process", api_data)
         
-        try:
-            response.json()
-        except (RuntimeError, TypeError, NameError):
-            print(response)
+        #try:
+        #    response.json()
+        #except (RuntimeError, TypeError, NameError):
+        #    print(response)
 
         # sometimes more attempts are needed to get the output from the UDPipe
         if not response:
             for attempt in range(5):
                 time.sleep(3)
-                print("No result from UDPipe. Making another request.")
+                print("No result from UDPipe. Making another request.", file=sys.stderr)
                 response = requests.post("https://lindat.mff.cuni.cz/services/udpipe/api/process", api_data)
                 if response:
                     break

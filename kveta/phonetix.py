@@ -3,6 +3,7 @@ import re
 import string
 import csv
 import pickle
+import sys
 
 #from unidecode import unidecode
 
@@ -443,8 +444,8 @@ class Phonetix:
             ts = t.strip().split(' ')
             for j, w in enumerate(l['words']):
                 if len(ts) <= j:
-                    print("WARNING: token mismatch during the transcription:", t)
-                    print(l['words'])
+                    print("WARNING: token mismatch during the transcription:", t, file=sys.stderr)
+                    print(l['words'], file=sys.stderr)
                 else:
                     # pokud je slovem neslabičná předložka, které fonetika přidala nakonec švu, musí se tato šva odstranit
                     if poem[i]['words'][j]['morph'][0] == 'R' and ts[j][-1] == '@':
