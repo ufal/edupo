@@ -29,17 +29,20 @@ class RhymeDetection:
 
         fin_words = []
         for l in poem:
-            xsampa = self.cft_to_xsampa(l['words'][-1]['cft'])
+            if l['words']:
+                xsampa = self.cft_to_xsampa(l['words'][-1]['cft'])
             
-            # přidální případné předchozí neslabičné nebo slabičné předložky
-            if len(l['words']) >=2 and (l['words'][-2]['token'] in ['s', 'z', 'v', 'k'] and l['words'][-2]['morph'][0] == 'R' or l['words'][-2]["vec"] and l['words'][-2]["vec"]["prep"][0] == 1):
-                xsampa = self.cft_to_xsampa(l['words'][-2]['cft']) + xsampa
+                # přidální případné předchozí neslabičné nebo slabičné předložky
+                if len(l['words']) >=2 and (l['words'][-2]['token'] in ['s', 'z', 'v', 'k'] and l['words'][-2]['morph'][0] == 'R' or l['words'][-2]["vec"] and l['words'][-2]["vec"]["prep"][0] == 1):
+                    xsampa = self.cft_to_xsampa(l['words'][-2]['cft']) + xsampa
 
-            if l['words'][-1]['morph'][0] in ('N','A','D','V','C') and l['words'][-1]['lemma'] != 'být':
-                xsampa = "'" + xsampa
-            fin_words.append({'word': l['words'][-1]['token'],
-                              'sampa': xsampa,
-                              'stanza': l['stanza']})
+                if l['words'][-1]['morph'][0] in ('N','A','D','V','C') and l['words'][-1]['lemma'] != 'být':
+                    xsampa = "'" + xsampa
+                fin_words.append({'word': l['words'][-1]['token'],
+                                  'sampa': xsampa,
+                                  'stanza': l['stanza']})
+            else:
+                fin_words.append({'word': 'xxxxx', 'sampa': 'xxxxx', 'stanza': l['stanza']})
 
         r = self.tagger.tagging(fin_words)
 
@@ -69,11 +72,14 @@ class RhymeDetection:
                 # nejdřív otestujeme, jestli se v klastru nachází jednoslabičné slovo (bez předložky)
                 exists_monosyllabic_word = 0
                 for l in c:
-                    if len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"]) == 1 or (poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 0)):
+                    if poem[l]["words"] and len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"]) == 1 or (poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 0)):
                         exists_monosyllabic_word = 1
                         break
                 # nyní označujeme začátky rýmujících se částí
                 for l in c:
+                    if not poem[l]["words"]:
+                        poem[l]["rhyme"] = None
+                        continue
                     if not poem[l]["words"][-1]["syllables"]:
                         # poslední slovo je neslabičné
                         print("INFO: the last word in line is non-syllabic", file=sys.stderr)
