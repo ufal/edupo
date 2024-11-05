@@ -93,6 +93,11 @@
         <input type="hidden" name="poemid" value="{{ id }}">
         <input name="submit" type="submit" value="Analyzovat">
     </form>
+    {% else %}
+    <form method="post" action="analyze">
+        <input type="hidden" name="poemid" value="{{ id }}">
+        <input name="submit" type="submit" value="Analyzovat znova">
+    </form>
     {% endif %}
 
     {% if id and not motives %}
