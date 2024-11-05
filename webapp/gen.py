@@ -114,8 +114,8 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         poet_start = f"{poet_start} {first_words[0]}"
         # TODO force starts of following lines as well
 
-    result = _generate(poet_start)
-    result = result.split('\n')
+    raw = _generate(poet_start)
+    result = raw.split('\n')
 
     header = result[0]
     try:
@@ -134,7 +134,7 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
     
     # TODO výhledově možná rovnou vracet v JSON formátu
     clean_verses = clean(result[-len(rhyme_scheme)-1:])
-    return result, clean_verses
+    return raw, clean_verses
 
 if __name__=="__main__":
     try:

@@ -244,97 +244,98 @@ def show(data, syllformat=False):
                 f"static/gentts/{data['id']}.mp3")
         data['motives'] = contents_if_exists(
                 f"static/genmotives/{data['id']}.txt")
+
+    if 'body' in data:
+        # convert verses into a simpler format for displaying
+        data['stanzas'] = []
+        data['present_metres'] = set()
+        prev_stanza_id = 0
+        # list of lines (empty = empty line)
+        plaintext = list()
+        for stanza in data['body']:
+            verses = []
+            for verse in stanza:
+                rhyme = get_rhyme(verse)
+                metre, metre_index = get_metre(verse)
+                data['present_metres'].add(metre)
+                syllables = []
+                if syllformat:
+                    # Reduplicant
+                    if "reduplicant_type" in verse:
+                        reduplicant_type = verse["reduplicant_type"]
+                    else:
+                        # TODO remove this once the format is refactored
+                        reduplicant_type = get_reduplicant_type(verse["words"])
+                        # TODO default:
+                        # reduplicant_type = '0'
     
-    # convert verses into a simpler format for displaying
-    data['stanzas'] = []
-    data['present_metres'] = set()
-    prev_stanza_id = 0
-    # list of lines (empty = empty line)
-    plaintext = list()
-    for stanza in data['body']:
-        verses = []
-        for verse in stanza:
-            rhyme = get_rhyme(verse)
-            metre, metre_index = get_metre(verse)
-            data['present_metres'].add(metre)
-            syllables = []
-            if syllformat:
-                # Reduplicant
-                if "reduplicant_type" in verse:
-                    reduplicant_type = verse["reduplicant_type"]
-                else:
-                    # TODO remove this once the format is refactored
-                    reduplicant_type = get_reduplicant_type(verse["words"])
-                    # TODO default:
-                    # reduplicant_type = '0'
-
-                # initialize with empty initial syllable so that we can easily
-                # check against prev syllable and also so that we can add "after"
-                # to it
-                syllables = [{
-                    "parts": [],
-                    "position": "W",
-                    "stress": "0",
-                    "after": ""}]
-                for word in verse["words"]:
-                    if "punct_before" in word:
-                        syllables[-1]["after"] += word["punct_before"]
-                    # add all syllables
-                    for syllable in word["syllables"]:
-                        parts = construct_syllable_parts(syllable, syllables[-1])
-                        syllables.append({
-                            "parts": parts,
-                            "position": syllable["position"],
-                            "stress": syllable["stress"],
-                            "after": ""})
-                    # mark end of word
-                    if "punct" in word:
-                        syllables[-1]["after"] += word["punct"]
-                    if not syllables[-1]["after"].endswith(NBSP):
-                        syllables[-1]["after"] += NBSP
-        
-                if reduplicant_type == '2':
-                    mark_rhyming(syllables[-2]['parts'], 'v')
-                    mark_rhyming(syllables[-1]['parts'], 'a')
-                elif reduplicant_type == '1c':
-                    mark_rhyming(syllables[-1]['parts'], 'v')
-                elif reduplicant_type == '1o':
-                    mark_rhyming(syllables[-1]['parts'], 'c')
-
-            if prev_stanza_id != verse.get("stanza", 0):
-                plaintext.append('')
-                prev_stanza_id = verse.get("stanza", 0)
-            plaintext.append(verse["text"])
+                    # initialize with empty initial syllable so that we can easily
+                    # check against prev syllable and also so that we can add "after"
+                    # to it
+                    syllables = [{
+                        "parts": [],
+                        "position": "W",
+                        "stress": "0",
+                        "after": ""}]
+                    for word in verse["words"]:
+                        if "punct_before" in word:
+                            syllables[-1]["after"] += word["punct_before"]
+                        # add all syllables
+                        for syllable in word["syllables"]:
+                            parts = construct_syllable_parts(syllable, syllables[-1])
+                            syllables.append({
+                                "parts": parts,
+                                "position": syllable["position"],
+                                "stress": syllable["stress"],
+                                "after": ""})
+                        # mark end of word
+                        if "punct" in word:
+                            syllables[-1]["after"] += word["punct"]
+                        if not syllables[-1]["after"].endswith(NBSP):
+                            syllables[-1]["after"] += NBSP
             
-            verses.append({
-                'text': verse["text"],
-                'stanza': verse.get("stanza", 0),
-                'syllables': syllables,
-                # NOTE: classes verseNone and verse1..verse12 harwired in CSS
-                'rhymeclass': get_rhyme_class(rhyme),
-                'rhymeletter': get_rhyme_letter(rhyme),
-                'rhymesubscript': get_rhyme_subscript(rhyme),
-                'metre': metre,
-                'metrum': get_metrum(metre),
-                'rythm': verse["sections"],
-                'pattern': verse["metre"][metre_index][metre]['pattern'],
-                'foot': verse["metre"][metre_index][metre]['foot'],
-                'clause': verse["metre"][metre_index][metre]['clause'],
-                'narrators_gender': verse.get('narrators_gender', ''),
+                    if reduplicant_type == '2':
+                        mark_rhyming(syllables[-2]['parts'], 'v')
+                        mark_rhyming(syllables[-1]['parts'], 'a')
+                    elif reduplicant_type == '1c':
+                        mark_rhyming(syllables[-1]['parts'], 'v')
+                    elif reduplicant_type == '1o':
+                        mark_rhyming(syllables[-1]['parts'], 'c')
+    
+                if prev_stanza_id != verse.get("stanza", 0):
+                    plaintext.append('')
+                    prev_stanza_id = verse.get("stanza", 0)
+                plaintext.append(verse["text"])
+                
+                verses.append({
+                    'text': verse["text"],
+                    'stanza': verse.get("stanza", 0),
+                    'syllables': syllables,
+                    # NOTE: classes verseNone and verse1..verse12 harwired in CSS
+                    'rhymeclass': get_rhyme_class(rhyme),
+                    'rhymeletter': get_rhyme_letter(rhyme),
+                    'rhymesubscript': get_rhyme_subscript(rhyme),
+                    'metre': metre,
+                    'metrum': get_metrum(metre),
+                    'rythm': verse["sections"],
+                    'pattern': verse["metre"][metre_index][metre]['pattern'],
+                    'foot': verse["metre"][metre_index][metre]['foot'],
+                    'clause': verse["metre"][metre_index][metre]['clause'],
+                    'narrators_gender': verse.get('narrators_gender', ''),
+                    })
+    
+            plaintext.append('')
+            data['stanzas'].append({
+                'verses': verses,
                 })
-
-        plaintext.append('')
-        data['stanzas'].append({
-            'verses': verses,
-            })
+                
+            # TODO možná restartovat číslování rýmu po každé sloce
+            # (ale někdy jde rýmování napříč slokama)
             
-        # TODO možná restartovat číslování rýmu po každé sloce
-        # (ale někdy jde rýmování napříč slokama)
+        # listify set because JSON cannot serialize sets
+        data['present_metres'] = list(data['present_metres'])
         
-    # listify set because JSON cannot serialize sets
-    data['present_metres'] = list(data['present_metres'])
-    
-    data['plaintext'] = '\n'.join(plaintext)
+        data['plaintext'] = '\n'.join(plaintext)
     
     return data
 

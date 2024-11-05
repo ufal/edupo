@@ -26,7 +26,7 @@
     {% if author_name %}
     <h2>{{ author_name }}</h2>
     <p class="author">
-    {% if author != author_name %}vlastním jménem {{ author }}, {% endif %}
+    {% if author and author != author_name %}vlastním jménem {{ author }}, {% endif %}
     {%
     if born or died
     %}{%
@@ -88,17 +88,10 @@
         </form>
         {% endif %}
 
-    {% if not stanzas[0].verses[0].syllables %}
     <form method="post" action="analyze">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input name="submit" type="submit" value="Analyzovat">
     </form>
-    {% else %}
-    <form method="post" action="analyze">
-        <input type="hidden" name="poemid" value="{{ id }}">
-        <input name="submit" type="submit" value="Analyzovat znova">
-    </form>
-    {% endif %}
 
     {% if id and not motives %}
     <form method="post" action="genmotives">
@@ -135,6 +128,7 @@
     <a href="{{ imgfile }}"><img id="genimg" src="{{ imgfile }}" alt="{{ imgtitle }}" title="{{ imgtitle }}"></a>
     {% endif %}
 
+    {% if body %}
     <div class="body">
         <table class="stanza" cellspacing="0" cellpadding="0">
         {% for stanza in stanzas %}
@@ -197,6 +191,12 @@
             <tr class="stanzabreak"><td><br></td></tr>
         {% endfor %}
         </table>
+        
+        {% else %}
+        <p class="plaintext">{{ plaintext }}</p>
+        <hr>
+        <pre class="raw">{{ rawtext }}</pre>
+        {% endif %}
     </div>
 
 </body>

@@ -89,4 +89,29 @@ if True:
     url = response.json()['url']
     print('TTS', base_url+url)
 
+if False:
+    headers = {"accept": "application/json"}
+
+    data = {'text': 'Matce pro kacířství syna vzali,\nna jesuitu jej vychovali;', 'author': 'Rokyta', 'title': 'Buben'}
+    response = requests.post(f"{base_url}/input", data=data, headers=headers)
+    poemid = response.json()['id']
+    print('ID', poemid, sep="\n")
+
+    data = {"poemid": poemid}
+    response = requests.post(f"{base_url}/analyze", data=data, headers=headers)
+    # TODO show some output
+    print('ANALYZED') 
+    
+    response = requests.post(f"{base_url}/genmotives", data=data, headers=headers)
+    motives = response.json()['motives']
+    print('MOTIVES', *motives, sep="\n")
+
+    response = requests.post(f"{base_url}/genimage", data=data, headers=headers)
+    url = response.json()['url']
+    print('IMAGE', base_url+url)
+
+    response = requests.post(f"{base_url}/gentts", data=data, headers=headers)
+    url = response.json()['url']
+    print('TTS', base_url+url)
+
 

@@ -7,3 +7,10 @@ form {
     display: inline;
 }
 
+.plaintext {
+    white-space: pre-wrap;
+}
+.raw {
+    color: gray;
+    white-space: pre-wrap;
+}
