@@ -67,7 +67,7 @@ if True:
 
     data = {}
     response = requests.post(f"{base_url}/gen", data=data, headers=headers)
-    text = "\n".join(response.json()['clean_verses'])
+    text = response.json()['plaintext']
     print('GENERATED', text, sep="\n")
 
     data = {"text": text}

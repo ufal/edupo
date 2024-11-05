@@ -194,6 +194,9 @@
         
         {% else %}
         <p class="plaintext">{{ plaintext }}</p>
+        {% endif %}
+        
+        {% if rawtext %}
         <hr>
         <pre class="raw">{{ rawtext }}</pre>
         {% endif %}

@@ -185,4 +185,8 @@ span.rhyming {
     width: 50%;
 }
 
+.raw {
+    color: gray;
+    white-space: pre-wrap;
+}
 
