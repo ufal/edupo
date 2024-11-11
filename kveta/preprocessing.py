@@ -40,7 +40,7 @@ def _clean_text(text):
     text = re.sub('\r\n', '\n', text)
     text = re.sub('\r', '\n', text)
     # Remove numbers
-    text = re.sub('[0-9]+', ' ', text)
+    #text = re.sub('[0-9]+', ' ', text)
     # Replace tabs with blankspace
     text = re.sub('\t', ' ', text)
     # Replace whitespaces neighbouring with newline

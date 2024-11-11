@@ -71,9 +71,27 @@ class Phonetix:
             (r'(\w)[\'’‘](\w)', r'\1\2'), # "byl's", pokud je jako jeden token
             # ('₆(\s)', r'₆\1₆'),
             # ('([^₆])(\s)', r'\1 \2 '),
-            (r'["#$%&\'’‘()*+/:;<=>@[\]^_`{|}~–]|[0-9]', r' '),
+            (r'["#$%&\'’‘()*+/:;<=>@[\]^_`{|}~–]', r' '),
             (r' +', r'₅'),
             (r'₅*₆+₅*', r'₆'),
+        ))
+    
+    def numbers(self):
+        '''
+        Replace numbers expressed by digits by respective word forms.
+        '''
+        # TODO: líp udělat víceciferná čísla
+        self.replace((
+            (r'0', r'nula'),
+            (r'1', r'jedna'),
+            (r'2', r'dva'),
+            (r'3', r'tři'),
+            (r'4', r'čtyři'),
+            (r'5', r'pět'),
+            (r'6', r'šest'),
+            (r'7', r'sedm'),
+            (r'8', r'osm'),
+            (r'9', r'devět'),
         ))
 
     def lowercase(self):
@@ -400,6 +418,7 @@ class Phonetix:
         '''
         self.t = text
         self.punctuation()
+        self.numbers()
         self.lowercase()
         self.loanwords()
         self.loanchars()
