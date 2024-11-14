@@ -75,18 +75,35 @@ def get_post_arg(key, default=None, nonempty=False, isarray=False):
 # 1. HTML (because of web browsers)
 # 2. JSON (for APIs)
 # 3. TEXT (fallback)
-# the text can be text or URL; maybe we should split and distinguish
+# the text can be text or URL; TODO maybe we should split and distinguish
 # text/plain and text/uri-list
-def return_accepted_type(text='', json=None, html=None):
-    if html is not None and request.accept_mimetypes.accept_html:
+# the HTML can be HTML or redirect; TODO maybe redirects are stupid for API?
+def get_accepted_type():
+    # figure out what to return
+    return_type = get_post_arg('accept')
+    if return_type not in ['html', 'txt', 'json']:
+        return_type = None
+    if not return_type:
+        if request.accept_mimetypes.accept_html:
+            return_type = 'html'
+        elif request.accept_mimetypes.accept_json:
+            return_type = 'json'
+        else:
+            return_type = 'txt'
+    return return_type
+
+def return_accepted_type(text, json, html):
+    return_type = get_accepted_type()
+    if return_type == 'html':
         return html
-    elif json is not None and request.accept_mimetypes.accept_json:
+    elif return_type == 'json':
         if type(json) == str:
             # already JSON
             return Response(json, mimetype='application/json')
         else:
             return jsonify(json)
     else:
+        assert return_type == 'txt'
         if not text.endswith("\n"):
             text += "\n"
         return Response(text, mimetype='text/plain')
@@ -99,18 +116,7 @@ def return_accepted_type_for_poemid(data, html_template=None):
     
     assert data['id'], 'id must be specified in data'
 
-    # figure out what to return
-    return_type = get_post_arg('accept')
-    if return_type not in ['html', 'txt', 'json']:
-        return_type = None
-    if not return_type:
-        if request.accept_mimetypes.accept_html:
-            return_type = 'html'
-        elif request.accept_mimetypes.accept_json:
-            return_type = 'json'
-        else:
-            return_type = 'txt'
-
+    return_type = get_accepted_type()
     if return_type == 'html':
         if html_template:
             return render_template(html_template, **data)
