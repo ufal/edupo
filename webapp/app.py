@@ -128,14 +128,17 @@ def poem2text(data):
             plaintext.append('')
         return '\n'.join(plaintext)
 
-def poem2text_with_header(data):
+def poem2text_with_header(data, includeid=True):
+    prefix = ''
+    if includeid:
+        prefix = f"{data['id']}\n\n"
     author = data['author_name'] if data['author_name'] else 'Anonym'
     title = data['title'] if data['title'] else 'Bez názvu'
     text = poem2text(data)
     if not text.endswith("\n"):
         text += "\n"
     
-    return f"{data['id']}\n\n{author}:\n{title}\n\n{text}"
+    return f"{prefix}{author}:\n{title}\n\n{text}"
 
 import base64
 HASH_WIDTH_BYTES = sys.hash_info.width//8
@@ -348,7 +351,8 @@ def call_gentts():
     poemid = get_post_arg('poemid')
     data = get_poem_by_id(poemid)
     filename = f'static/gentts/{poemid}.mp3'
-    tts = gTTS(poem2text_with_header(data), lang='cs', tld='cz', slow=True)
+    text = poem2text_with_header(data, includeid=False)
+    tts = gTTS(text, lang='cs', tld='cz', slow=True)
     tts.save(filename)
     
     url = url_for('static', filename=f'gentts/{poemid}.mp3')
