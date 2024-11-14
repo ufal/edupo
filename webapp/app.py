@@ -98,15 +98,28 @@ def return_accepted_type_for_poemid(data, html_template=None):
     """redirect for html unless html_template, poem2text_with_header for text"""
     
     assert data['id'], 'id must be specified in data'
-    
-    if request.accept_mimetypes.accept_html:
+
+    # figure out what to return
+    return_type = get_post_arg('accept')
+    if return_type not in ['html', 'txt', 'json']:
+        return_type = None
+    if not return_type:
+        if request.accept_mimetypes.accept_html:
+            return_type = 'html'
+        elif request.accept_mimetypes.accept_json:
+            return_type = 'json'
+        else:
+            return_type = 'txt'
+
+    if return_type == 'html':
         if html_template:
             return render_template(html_template, **data)
         else:
             return redirect_for_poemid(data['id'])
-    elif request.accept_mimetypes.accept_json:
+    elif return_type == 'json':
         return jsonify(data)
     else:
+        assert return_type == 'txt'
         return Response(poem2text_with_header(data), mimetype='text/plain')
 
 def poem2text(data):

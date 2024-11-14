@@ -11,8 +11,8 @@ logging.basicConfig(
 
 import requests
 
-base_url = 'https://quest.ms.mff.cuni.cz/edupo/'
-# base_url = 'http://127.0.0.1:5000/'
+# base_url = 'https://quest.ms.mff.cuni.cz/edupo/'
+base_url = 'http://127.0.0.1:5000/'
 
 if False:
     print('BASE')
@@ -67,15 +67,14 @@ if True:
 
     data = {}
     response = requests.post(f"{base_url}/gen", data=data, headers=headers)
+    poemid = response.json()['id']
     text = response.json()['plaintext']
     print('GENERATED', text, sep="\n")
 
-    data = {"text": text}
-    response = requests.post(f"{base_url}/analyze", data=data, headers=headers)
-    poemid = response.json()['id']
-    print('ANALYZED', poemid)
-    
     data = {"poemid": poemid}
+    response = requests.post(f"{base_url}/analyze", data=data, headers=headers)
+    # TODO show some output
+    print('ANALYZED', poemid)
     
     response = requests.post(f"{base_url}/genmotives", data=data, headers=headers)
     motives = response.json()['motives']
