@@ -15,7 +15,7 @@ def get_measures(input_txt):
         if line.startswith('#'):
             line = line[1:].strip()
         items = [v.strip() for v in line.split('#')]
-        if len(items) >= 4 and len(items[0]) > 0 and items[1].isdigit() and len(items[3]) > 2:
+        if len(items) >= 4 and len(items[0]) > 0 and items[0] != 'N' and items[1].isdigit() and items[2] != 'NON' and len(items[3]) > 0:
             hints.append([items[0], items[1], items[2]])
             text += items[3] + "\n"
         elif line == "":
