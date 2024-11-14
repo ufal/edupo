@@ -1,4 +1,5 @@
 import re
+import sys
 
 class Syllables:
 
@@ -7,7 +8,7 @@ class Syllables:
         Initialize Syllables
         '''
         self.SYLLABLE_PEAKS = "aeiouáéíóúAEORLBP@"
-        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y", "o": "o", "u": "u", "á": "á", "é": "é", "í": "í|ý", "ó": "ó", "ú": "ú|ů", "A": "au", "E": "eu", "O": "ou", "R": "r", "L": "l", "P": "m", "B": "n", "@": "@"}
+        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y", "o": "o|au", "u": "u", "á": "á|aa", "é": "é|ai", "í": "í|ý|ü|ie|ee", "ó": "ó", "ú": "ú|ů", "A": "au", "E": "eu", "O": "ou", "R": "r", "L": "l", "P": "m", "B": "n", "@": "@"}
         self.LONG_PEAKS = "áéíóúAEO"
 
     def split_words_to_syllables(self, poem):
@@ -121,6 +122,9 @@ class Syllables:
                 #    syllables[ii]["length"] = length
 
                 poem[i]['words'][j]['syllables'] = syllables
+                if len(syllables) == 0 and len(ortographic) > 1:
+                    print("Splitting to syllables failed:", ortographic, file=sys.stderr)
+
 
         return poem
 
