@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response
+from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response
 from itertools import groupby
 import os
 from gen import generuj
@@ -235,9 +235,13 @@ def hello_world():
 @app.route("/prdel")
 def prdel_world():
     text = "Hello, Prdel myš!"
-    return return_accepted_type(text, {'text': text}, f"<p>{text}</p>")
+    response = make_response(return_accepted_type(text, {'text': text}, f"<p>{text}</p>"))
+    response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+    response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
     # also can use a JSON string as json:
     # return return_accepted_type(text, "{'text': "+text+"}", f"<p>{text}</p>")
+    return response
 
 @app.route("/input", methods=['GET', 'POST'])
 def call_store():
