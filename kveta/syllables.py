@@ -7,9 +7,11 @@ class Syllables:
         '''
         Initialize Syllables
         '''
-        self.SYLLABLE_PEAKS = "aeiouáéíóúAEORLBP@"
-        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y", "o": "o|au", "u": "u", "á": "á|aa", "é": "é|ai", "í": "í|ý|ü|ie|ee", "ó": "ó", "ú": "ú|ů", "A": "au", "E": "eu", "O": "ou", "R": "r", "L": "l", "P": "m", "B": "n", "@": "@"}
+        self.SYLLABLE_PEAKS = "aeiouáéíóúAEORLMBPJK@"
+        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y|ü", "o": "o|au", "u": "u", "á": "á|aa", "é": "é|ai|ö|ae|ei|ee|oe|ä", "í": "í|ý|ü|ie|ee", "ó": "ó", "ú": "ú|ů|ou", "A": "au", "E": "eu", "O": "ou", "R": "r", "L": "l", "M": "m", "P": "ř", "B": "n", "J": "s", "K": "š", "@": "@"}
         self.LONG_PEAKS = "áéíóúAEO"
+
+        self.VOWELS = "aàáäâåeèéêiìíoòóöôuùüůúyýæøїаеёиоуыэюя"
 
     def split_words_to_syllables(self, poem):
 
@@ -123,8 +125,56 @@ class Syllables:
 
                 poem[i]['words'][j]['syllables'] = syllables
                 if len(syllables) == 0 and len(ortographic) > 1:
-                    print("Splitting to syllables failed:", ortographic, file=sys.stderr)
-
+                    
+                    print("Splitting to syllables failed:", ortographic, fonetic, file=sys.stderr)
+                    
+                    # zkusí se triviální dělení po skupinách samohlásek
+                    f_pos = 0
+                    o_pos = 0
+                    ph_consonants = ""
+                    ort_consonants = ""
+                    while f_pos < len(fonetic):
+                        if fonetic[f_pos] in self.SYLLABLE_PEAKS:
+                            ph_vowels = fonetic[f_pos]
+                            found = False
+                            ort_vowels = ""
+                            while o_pos < len(ortographic):
+                                if ortographic_lower[o_pos] in self.VOWELS:
+                                    while o_pos < len(ortographic) and ortographic_lower[o_pos] in self.VOWELS:
+                                        ort_vowels += ortographic[o_pos]
+                                        o_pos += 1
+                                    length = 0
+                                    if ph_vowels in self.LONG_PEAKS:
+                                        length = 1
+                                    syllables.append({"ph_consonants": ph_consonants,
+                                                      "ph_vowels": ph_vowels,
+                                                      "ph_end_consonants": "",
+                                                      "ort_consonants": ort_consonants,
+                                                      "ort_vowels": ort_vowels,
+                                                      "ort_end_consonants": "",
+                                                      "length": length})
+                                    ph_consonants = ""
+                                    ort_consonants = ""
+                                    break
+                                else:
+                                    while o_pos < len(ortographic) and not ortographic_lower[o_pos] in self.VOWELS:
+                                        ort_consonants += ortographic[o_pos]
+                                        o_pos += 1
+                        else:
+                            ph_consonants += fonetic[f_pos]
+                        f_pos += 1
+                    if syllables:
+                        syllables[-1]["ph_end_consonants"] = ph_consonants
+                        syllables[-1]["ort_end_consonants"] = ortographic[o_pos:]
+                    else:
+                        syllables = [{"ph_consonants": "",
+                                      "ph_vowels": "",
+                                      "ph_end_consonants": fonetic,
+                                      "ort_consonants": "",
+                                      "ort_vowels": "",
+                                      "ort_end_consonants": ortographic,
+                                      "length": 0}]
+                    print("Backup splitting:", syllables, file=sys.stderr)
 
         return poem
 

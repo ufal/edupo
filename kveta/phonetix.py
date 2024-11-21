@@ -517,6 +517,7 @@ class Phonetix:
 
             'c': 'c',
             '3': 'č',
+            '4': 'č',
             'm': 'm',
             'n': 'n',
             'N': 'ň',
@@ -530,6 +531,13 @@ class Phonetix:
             'j': 'j',
             'R': 'ř', # 'P\\',
             'P': 'Ř', #: 'Q\\',
+
+            'M': 'M', # slabikotvorné M
+            'W': 'z', # slabikotvorné Z
+            'J': 'J', # slabikotvorné S
+            'B': 'n', # slabikotvorné N
+            'K': 'K', # slabikotvorné Š
+
         }
         for i, l in enumerate(poem):
             for j, w in enumerate(l['words']):
