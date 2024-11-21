@@ -98,21 +98,25 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
     if syllables_count not in range(1,20):
         syllables_count = random.choice(range(6, 13))
 
-    poet_start = f'# {rhyme_scheme} # {year}\n{metre} # {syllables_count} #'
+    poet_start = f'# {rhyme_scheme} # {year}\n'
     # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
     if first_line:
         # !! TODO fix this !!
         ending_hint = first_line[:3]  
         # !! TODO set syllables_count properly !!
-        poet_start = f"{poet_start} # {ending_hint} # {first_line}\n"
+        poet_start = f"{poet_start}{metre} # {syllables_count} # {ending_hint} # {first_line}\n"
     elif first_words:
         assert type(first_words) == list, "first_words must be list"
-        if len(first_words) > 1:
-            logging.warn('Setting multiple first words not implemented yet, just using the first word!')
-        # generate ending hint
-        poet_start = _generate(poet_start, stop_strings=' #')
-        poet_start = f"{poet_start} {first_words[0]}"
-        # TODO force starts of following lines as well
+        for word in first_words:
+            poet_start = f'{poet_start}{metre} # {syllables_count} #'
+            # generate ending hint
+            poet_start = _generate(poet_start, stop_strings=' #')
+            # force word
+            poet_start = f"{poet_start} {word}"
+            # generate line
+            poet_start = _generate(poet_start, stop_strings='\n')
+    else:
+        poet_start = f'{poet_start}{metre} # {syllables_count} #'
 
     raw = _generate(poet_start)
     result = raw.split('\n')
