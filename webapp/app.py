@@ -2,6 +2,7 @@
 #coding: utf-8
 
 from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response
+from flask_cors import CORS
 from itertools import groupby
 import os
 from gen import generuj
@@ -18,7 +19,7 @@ sys.path.append("../kveta")
 from kveta import okvetuj
 
 app = Flask(__name__)
-# CORS(app)  # Povolit CORS pro všechny endpointy
+CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
