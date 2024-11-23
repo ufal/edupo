@@ -18,6 +18,7 @@ sys.path.append("../kveta")
 from kveta import okvetuj
 
 app = Flask(__name__)
+CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
@@ -234,18 +235,20 @@ def hello_world():
 
 @app.route("/prdel")
 def prdel_world():
-    if request.method == "OPTIONS":
-        response = make_response()
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-        response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response
+    # if request.method == "OPTIONS":
+    #    response = make_response()
+    #    response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+    #    response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
+    #    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+    #    response.headers.add("Access-Control-Allow-Credentials", "true")
+    #    return response
 
     text = "Hello, Prdel myš!"
-    response = make_response(return_accepted_type(text, {'text': text}, f"<p>{text}</p>"))
-    response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-    response.headers.add("Access-Control-Allow-Credentials", "true")
+    response = return_accepted_type(text, {'text': text}, f"<p>{text}</p>")
+    # response = make_response(return_accepted_type(text, {'text': text}, f"<p>{text}</p>"))
+    # response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+    # response.headers.add("Access-Control-Allow-Credentials", "true")
+    
     # also can use a JSON string as json:
     # return return_accepted_type(text, "{'text': "+text+"}", f"<p>{text}</p>")
     return response
