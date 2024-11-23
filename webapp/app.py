@@ -18,7 +18,7 @@ sys.path.append("../kveta")
 from kveta import okvetuj
 
 app = Flask(__name__)
-CORS(app)  # Povolit CORS pro všechny endpointy
+# CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
