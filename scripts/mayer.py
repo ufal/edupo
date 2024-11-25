@@ -17,7 +17,7 @@ base_url = 'https://quest.ms.mff.cuni.cz/edupo/'
 headers = {"accept": "application/json"}
 
 def analyze(text, title):
-    data = {'text': text, 'author': 'František Ladislav Čelakovský', 'title': title}
+    data = {'text': text, 'author': 'Rudolf Mayer', 'title': title}
     response = requests.post(f"{base_url}/input", data=data, headers=headers)
     poemid = response.json()['id']
 
@@ -29,21 +29,23 @@ def analyze(text, title):
 title=None
 text=list()
 
+prevline = ''
+
 for line in sys.stdin:
     line = line.strip()
-    if line.startswith("TITLE"):
+    if line and (prevline == line):
         if not title is None:
-            text = "\n".join(text)
-            logging.info(f"GENMOTIVES FOR {title} {repr(text)}")
-            motives = analyze(text, title)
-            print(title)
-            print(text)
-            print('MOTIVY:')
-            print(*motives, sep="\n")
+            plaintext = "\n".join(text)
+            logging.info(f"GENMOTIVES FOR {title} {repr(plaintext)}")
+            motives = analyze(plaintext, title)
+            print(f'<h1>{title}</h1>')
+            print(*text, sep="<br>")
+            print('<h2>MOTIVY:</h2>')
+            print(*motives, sep="<br>")
 
-        _, title = line.split(' ', 1)
+        title = line
         text=list()
     else:
-        text.append(line)
-
+        text.append(prevline)
+        prevline = line
 
