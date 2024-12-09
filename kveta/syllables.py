@@ -123,7 +123,6 @@ class Syllables:
                 #        length = 1
                 #    syllables[ii]["length"] = length
 
-                poem[i]['words'][j]['syllables'] = syllables
                 if len(syllables) == 0 and len(fonetic) > 1:
                     
                     print("Splitting to syllables failed:", ortographic, fonetic, file=sys.stderr)
@@ -175,6 +174,8 @@ class Syllables:
                                       "ort_end_consonants": ortographic,
                                       "length": 0}]
                     print("Backup splitting:", syllables, file=sys.stderr)
-
+                
+                poem[i]['words'][j]['syllables'] = syllables
+ 
         return poem
 
