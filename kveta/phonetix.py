@@ -535,7 +535,7 @@ class Phonetix:
             'M': 'M', # slabikotvorné M
             'W': 'z', # slabikotvorné Z
             'J': 'J', # slabikotvorné S
-            'B': 'n', # slabikotvorné N
+            'B': 'N', # slabikotvorné N
             'K': 'K', # slabikotvorné Š
 
         }
