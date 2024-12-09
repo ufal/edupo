@@ -16,6 +16,12 @@
     </script>
 </head>
 <body>
+    
+    <div id="qrimg">
+    <a href="static/qrcodes/{{ id }}.png"><img src="static/qrcodes/{{ id }}.png" alt="QR kód" title="QR kód"></a>
+    <br> 
+    <button onclick="navigator.clipboard.writeText('https://quest.ms.mff.cuni.cz/edupo/show?poemid={{ id }}');">Zkopírovat odkaz</button>
+    </div>
 
     {% if title %}
     <h1>{{ title }}</h1>
@@ -102,7 +108,7 @@
 
     </div>
 
-    <hr>
+    <hr style="clear: both">
     <div id="metreinfo">
         {% if 'T' in present_metres %}
         <p><b>trochej</b>: dvouslabičné metrum s přízvukem na první slabice</p>

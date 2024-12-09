@@ -231,6 +231,15 @@ def contents_if_exists(filename):
     else:
         return None
 
+def ensure_qr_code(poemid):
+    filename = f'static/qrcodes/{poemid}.png'
+    if not os.path.isfile(filename):
+        import qrcode
+        base_url = 'https://quest.ms.mff.cuni.cz/edupo/show?poemid='
+        url = f'{base_url}{poemid}'
+        img = qrcode.make(url)
+        img.save(filename)
+
 def show(data, syllformat=False):
     data = defaultdict(str, data)
     data['json'] = json.dumps(data, indent=4, ensure_ascii=False)
@@ -244,6 +253,7 @@ def show(data, syllformat=False):
                 f"static/gentts/{data['id']}.mp3")
         data['motives'] = contents_if_exists(
                 f"static/genmotives/{data['id']}.txt")
+        ensure_qr_code(data['id'])
 
     if 'body' in data:
         # convert verses into a simpler format for displaying
