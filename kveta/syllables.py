@@ -124,7 +124,7 @@ class Syllables:
                 #    syllables[ii]["length"] = length
 
                 poem[i]['words'][j]['syllables'] = syllables
-                if len(syllables) == 0 and len(ortographic) > 1:
+                if len(syllables) == 0 and len(fonetic) > 1:
                     
                     print("Splitting to syllables failed:", ortographic, fonetic, file=sys.stderr)
                     
