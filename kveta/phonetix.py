@@ -533,7 +533,7 @@ class Phonetix:
             'P': 'Ř', #: 'Q\\',
 
             'M': 'M', # slabikotvorné M
-            'W': 'z', # slabikotvorné Z
+            'W': 'Y', # slabikotvorné Z
             'J': 'J', # slabikotvorné S
             'B': 'N', # slabikotvorné N
             'K': 'K', # slabikotvorné Š
