@@ -174,8 +174,9 @@ class Syllables:
                                       "ort_end_consonants": ortographic,
                                       "length": 0}]
                     print("Backup splitting:", syllables, file=sys.stderr)
-                
+                    print("Backup splitting on line:", line['text'], file=sys.stderr)
+                    print("Backup splitting text:", '|'.join([s['ort_consonants'] + s['ort_vowels'] + s['ort_end_consonants'] for s in syllables]), file=sys.stderr)
                 poem[i]['words'][j]['syllables'] = syllables
- 
+
         return poem
 
