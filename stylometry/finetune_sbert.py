@@ -5,6 +5,7 @@ import sys
 import numpy as np
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 # Load the data
 print("Loading the data...", file=sys.stderr, flush=True)
@@ -25,7 +26,7 @@ with open("lm_data", 'r') as file:
 
 # Load the model
 print("Loading the model...", file=sys.stderr, flush=True)
-model = SentenceTransformer('all-MiniLM-L6-v2') # stsb-xlm-r-multilingual # all-MiniLM-L6-v2 nomic-ai/nomic-embed-text-v1
+model = SentenceTransformer('ufal/robeczech-base') # stsb-xlm-r-multilingual # ufal/robeczech-base # all-MiniLM-L6-v2 nomic-ai/nomic-embed-text-v1
 
 # Generate training triplets
 print("Generating training triplets...", file=sys.stderr)
@@ -50,21 +51,25 @@ train_loss = losses.TripletLoss(model=model)
 # Finetune the model
 print("Finetuning the model...", file=sys.stderr)
 model.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
+model.save('robeczech-100000')
 
 # Visualize data using T-SNE
 embeddings = []
-labels = []
 
 print("Computing T-SNE...", file=sys.stderr)
 
 investigated_authors = ["Auředníček, Otakar", "Březina, Otokar", "Kollár, Jan", "Dyk, Viktor", "Erben, Karel Jaromír", "Neruda, Jan", "Mácha, Karel Hynek", "Zeyer, Julius", "Dostál-Lutinov, Karel", "Puchmajer, Antonín Jaroslav", "Hálek, Vítězslav", "Čelakovský, Ladislav"]
-colors = ['r','g','b','c','m','y','k','greenyellow','orange','silver','gold','pink']
+
+colors = ListedColormap(['r','g','b','c','m','y','k','greenyellow','orange','silver','gold','pink'])
+values = []
+labels = []
 
 for i, author in enumerate(investigated_authors): 
     for poem in data[author]:
         emb = model.encode(poem)
         embeddings.append(emb)
-        labels.append(colors[i])
+        values.append(i)
+        labels.append(author)
 
 X = np.array(embeddings)
 X_embedded = TSNE(n_components=2, learning_rate='auto', init='random', perplexity=3).fit_transform(X)
@@ -72,8 +77,10 @@ dfx = X_embedded[:, 0]
 dfy = X_embedded[:, 1]
 
 fig, ax = plt.subplots()
-ax.scatter(dfx, dfy, c=labels)
-plt.savefig('poem_clusters_tsnee.png')
+scatter = ax.scatter(dfx, dfy, c=values, cmap=colors, s=2, label=labels)
+ax.legend()
+#legend = ax.legend(*scatter.legend_elements()[0], labels=investigated_authors)
+plt.savefig('clusters_robeczech_10000triplets.png')
 
 
 
