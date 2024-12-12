@@ -16,6 +16,7 @@ from openai_helper import *
 
 import sys
 sys.path.append("../kveta")
+sys.path.append("../scripts/diphthongs")
 from kveta import okvetuj
 
 app = Flask(__name__)
