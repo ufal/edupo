@@ -5,6 +5,6 @@ then
     echo Merging...
 	git merge
     echo Killing server...
-    kill -HUP $(cat gunicorn.pid)
+    kill -HUP $(cat backend/gunicorn.pid)
 fi >> autodeploy.log
 
