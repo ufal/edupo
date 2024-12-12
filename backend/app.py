@@ -245,7 +245,7 @@ def prdel_world():
     #    response.headers.add("Access-Control-Allow-Credentials", "true")
     #    return response
 
-    text = "Hello, Prdel!"
+    text = "Hello, Kyselá Prdel!"
     response = return_accepted_type(text, {'text': text}, f"<p>{text}</p>")
     # response = make_response(return_accepted_type(text, {'text': text}, f"<p>{text}</p>"))
     # response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
