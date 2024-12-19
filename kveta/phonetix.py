@@ -354,7 +354,7 @@ class Phonetix:
         '''
         Process sonants: mark syllabic ones, process their assimilation
         '''
-        c = self.c.replace('j', '')
+        c = self.c.replace('j', '') + 'lr' # předslabikotvorný, r může být jiné r, např 'vrrrr'
         self.replace((
             # TODO -- přidat "rl " jako možnost třídy
             ('([{0}])r(₅|₆)'.format(c), r'\1R\2'),
@@ -517,7 +517,7 @@ class Phonetix:
 
             'c': 'c',
             '3': 'č',
-            '4': 'č',
+            '4': 'Ž',
             'm': 'm',
             'n': 'n',
             'N': 'ň',
@@ -537,6 +537,7 @@ class Phonetix:
             'J': 'J', # slabikotvorné S
             'B': 'N', # slabikotvorné N
             'K': 'K', # slabikotvorné Š
+            'Y': 'V', # slabikotvorné Ž
 
         }
         for i, l in enumerate(poem):
