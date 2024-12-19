@@ -59,7 +59,7 @@ class Line2Vec:
                 lengths.append(1)
             if s in ('a', 'e', 'i', 'o', 'u', 'R', 'L', 'M', 'N', 'P', 'B', 'Y', 'J', 'K', '@'):
                 lengths.append(0)
-
+        
         return lengths
                 
 
