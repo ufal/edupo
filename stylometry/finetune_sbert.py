@@ -28,6 +28,31 @@ def load_anotated_poems_from_file(filename):
                 current_poem += line
     return data
 
+def split_data(data, ratio):
+    training_data = dict()
+    testing_data = dict()
+    for author in list(data.keys()):
+        for i, poem in enumerate(data[author]):
+            if i % ratio == 0:
+                if not author in testing_data:
+                    testing_data[author] = [poem]
+                else:
+                    testing_data[author].append(poem)
+            else:
+                if not author in training_data:
+                    training_data[author] = [poem]
+                else:
+                    training_data[author].append(poem)
+#        # remove duplicities
+#        for i, poem in enumerate(data[author]):
+#            for tr in training_data[author]:
+#                for te in testing_data[author]:
+#                    if tr == te:
+#                        training_data[author].remove(tr)
+#                        print('A poem by', author, 'was removed.')
+
+    return training_data, testing_data
+
 def generate_training_triplets(data):
     training_triplets = []
     authors = list(data.keys())
@@ -45,59 +70,63 @@ def generate_training_triplets(data):
 def get_embeddings_for_selected_authors(data, model, authors):
     embeddings = []
     values = []
+    poems = []
     for i, author in enumerate(authors):
         if author in data:
             for poem in data[author]:
                 emb = model.encode(poem)
                 embeddings.append(emb)
                 values.append(i)
-    return np.array(embeddings), values
+                poems.append(poem)
+    return np.array(embeddings), values, poems
 
 
-EXPERIMENT_NAME="robeczech-10k"
+EXPERIMENT_NAME="robeczech-10k-tr"
 
 # Load the training data
 print("Loading the training data...", file=sys.stderr, flush=True)
 data = load_anotated_poems_from_file("lm_data")
+training_data, testing_data = split_data(data, 10)
 
 # Load the test data
-print("Loading the test data...", file=sys.stderr, flush=True)
-test_data = load_anotated_poems_from_file("matka10000.txt")
+print("Loading the generated data...", file=sys.stderr, flush=True)
+generated_data = load_anotated_poems_from_file("matka10000.txt")
 
 # Load the model
 print("Loading the model...", file=sys.stderr, flush=True)
-model = SentenceTransformer('ufal/robeczech-base') # stsb-xlm-r-multilingual # ufal/robeczech-base # all-MiniLM-L6-v2 nomic-ai/nomic-embed-text-v1
+#model = SentenceTransformer('ufal/robeczech-base') # stsb-xlm-r-multilingual # ufal/robeczech-base # all-MiniLM-L6-v2 nomic-ai/nomic-embed-text-v1
 
 # Generate training triplets
 print("Generating training triplets...", file=sys.stderr)
-training_triplets = generate_training_triplets(data)
-train_dataloader = DataLoader(training_triplets, shuffle=True, batch_size=16)
-train_loss = losses.TripletLoss(model=model) #train_loss = losses.CosineSimilarityLoss(model)
+#training_triplets = generate_training_triplets(training_data)
+#train_dataloader = DataLoader(training_triplets, shuffle=True, batch_size=16)
+#train_loss = losses.TripletLoss(model=model) #train_loss = losses.CosineSimilarityLoss(model)
 
 # Finetune the model
 print("Finetuning the model...", file=sys.stderr)
-model.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
-model.save(EXPERIMENT_NAME+'sbert.model')
+#model.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
+#model.save(EXPERIMENT_NAME+'sbert.model')
+model = SentenceTransformer(EXPERIMENT_NAME+'sbert.model')
 
 # Get the embeddings for selected authors
 authors = ["Auředníček, Otakar", "Březina, Otokar", "Kollár, Jan", "Dyk, Viktor", "Erben, Karel Jaromír", "Neruda, Jan", "Mácha, Karel Hynek", "Zeyer, Julius", "Dostál-Lutinov, Karel", "Puchmajer, Antonín Jaroslav", "Hálek, Vítězslav", "Čelakovský, Ladislav"]
 colors = ['r','g','b','c','m','y','k','greenyellow','orange','silver','gold','pink']
 
 print("Computing the embeddings...", file=sys.stderr, flush=True)
-X, values = get_embeddings_for_selected_authors(data, model, authors)
-X_test, values_test = get_embeddings_for_selected_authors(test_data, model, authors)
+X, values, poems = get_embeddings_for_selected_authors(data, model, authors)
+X_test, values_test, poems_test = get_embeddings_for_selected_authors(testing_data, model, authors)
 
 print("Training KNN model...", file=sys.stderr)
 # Initialize the NearestNeighbors model
-knn_model = NearestNeighbors(n_neighbors=5, metric='cosine')
+#knn_model = NearestNeighbors(n_neighbors=5, metric='cosine')
 # Fit the model to the data
-knn_model.fit(X)
+#knn_model.fit(X)
 
 #Save the model
-with open(EXPERIMENT_NAME+'_knn_model.pkl', 'wb') as file:
-    pickle.dump(knn_model, file)
-with open(EXPERIMENT_NAME+'_values.pkl', 'wb') as file:
-    pickle.dump(values, file)
+#with open(EXPERIMENT_NAME+'_knn_model.pkl', 'wb') as file:
+#    pickle.dump(knn_model, file)
+#with open(EXPERIMENT_NAME+'_values.pkl', 'wb') as file:
+#    pickle.dump(values, file)
 
 #Load the model
 with open(EXPERIMENT_NAME+'_knn_model.pkl', 'rb') as file:
@@ -108,14 +137,24 @@ with open(EXPERIMENT_NAME+'_values.pkl', 'rb') as file:
 
 print("Predicting...", file=sys.stderr)
 distances, indices = knn_model.kneighbors(X_test)
-print(distances)
-print(indices)
 size, neighbors = distances.shape
-print(size, neighbors)
+correct = 0
 for i in range(size):
-    print ('Gold:', authors[values_test[i]]) 
+    print ('Gold:', authors[values_test[i]])
+    predictions = dict()
     for j in range(neighbors):
-        print ('   Predicted:', authors[values[indices[i,j]]], 'Distance:', distances[i,j])
+        predicted_author = authors[values[indices[i,j]]] 
+        print ('   Predicted:', predicted_author, 'Distance:', distances[i,j])
+        if distances[i,j] > 0.001:
+            if author in predictions:
+                predictions[predicted_author] = 10 - distances[i,j] 
+
+            else:
+                predictions[predicted_author] += 10 - distances[i,j]
+    best = max(predictions, key=stats.get)
+    if best == authors[values_test[i]]:
+        correct += 1
+print('Accuracy:', correct/size)
 
 exit()
 
