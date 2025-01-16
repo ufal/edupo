@@ -131,10 +131,14 @@ def okvetuj(text):
 
 def okvetuj_ccv(data):
 
+
     k = Kveta("")
     k.read_ccv(data)
     k.phoebe2cft()
     k.syllables()
+    
+    # k.figures()
+    # line 26 KeyError parent
 
     # evaluate counts of syllables
     for i, l in enumerate(k.poem_):
@@ -145,6 +149,8 @@ def okvetuj_ccv(data):
         syll_cnt_ccv = len(l["sections"])
         if syll_cnt_our != syll_cnt_ccv:
             print(l['text'])
+
+    # TODO omarkovat stressy
 
     data = k.poem_
 

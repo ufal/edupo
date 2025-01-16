@@ -17,7 +17,7 @@ from openai_helper import *
 import sys
 sys.path.append("../kveta")
 sys.path.append("../scripts/diphthongs")
-from kveta import okvetuj
+from kveta import okvetuj, okvetuj_ccv
 
 app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
@@ -333,8 +333,12 @@ def call_analyze():
     if data is None:
         data = get_data_tta()
     
-    kveta_result = okvetuj(data['plaintext'])
-    data['body'] = kveta_result[0][0]['body']
+    if 'body' in data:
+        kveta_result = okvetuj_ccv(data['body'])
+        data['body'] = kveta_result
+    else:
+        kveta_result = okvetuj(data['plaintext'])
+        data['body'] = kveta_result[0][0]['body']
     
     store(data)
 
