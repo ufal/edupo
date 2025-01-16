@@ -46,6 +46,18 @@ METRE_PRIORITY['D'] = 3
 METRE_PRIORITY['A'] = 2
 METRE_PRIORITY['N'] = -1
 
+STRESS_NORM = {
+    'R1': '10',
+    'RM': '1m',
+    'R0': '10',
+    'R': '0',
+    'nm': '10',
+    'n': '0',
+    'm': '0',
+    'M': '1',
+    'N': '1',
+}
+
 def get_metre(verse):
     metre = 'N'
     metre_index = 0
@@ -279,6 +291,7 @@ def show(data, syllformat=False):
                         # TODO default:
                         # reduplicant_type = '0'
                     
+                    # stress and metre
                     swv = verse["metre"][metre_index][metre]["pattern"]
                     stress = verse["sections"]
                     pointer = 0
@@ -289,6 +302,9 @@ def show(data, syllformat=False):
                             f'Syllable count mismatch: {len(swv)} annotated, {syllable_count} found in poem {data["id"]} verse {verse["text"]}')
                         swv = ' ' * syllable_count
                         stress = ' ' * syllable_count
+                    for key, value in STRESS_NORM.items():
+                        stress = stress.replace(key, value)
+                    swv = swv.replace('V', 'W')
     
                     # initialize with empty initial syllable so that we can easily
                     # check against prev syllable and also so that we can add "after"
