@@ -48,11 +48,16 @@ class Kveta:
     def meter(self):
         mtr = meter.Meter(dt=False)
         self.poem_, self.overall_probs_ = mtr.analyze(self.poem_)
-        
+
     def rhyme(self, rwindow, rpsounds, rpngrams):
         rt = rhyme.RhymeDetection(window=rwindow, probability_sampa_min=rpsounds, probability_ngram_min=rpngrams)
         self.poem_ = rt.tag(self.poem_)
+        self.poem_ = rt.mark_reduplicants(self.poem_)
 
+    def reduplicants(self):
+        rt = rhyme.RhymeDetection()
+        self.poem_ = rt.mark_reduplicants(self.poem_)
+        
     def figures(self):
         fig = figures.Figures()
         self.poem_ = fig.analyze(self.poem_)
@@ -127,6 +132,7 @@ def okvetuj_ccv(data):
     k.read_ccv(data)
     k.phoebe2cft()
     k.syllables()
+    k.reduplicants()
     
     # k.figures()
     # line 26 KeyError parent
