@@ -56,7 +56,7 @@ def split_data(data, ratio):
 def generate_training_triplets(data):
     training_triplets = []
     authors = list(data.keys())
-    for i in range(10000):
+    for i in range(100000):
         a1 = random.choice(authors)
         a2 = random.choice(authors)
         while a1 == a2:
@@ -81,7 +81,7 @@ def get_embeddings_for_selected_authors(data, model, authors):
     return np.array(embeddings), values, poems
 
 
-EXPERIMENT_NAME="robeczech-10k-tr"
+EXPERIMENT_NAME="robeczech-100k-tr"
 
 # Load the training data
 print("Loading the training data...", file=sys.stderr, flush=True)
@@ -94,18 +94,18 @@ generated_data = load_anotated_poems_from_file("matka10000.txt")
 
 # Load the model
 print("Loading the model...", file=sys.stderr, flush=True)
-#model = SentenceTransformer('ufal/robeczech-base') # stsb-xlm-r-multilingual # ufal/robeczech-base # all-MiniLM-L6-v2 nomic-ai/nomic-embed-text-v1
+model = SentenceTransformer('ufal/robeczech-base') # stsb-xlm-r-multilingual # ufal/robeczech-base # all-MiniLM-L6-v2 nomic-ai/nomic-embed-text-v1
 
 # Generate training triplets
 print("Generating training triplets...", file=sys.stderr)
-#training_triplets = generate_training_triplets(training_data)
-#train_dataloader = DataLoader(training_triplets, shuffle=True, batch_size=16)
-#train_loss = losses.TripletLoss(model=model) #train_loss = losses.CosineSimilarityLoss(model)
+training_triplets = generate_training_triplets(training_data)
+train_dataloader = DataLoader(training_triplets, shuffle=True, batch_size=16)
+train_loss = losses.TripletLoss(model=model) #train_loss = losses.CosineSimilarityLoss(model)
 
 # Finetune the model
 print("Finetuning the model...", file=sys.stderr)
-#model.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
-#model.save(EXPERIMENT_NAME+'sbert.model')
+model.fit(train_objectives=[(train_dataloader, train_loss)], epochs=1, warmup_steps=100)
+model.save(EXPERIMENT_NAME+'-sbert.model')
 model = SentenceTransformer(EXPERIMENT_NAME+'sbert.model')
 
 # Get the embeddings for selected authors
@@ -114,19 +114,20 @@ colors = ['r','g','b','c','m','y','k','greenyellow','orange','silver','gold','pi
 
 print("Computing the embeddings...", file=sys.stderr, flush=True)
 X, values, poems = get_embeddings_for_selected_authors(data, model, authors)
-X_test, values_test, poems_test = get_embeddings_for_selected_authors(testing_data, model, authors)
+#X_test, values_test, poems_test = get_embeddings_for_selected_authors(testing_data, model, authors)
+X_test, values_test, poems_test = get_embeddings_for_selected_authors(generated_data, model, authors)
 
 print("Training KNN model...", file=sys.stderr)
 # Initialize the NearestNeighbors model
-#knn_model = NearestNeighbors(n_neighbors=5, metric='cosine')
+knn_model = NearestNeighbors(n_neighbors=5, metric='cosine')
 # Fit the model to the data
-#knn_model.fit(X)
+knn_model.fit(X)
 
 #Save the model
-#with open(EXPERIMENT_NAME+'_knn_model.pkl', 'wb') as file:
-#    pickle.dump(knn_model, file)
-#with open(EXPERIMENT_NAME+'_values.pkl', 'wb') as file:
-#    pickle.dump(values, file)
+with open(EXPERIMENT_NAME+'_knn_model.pkl', 'wb') as file:
+    pickle.dump(knn_model, file)
+with open(EXPERIMENT_NAME+'_values.pkl', 'wb') as file:
+    pickle.dump(values, file)
 
 #Load the model
 with open(EXPERIMENT_NAME+'_knn_model.pkl', 'rb') as file:
@@ -146,17 +147,16 @@ for i in range(size):
         predicted_author = authors[values[indices[i,j]]] 
         print ('   Predicted:', predicted_author, 'Distance:', distances[i,j])
         if distances[i,j] > 0.001:
-            if author in predictions:
-                predictions[predicted_author] = 10 - distances[i,j] 
-
-            else:
+            if predicted_author in predictions:
                 predictions[predicted_author] += 10 - distances[i,j]
-    best = max(predictions, key=stats.get)
+            else:
+                predictions[predicted_author] = 10 - distances[i,j] 
+    best = max(predictions, key=lambda k: predictions[k])
     if best == authors[values_test[i]]:
         correct += 1
 print('Accuracy:', correct/size)
 
-exit()
+
 
 # Computing T-SNE
 print("Computing T-SNE...", file=sys.stderr)
