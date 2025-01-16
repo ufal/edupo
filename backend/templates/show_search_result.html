@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>Výsledky vyhledávání</title>
+</head>
+<body>
+
+<h1>Výsledky vyhledávání</h1>
+
+<p>Vyhledávací dotaz: <kbd>{{ query }}</kbd></p>
+
+<p>(Pokud je výsledků více než 20, zobrazuje se jen prvních 20.)</p>
+
+<ul>
+{% for result in results %}
+    <li>
+        {{ result.id }}
+        <a href="show?poemid={{ result.id }}">{{ result.author }}:
+    {% if result.title %}
+        {{ result.title }}
+    {% else %}
+        Bez názvu ({{ result.body[0][0]['text'] }}...)
+    {% endif %}
+    </a>
+        <kbd>{{result.match}}</kbd>
+    </li>
+{% endfor %}
+</ul>
+
+</body>
+</html>
+

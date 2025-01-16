@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>{{ author }}</title>
+</head>
+<body>
+
+<h1>{{ author }}</h1>
+
+{% for row in rows %}
+    <h3>{{ row.book.title }} ({{ row.book.year }})</h3>
+    <ul>
+    {% for poem in row.poems %}
+    <li>
+        <a href="show?poemid={{ poem.id }}">
+    {% if poem.title %}
+        {{ poem.title }}
+    {% else %}
+        Bez názvu ({{ poem.body[0][0]['text'] }}...)
+    {% endif %}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% endfor %}
+
+</body>
+</html>
+
