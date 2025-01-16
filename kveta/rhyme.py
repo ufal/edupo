@@ -91,7 +91,7 @@ class RhymeDetection:
             # nejdřív otestujeme, jestli se v klastru nachází jednoslabičné slovo (bez předložky)
             exists_monosyllabic_word = 0
             for l in rhyme_clusters[c]:
-                if poem[l]["words"] and len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"]) == 1 or poem[l]["words"][-2]["morph"][0] == 'R'):
+                if poem[l]["words"] and len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"] == 1 or poem[l]["words"][-2]["morph"][0] != 'R'):
                     exists_monosyllabic_word = 1
                     break
             # nyní označujeme začátky rýmujících se částí
@@ -102,7 +102,7 @@ class RhymeDetection:
                 elif not exists_monosyllabic_word and len(poem[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
                     poem[l]["words"][-1]["syllables"][-2]["rhyme_from"] = 'v'
                     poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
-                elif not exists_monosyllabic_word and len(poem[l]["words"]) >= 2 and poem[l]["words"][-2]["morph"][0] != 'R': # jednoslabičné slovo za slabičkou předložkou
+                elif not exists_monosyllabic_word and len(poem[l]["words"]) >= 2 and poem[l]["words"][-2]["morph"][0] == 'R': # jednoslabičné slovo za slabičkou předložkou
                     poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
                     poem[l]["words"][-2]["syllables"][-1]["rhyme_from"] = 'v'
                 elif poem[l]["words"][-1]["syllables"][-1]["ph_end_consonants"]: # jednoslabičné slovo bez předložky končící souhláskou
