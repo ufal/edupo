@@ -118,15 +118,6 @@ def okvetuj(text):
             letter = "A"
         k.poem_[i]["metre"] = [ {letter: k.pie_data_[i]} ]
         
-        swv = v["metre"][0][letter]["pattern"]
-        stress = v["sections"]
-        pointer = 0
-        for j, w in enumerate(v["words"]):
-            for l, s in enumerate(w["syllables"]):
-                k.poem_[i]["words"][j]["syllables"][l]["position"] = swv[pointer]
-                k.poem_[i]["words"][j]["syllables"][l]["stress"] = stress[pointer]
-                pointer += 1
-
     return output, k
 
 def okvetuj_ccv(data):
@@ -139,18 +130,6 @@ def okvetuj_ccv(data):
     
     # k.figures()
     # line 26 KeyError parent
-
-    # evaluate counts of syllables
-    for i, l in enumerate(k.poem_):
-        syll_cnt_our = 0
-        for j, w in enumerate(l['words']):
-            if w["syllables"]:
-                syll_cnt_our += len(w["syllables"])
-        syll_cnt_ccv = len(l["sections"])
-        if syll_cnt_our != syll_cnt_ccv:
-            print(l['text'])
-
-    # TODO omarkovat stressy
 
     data = k.poem_
 

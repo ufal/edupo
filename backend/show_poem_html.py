@@ -278,6 +278,17 @@ def show(data, syllformat=False):
                         reduplicant_type = get_reduplicant_type(verse["words"])
                         # TODO default:
                         # reduplicant_type = '0'
+                    
+                    swv = verse["metre"][metre_index][metre]["pattern"]
+                    stress = verse["sections"]
+                    pointer = 0
+                    syllable_count = sum((len(word["syllables"]) for word in verse["words"]))
+                    assert len(swv) == len(stress)
+                    if syllable_count != len(swv):
+                        logging.warning(
+                            f'Syllable count mismatch: {len(swv)} annotated, {syllable_count} found in poem {data["id"]} verse {verse["text"]}')
+                        swv = ' ' * syllable_count
+                        stress = ' ' * syllable_count
     
                     # initialize with empty initial syllable so that we can easily
                     # check against prev syllable and also so that we can add "after"
@@ -292,12 +303,16 @@ def show(data, syllformat=False):
                             syllables[-1]["after"] += word["punct_before"]
                         # add all syllables
                         for syllable in word["syllables"]:
+                            if 'stress' not in syllable:
+                                syllable['position'] = swv[pointer]
+                                syllable['stress'] = stress[pointer]
                             parts = construct_syllable_parts(syllable, syllables[-1])
                             syllables.append({
                                 "parts": parts,
-                                "position": syllable["position"],
-                                "stress": syllable["stress"],
+                                "position": syllable['position'],
+                                "stress": syllable['stress'],
                                 "after": ""})
+                            pointer += 1
                         # mark end of word
                         if "punct" in word:
                             syllables[-1]["after"] += word["punct"]
