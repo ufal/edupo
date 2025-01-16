@@ -335,7 +335,7 @@ def call_analyze():
     
     if 'body' in data:
         kveta_result = okvetuj_ccv(data['body'])
-        data['body'] = kveta_result
+        data['body'] = [kveta_result]
     else:
         kveta_result = okvetuj(data['plaintext'])
         data['body'] = kveta_result[0][0]['body']
