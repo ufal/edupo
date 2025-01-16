@@ -91,7 +91,7 @@ class RhymeDetection:
             # nejdřív otestujeme, jestli se v klastru nachází jednoslabičné slovo (bez předložky)
             exists_monosyllabic_word = 0
             for l in rhyme_clusters[c]:
-                if poem[l]["words"] and len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"] == 1 or poem[l]["words"][-2]["morph"][0] != 'R'):
+                if poem[l]["words"] and len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"]) == 1 or poem[l]["words"][-2]["morph"][0] != 'R'):
                     exists_monosyllabic_word = 1
                     break
             # nyní označujeme začátky rýmujících se částí
