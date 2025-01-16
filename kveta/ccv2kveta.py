@@ -4,6 +4,7 @@ import sys
 import json
 import phonetix
 import syllables
+import rhyme
 
 filename = sys.argv[1]
 output_filename = sys.argv[2]
@@ -22,8 +23,20 @@ ptx = phonetix.Phonetix()
 new_body = ptx.phoebe2cft(new_body)
 syl = syllables.Syllables()
 new_body = syl.split_words_to_syllables(new_body)
+rt = rhyme.RhymeDetection(window=rwindow, probability_sampa_min=rpsounds, probability_ngram_min=rpngrams)
+new_body = rt.mark_reduplicants(new_body)
 
 data[0]["body"] = new_body
+
+ # evaluate counts of syllables
+for i, l in enumerate(new_body):
+    syll_cnt_our = 0
+    for j, w in enumerate(l['words']):
+        if w["syllables"]:
+            syll_cnt_our += len(w["syllables"])
+    syll_cnt_ccv = len(l["sections"])
+    if syll_cnt_our != syll_cnt_ccv:
+        print("Syllable counts do not match:", l['text'], file=sys.stderr)
 
 f = open(output_filename, "w")
 json.dump(data, f, ensure_ascii=False, indent=4)

@@ -61,7 +61,6 @@ class RhymeDetection:
                rhyme_clusters[minimum2cluster[minimum]].append(i)
 
         # do "rhyme" u veršů vyplníme číslo klastru
-        # do "rhyme_from" u slabik vyplníme od které pozice se rýmují, možné hodnoty: 'v' (from vovel), 'c' (from consonants), 'ec' (from the ending consonants)
         cluster_number = 0
         for c in rhyme_clusters:
             if len(c) == 1:
@@ -69,34 +68,47 @@ class RhymeDetection:
                 poem[c[0]]["rhyme"] = None 
             else:
                 cluster_number += 1
-                # nejdřív otestujeme, jestli se v klastru nachází jednoslabičné slovo (bez předložky)
-                exists_monosyllabic_word = 0
-                for l in c:
-                    if poem[l]["words"] and len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"]) == 1 or (poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 0)):
-                        exists_monosyllabic_word = 1
-                        break
-                # nyní označujeme začátky rýmujících se částí
                 for l in c:
                     if not poem[l]["words"]:
                         poem[l]["rhyme"] = None
-                        continue
-                    if not poem[l]["words"][-1]["syllables"]:
-                        # poslední slovo je neslabičné
-                        print("INFO: the last word in line is non-syllabic", file=sys.stderr)
-                    elif not exists_monosyllabic_word and len(poem[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
-                        poem[l]["words"][-1]["syllables"][-2]["rhyme_from"] = 'v'
-                        poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
-                    elif not exists_monosyllabic_word and len(poem[l]["words"]) >= 2 and poem[l]["words"][-2]["vec"] and poem[l]["words"][-2]["vec"]["prep"][0] == 1: # jednoslabičné slovo za slabičkou předložkou
-                        poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
-                        poem[l]["words"][-2]["syllables"][-1]["rhyme_from"] = 'v'
-                    elif poem[l]["words"][-1]["syllables"][-1]["ph_end_consonants"]: # jednoslabičné slovo bez předložky končící souhláskou
-                        poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'v'
-                        monosyllabic_word = 1
                     else:
-                        poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c' # jednoslabičné slovo bez předložky končící samohláskou
-                        monosyllabic_word = 1
-                    # a označíme verš číslem klastru
-                    poem[l]["rhyme"] = cluster_number
+                        poem[l]["rhyme"] = cluster_number
+        return poem
+
+    def mark_reduplicants(self, poem):
+
+        rhyme_clusters = dict()
+        for i, l in enumerate(poem):
+            if poem[i]["rhyme"]:
+                rhymeID = poem[i]["rhyme"]
+                if not rhymeID in rhyme_clusters:
+                    rhyme_clusters[rhymeID] = [i]
+                else:
+                    rhyme_clusters[rhymeID].append(i)
+
+        # do "rhyme_from" u slabik vyplníme od které pozice se rýmují, možné hodnoty: 'v' (from vovel), 'c' (from consonants), 'ec' (from the ending consonants)
+        for c in rhyme_clusters:
+            # nejdřív otestujeme, jestli se v klastru nachází jednoslabičné slovo (bez předložky)
+            exists_monosyllabic_word = 0
+            for l in rhyme_clusters[c]:
+                if poem[l]["words"] and len(poem[l]["words"][-1]["syllables"]) == 1 and (len(poem[l]["words"]) == 1 or poem[l]["words"][-2]["morph"][0] == 'R'):
+                    exists_monosyllabic_word = 1
+                    break
+            # nyní označujeme začátky rýmujících se částí
+            for l in rhyme_clusters[c]:
+                if not poem[l]["words"][-1]["syllables"]:
+                    # poslední slovo je neslabičné
+                    print("INFO: the last word in line is non-syllabic", file=sys.stderr)
+                elif not exists_monosyllabic_word and len(poem[l]["words"][-1]["syllables"]) >= 2: # víceslabičné slovo
+                    poem[l]["words"][-1]["syllables"][-2]["rhyme_from"] = 'v'
+                    poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
+                elif not exists_monosyllabic_word and len(poem[l]["words"]) >= 2 and poem[l]["words"][-2]["morph"][0] != 'R': # jednoslabičné slovo za slabičkou předložkou
+                    poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c'
+                    poem[l]["words"][-2]["syllables"][-1]["rhyme_from"] = 'v'
+                elif poem[l]["words"][-1]["syllables"][-1]["ph_end_consonants"]: # jednoslabičné slovo bez předložky končící souhláskou
+                    poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'v'
+                else:
+                    poem[l]["words"][-1]["syllables"][-1]["rhyme_from"] = 'c' # jednoslabičné slovo bez předložky končící samohláskou
         return poem  
             
 
