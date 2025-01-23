@@ -252,7 +252,7 @@ def ensure_qr_code(poemid):
         img = qrcode.make(url)
         img.save(filename)
 
-def show(data, syllformat=False):
+def show(data):
     data = defaultdict(str, data)
     data['json'] = json.dumps(data, indent=4, ensure_ascii=False)
     
@@ -269,107 +269,102 @@ def show(data, syllformat=False):
 
     if 'body' in data:
         # convert verses into a simpler format for displaying
-        data['stanzas'] = []
+        data['verses'] = []
         data['present_metres'] = set()
         prev_stanza_id = 0
         # list of lines (empty = empty line)
         plaintext = list()
-        # TODO tato úroveň teď zmizí
-        for stanza in data['body']:
-            verses = []
-            for verse in stanza:
-                rhyme = get_rhyme(verse)
-                metre, metre_index = get_metre(verse)
-                data['present_metres'].add(metre)
-                syllables = []
-                if syllformat:
-                    # Reduplicant
-                    if "reduplicant_type" in verse:
-                        reduplicant_type = verse["reduplicant_type"]
-                    else:
-                        # TODO remove this once the format is refactored
-                        reduplicant_type = get_reduplicant_type(verse["words"])
-                        # TODO default:
-                        # reduplicant_type = '0'
-                    
-                    # stress and metre
-                    swv = verse["metre"][metre_index][metre]["pattern"]
-                    stress = verse["sections"]
-                    pointer = 0
-                    syllable_count = sum((len(word["syllables"]) for word in verse["words"]))
-                    assert len(swv) == len(stress)
-                    if syllable_count != len(swv):
-                        logging.warning(
-                            f'Syllable count mismatch: {len(swv)} annotated, {syllable_count} found in poem {data["id"]} verse {verse["text"]}')
-                        swv = ' ' * syllable_count
-                        stress = ' ' * syllable_count
-                    for key, value in STRESS_NORM.items():
-                        stress = stress.replace(key, value)
-                    swv = swv.replace('V', 'W')
-    
-                    # initialize with empty initial syllable so that we can easily
-                    # check against prev syllable and also so that we can add "after"
-                    # to it
-                    syllables = [{
-                        "parts": [],
-                        "position": "W",
-                        "stress": "0",
-                        "after": ""}]
-                    for word in verse["words"]:
-                        if "punct_before" in word:
-                            syllables[-1]["after"] += word["punct_before"]
-                        # add all syllables
-                        for syllable in word["syllables"]:
-                            if 'stress' not in syllable:
-                                syllable['position'] = swv[pointer]
-                                syllable['stress'] = stress[pointer]
-                            parts = construct_syllable_parts(syllable, syllables[-1])
-                            syllables.append({
-                                "parts": parts,
-                                "position": syllable['position'],
-                                "stress": syllable['stress'],
-                                "after": ""})
-                            pointer += 1
-                        # mark end of word
-                        if "punct" in word:
-                            syllables[-1]["after"] += word["punct"]
-                        if not syllables[-1]["after"].endswith(NBSP):
-                            syllables[-1]["after"] += NBSP
+        for verse in data['body']:
+            rhyme = get_rhyme(verse)
+            metre, metre_index = get_metre(verse)
+            data['present_metres'].add(metre)
+            syllables = []
+            # Reduplicant
+            if "reduplicant_type" in verse:
+                reduplicant_type = verse["reduplicant_type"]
+            else:
+                # TODO remove this once the format is refactored
+                reduplicant_type = get_reduplicant_type(verse["words"])
+                # TODO default:
+                # reduplicant_type = '0'
             
-                    if reduplicant_type == '2':
-                        mark_rhyming(syllables[-2]['parts'], 'v')
-                        mark_rhyming(syllables[-1]['parts'], 'a')
-                    elif reduplicant_type == '1c':
-                        mark_rhyming(syllables[-1]['parts'], 'v')
-                    elif reduplicant_type == '1o':
-                        mark_rhyming(syllables[-1]['parts'], 'c')
+            # stress and metre
+            swv = verse["metre"][metre_index][metre]["pattern"]
+            stress = verse["sections"]
+            pointer = 0
+            syllable_count = sum((len(word["syllables"]) for word in verse["words"]))
+            assert len(swv) == len(stress)
+            if syllable_count != len(swv):
+                logging.warning(
+                    f'Syllable count mismatch: {len(swv)} annotated, {syllable_count} found in poem {data["id"]} verse {verse["text"]}')
+                swv = ' ' * syllable_count
+                stress = ' ' * syllable_count
+            for key, value in STRESS_NORM.items():
+                stress = stress.replace(key, value)
+            swv = swv.replace('V', 'W')
+
+            # initialize with empty initial syllable so that we can easily
+            # check against prev syllable and also so that we can add "after"
+            # to it
+            syllables = [{
+                "parts": [],
+                "position": "W",
+                "stress": "0",
+                "after": ""}]
+            for word in verse["words"]:
+                if "punct_before" in word:
+                    syllables[-1]["after"] += word["punct_before"]
+                # add all syllables
+                for syllable in word["syllables"]:
+                    if 'stress' not in syllable:
+                        syllable['position'] = swv[pointer]
+                        syllable['stress'] = stress[pointer]
+                    parts = construct_syllable_parts(syllable, syllables[-1])
+                    syllables.append({
+                        "parts": parts,
+                        "position": syllable['position'],
+                        "stress": syllable['stress'],
+                        "after": ""})
+                    pointer += 1
+                # mark end of word
+                if "punct" in word:
+                    syllables[-1]["after"] += word["punct"]
+                if not syllables[-1]["after"].endswith(NBSP):
+                    syllables[-1]["after"] += NBSP
     
-                if prev_stanza_id != verse.get("stanza", 0):
-                    plaintext.append('')
-                    prev_stanza_id = verse.get("stanza", 0)
-                plaintext.append(verse["text"])
-                
-                verses.append({
-                    'text': verse["text"],
-                    'stanza': verse.get("stanza", 0),
-                    'syllables': syllables,
-                    # NOTE: classes verseNone and verse1..verse12 harwired in CSS
-                    'rhymeclass': get_rhyme_class(rhyme),
-                    'rhymeletter': get_rhyme_letter(rhyme),
-                    'rhymesubscript': get_rhyme_subscript(rhyme),
-                    'metre': metre,
-                    'metrum': get_metrum(metre),
-                    'rythm': verse["sections"],
-                    'pattern': verse["metre"][metre_index][metre]['pattern'],
-                    'foot': verse["metre"][metre_index][metre]['foot'],
-                    'clause': verse["metre"][metre_index][metre]['clause'],
-                    'narrators_gender': verse.get('narrators_gender', ''),
-                    })
-    
-            plaintext.append('')
-            data['stanzas'].append({
-                'verses': verses,
+            if reduplicant_type == '2':
+                mark_rhyming(syllables[-2]['parts'], 'v')
+                mark_rhyming(syllables[-1]['parts'], 'a')
+            elif reduplicant_type == '1c':
+                mark_rhyming(syllables[-1]['parts'], 'v')
+            elif reduplicant_type == '1o':
+                mark_rhyming(syllables[-1]['parts'], 'c')
+
+            # construct plaintext
+            if prev_stanza_id != verse.get("stanza", 0):
+                plaintext.append('')
+                prev_stanza_id = verse.get("stanza", 0)
+            plaintext.append(verse["text"])
+            
+            # construct verse
+            data['verses'].append({
+                'text': verse["text"],
+                'stanza': verse.get("stanza", 0),
+                'syllables': syllables,
+                # NOTE: classes verseNone and verse1..verse12 harwired in CSS
+                'rhymeclass': get_rhyme_class(rhyme),
+                'rhymeletter': get_rhyme_letter(rhyme),
+                'rhymesubscript': get_rhyme_subscript(rhyme),
+                'metre': metre,
+                'metrum': get_metrum(metre),
+                'rythm': verse["sections"],
+                'pattern': verse["metre"][metre_index][metre]['pattern'],
+                'foot': verse["metre"][metre_index][metre]['foot'],
+                'clause': verse["metre"][metre_index][metre]['clause'],
+                'narrators_gender': verse.get('narrators_gender', ''),
                 })
+
+            plaintext.append('')
                 
             # TODO možná restartovat číslování rýmu po každé sloce
             # (ale někdy jde rýmování napříč slokama)
@@ -397,7 +392,7 @@ def show_file(poemid = '78468', path='static/poemfiles'):
         data = j
         if not 'id' in data:
             data['id'] = poemid
-        return show(data, True)
+        return show(data)
     
     elif type(j) == list:
         # old format
@@ -429,7 +424,7 @@ def show_file(poemid = '78468', path='static/poemfiles'):
         data['id'] = filename
         data['body'] = j[0]["body"]
 
-        return show(data, True)
+        return show(data)
     
     else:
         assert False, f"Invalid type of root JSON element: {type(j)}"

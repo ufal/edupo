@@ -75,7 +75,7 @@ def store(data, poemid=None, datatype='poemfiles'):
 ### INTERFACE STARTS HERE ###
 
 APIURL='http://localhost:5000/'
-APIURL='https://quest.ms.mff.cuni.cz/edupo-api/'
+#APIURL='https://quest.ms.mff.cuni.cz/edupo-api/'
 HEADERS_JSON = {"accept": "application/json"}
 HEADERS_HTML = {"accept": "text/html"}
 HEADERS_TXT = {"accept": "text/plain"}

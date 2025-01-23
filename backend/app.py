@@ -140,14 +140,13 @@ def poem2text(data):
     else:
         plaintext = list()
         prev_stanza_id = 0
-        for stanza in data['body']:
-            for verse in stanza:
-                stanza_id = verse.get("stanza", 0)
-                if prev_stanza_id != stanza_id:
-                    plaintext.append('')
-                    prev_stanza_id = stanza_id
-                plaintext.append(verse["text"])
-            plaintext.append('')
+        for verse in data['body']:
+            stanza_id = verse.get("stanza", 0)
+            if prev_stanza_id != stanza_id:
+                plaintext.append('')
+                prev_stanza_id = stanza_id
+            plaintext.append(verse["text"])
+        plaintext.append('')
         return '\n'.join(plaintext)
 
 def poem2text_with_header(data, includeid=True):
@@ -191,6 +190,9 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
                 return None
 
     if os.path.isfile(f"{POEMFILES}/{poemid}.json") or os.path.isfile(f"{POEMFILES}/{poemid}"):
+        # TODO always analyze ???
+        #    kveta_result = okvetuj(data['plaintext'])
+        #    data['body'] = kveta_result[0][0]['body']
         data = show_poem_html.show_file(poemid, POEMFILES)
         assert data['plaintext'], "All JSON files must have plaintext filled in"
     else:
@@ -198,6 +200,9 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
             sql = 'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id=? AND books.id=poems.book_id AND authors.identity=poems.author'
             result = db.execute(sql, (poemid,)).fetchone()
         assert result != None 
+        result = dict(result)
+        # always analyze
+        result['body'] = okvetuj_ccv(result['body'])
         data = show_poem_html.show(result)
         data['plaintext'] = poem2text(data)
     
@@ -291,13 +296,6 @@ def call_generuj():
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     data = get_poem_by_id(random_if_no_id=True)
-    # TODO always analyze
-    #if 'body' in data:
-    #    kveta_result = okvetuj_ccv(data['body'])
-    #    data['body'] = kveta_result
-    #else:
-    #    kveta_result = okvetuj(data['plaintext'])
-    #    data['body'] = kveta_result[0][0]['body']
     return return_accepted_type_for_poemid(data, 'show_poem_html.html')
 
 @app.route("/showlist", methods=['GET', 'POST'])

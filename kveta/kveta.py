@@ -70,7 +70,6 @@ class Kveta:
         # sesypej strofy do jednoho pole a přidej atribut stanza
         self.poem_ = []
         for i, stanza in enumerate(data):
-            #print(stanza)
             for line in stanza:
                 line["stanza"] = i
                 self.poem_.append(line)

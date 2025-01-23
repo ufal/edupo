@@ -94,10 +94,12 @@
         </form>
         {% endif %}
 
+    {% if not body %}
     <form method="post" action="analyze">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input name="submit" type="submit" value="Analyzovat">
     </form>
+    {% endif %}
 
     {% if id and not motives %}
     <form method="post" action="genmotives">
@@ -137,10 +139,9 @@
     {% if body %}
     <div class="body">
         <table class="stanza" cellspacing="0" cellpadding="0">
-        {% for stanza in stanzas %}
-            {% for verse in stanza.verses %}
+            {% for verse in verses %}
             
-            {% if verse.stanza and verse.stanza != stanza.verses[loop.index0-1].stanza  %}
+            {% if verse.stanza and verse.stanza != verses[loop.index0-1].stanza  %}
             <tr class="stanzabreak"><td><br></td></tr>
             {% endif %}
 
@@ -194,8 +195,6 @@
                     <td class="otherinfo">{% if verse.narrators_gender %}Rod lyrického subjektu: {{ verse.narrators_gender }}{% endif %}</td>
                 </tr>
             {% endfor %}
-            <tr class="stanzabreak"><td><br></td></tr>
-        {% endfor %}
         </table>
         
         {% else %}
