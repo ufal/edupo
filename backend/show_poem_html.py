@@ -59,6 +59,8 @@ STRESS_NORM = {
 }
 
 def get_metre(verse):
+    # TODO switch eventually to new format, where metre is a dict
+    # (now it is a list of dicts)
     metre = 'N'
     metre_index = 0
     try:
