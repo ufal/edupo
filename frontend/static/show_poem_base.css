@@ -1,0 +1,22 @@
+td.versetext {
+    display: flex;
+    align-items: baseline;
+}
+
+form {
+    display: inline;
+}
+
+.plaintext {
+    white-space: pre-wrap;
+}
+
+#qrimg {
+    float: right;
+    padding: 1ex 1ex 1ex 1ex;
+}
+
+#qrimg img {
+    height: 10em;
+}
+

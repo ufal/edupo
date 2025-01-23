@@ -291,6 +291,13 @@ def call_generuj():
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     data = get_poem_by_id(random_if_no_id=True)
+    # TODO always analyze
+    #if 'body' in data:
+    #    kveta_result = okvetuj_ccv(data['body'])
+    #    data['body'] = kveta_result
+    #else:
+    #    kveta_result = okvetuj(data['plaintext'])
+    #    data['body'] = kveta_result[0][0]['body']
     return return_accepted_type_for_poemid(data, 'show_poem_html.html')
 
 @app.route("/showlist", methods=['GET', 'POST'])

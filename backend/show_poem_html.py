@@ -274,6 +274,7 @@ def show(data, syllformat=False):
         prev_stanza_id = 0
         # list of lines (empty = empty line)
         plaintext = list()
+        # TODO tato úroveň teď zmizí
         for stanza in data['body']:
             verses = []
             for verse in stanza:
