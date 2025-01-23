@@ -105,7 +105,7 @@ def okvetuj(text):
     output = [
         { 
             "metres": k.overall_probs_,
-            "body": [ k.poem_ ]
+            "body": k.poem_
         }
     ]
 
