@@ -120,7 +120,7 @@ def okvetuj(text):
             letter = "D"
         elif k.pie_data_[i]["metre"] == "amphibrach":
             letter = "A"
-        k.poem_[i]["metre"] = [ {letter: k.pie_data_[i]} ]
+        k.poem_[i]["metre"] = {letter: k.pie_data_[i]} 
         
     return output, k
 
