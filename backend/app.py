@@ -273,8 +273,8 @@ def call_generuj():
     verses_count = int(get_post_arg('verses_count', 0, True))
     syllables_count = int(get_post_arg('syllables_count', 0, True))
     metre = get_post_arg('metre')
-    first_words = get_post_arg('first_words', isarray=True, default=[])
-    first_words = [word.strip() for word in first_words if word.strip() != '']
+    first_words = [word.strip() for word in get_post_arg('first_words', isarray=True, default=[])]
+    # TODO if all first_words are empty then ignore
     anaphors = set(int(x) for x in get_post_arg('anaphors', isarray=True, default=[]))
     epanastrophes = set(int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[]))
     temperature = float(get_post_arg('temperature', '1'))

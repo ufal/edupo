@@ -123,7 +123,7 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
                 word = prev_first
             if index in epanastrophes:
                 word = prev_last            
-            # force word
+            # force word (may be empty, so what)
             poet_start = f"{poet_start} {word}"
             # generate line
             poet_start = _generate(poet_start, stop_strings='\n', temperature=temperature)
