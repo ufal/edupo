@@ -122,26 +122,44 @@
                name="first_words"
                placeholder="Muž"
         >
+        <input type="checkbox" name="anaphors" value="0"  disabled="disabled"> anafora
+        <input type="checkbox" name="epanastrophes" value="0"  disabled="disabled"> epanastrofa
+        
         <li><input type="text"
                name="first_words"
                placeholder="Žena"
         >
+        <input type="checkbox" name="anaphors" value="1"> anafora
+        <input type="checkbox" name="epanastrophes" value="1"> epanastrofa
+        
         <li><input type="text"
                name="first_words"
                placeholder="Banán"
         >
+        <input type="checkbox" name="anaphors" value="2"> anafora
+        <input type="checkbox" name="epanastrophes" value="2"> epanastrofa
+        
         <li><input type="text"
                name="first_words"
                placeholder="Mušle"
         >
+        <input type="checkbox" name="anaphors" value="3"> anafora
+        <input type="checkbox" name="epanastrophes" value="3"> epanastrofa
+        
         <li><input type="text"
                name="first_words"
                placeholder="Lanýž"
         >
+        <input type="checkbox" name="anaphors" value="4"> anafora
+        <input type="checkbox" name="epanastrophes" value="4"> epanastrofa
+        
         <li><input type="text"
                name="first_words"
                placeholder="Hrob"
         >
+        <input type="checkbox" name="anaphors" value="5"> anafora
+        <input type="checkbox" name="epanastrophes" value="5"> epanastrofa
+        
         </ol>
         </p>
 
@@ -176,6 +194,10 @@
         </select>
         </p>
 
+        <p>Temperature: <input type="number" name="temperature" value="1.0"
+        step="0.01" min="0" max="10"> (1 standard, mezi
+        0 a 1 konzervativnější, mezi 1 a 2 náhodnější, víc než 3 už je
+        nesmyslné)</p>
 
         <input name="submit" type="submit" value="Generovat">
     </form>

@@ -102,7 +102,10 @@ def call_store():
 
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
-    data = get_data(['rhyme_scheme', 'verses_count', 'syllables_count', 'metre', 'first_words', 'title', 'author'])
+    data = get_data(['rhyme_scheme', 'verses_count', 'syllables_count', 'metre', 'title', 'author'])
+    data['first_words'] = get_post_arg('first_words', isarray=True, default=[])
+    data['anaphors'] = get_post_arg('anaphors', isarray=True, default=[])
+    data['epanastrophes'] = get_post_arg('epanastrophes', isarray=True, default=[])
     response = requests.get(f"{APIURL}/gen", data, headers=HEADERS_JSON)
     poem = response.json()
     poemid = poem['id']
