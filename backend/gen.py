@@ -112,7 +112,7 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
             first_words.append('')
         prev_first = ''
         prev_last = ''
-        for word, index in enumerate(first_words):
+        for index, word in enumerate(first_words):
             poet_start = f'{poet_start}{metre} # {syllables_count} #'
             # generate ending hint
             poet_start = _generate(poet_start, stop_strings=' #',
