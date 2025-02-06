@@ -80,7 +80,7 @@ RHYME_SCHEMES = {
     }
 
 def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
-        first_words=[], first_line='', year=1900):
+        first_words=[], first_line='', year=1900, temperature=1):
 
     if verses_count not in (4, 6):
         verses_count = random.choice([4, 6])
@@ -110,15 +110,16 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         for word in first_words:
             poet_start = f'{poet_start}{metre} # {syllables_count} #'
             # generate ending hint
-            poet_start = _generate(poet_start, stop_strings=' #')
+            poet_start = _generate(poet_start, stop_strings=' #',
+                    temperature=temperature)
             # force word
             poet_start = f"{poet_start} {word}"
             # generate line
-            poet_start = _generate(poet_start, stop_strings='\n')
+            poet_start = _generate(poet_start, stop_strings='\n', temperature=temperature)
     else:
         poet_start = f'{poet_start}{metre} # {syllables_count} #'
 
-    raw = _generate(poet_start)
+    raw = _generate(poet_start, temperature=temperature)
     result = raw.split('\n')
 
     header = result[0]

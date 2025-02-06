@@ -276,11 +276,13 @@ def call_generuj():
     first_words = get_post_arg('first_words', isarray=True, default=[])
     app.logger.warn(first_words)
     first_words = [word.strip() for word in first_words if word.strip() != '']
+    temperature = float(get_post_arg('temperature', '1'))
     
-    app.logger.info(f"Generate poem with '{rhyme_scheme}' scheme, '{metre}' metre, {verses_count} verses, {syllables_count} syllables, starting '{first_words}'")
+    app.logger.info(f"Generate poem with '{rhyme_scheme}' scheme, '{metre}' metre, {verses_count} verses, {syllables_count} syllables, starting '{first_words}', temperature {temperature}")
     poet_start = rhyme_scheme
     raw_output, clean_verses = generuj(
-            poet_start, metre, verses_count, syllables_count, first_words)
+            poet_start, metre, verses_count, syllables_count, first_words,
+            temperature=temperature)
     app.logger.info(f"Generated poem {clean_verses}")
    
     data = {
