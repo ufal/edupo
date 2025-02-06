@@ -309,6 +309,13 @@ def call_showlist():
     data = [dict(row) for row in result]
     return return_accepted_type(text, data, html)
 
+@app.route("/showlistgen", methods=['GET', 'POST'])
+def call_showlistgen():
+    poemids = os.listdir(POEMFILES)
+    html = render_template('showlistgen.html', poemids=poemids)
+    text = "\n".join(poemids)
+    return return_accepted_type(text, poemids, html)
+
 @app.route("/showauthor", methods=['GET', 'POST'])
 def call_showauthor():
     author = get_post_arg('author', 'Sova, Antonín', True)
