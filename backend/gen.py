@@ -80,7 +80,8 @@ RHYME_SCHEMES = {
     }
 
 def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
-        first_words=[], first_line='', year=1900, temperature=1):
+        first_words=[], first_line='', year=1900, temperature=1,
+        anaphors=[], epanastrophes=[]):
 
     if verses_count not in (4, 6):
         verses_count = random.choice([4, 6])
@@ -105,17 +106,31 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         ending_hint = first_line[:3]  
         # !! TODO set syllables_count properly !!
         poet_start = f"{poet_start}{metre} # {syllables_count} # {ending_hint} # {first_line}\n"
-    elif first_words:
+    elif first_words or anaphors or epanastrophes:
         assert type(first_words) == list, "first_words must be list"
-        for word in first_words:
+        while len(first_words) < verses_count:
+            first_words.append('')
+        prev_first = ''
+        prev_last = ''
+        for word, index in enumerate(first_words):
             poet_start = f'{poet_start}{metre} # {syllables_count} #'
             # generate ending hint
             poet_start = _generate(poet_start, stop_strings=' #',
                     temperature=temperature)
+            # anaphors and epanastrophes have precedence
+            # (TODO priority, mutual exclusion)
+            if index in anaphors:
+                word = prev_first
+            if index in epanastrophes:
+                word = prev_last            
             # force word
             poet_start = f"{poet_start} {word}"
             # generate line
             poet_start = _generate(poet_start, stop_strings='\n', temperature=temperature)
+            if index+1 in anaphors:
+                prev_first = poet_start.split('#')[-1].split()[0]
+            if index+1 in epanastrophes:
+                prev_last = poet_start.split()[-1]
     else:
         poet_start = f'{poet_start}{metre} # {syllables_count} #'
 

@@ -274,16 +274,23 @@ def call_generuj():
     syllables_count = int(get_post_arg('syllables_count', 0, True))
     metre = get_post_arg('metre')
     first_words = get_post_arg('first_words', isarray=True, default=[])
-    app.logger.warn(first_words)
     first_words = [word.strip() for word in first_words if word.strip() != '']
+    anaphors = set(int(x) for x in get_post_arg('anaphors', isarray=True, default=[]))
+    epanastrophes = set(int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[]))
     temperature = float(get_post_arg('temperature', '1'))
     
-    geninput = f"Generate poem with '{rhyme_scheme}' scheme, '{metre}' metre, {verses_count} verses, {syllables_count} syllables, starting '{first_words}', temperature {temperature}"
+    geninput = (f"Generate poem with '{rhyme_scheme}' scheme, " +
+            "'{metre}' metre, {verses_count} verses, " +
+            "{syllables_count} syllables, starting '{first_words}', " +
+            "anaphors on positions {anaphors}, "
+            "epanastrophes on positions {epanastrophes}, " +
+            "temperature {temperature}.")
     app.logger.info(geninput)
     poet_start = rhyme_scheme
     raw_output, clean_verses = generuj(
             poet_start, metre, verses_count, syllables_count, first_words,
-            temperature=temperature)
+            temperature=temperature, anaphors=anaphors,
+            epanastrophes=epanastrophes)
     app.logger.info(f"Generated poem {clean_verses}")
    
     data = {
