@@ -110,6 +110,8 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         assert type(first_words) == list, "first_words must be list"
         while len(first_words) < verses_count:
             first_words.append('')
+        while len(first_words) > verses_count:
+            first_words.pop()
         prev_first = ''
         prev_last = ''
         for index, word in enumerate(first_words):
