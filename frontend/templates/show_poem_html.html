@@ -50,6 +50,7 @@
     %}{%
     endif
     %}{% for school in schools %}, {{ school }}{% endfor %}
+    {% if wiki %}<a href="https://www.wikidata.org/wiki/{{ wiki }}">Wikidata</a>{% endif %}
     </p>
     {% endif %}
     
