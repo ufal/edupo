@@ -280,11 +280,11 @@ def call_generuj():
     temperature = float(get_post_arg('temperature', '1'))
     
     geninput = (f"Generate poem with '{rhyme_scheme}' scheme, " +
-            "'{metre}' metre, {verses_count} verses, " +
-            "{syllables_count} syllables, starting '{first_words}', " +
-            "anaphors on positions {anaphors}, "
-            "epanastrophes on positions {epanastrophes}, " +
-            "temperature {temperature}.")
+            f"'{metre}' metre, {verses_count} verses, " +
+            f"{syllables_count} syllables, starting '{first_words}', " +
+            f"anaphors on positions {anaphors}, "
+            f"epanastrophes on positions {epanastrophes}, " +
+            f"temperature {temperature}.")
     app.logger.info(geninput)
     poet_start = rhyme_scheme
     raw_output, clean_verses = generuj(
