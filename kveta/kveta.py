@@ -67,15 +67,7 @@ class Kveta:
         self.html_, self.pie_data_ = html.stringify(self.poem_, self.overall_probs_, mscore)
 
     def read_ccv(self, data):
-        # TODO new corpus format
-        # self.poem_ = data
-        
-        # sesypej strofy do jednoho pole a přidej atribut stanza
-        self.poem_ = []
-        for i, stanza in enumerate(data):
-            for line in stanza:
-                line["stanza"] = i
-                self.poem_.append(line)
+        self.poem_ = data
 
 def okvetuj(text):
     # Get parameters
