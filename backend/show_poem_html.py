@@ -62,16 +62,13 @@ def get_metre(verse):
     # TODO switch eventually to new format, where metre is a dict
     # (now it is a list of dicts)
     metre = 'N'
-    metre_index = 0
-    try:
-        for index, metredict in enumerate(verse["metre"]):
-            metre_candidate = list(metredict.keys())[0]
+    if "metre" in verse:
+        for metre_candidate in verse["metre"]:
             if METRE_PRIORITY[metre_candidate] >= METRE_PRIORITY[metre]:
                 metre = metre_candidate
-                metre_index = index
-    except:
+    else:
         logging.warning(f"Missing metre in data.")
-    return metre, metre_index
+    return metre
 
 def get_rhyme(verse):
     try:
@@ -278,7 +275,7 @@ def show(data):
         plaintext = list()
         for verse in data['body']:
             rhyme = get_rhyme(verse)
-            metre, metre_index = get_metre(verse)
+            metre = get_metre(verse)
             data['present_metres'].add(metre)
             syllables = []
             # Reduplicant
@@ -291,7 +288,7 @@ def show(data):
                 # reduplicant_type = '0'
             
             # stress and metre
-            swv = verse["metre"][metre_index][metre]["pattern"]
+            swv = verse["metre"][metre]["pattern"]
             stress = verse["sections"]
             pointer = 0
             syllable_count = sum((len(word["syllables"]) for word in verse["words"]))
@@ -360,9 +357,9 @@ def show(data):
                 'metre': metre,
                 'metrum': get_metrum(metre),
                 'rythm': verse["sections"],
-                'pattern': verse["metre"][metre_index][metre]['pattern'],
-                'foot': verse["metre"][metre_index][metre]['foot'],
-                'clause': verse["metre"][metre_index][metre]['clause'],
+                'pattern': verse["metre"][metre]['pattern'],
+                'foot': verse["metre"][metre]['foot'],
+                'clause': verse["metre"][metre]['clause'],
                 'narrators_gender': verse.get('narrators_gender', ''),
                 })
 
