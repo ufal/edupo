@@ -163,6 +163,12 @@ def call_showlist():
     data = response.json()
     return render_template('showlist.html', rows=data)
 
+@app.route("/showlistgen", methods=['GET', 'POST'])
+def call_showlistgen():
+    response = requests.get(f"{APIURL}/showlistgen", headers=HEADERS_JSON)
+    data = response.json()
+    return render_template('showlistgen.html', poemids=data)
+
 @app.route("/showauthor", methods=['GET', 'POST'])
 def call_showauthor():
     data = get_data(['author'])
