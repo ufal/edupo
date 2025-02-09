@@ -5,6 +5,7 @@ from flask import Flask, request, render_template, g, redirect, url_for, jsonify
 from flask_cors import CORS
 from itertools import groupby
 import os
+import os.path
 from gen import generuj
 import show_poem_html
 import sqlite3
@@ -320,9 +321,14 @@ def call_showlist():
     data = [dict(row) for row in result]
     return return_accepted_type(text, data, html)
 
+def getctime(item):
+    item_path = os.path.join(POEMFILES, item)
+    return os.path.getctime(item_path)
+
 @app.route("/showlistgen", methods=['GET', 'POST'])
 def call_showlistgen():
     poemids = os.listdir(POEMFILES)
+    poemids.sort(key=getctime, reverse=True)
     html = render_template('showlistgen.html', poemids=poemids)
     text = "\n".join(poemids)
     return return_accepted_type(text, poemids, html)
