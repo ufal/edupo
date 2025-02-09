@@ -82,30 +82,32 @@
             {% if title %}
             <input type="hidden" name="title" value="{{ title }}">
             {% endif %}
-            <input name="submit" type="submit" value="Generovat ilustrační obrázek k této básni"
-            onclick="this.value='Generuji...'; return true;">
+            <input type="submit" value="Generovat ilustrační obrázek k této básni"
+            onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
         </form>
         {% endif %}
         
         {% if id and not ttsfile %}
         <form method="post" action="gentts">
             <input type="hidden" name="poemid" value="{{ id }}">
-            <input name="submit" type="submit" value="Přečíst báseň pomocí automatické syntézy řeči"
-            onclick="this.value='Generuji...'; return true;">
+            <input type="submit" value="Přečíst báseň pomocí automatické syntézy řeči"
+            onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
         </form>
         {% endif %}
 
     {% if not body %}
     <form method="post" action="analyze">
         <input type="hidden" name="poemid" value="{{ id }}">
-        <input name="submit" type="submit" value="Analyzovat">
+        <input type="submit" value="Analyzovat"
+        onclick="this.value='Analyzuji...'; this.disabled = true; this.form.submit();">
     </form>
     {% endif %}
 
     {% if id and not motives %}
     <form method="post" action="genmotives">
         <input type="hidden" name="poemid" value="{{ id }}">
-        <input name="submit" type="submit" value="Určit motivy">
+        <input type="submit" value="Určit motivy"
+        onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
     </form>
     {% endif %}
 

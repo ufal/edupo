@@ -1,6 +1,7 @@
     <form method="post" action="search">
         <input name="query">
         <input type="checkbox" name="use_regex"> regex
-        <input name="submit" type="submit" value="Vyhledat">
+        <input type="submit" value="Vyhledat"
+        onclick="this.value='Vyhledávám...'; this.disabled = true; this.form.submit();">
     </form>
 

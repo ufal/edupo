@@ -8,6 +8,7 @@
                title="Text básně k analýze"
         ></textarea>
         <br>
-        <input name="submit" type="submit" value="Analyzovat (TODO i styl)">
+        <input type="submit" value="Analyzovat (TODO i styl)"
+        onclick="this.value='Analyzuji...'; this.disabled = true; this.form.submit();">
     </form>
 

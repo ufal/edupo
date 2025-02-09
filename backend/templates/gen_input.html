@@ -199,6 +199,7 @@
         0 a 1 konzervativnější, mezi 1 a 2 náhodnější, víc než 3 už je
         nesmyslné)</p>
 
-        <input name="submit" type="submit" value="Generovat">
+        <input type="submit" value="Generovat"
+        onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
     </form>
 
