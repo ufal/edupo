@@ -327,7 +327,7 @@ def getctime(item):
 
 @app.route("/showlistgen", methods=['GET', 'POST'])
 def call_showlistgen():
-    poemids = os.listdir(POEMFILES)
+    poemids = [f for f in os.listdir(POEMFILES) if f.endswith('.json')]
     poemids.sort(key=getctime, reverse=True)
     html = render_template('showlistgen.html', poemids=poemids)
     text = "\n".join(poemids)
