@@ -95,10 +95,7 @@ def get_accepted_type():
             return_type = 'txt'
     return return_type
 
-def return_accepted_type(text, json, html):
-    return_type = get_accepted_type()
-    if return_type == 'html':
-        return html
+def         return html
     elif return_type == 'json':
         if type(json) == str:
             # already JSON
@@ -471,4 +468,24 @@ def call_generate_openai():
     result = generate_with_openai_simple(prompt)
     return render_template('openaigenerate.html', prompt=prompt, result=result)
 
+@app.route("/logs", methods=['GET', 'POST'])
+def call_logs():
+tail -f autodeploy.log frontend/logs/$(ls -t frontend/logs/|head -1) backend/logs/$(ls -t backend/logs/|head -1)
+    n = int(get_post_arg('n', '20'))
+    backlog = [f for f in os.listdir('logs') if f.endswith('.log')].sort()[-1]
+    frontlog = [f for f in os.listdir('../frontend/logs') if f.endswith('.log')].sort()[-1]
+    filenames = ['../autodeploy.log', f"../frontend/{frontlog}", f"../backend/{backlog}"]
+
+    result = list()
+    for filename in filenames:
+        with open(filename) as infile:
+            result.append(f'==== {filename} ====')
+            lines = filename.readlines()
+            result.extend(lines[-n:])
+            result.append('')
+
+    text = '\n'.join(result)
+    html = f"<pre>{text}</pre>"
+
+    return_accepted_type(text, result, html)
 
