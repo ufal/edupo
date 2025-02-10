@@ -476,7 +476,7 @@ def call_logs():
     n = int(get_post_arg('n', '20'))
     backlog = sorted([f for f in os.listdir('logs') if f.endswith('.log')])[-1]
     frontlog = sorted([f for f in os.listdir('../frontend/logs') if f.endswith('.log')])[-1]
-    filenames = ['../autodeploy.log', f"../frontend/{frontlog}", f"../backend/{backlog}"]
+    filenames = ['../autodeploy.log', f"../frontend/logs/{frontlog}", f"../backend/logs/{backlog}"]
 
     result = list()
     for filename in filenames:
