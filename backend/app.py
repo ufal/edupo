@@ -269,6 +269,7 @@ def call_store():
 
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
+    # TODO probably refactor into parameters as a dict?
     # empty or 'náhodně' means random
     rhyme_scheme = get_post_arg('rhyme_scheme', '')
     verses_count = int(get_post_arg('verses_count', 0, True))
@@ -279,8 +280,14 @@ def call_generuj():
     anaphors = set(int(x) for x in get_post_arg('anaphors', isarray=True, default=[]))
     epanastrophes = set(int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[]))
     temperature = float(get_post_arg('temperature', '1'))
+    title = get_post_arg('title', 'Bez názvu', True)
+    author_name = get_post_arg('author', 'Anonym', True)
     
-    geninput = (f"Generate poem with '{rhyme_scheme}' scheme, " +
+    geninput = (f"Generate poem. " +
+            f"{author_name}: " +
+            f"'{title}'. " +
+            f"Settings: " +
+            f"'{rhyme_scheme}' scheme, " +
             f"'{metre}' metre, {verses_count} verses, " +
             f"{syllables_count} syllables, starting '{first_words}', " +
             f"anaphors on positions {anaphors}, "
@@ -291,15 +298,16 @@ def call_generuj():
     raw_output, clean_verses = generuj(
             poet_start, metre, verses_count, syllables_count, first_words,
             temperature=temperature, anaphors=anaphors,
-            epanastrophes=epanastrophes)
+            epanastrophes=epanastrophes,
+            title=title, author_name=author_name)
     app.logger.info(f"Generated poem {clean_verses}")
    
     data = {
             'geninput': geninput,
             'plaintext': "\n".join(clean_verses),
             'rawtext': raw_output,
-            'title': get_post_arg('title', 'Bez názvu', True),
-            'author_name': f"{get_post_arg('author', 'Anonym', True)} [vygenerováno]",
+            'title': title,
+            'author_name': f"{author_name} [vygenerováno]",
             }
     store(data)
     

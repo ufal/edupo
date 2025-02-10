@@ -81,7 +81,8 @@ RHYME_SCHEMES = {
 
 def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         first_words=[], first_line='', year=1900, temperature=1,
-        anaphors=[], epanastrophes=[]):
+        anaphors=[], epanastrophes=[], title='Bez názvu', author_name='Anonym'):
+    # TODO probably refactor into parameters as a dict?
 
     if verses_count not in (4, 6):
         verses_count = random.choice([4, 6])
