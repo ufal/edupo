@@ -481,12 +481,12 @@ def call_logs():
     result = list()
     for filename in filenames:
         with open(filename) as infile:
-            result.append(f'==== {filename} ====')
+            result.append(f'==== {filename} ====\n')
             lines = infile.readlines()
             result.extend(lines[-n:])
-            result.append('')
+            result.append('\n\n')
 
-    text = '\n'.join(result)
+    text = ''.join(result)
     html = f"<pre>{text}</pre>"
 
     return return_accepted_type(text, result, html)
