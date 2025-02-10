@@ -489,5 +489,5 @@ def call_logs():
     text = '\n'.join(result)
     html = f"<pre>{text}</pre>"
 
-    return_accepted_type(text, result, html)
+    return return_accepted_type(text, result, html)
 
