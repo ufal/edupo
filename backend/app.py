@@ -95,7 +95,10 @@ def get_accepted_type():
             return_type = 'txt'
     return return_type
 
-def         return html
+def return_accepted_type(text, json, html):
+    return_type = get_accepted_type()
+    if return_type == 'html':
+        return html
     elif return_type == 'json':
         if type(json) == str:
             # already JSON
