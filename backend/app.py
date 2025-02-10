@@ -473,7 +473,6 @@ def call_generate_openai():
 
 @app.route("/logs", methods=['GET', 'POST'])
 def call_logs():
-tail -f autodeploy.log frontend/logs/$(ls -t frontend/logs/|head -1) backend/logs/$(ls -t backend/logs/|head -1)
     n = int(get_post_arg('n', '20'))
     backlog = [f for f in os.listdir('logs') if f.endswith('.log')].sort()[-1]
     frontlog = [f for f in os.listdir('../frontend/logs') if f.endswith('.log')].sort()[-1]
