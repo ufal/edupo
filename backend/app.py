@@ -482,7 +482,7 @@ def call_logs():
     for filename in filenames:
         with open(filename) as infile:
             result.append(f'==== {filename} ====')
-            lines = filename.readlines()
+            lines = infile.readlines()
             result.extend(lines[-n:])
             result.append('')
 
