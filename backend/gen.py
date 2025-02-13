@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
+from functools import reduce
 import random
 import re
 import sys
@@ -13,6 +14,7 @@ logging.basicConfig(
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+import parsy
 
 import parser
 
@@ -70,21 +72,7 @@ def _generate(poet_start, stop_strings=None, params={}):
     # decode and return
     return tokenizer.decode(out[0])
  
-END_PUNCT = set(['.', '?', '!'])
-def clean(verses):
-    result = []
-    last = '.'
-    for verse in verses:
-        if verse:
-            if last in END_PUNCT:
-                verse = verse.capitalize()
-            last = verse[-1]
-            result.append(verse)
-    # should not end with ,
-    if result[-1][-1] == ',':
-        result[-1] = result[-1][:-1] + '.'
 
-    return result
 
 RHYME_SCHEMES = {
     4: ['ABAB', 'XXXX', 'XAXA', 'AAXX', 'AABB', 'ABBA'],
@@ -182,6 +170,22 @@ def generuj_mc(params):
             verse = line
         result.append(verse.strip())
     
+    END_PUNCT = set(['.', '?', '!'])
+    def clean(verses):
+        result = []
+        last = '.'
+        for verse in verses:
+            if verse:
+                if last in END_PUNCT:
+                    verse = verse.capitalize()
+                last = verse[-1]
+                result.append(verse)
+        # should not end with ,
+        if result[-1][-1] == ',':
+            result[-1] = result[-1][:-1] + '.'
+
+        return result
+
     # TODO výhledově možná rovnou vracet v JSON formátu
     clean_verses = clean(result[-len(params['rhyme_scheme'])-1:])
     return raw, clean_verses, params.get('author_name', 'Anonym'), params.get('title', 'Bez názvu')
@@ -227,13 +231,12 @@ def generuj_tm(params):
     if params.get('year'):
         poem += f"params['{year}'])\n"
     else:
-        poem = _generate(poem, '\n', params)
-    
-    poem += "\n#"
+        poem = _generate(poem, ')\n', params)
 
     # strophes
     strophes = 0
     while strophes < params.get('max_strophes', 4) and '<|end_of_text|>' not in poem:
+        poem += "#"
         if params.get('rhyme_scheme'):
             rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
@@ -268,29 +271,46 @@ def generuj_tm(params):
 
         # end of strophe
         # (generate empty line or end of text)
-        poem = _generate(poem, '\n', params)
+        # poem = _generate(poem, '\n', params)
+        if poem[-2:] != '\n\n':
+            poem += '\n'
         strophes += 1
         
     # parse result
-    result = poem.split('<|end_of_text|>')[0].split('\n')
-    header = result[0]
-    lines = result[2:]
-    
-    # header
-    try:
-        m = re.match(r'^<\|begin_of_text\|>([^:]*): (.*) \(([^()]*)\)$', header)
-        # m = re.match(r'^([^:]*): (.*) \(([^()]*)\)$', header)
-        author_name, title, year = m.groups()
-    except:
-        author_name = params.get('author_name', 'Anonym')
-        title = params.get('title', 'Bez názvu')
-        title = params.get('year', '?')
+    result = poem.split('<|end_of_text|>')[0]
 
-    # verses
-    verses = []
-    for line in lines:
-        verses.append(line.split('#')[-1].strip())
-    
+    with open('prompt_templates/tm1.txt', 'r') as f:
+        template = parser.Template(f.read())
+
+    try:
+        parsed = (parsy.string('<|begin_of_text|>').optional() >> template.poem_parser()).parse(result + '\n\n')
+
+        author_name = parsed.get('author_name')
+        title = parsed.get('poem_title')
+        verses = reduce(lambda x, y: x + [''] + y, [[v['line'] for v in s['verses']] for s in parsed['stanzas']])
+
+    except parsy.ParseError as e:
+        logging.exception("EXCEPTION Nepodařený parsing básně:" + str(e))
+        
+        result = result.split('\n')
+        header = result[0]
+        lines = result[2:]
+        
+        # header
+        try:
+            m = re.match(r'^<\|begin_of_text\|>([^:]*): (.*) \(([^()]*)\)$', header)
+            # m = re.match(r'^([^:]*): (.*) \(([^()]*)\)$', header)
+            author_name, title, year = m.groups()
+        except:
+            author_name = params.get('author_name', 'Anonym')
+            title = params.get('title', 'Bez názvu')
+            title = params.get('year', '?')
+
+        # verses
+        verses = []
+        for line in lines:
+            verses.append(line.split('#')[-1].strip())
+        
     return poem, verses, author_name, title
 
 def generuj(params):
@@ -306,8 +326,9 @@ if __name__=="__main__":
     except:
         rhyme_scheme = 'AABB'
 
-    result = generuj({
-        'modelspec': 'tm',
-        'rhyme_scheme': rhyme_scheme,
-        })
-    print(*result, sep='\n')
+    for _ in range(10):
+        result = generuj({
+            'modelspec': 'tm',
+            'rhyme_scheme': rhyme_scheme,
+            })
+        print(*result, sep='\n')
