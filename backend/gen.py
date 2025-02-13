@@ -24,6 +24,8 @@ MODEL_MC="jinymusim/gpt-czech-poet"
 # Always load Michal's model
 tokenizer_mc = AutoTokenizer.from_pretrained(MODEL_MC)
 model_mc = AutoModelForCausalLM.from_pretrained(MODEL_MC)
+with open('prompt_templates/chudoba.txt', 'r') as f:
+        template_mc = parser.Template(f.read())
 
 # Try to load unsloth model
 try:
@@ -31,6 +33,9 @@ try:
     from unsloth import FastLanguageModel
     model_tm, tokenizer_tm = FastLanguageModel.from_pretrained(MODEL_TM)
     FastLanguageModel.for_inference(model_tm)
+    with open('prompt_templates/tm1.txt', 'r') as f:
+        template_tm = parser.Template(f.read())
+
 except:
     logging.exception("EXCEPTION Nejde načíst unsloth model.")
     model_tm, tokenizer_tm = None, None
@@ -91,7 +96,7 @@ GENERATION_PARAMS_DEFAULTS = {
     'epanastrophes': [],
     'title': 'Bez názvu',
     'author_name': 'Vrchlický, Jaroslav',
-    'max_strophes': 4,
+    'max_strophes': 2,
     'modelspec': 'tm',
     }
 
@@ -153,23 +158,8 @@ def generuj_mc(params):
 
     raw = _generate(poet_start, params=params)
     
-    result = raw.split('<|endoftext|>')[0].split('\n')
+    result = raw.split('<|endoftext|>')[0]
 
-    header = result[0]
-    try:
-        _, schema, year = header.split('#')
-    except:
-        schema = rhyme_scheme
-        year = '?'
-    poem = result[1:]
-
-    for line in poem:
-        try:
-            meter, syls, end, verse = line.split('#')
-        except:
-            verse = line
-        result.append(verse.strip())
-    
     END_PUNCT = set(['.', '?', '!'])
     def clean(verses):
         result = []
@@ -186,8 +176,31 @@ def generuj_mc(params):
 
         return result
 
-    # TODO výhledově možná rovnou vracet v JSON formátu
-    clean_verses = clean(result[-len(params['rhyme_scheme'])-1:])
+    try:
+        parsed = (parsy.string('<|begin_of_text|>').optional() >> template_mc.poem_parser()).parse(result + '\n\n') # TODO fix hack with \n\n
+        result = [v['line'] for v in parsed['verses']]
+        clean_verses = clean(result)
+    except parsy.ParseError as e:
+        logging.exception("EXCEPTION Nepodařený parsing básně:" + str(e))
+        header = result[0]
+
+        result = result.split('\n')
+        try:
+            _, schema, year = header.split('#')
+        except:
+            schema = rhyme_scheme
+            year = '?'
+        poem = result[1:]
+
+        for line in poem:
+            try:
+                meter, syls, end, verse = line.split('#')
+            except:
+                verse = line
+            result.append(verse.strip())
+    
+        # TODO výhledově možná rovnou vracet v JSON formátu
+        clean_verses = clean(result[-len(params['rhyme_scheme'])-1:])
     return raw, clean_verses, params.get('author_name', 'Anonym'), params.get('title', 'Bez názvu')
 
 
@@ -279,11 +292,8 @@ def generuj_tm(params):
     # parse result
     result = poem.split('<|end_of_text|>')[0]
 
-    with open('prompt_templates/tm1.txt', 'r') as f:
-        template = parser.Template(f.read())
-
     try:
-        parsed = (parsy.string('<|begin_of_text|>').optional() >> template.poem_parser()).parse(result + '\n\n')
+        parsed = (parsy.string('<|begin_of_text|>').optional() >> template_tm.poem_parser()).parse(result + '\n\n') # TODO fix hack with \n\n
 
         author_name = parsed.get('author_name')
         title = parsed.get('poem_title')
@@ -328,7 +338,7 @@ if __name__=="__main__":
 
     for _ in range(10):
         result = generuj({
-            'modelspec': 'tm',
+            'modelspec': 'mc',
             'rhyme_scheme': rhyme_scheme,
             })
         print(*result, sep='\n')
