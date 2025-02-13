@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
+import random
+import re
 import sys
 
 import logging
@@ -11,8 +13,8 @@ logging.basicConfig(
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
-import random
-import re
+
+import parser
 
 MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-15000'
 MODEL_MC="jinymusim/gpt-czech-poet"
@@ -50,41 +52,28 @@ def _generate(poet_start, stop_strings=None, params={}):
     # tokenize input
     tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt').to(model.device)
 
+    # generate a continuation to it
     if stop_strings:
-        # generated a continuation to it
-        out = model.generate(
-                tokenized_poet_start,
-                max_new_tokens=256,
-                do_sample=True,
-                # top_p=0.7,
-                top_k=50,
-                # no_repeat_ngram_size=2,
-                pad_token_id= tokenizer.pad_token_id,
-                stop_strings = stop_strings,
-                temperature=params.get('temperature', 1),
-                tokenizer=tokenizer,
-                eos_token_id = tokenizer.eos_token_id,
-        )
+        kwargs = {'stop_strings': stop_strings}
     else:
-        # generated a continuation to it
-        out = model.generate(
-                tokenized_poet_start,
-                max_new_tokens=256,
-                do_sample=True,
-                # top_p=0.7,
-                top_k=50,
-                # no_repeat_ngram_size=2,
-                pad_token_id= tokenizer.pad_token_id,
-                temperature=params.get('temperature', 1),
-                tokenizer=tokenizer,
-                eos_token_id = tokenizer.eos_token_id,
-                )
+        kwargs = {}
+    out = model.generate(
+            tokenized_poet_start,
+            max_new_tokens=256,
+            do_sample=True,
+            # top_p=0.7,
+            top_k=50,
+            # no_repeat_ngram_size=2,
+            pad_token_id= tokenizer.pad_token_id,
+            temperature=params.get('temperature', 1),
+            tokenizer=tokenizer,
+            eos_token_id = tokenizer.eos_token_id,
+            **kwargs,
+    )
 
-    # Decode Poet
-    result = tokenizer.decode(out[0])
-    
-    return result
-
+    # decode and return
+    return tokenizer.decode(out[0])
+ 
 END_PUNCT = set(['.', '?', '!'])
 def clean(verses):
     result = []
@@ -321,5 +310,8 @@ if __name__=="__main__":
     except:
         rhyme_scheme = 'AABB'
 
-    result = generuj({'rhyme_scheme': rhyme_scheme})
+    result = generuj({
+        'modelspec': 'tm',
+        'rhyme_scheme': rhyme_scheme,
+        })
     print(*result, sep='\n')

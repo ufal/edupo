@@ -1,0 +1,5 @@
+↪author_name↦:↩ ↪poem_title↦ (↩↪year↦)
+↩
+# ↪rhyme_scheme↦ #↩
+↻# ↪metre↦ #↩ ↪syllables_count↦ #↩ ↪reduplicant↦ #↩ ↪line↦
+↩↺
