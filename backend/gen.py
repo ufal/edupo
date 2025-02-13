@@ -186,6 +186,8 @@ def generuj_mc(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0
     
     # TODO výhledově možná rovnou vracet v JSON formátu
     clean_verses = clean(result[-len(rhyme_scheme)-1:])
+    author_name = author_name if author_name else 'Anonym'
+    title = title if title else 'Bez názvu'
     return raw, clean_verses, author_name, title
 
 
