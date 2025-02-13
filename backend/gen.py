@@ -203,7 +203,9 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
     if author_name:
         poem += f" {author_name}:"
     else:
-        poem = _generate(poem, ':', temperature)
+        # TODO random select
+        poem += "Rosa, Rudolf:"
+        # poem = _generate(poem, ':', temperature)
 
     if title:
         poem += f" {title} ("
@@ -261,12 +263,12 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
     # parse result
     result = poem.split('\n')
     header = result[0]
-    lines = result[2:]
+    lines = result[2:].split('<|end_of_text|>')[0]
     
     # header
     try:
-        # m = re.match(r'^<\|begin_of_text\|>([^:]*): (.*) \(([^()]*)\)$', header)
-        m = re.match(r'^([^:]*): (.*) \(([^()]*)\)$', header)
+        m = re.match(r'^<\|begin_of_text\|>([^:]*): (.*) \(([^()]*)\)$', header)
+        # m = re.match(r'^([^:]*): (.*) \(([^()]*)\)$', header)
         author_name, title, year = m.groups()
     except:
         author_name = author_name if author_name else 'Anonym'
@@ -278,7 +280,7 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
     for line in lines:
         verses.append(line.split('#')[-1].strip())
     
-    return poem, clean(verses), author_name, title
+    return poem, verses, author_name, title
 
 if __name__=="__main__":
     try:
