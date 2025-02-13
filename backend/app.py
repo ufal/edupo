@@ -279,8 +279,8 @@ def call_generuj():
     anaphors = set(int(x) for x in get_post_arg('anaphors', isarray=True, default=[]))
     epanastrophes = set(int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[]))
     temperature = float(get_post_arg('temperature', '1'))
-    title = get_post_arg('title', 'Bez názvu', True)
-    author_name = get_post_arg('author', 'Anonym', True)
+    title = get_post_arg('title', 'Bez názvu')
+    author_name = get_post_arg('author', 'Anonym')
     
     geninput = (f"Generate poem. " +
             f"{author_name}: " +
@@ -294,7 +294,7 @@ def call_generuj():
             f"temperature {temperature}.")
     app.logger.info(geninput)
     poet_start = rhyme_scheme
-    raw_output, clean_verses = generuj(
+    raw_output, clean_verses, author_name, title = generuj(
             poet_start, metre, verses_count, syllables_count, first_words,
             temperature=temperature, anaphors=anaphors,
             epanastrophes=epanastrophes,

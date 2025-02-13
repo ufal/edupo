@@ -90,7 +90,7 @@ RHYME_SCHEMES = {
 
 def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         first_words=[], first_line='', year=1900, temperature=1,
-        anaphors=[], epanastrophes=[], title='Bez názvu', author_name='Anonym'):
+        anaphors=[], epanastrophes=[], title='', author_name=''):
     # TODO probably refactor into parameters as a dict?
 
     if verses_count not in (4, 6):
@@ -166,7 +166,113 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
     
     # TODO výhledově možná rovnou vracet v JSON formátu
     clean_verses = clean(result[-len(rhyme_scheme)-1:])
-    return raw, clean_verses
+    return raw, clean_verses, author_name, title
+
+
+"""
+<|begin_of_text|>Machar, Josef Svatopluk: V lese (1932)
+
+# A B A B #
+# T # 8 # uky # Jaká vůně! Jaké zvuky!
+# T # 8 # ízy # Padají ty světlé mízy!
+# T # 8 # uky # Opony padají s buky!
+# T # 8 # yzy # Zří v tvé duše všecky hryzy!
+
+# A B A B #
+# T # 8 # anou # Časem pod tvou drsnou blanou
+# T # 8 # yla # zlaťoučká se slupka skryla –
+# T # 8 # anou # – Nadagrams oblohou stanou,
+# T # 8 # ila # bozi, která zapálila! –
+<|end_of_text|>
+
+"""
+
+def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=0,
+        first_words=[], first_line='', year=None, temperature=1,
+        anaphors=[], epanastrophes=[], title='', author_name='',
+        max_strophes=4):
+    # TODO probably refactor into parameters as a dict?
+
+    poem = '<|begin_of_text|>'
+    
+    # preamble
+    if author_name:
+        poem += f" {author_name}:"
+    else:
+        poem = _generate(poem, ':', temperature)
+
+    if title:
+        poem += f" {title} ("
+    else:
+        poem = _generate(poem, '(', temperature)
+
+    if year:
+        poem += f"{year})\n"
+    else:
+        poem = _generate(poem, '\n', temperature)
+    
+    poem += "\n#"
+
+    # strophes
+    strophes = 0
+    stop = False
+    while strophes < max_strophes and '<|end_of_text|>' not in poem:
+        if rhyme_scheme:
+            rhyme_scheme_tm = " ".join(list(rhyme_scheme.replace("X", "x")))
+            poem += f" {rhyme_scheme_tm} #\n"
+        else:
+            poem = _generate(poem, '\n', temperature)
+        
+        try:
+            verses_count = len(poem.split('\n')[-2].split('#')[1].split())
+        except:
+            verses_count = len(rhyme_scheme)
+
+        # verses
+        for _ in range(verses_count):
+            if metre:
+                poem += f"# {metre} #"
+            else:
+                poem = _generate(poem, '#', temperature)
+
+            if syllables_count:
+                poem += f" {syllables_count} #"
+            else:
+                poem = _generate(poem, '#', temperature)
+
+            # reduplicant
+            poem = _generate(poem, '#', temperature)
+
+            if first_words:
+                word = first_words.pop(0)
+                poem += f" {word} "
+                # TODO anaphors and epanastrophes
+            poem = _generate(poem, '\n', temperature)
+
+        # end of strophe
+        # (generate empty line or end of text)
+        poem = _generate(poem, '\n', temperature)
+        strophes += 1
+        
+    # parse result
+    result = poem.split('\n')
+
+    header = result[0]
+    try:
+        m = re.match(r'^<\|begin_of_text\|>([^:]*): (.*) \(([^()]*)\)$', header)
+        author_name, title, year = m.groups()
+    except:
+        author_name = author_name if author_name else 'Anonym'
+        title = title if title else 'Bez názvu'
+        year = year if year else '?'
+
+    lines = result[2:]
+    for line in lines:
+        verse = line.split('#')[-1].strip()
+        result.append(verse)
+    clean_verses = clean(result)
+    
+    return poem, clean_verses, author_name, title
 
 if __name__=="__main__":
     try:
