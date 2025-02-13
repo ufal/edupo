@@ -30,6 +30,8 @@ else:
 def _generate(poet_start,
         stop_strings=None,
         temperature=1):
+    
+    poet_start = poet_start.replace('<|begin_of_text|>', '')
 
     """
     stop_strings(`str or List[str]`, *optional*):
