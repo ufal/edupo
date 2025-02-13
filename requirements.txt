@@ -10,4 +10,4 @@ gTTS
 flask-cors
 qrcode
 Pillow
-unsloth
+unsloth[cu124-torch260]
