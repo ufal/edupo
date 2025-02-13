@@ -229,7 +229,7 @@ def store(data):
         data['id'] = poemid
     
     with open(f'static/poemfiles/{poemid}.json', 'w') as outfile:
-        json.dump(data, outfile, ensure_ascii=False, indent=4, default=list)
+        json.dump(data, outfile, ensure_ascii=False, indent=4)
     
     return poemid
 
@@ -288,7 +288,11 @@ def call_generuj():
     app.logger.info(geninput)
     raw_output, clean_verses, author_name, title = generuj(dict(params))
     app.logger.info(f"Generated poem {clean_verses}")
-   
+  
+    # sets must be lists now
+    params['anaphors'] = list(params['anaphors'])
+    params['epanastrophes'] = list(params['epanastrophes'])
+
     data = {
             'geninput': params,
             'plaintext': "\n".join(clean_verses),
