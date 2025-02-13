@@ -248,7 +248,7 @@ def generuj_tm(params):
 
     # strophes
     strophes = 0
-    while strophes < params.get('max_strophes', 4) and '<|end_of_text|>' not in poem:
+    while strophes < params.get('max_strophes', 2) and '<|end_of_text|>' not in poem:
         poem += "#"
         if params.get('rhyme_scheme'):
             rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
