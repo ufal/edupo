@@ -14,9 +14,9 @@ import torch
 import random
 import re
 
-model_path = "../../../tomas/outputs/unsloth_llama_lora_002/checkpoint-15000"
-#model_path = "../../outputs/unsloth_llama_lora_002/checkpoint-15000"
-#model_path = "jinymusim/gpt-czech-poet"
+MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-15000'
+MODEL_MC="jinymusim/gpt-czech-poet"
+model_path=MODEL_TM
 
 if 'unsloth' in model_path:
     import unsloth
