@@ -10,3 +10,4 @@ gTTS
 flask-cors
 qrcode
 Pillow
+unsloth

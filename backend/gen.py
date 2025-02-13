@@ -14,8 +14,17 @@ import torch
 import random
 import re
 
-tokenizer = AutoTokenizer.from_pretrained("jinymusim/gpt-czech-poet")
-model = AutoModelForCausalLM.from_pretrained("jinymusim/gpt-czech-poet")
+model_path = "../../outputs/unsloth_llama_lora_002/checkpoint-15000"
+#model_path = "jinymusim/gpt-czech-poet"
+
+if 'unsloth' in model_path:
+    import unsloth
+    from unsloth import FastLanguageModel
+    model, tokenizer = FastLanguageModel.from_pretrained(model_path)
+    FastLanguageModel.for_inference(model)
+else:
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForCausalLM.from_pretrained(model_path)
 
 def _generate(poet_start,
         stop_strings=None,
@@ -30,7 +39,7 @@ def _generate(poet_start,
     """
 
     # tokenize input
-    tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt')
+    tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt').to(model.device)
 
     eos_tokens = [tokenizer.eos_token_id]
     if stop_strings:
