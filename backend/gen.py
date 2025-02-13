@@ -53,10 +53,6 @@ def _generate(poet_start, stop_strings=None, params={}):
     tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt').to(model.device)
 
     # generate a continuation to it
-    if stop_strings:
-        kwargs = {'stop_strings': stop_strings}
-    else:
-        kwargs = {}
     out = model.generate(
             tokenized_poet_start,
             max_new_tokens=256,
@@ -68,7 +64,7 @@ def _generate(poet_start, stop_strings=None, params={}):
             temperature=params.get('temperature', 1),
             tokenizer=tokenizer,
             eos_token_id = tokenizer.eos_token_id,
-            **kwargs,
+            **({'stop_strings': stop_strings} if stop_strings else {}),
     )
 
     # decode and return
