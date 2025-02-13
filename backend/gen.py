@@ -228,8 +228,9 @@ def generuj_tm(params):
     
     # preamble
 
-    author_name = params.get('author_name',
-            GENERATION_PARAMS_DEFAULTS['author_name'])
+    author_name = params.get('author_name')
+    if not author_name:
+        author_name = GENERATION_PARAMS_DEFAULTS['author_name']
     # TODO random select
     poem += f"{author_name}:"
 
