@@ -227,20 +227,19 @@ def generuj_tm(params):
     poem = ''
     
     # preamble
-    if author_name:
-        poem += f" {author_name}:"
-    else:
-        # TODO random select
-        poem += "Rosa, Rudolf:"
-        # poem = _generate(poem, ':', temperature)
 
-    if title:
-        poem += f" {title} ("
+    author_name = params.get('author_name',
+            GENERATION_PARAMS_DEFAULTS['author_name'])
+    # TODO random select
+    poem += f"{author_name}:"
+
+    if params.get('title'):
+        poem += f" {params['title']} ("
     else:
         poem = _generate(poem, '(', params)
 
-    if year:
-        poem += f"{year})\n"
+    if params.get('year'):
+        poem += f"params['{year}'])\n"
     else:
         poem = _generate(poem, '\n', params)
     
@@ -248,10 +247,9 @@ def generuj_tm(params):
 
     # strophes
     strophes = 0
-    stop = False
-    while strophes < max_strophes and '<|end_of_text|>' not in poem:
-        if rhyme_scheme:
-            rhyme_scheme_tm = " ".join(list(rhyme_scheme.replace("X", "x")))
+    while strophes < params.get('max_strophes', 4) and '<|end_of_text|>' not in poem:
+        if params.get('rhyme_scheme'):
+            rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
         else:
             poem = _generate(poem, '\n', params)
@@ -259,25 +257,25 @@ def generuj_tm(params):
         try:
             verses_count = len(poem.split('\n')[-2].split('#')[1].split())
         except:
-            verses_count = len(rhyme_scheme)
+            verses_count = len(params.get('rhyme_scheme', 'AABB'))
 
         # verses
         for _ in range(verses_count):
-            if metre:
-                poem += f"# {metre} #"
+            if params.get('metre'):
+                poem += f"# {params['metre']} #"
             else:
                 poem = _generate(poem, '#', params)
 
-            if syllables_count:
-                poem += f" {syllables_count} #"
+            if params.get('syllables_count'):
+                poem += f" {params['syllables_count']} #"
             else:
                 poem = _generate(poem, '#', params)
 
             # reduplicant
             poem = _generate(poem, '#', params)
 
-            if first_words:
-                word = first_words.pop(0)
+            if params.get('first_words'):
+                word = params['first_words'].pop(0)
                 poem += f" {word} "
                 # TODO anaphors and epanastrophes
             poem = _generate(poem, '\n', params)
@@ -298,9 +296,9 @@ def generuj_tm(params):
         # m = re.match(r'^([^:]*): (.*) \(([^()]*)\)$', header)
         author_name, title, year = m.groups()
     except:
-        author_name = author_name if author_name else 'Anonym'
-        title = title if title else 'Bez názvu'
-        year = year if year else '?'
+        author_name = params.get('author_name', 'Anonym')
+        title = params.get('title', 'Bez názvu')
+        title = params.get('year', '?')
 
     # verses
     verses = []
