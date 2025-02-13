@@ -261,9 +261,9 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
         strophes += 1
         
     # parse result
-    result = poem.split('\n')
+    result = poem.split('<|end_of_text|>')[0].split('\n')
     header = result[0]
-    lines = result[2:].split('<|end_of_text|>')[0]
+    lines = result[2:]
     
     # header
     try:
