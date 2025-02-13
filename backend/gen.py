@@ -34,13 +34,12 @@ except:
 def _generate(poet_start,
         stop_strings=None,
         temperature=1,
-        model='tm'):
+        modelspec='tm'):
     
-    if model_tm and model=='tm':
+    if model_tm and modelspec=='tm':
         model = model_tm
         tokenizer = tokenizer_tm
     else:
-        model = 'mc'
         model = model_mc
         tokenizer = tokenizer_mc
 
@@ -57,13 +56,12 @@ def _generate(poet_start,
     # tokenize input
     tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt').to(model.device)
 
-    eos_tokens = [tokenizer.eos_token_id]
     if stop_strings:
         if isinstance(stop_strings, str):
-            eos_tokens.append(tokenizer.encode(stop_strings)[0])
-        elif isinstance(stop_strings, list):
-            for s in stop_strings:
-                eos_tokens.append(tokenizer.encode(s)[0])
+            stop_strings = [stop_strings]
+        assert isinstance(stop_strings, list)
+    else:
+        stop_strings = []
 
     # generated a continuation to it
     out = model.generate(
@@ -74,7 +72,7 @@ def _generate(poet_start,
             top_k=50,
             # no_repeat_ngram_size=2,
             pad_token_id= tokenizer.pad_token_id,
-            eos_token_id = eos_tokens,
+            stop_strings = stop_strings,
             temperature=temperature,
             )
 
@@ -146,8 +144,7 @@ def generuj_mc(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0
         for index, word in enumerate(first_words):
             poet_start = f'{poet_start}{metre} # {syllables_count} #'
             # generate ending hint
-            poet_start = _generate(poet_start, stop_strings=' #',
-                    temperature=temperature)
+            poet_start = _generate(poet_start, '#', temperature, 'mc')
             # anaphors and epanastrophes have precedence
             # (TODO priority, mutual exclusion)
             if index in anaphors:
@@ -157,7 +154,7 @@ def generuj_mc(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0
             # force word (may be empty, so what)
             poet_start = f"{poet_start} {word}"
             # generate line
-            poet_start = _generate(poet_start, stop_strings='\n', temperature=temperature)
+            poet_start = _generate(poet_start, '\n', temperature, 'mc')
             if index+1 in anaphors:
                 prev_first = poet_start.split('#')[-1].split()[0]
             if index+1 in epanastrophes:
@@ -165,7 +162,7 @@ def generuj_mc(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0
     else:
         poet_start = f'{poet_start}{metre} # {syllables_count} #'
 
-    raw = _generate(poet_start, temperature=temperature)
+    raw = _generate(poet_start, [], temperature, 'mc')
     
     result = raw.split('<|endoftext|>')[0].split('\n')
 
@@ -304,9 +301,9 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
 def generuj(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=0,
         first_words=[], first_line='', year=None, temperature=1,
         anaphors=[], epanastrophes=[], title='', author_name='',
-        max_strophes=4, model='tm'):
+        max_strophes=4, modelspec='tm'):
 
-    if model_tm and model == 'tm':
+    if model_tm and modelspec == 'tm':
         return generuj_tm(rhyme_scheme, metre, verses_count, syllables_count,
             first_words, first_line, year, temperature,
             anaphors, epanastrophes, title, author_name,
