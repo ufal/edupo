@@ -7,9 +7,17 @@
     </script>
     
     <form method="post" action="gen">
-        <p>Autor: <input name="author"> (zatím se ignoruje)</p>
+        <p>Model:
+        <select name="modelspec">
+            <option value="mc">základní</option>
+            <option value="tm">nový</option>
+        </select>
+        Základní model umí 4verší a 6verší, nový model umí lecjaké délky.
+        </p>
+
+        <p>Autor: <input name="author"> (v základním modelu se ignoruje)</p>
     
-        <p>Název: <input name="title"> (zatím se ignoruje)</p>
+        <p>Název: <input name="title"> (v základním modelu se ignoruje)</p>
 
         <p>Metrum:
         <select name="metre">

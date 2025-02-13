@@ -4,8 +4,10 @@
     <meta charset="utf-8">
     {% if title %}
     <title>{{ title }}</title>
-    {% else %}
+    {% elif verses %}
     <title>Bez názvu ({{ verses[0]['text'] }}...)</title>
+    {% else %}
+    <title>Bez názvu</title>
     {% endif %}
     <link rel="stylesheet" href="static/show_poem_base.css" />
     <link rel="stylesheet" id="style" href="static/show_poem_rich.css" />
@@ -25,8 +27,10 @@
 
     {% if title %}
     <h1>{{ title }}</h1>
-    {% else %}
+    {% elif verses %}
     <h1>Bez názvu ({{ verses[0]['text'] }}...)</h1>
+    {% else %}
+    <h1>Bez názvu</h1>
     {% endif %}
 
     {% if author_name %}

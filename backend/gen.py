@@ -31,12 +31,9 @@ except:
     logging.exception("EXCEPTION Nejde načíst unsloth model.")
     model_tm, tokenizer_tm = None, None
 
-def _generate(poet_start,
-        stop_strings=None,
-        temperature=1,
-        modelspec='tm'):
+def _generate(poet_start, stop_strings=None, params={}):
     
-    if model_tm and modelspec=='tm':
+    if model_tm and params['modelspec'] == 'tm':
         model = model_tm
         tokenizer = tokenizer_tm
     else:
@@ -48,33 +45,40 @@ def _generate(poet_start,
     """
     stop_strings(`str or List[str]`, *optional*):
             A string or a list of strings that should terminate generation if the model outputs them.
-            The original implementation did not work for me, so I did my own
-            with eos_token_id, but this requires the stop_strings to be full
-            tokens (so e.g. ' #' instead of just '#').
     """
 
     # tokenize input
     tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt').to(model.device)
 
     if stop_strings:
-        if isinstance(stop_strings, str):
-            stop_strings = [stop_strings]
-        assert isinstance(stop_strings, list)
+        # generated a continuation to it
+        out = model.generate(
+                tokenized_poet_start,
+                max_new_tokens=256,
+                do_sample=True,
+                # top_p=0.7,
+                top_k=50,
+                # no_repeat_ngram_size=2,
+                pad_token_id= tokenizer.pad_token_id,
+                stop_strings = stop_strings,
+                temperature=params.get('temperature', 1),
+                tokenizer=tokenizer,
+                eos_token_id = tokenizer.eos_token_id,
+        )
     else:
-        stop_strings = []
-
-    # generated a continuation to it
-    out = model.generate(
-            tokenized_poet_start,
-            max_new_tokens=256,
-            do_sample=True,
-            # top_p=0.7,
-            top_k=50,
-            # no_repeat_ngram_size=2,
-            pad_token_id= tokenizer.pad_token_id,
-            stop_strings = stop_strings,
-            temperature=temperature,
-            )
+        # generated a continuation to it
+        out = model.generate(
+                tokenized_poet_start,
+                max_new_tokens=256,
+                do_sample=True,
+                # top_p=0.7,
+                top_k=50,
+                # no_repeat_ngram_size=2,
+                pad_token_id= tokenizer.pad_token_id,
+                temperature=params.get('temperature', 1),
+                tokenizer=tokenizer,
+                eos_token_id = tokenizer.eos_token_id,
+                )
 
     # Decode Poet
     result = tokenizer.decode(out[0])
@@ -102,49 +106,61 @@ RHYME_SCHEMES = {
     6: ['AABBCC', 'XXXXXX', 'ABABXX', 'ABABCC'],
     }
 
-def generuj_mc(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
-        first_words=[], first_line='', year=1900, temperature=1,
-        anaphors=[], epanastrophes=[], title='', author_name=''):
-    # TODO probably refactor into parameters as a dict?
+GENERATION_PARAMS_DEFAULTS = {
+    'rhyme_scheme': 'AABB',
+    'metre': 'J',
+    'verses_count': 4,
+    'syllables_count': 8,
+    'first_words': [],
+    'year': 1900,
+    'temperature': 1,
+    'anaphors': [],
+    'epanastrophes': [],
+    'title': 'Bez názvu',
+    'author_name': 'Vrchlický, Jaroslav',
+    'max_strophes': 4,
+    'modelspec': 'tm',
+    }
 
-    if verses_count not in (4, 6):
-        verses_count = random.choice([4, 6])
+def generuj_mc(params):
+
+    params['modelspec'] = 'mc'
+
+    if params.get('verses_count') not in (4, 6):
+        params['verses_count'] = random.choice([4, 6])
 
     # TODO this now also allows thing the model cannot generate
-    if not re.match(r'^[A-Z]+$', rhyme_scheme):
-        rhyme_scheme = random.choice(RHYME_SCHEMES[verses_count])
+    if not re.match(r'^[A-Z]+$', params.get('rhyme_scheme', '')):
+        params['rhyme_scheme'] = random.choice(RHYME_SCHEMES[params['verses_count']])
 
-    if not year:
-        year = '1900'
+    if not params.get('year'):
+        params['year'] = '1900'
 
-    # this is probably not needed here unless verses_count is used for something
-    verses_count = len(rhyme_scheme)
+    params['verses_count'] = len(params['rhyme_scheme'])
 
-    if not metre:
-        metre = random.choice(['J', 'T', 'D'])
+    if not params.get('metre'):
+        params['metre'] = random.choice(['J', 'T', 'D'])
 
-    if syllables_count not in range(1,20):
-        syllables_count = random.choice(range(6, 13))
+    if params.get('syllables_count') not in range(1,20):
+        params['syllables_count'] = random.choice(range(6, 13))
 
-    poet_start = f'# {rhyme_scheme} # {year}\n'
+    poet_start = f"# {params['rhyme_scheme']} # {params['year']}\n"
     # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
-    if first_line:
-        # !! TODO fix this !!
-        ending_hint = first_line[:3]  
-        # !! TODO set syllables_count properly !!
-        poet_start = f"{poet_start}{metre} # {syllables_count} # {ending_hint} # {first_line}\n"
-    elif first_words or anaphors or epanastrophes:
+    if params.get('first_words') or params.get('anaphors') or params.get('epanastrophes'):
+        first_words = params.get('first_words', [])
+        anaphors = params.get('anaphors', set())
+        epanastrophes = params.get('epanastrophes', set())
         assert type(first_words) == list, "first_words must be list"
-        while len(first_words) < verses_count:
+        while len(first_words) < params['verses_count']:
             first_words.append('')
-        while len(first_words) > verses_count:
+        while len(first_words) > params['verses_count']:
             first_words.pop()
         prev_first = ''
         prev_last = ''
         for index, word in enumerate(first_words):
-            poet_start = f'{poet_start}{metre} # {syllables_count} #'
+            poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
             # generate ending hint
-            poet_start = _generate(poet_start, '#', temperature, 'mc')
+            poet_start = _generate(poet_start, ' #', params)
             # anaphors and epanastrophes have precedence
             # (TODO priority, mutual exclusion)
             if index in anaphors:
@@ -154,15 +170,15 @@ def generuj_mc(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0
             # force word (may be empty, so what)
             poet_start = f"{poet_start} {word}"
             # generate line
-            poet_start = _generate(poet_start, '\n', temperature, 'mc')
+            poet_start = _generate(poet_start, '\n', params)
             if index+1 in anaphors:
                 prev_first = poet_start.split('#')[-1].split()[0]
             if index+1 in epanastrophes:
                 prev_last = poet_start.split()[-1]
     else:
-        poet_start = f'{poet_start}{metre} # {syllables_count} #'
+        poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
 
-    raw = _generate(poet_start, [], temperature, 'mc')
+    raw = _generate(poet_start, params=params)
     
     result = raw.split('<|endoftext|>')[0].split('\n')
 
@@ -182,10 +198,8 @@ def generuj_mc(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0
         result.append(verse.strip())
     
     # TODO výhledově možná rovnou vracet v JSON formátu
-    clean_verses = clean(result[-len(rhyme_scheme)-1:])
-    author_name = author_name if author_name else 'Anonym'
-    title = title if title else 'Bez názvu'
-    return raw, clean_verses, author_name, title
+    clean_verses = clean(result[-len(params['rhyme_scheme'])-1:])
+    return raw, clean_verses, params.get('author_name', 'Anonym'), params.get('title', 'Bez názvu')
 
 
 """
@@ -206,13 +220,10 @@ def generuj_mc(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0
 
 """
 
-def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=0,
-        first_words=[], first_line='', year=None, temperature=1,
-        anaphors=[], epanastrophes=[], title='', author_name='',
-        max_strophes=4):
-    # TODO probably refactor into parameters as a dict?
+def generuj_tm(params):
 
-    # poem = '<|begin_of_text|>'
+    params['modelspec'] = 'tm'
+    
     poem = ''
     
     # preamble
@@ -226,12 +237,12 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
     if title:
         poem += f" {title} ("
     else:
-        poem = _generate(poem, '(', temperature)
+        poem = _generate(poem, '(', params)
 
     if year:
         poem += f"{year})\n"
     else:
-        poem = _generate(poem, '\n', temperature)
+        poem = _generate(poem, '\n', params)
     
     poem += "\n#"
 
@@ -243,7 +254,7 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
             rhyme_scheme_tm = " ".join(list(rhyme_scheme.replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
         else:
-            poem = _generate(poem, '\n', temperature)
+            poem = _generate(poem, '\n', params)
         
         try:
             verses_count = len(poem.split('\n')[-2].split('#')[1].split())
@@ -255,25 +266,25 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
             if metre:
                 poem += f"# {metre} #"
             else:
-                poem = _generate(poem, '#', temperature)
+                poem = _generate(poem, '#', params)
 
             if syllables_count:
                 poem += f" {syllables_count} #"
             else:
-                poem = _generate(poem, '#', temperature)
+                poem = _generate(poem, '#', params)
 
             # reduplicant
-            poem = _generate(poem, '#', temperature)
+            poem = _generate(poem, '#', params)
 
             if first_words:
                 word = first_words.pop(0)
                 poem += f" {word} "
                 # TODO anaphors and epanastrophes
-            poem = _generate(poem, '\n', temperature)
+            poem = _generate(poem, '\n', params)
 
         # end of strophe
         # (generate empty line or end of text)
-        poem = _generate(poem, '\n', temperature)
+        poem = _generate(poem, '\n', params)
         strophes += 1
         
     # parse result
@@ -298,20 +309,11 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
     
     return poem, verses, author_name, title
 
-def generuj(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=0,
-        first_words=[], first_line='', year=None, temperature=1,
-        anaphors=[], epanastrophes=[], title='', author_name='',
-        max_strophes=4, modelspec='tm'):
-
-    if model_tm and modelspec == 'tm':
-        return generuj_tm(rhyme_scheme, metre, verses_count, syllables_count,
-            first_words, first_line, year, temperature,
-            anaphors, epanastrophes, title, author_name,
-            max_strophes)
+def generuj(params):
+    if model_tm and params.get('modelspec') == 'tm':
+        return generuj_tm(params)
     else:
-        return generuj_mc(rhyme_scheme, metre, verses_count, syllables_count,
-            first_words, first_line, year, temperature,
-            anaphors, epanastrophes, title, author_name)
+        return generuj_mc(params)
 
 
 if __name__=="__main__":
@@ -320,5 +322,5 @@ if __name__=="__main__":
     except:
         rhyme_scheme = 'AABB'
 
-    result = generuj(rhyme_scheme)
+    result = generuj({'rhyme_scheme': rhyme_scheme})
     print(*result, sep='\n')

@@ -229,7 +229,7 @@ def store(data):
         data['id'] = poemid
     
     with open(f'static/poemfiles/{poemid}.json', 'w') as outfile:
-        json.dump(data, outfile, ensure_ascii=False, indent=4)
+        json.dump(data, outfile, ensure_ascii=False, indent=4, default=list)
     
     return poemid
 
@@ -270,39 +270,27 @@ def call_store():
 def call_generuj():
     # TODO probably refactor into parameters as a dict?
     # empty or 'náhodně' means random
-    rhyme_scheme = get_post_arg('rhyme_scheme', '')
-    verses_count = int(get_post_arg('verses_count', 0, True))
-    syllables_count = int(get_post_arg('syllables_count', 0, True))
-    metre = get_post_arg('metre')
-    first_words = [word.strip() for word in get_post_arg('first_words', isarray=True, default=[])]
+    params = dict()
+    params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
+    params['verses_count'] = int(get_post_arg('verses_count', 0, True))
+    params['syllables_count'] = int(get_post_arg('syllables_count', 0, True))
+    params['metre'] = get_post_arg('metre')
+    params['first_words'] = [word.strip() for word in get_post_arg('first_words', isarray=True, default=[])]
     # TODO if all first_words are empty then ignore
-    anaphors = set(int(x) for x in get_post_arg('anaphors', isarray=True, default=[]))
-    epanastrophes = set(int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[]))
-    temperature = float(get_post_arg('temperature', '1'))
-    title = get_post_arg('title', 'Bez názvu')
-    author_name = get_post_arg('author', 'Anonym')
+    params['anaphors'] = set(int(x) for x in get_post_arg('anaphors', isarray=True, default=[]))
+    params['epanastrophes'] = set(int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[]))
+    params['temperature'] = float(get_post_arg('temperature', '1'))
+    params['title'] = get_post_arg('title', 'Bez názvu')
+    params['author_name'] = get_post_arg('author', 'Anonym')
+    params['modelspec'] = get_post_arg('modelspec', 'mc')
     
-    geninput = (f"Generate poem. " +
-            f"{author_name}: " +
-            f"'{title}'. " +
-            f"Settings: " +
-            f"'{rhyme_scheme}' scheme, " +
-            f"'{metre}' metre, {verses_count} verses, " +
-            f"{syllables_count} syllables, starting '{first_words}', " +
-            f"anaphors on positions {anaphors}, "
-            f"epanastrophes on positions {epanastrophes}, " +
-            f"temperature {temperature}.")
+    geninput = (f"Generate poem with parameters: {params}")
     app.logger.info(geninput)
-    poet_start = rhyme_scheme
-    raw_output, clean_verses, author_name, title = generuj(
-            poet_start, metre, verses_count, syllables_count, first_words,
-            temperature=temperature, anaphors=anaphors,
-            epanastrophes=epanastrophes,
-            title=title, author_name=author_name)
+    raw_output, clean_verses, author_name, title = generuj(dict(params))
     app.logger.info(f"Generated poem {clean_verses}")
    
     data = {
-            'geninput': geninput,
+            'geninput': params,
             'plaintext': "\n".join(clean_verses),
             'rawtext': raw_output,
             'title': title,
