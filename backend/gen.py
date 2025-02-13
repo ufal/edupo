@@ -52,7 +52,7 @@ def _generate(poet_start,
     # generated a continuation to it
     out = model.generate(
             tokenized_poet_start,
-            max_length=256,
+            max_length=2560,
             do_sample=True,
             # top_p=0.7,
             top_k=50,
@@ -63,7 +63,7 @@ def _generate(poet_start,
             )
 
     # Decode Poet
-    result = tokenizer.decode(out[0], skip_special_tokens=True)
+    result = tokenizer.decode(out[0])
     
     return result
 
@@ -193,7 +193,8 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
         max_strophes=4):
     # TODO probably refactor into parameters as a dict?
 
-    poem = '<|begin_of_text|>'
+    # poem = '<|begin_of_text|>'
+    poem = ''
     
     # preamble
     if author_name:
@@ -256,23 +257,25 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
         
     # parse result
     result = poem.split('\n')
-
     header = result[0]
+    lines = result[2:]
+    
+    # header
     try:
-        m = re.match(r'^<\|begin_of_text\|>([^:]*): (.*) \(([^()]*)\)$', header)
+        # m = re.match(r'^<\|begin_of_text\|>([^:]*): (.*) \(([^()]*)\)$', header)
+        m = re.match(r'^([^:]*): (.*) \(([^()]*)\)$', header)
         author_name, title, year = m.groups()
     except:
         author_name = author_name if author_name else 'Anonym'
         title = title if title else 'Bez názvu'
         year = year if year else '?'
 
-    lines = result[2:]
+    # verses
+    verses = []
     for line in lines:
-        verse = line.split('#')[-1].strip()
-        result.append(verse)
-    clean_verses = clean(result)
+        verses.append(line.split('#')[-1].strip())
     
-    return poem, clean_verses, author_name, title
+    return poem, clean(verses), author_name, title
 
 if __name__=="__main__":
     try:
@@ -280,5 +283,5 @@ if __name__=="__main__":
     except:
         rhyme_scheme = 'AABB'
 
-    verses = generuj(rhyme_scheme)
-    print(*verses, sep='\n')
+    result = generuj_tm(rhyme_scheme)
+    print(*result, sep='\n')
