@@ -16,21 +16,34 @@ import re
 
 MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-15000'
 MODEL_MC="jinymusim/gpt-czech-poet"
-model_path=MODEL_TM
 
-if 'unsloth' in model_path:
+# Always load Michal's model
+tokenizer_mc = AutoTokenizer.from_pretrained(MODEL_MC)
+model_mc = AutoModelForCausalLM.from_pretrained(MODEL_MC)
+
+# Try to load unsloth model
+try:
     import unsloth
     from unsloth import FastLanguageModel
-    model, tokenizer = FastLanguageModel.from_pretrained(model_path)
-    FastLanguageModel.for_inference(model)
-else:
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = AutoModelForCausalLM.from_pretrained(model_path)
+    model_tm, tokenizer_tm = FastLanguageModel.from_pretrained(MODEL_TM)
+    FastLanguageModel.for_inference(model_tm)
+except:
+    logging.exception("EXCEPTION Nejde načíst unsloth model.")
+    model_tm, tokenizer_tm = None, None
 
 def _generate(poet_start,
         stop_strings=None,
-        temperature=1):
+        temperature=1,
+        model='tm'):
     
+    if model_tm and model=='tm':
+        model = model_tm
+        tokenizer = tokenizer_tm
+    else:
+        model = 'mc'
+        model = model_mc
+        tokenizer = tokenizer_mc
+
     poet_start = poet_start.replace('<|begin_of_text|>', '')
 
     """
@@ -91,7 +104,7 @@ RHYME_SCHEMES = {
     6: ['AABBCC', 'XXXXXX', 'ABABXX', 'ABABCC'],
     }
 
-def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
+def generuj_mc(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         first_words=[], first_line='', year=1900, temperature=1,
         anaphors=[], epanastrophes=[], title='', author_name=''):
     # TODO probably refactor into parameters as a dict?
@@ -102,6 +115,9 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
     # TODO this now also allows thing the model cannot generate
     if not re.match(r'^[A-Z]+$', rhyme_scheme):
         rhyme_scheme = random.choice(RHYME_SCHEMES[verses_count])
+
+    if not year:
+        year = '1900'
 
     # this is probably not needed here unless verses_count is used for something
     verses_count = len(rhyme_scheme)
@@ -150,7 +166,8 @@ def generuj(rhyme_scheme='AABB', metre='J', verses_count=0, syllables_count=0,
         poet_start = f'{poet_start}{metre} # {syllables_count} #'
 
     raw = _generate(poet_start, temperature=temperature)
-    result = raw.split('\n')
+    
+    result = raw.split('<|endoftext|>')[0].split('\n')
 
     header = result[0]
     try:
@@ -282,11 +299,27 @@ def generuj_tm(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=
     
     return poem, verses, author_name, title
 
+def generuj(rhyme_scheme='AABB', metre=None, verses_count=0, syllables_count=0,
+        first_words=[], first_line='', year=None, temperature=1,
+        anaphors=[], epanastrophes=[], title='', author_name='',
+        max_strophes=4, model='tm'):
+
+    if model_tm and model == 'tm':
+        return generuj_tm(rhyme_scheme, metre, verses_count, syllables_count,
+            first_words, first_line, year, temperature,
+            anaphors, epanastrophes, title, author_name,
+            max_strophes)
+    else:
+        return generuj_mc(rhyme_scheme, metre, verses_count, syllables_count,
+            first_words, first_line, year, temperature,
+            anaphors, epanastrophes, title, author_name)
+
+
 if __name__=="__main__":
     try:
         rhyme_scheme = sys.argv[1]
     except:
         rhyme_scheme = 'AABB'
 
-    result = generuj_tm(rhyme_scheme)
+    result = generuj(rhyme_scheme)
     print(*result, sep='\n')
