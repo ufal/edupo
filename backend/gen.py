@@ -14,7 +14,8 @@ import torch
 import random
 import re
 
-model_path = "../../outputs/unsloth_llama_lora_002/checkpoint-15000"
+model_path = "../../../tomas/outputs/unsloth_llama_lora_002/checkpoint-15000"
+#model_path = "../../outputs/unsloth_llama_lora_002/checkpoint-15000"
 #model_path = "jinymusim/gpt-czech-poet"
 
 if 'unsloth' in model_path:
@@ -52,7 +53,7 @@ def _generate(poet_start,
     # generated a continuation to it
     out = model.generate(
             tokenized_poet_start,
-            max_length=2560,
+            max_new_tokens=256,
             do_sample=True,
             # top_p=0.7,
             top_k=50,
