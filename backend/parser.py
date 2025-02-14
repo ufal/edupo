@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import re
 
 import parsy
@@ -8,13 +9,12 @@ nonres_chars = parsy.regex(r'[^' + special_symbols + ']+')
 def parse_to_dict(p):
     return p.map(lambda x: [a for a in x if a is not None]).map(dict)
 
-# TODO convert these to dataclasses
-class Fixed():
-    def __init__(self, value):
-        self.value = value
+class TParser():
+    pass
 
-    def __repr__(self):
-        return f'Fixed({repr(self.value)})'
+@dataclass
+class Fixed(TParser):
+    value: str
     
     @staticmethod
     def parser():
@@ -23,14 +23,11 @@ class Fixed():
     def poem_parser(self):
         return parsy.string(self.value) >> parsy.success(None).desc(f'fixed string {repr(self.value)}')
 
-class Variable():
-    def __init__(self, name, separator):
-        self.name = name
-        self.separator = separator
-
-    def __repr__(self):
-        return f'Variable({self.name}↦{repr(self.separator)})'
-
+@dataclass
+class Variable(TParser):
+    name: str
+    separator: str
+    
     @staticmethod
     def parser():
         return parsy.seq(
@@ -41,12 +38,9 @@ class Variable():
     def poem_parser(self):
         return parsy.regex(r'(.*?)' + re.escape(self.separator), group=1).tag(self.name).desc(f'variable {self.name}')
 
-class Verse():
-    def __init__(self, items):
-        self.items = items
-
-    def __repr__(self):
-        return f'Verse({self.items})'
+@dataclass
+class Verse(TParser):
+    items: list[TParser]
 
     @staticmethod
     def parser():
@@ -56,12 +50,9 @@ class Verse():
     def poem_parser(self):
         return parse_to_dict(parsy.seq(*[item.poem_parser() for item in self.items])).desc('verse').many().tag('verses')
 
-class Stanza():
-    def __init__(self, items):
-        self.items = items
-
-    def __repr__(self):
-        return f'Stanza({self.items})'
+@dataclass
+class Stanza(TParser):
+    items: list[TParser]
 
     @staticmethod
     def parser():
@@ -71,7 +62,7 @@ class Stanza():
     def poem_parser(self):
         return parse_to_dict(parsy.seq(*[item.poem_parser() for item in self.items])).desc('stanza').many().tag('stanzas')
 
-class Template():
+class Template(TParser):
     def __init__(self, template_txt):
         self.template = Template.parser().parse(template_txt)
 
