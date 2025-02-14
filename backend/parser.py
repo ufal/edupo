@@ -3,10 +3,12 @@ import re
 import parsy
 
 special_symbols = '↪↩↦↻↺⇉⇇' #↤
+nonres_chars = parsy.regex(r'[^' + special_symbols + ']+')
 
 def parse_to_dict(p):
-    return p.map(lambda x: [a for a in x if a is not None]).map(lambda x: dict(x))
+    return p.map(lambda x: [a for a in x if a is not None]).map(dict)
 
+# TODO convert these to dataclasses
 class Fixed():
     def __init__(self, value):
         self.value = value
@@ -16,7 +18,7 @@ class Fixed():
     
     @staticmethod
     def parser():
-        return parsy.regex(r'[^' + special_symbols + ']+').map(lambda x: Fixed(x)).desc('fixed string')
+        return nonres_chars.map(Fixed).desc('fixed string')
     
     def poem_parser(self):
         return parsy.string(self.value) >> parsy.success(None).desc(f'fixed string {repr(self.value)}')
@@ -31,10 +33,13 @@ class Variable():
 
     @staticmethod
     def parser():
-        return parsy.regex(r'↪([^' + special_symbols + ']+)↦([^' + special_symbols + ']+)↩', group=(1,2)).map(lambda x: Variable(*x)).desc('variable')
+        return parsy.seq(
+            parsy.string('↪') >> nonres_chars << parsy.string('↦'),
+            nonres_chars << parsy.string('↩')
+        ).combine(Variable).desc('variable')
     
     def poem_parser(self):
-        return parsy.regex(r'(.*?)' + re.escape(self.separator), group=1).map(lambda x: (self.name, x)).desc(f'variable {self.name}')
+        return parsy.regex(r'(.*?)' + re.escape(self.separator), group=1).tag(self.name).desc(f'variable {self.name}')
 
 class Verse():
     def __init__(self, items):
@@ -46,10 +51,10 @@ class Verse():
     @staticmethod
     def parser():
         items = parsy.alt(Fixed.parser(), Variable.parser())
-        return (parsy.string('↻') >> items.many() << parsy.string('↺')).map(lambda x: Verse(x)).desc('verse')
+        return (parsy.string('↻') >> items.many() << parsy.string('↺')).map(Verse).desc('verse')
 
     def poem_parser(self):
-        return parse_to_dict(parsy.seq(*[item.poem_parser() for item in self.items])).many().map(lambda x: ('verses', x)).desc('verse')
+        return parse_to_dict(parsy.seq(*[item.poem_parser() for item in self.items])).desc('verse').many().tag('verses')
 
 class Stanza():
     def __init__(self, items):
@@ -61,10 +66,10 @@ class Stanza():
     @staticmethod
     def parser():
         items = parsy.alt(Fixed.parser(), Variable.parser(), Verse.parser())
-        return (parsy.string('⇉') >> items.many() << parsy.string('⇇')).map(lambda x: Stanza(x)).desc('stanza')
+        return (parsy.string('⇉') >> items.many() << parsy.string('⇇')).map(Stanza).desc('stanza')
 
     def poem_parser(self):
-        return parse_to_dict(parsy.seq(*[item.poem_parser() for item in self.items])).many().map(lambda x: ('stanzas', x)).desc('stanza')
+        return parse_to_dict(parsy.seq(*[item.poem_parser() for item in self.items])).desc('stanza').many().tag('stanzas')
 
 class Template():
     def __init__(self, template_txt):

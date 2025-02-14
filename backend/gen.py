@@ -338,7 +338,7 @@ if __name__=="__main__":
 
     for _ in range(10):
         result = generuj({
-            'modelspec': 'mc',
+            'modelspec': 'tm',
             'rhyme_scheme': rhyme_scheme,
             })
         print(*result, sep='\n')
