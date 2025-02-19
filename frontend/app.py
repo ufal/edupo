@@ -103,7 +103,7 @@ def call_store():
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     data = get_data(['rhyme_scheme', 'verses_count', 'syllables_count',
-        'metre', 'title', 'author', 'modelspec'])
+        'metre', 'title', 'author', 'modelspec', 'temperature'])
     data['first_words'] = get_post_arg('first_words', isarray=True, default=[])
     data['anaphors'] = get_post_arg('anaphors', isarray=True, default=[])
     data['epanastrophes'] = get_post_arg('epanastrophes', isarray=True, default=[])

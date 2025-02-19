@@ -268,7 +268,6 @@ def call_store():
 
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
-    # TODO probably refactor into parameters as a dict?
     # empty or 'náhodně' means random
     params = dict()
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
