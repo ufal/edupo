@@ -279,6 +279,7 @@ def call_generuj():
     params['anaphors'] = set(int(x) for x in get_post_arg('anaphors', isarray=True, default=[]))
     params['epanastrophes'] = set(int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[]))
     params['temperature'] = float(get_post_arg('temperature', '1'))
+    params['max_strophes'] = int(get_post_arg('max_strophes', '2'))
     params['title'] = get_post_arg('title', 'Bez názvu')
     params['author_name'] = get_post_arg('author', 'Anonym')
     params['modelspec'] = get_post_arg('modelspec', 'mc')
