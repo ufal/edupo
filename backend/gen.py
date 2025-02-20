@@ -239,7 +239,7 @@ def generuj_tm(params):
 
     set_default_if_not(params, 'author_name')
     # TODO random select
-    poem += f"{author_name}:"
+    poem += f"{params['author_name']}:"
 
     if params.get('title'):
         poem += f" {params['title']} ("
