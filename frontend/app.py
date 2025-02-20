@@ -83,6 +83,7 @@ HEADERS_TXT = {"accept": "text/plain"}
 # NOTE this is optimistic, has no error handling
 
 @app.route("/")
+@app.route("/index")
 def hello_world():
     return render_template('index.html')
 

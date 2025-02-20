@@ -237,6 +237,7 @@ def store(data):
 ### INTERFACE STARTS HERE ###
 
 @app.route("/")
+@app.route("/index")
 def hello_world():
     return render_template('index.html')
 
