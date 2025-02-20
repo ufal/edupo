@@ -117,7 +117,7 @@ def redirect_for_poemid(poemid):
 def return_accepted_type_for_poemid(data, html_template=None):
     """redirect for html unless html_template, poem2text_with_header for text"""
     
-    assert data['id'], 'id must be specified in data'
+    assert 'id' in data, 'id must be specified in data'
 
     return_type = get_accepted_type()
     if return_type == 'html':
