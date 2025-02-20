@@ -87,7 +87,8 @@ RHYME_SCHEMES = {
     6: ['AABBCC', 'XXXXXX', 'ABABXX', 'ABABCC'],
     }
 
-GENERATION_PARAMS_DEFAULTS = {
+# default parameter values
+DEFAULT = {
     'rhyme_scheme': 'AABB',
     'metre': 'J',
     'verses_count': 4,
@@ -103,6 +104,10 @@ GENERATION_PARAMS_DEFAULTS = {
     'modelspec': 'tm',
     }
 
+def set_default_if_not(params, key):
+    if not params.get(key, None):
+        params[key] = DEFAULT[key]
+
 def generuj_mc(params):
 
     params['modelspec'] = 'mc'
@@ -114,8 +119,7 @@ def generuj_mc(params):
     if not re.match(r'^[A-Z]+$', params.get('rhyme_scheme', '')):
         params['rhyme_scheme'] = random.choice(RHYME_SCHEMES[params['verses_count']])
 
-    if not params.get('year'):
-        params['year'] = '1900'
+    set_default_if_not(params, 'year')
 
     params['verses_count'] = len(params['rhyme_scheme'])
 
@@ -189,10 +193,10 @@ def generuj_mc(params):
 
         result = result.split('\n')
         try:
-            _, schema, year = header.split('#')
+            _, params['rhyme_scheme'], params['year'] = header.split('#')
         except:
-            schema = params.get('rhyme_scheme', GENERATION_PARAMS_DEFAULTS['rhyme_scheme'])
-            year = '?'
+            set_default_if_not(params, 'rhyme_scheme')
+            params['year'] = '?'
         poem = result[1:]
 
         for line in poem:
@@ -204,7 +208,7 @@ def generuj_mc(params):
     
         # TODO výhledově možná rovnou vracet v JSON formátu
         clean_verses = clean(result[-len(params['rhyme_scheme'])-1:])
-    return raw, clean_verses, params.get('author_name', 'Anonym'), params.get('title', 'Bez názvu')
+    return raw, clean_verses, params.get('author_name', 'Anonym'), params.get('title', DEFAULT['title'])
 
 
 """
@@ -233,9 +237,7 @@ def generuj_tm(params):
     
     # preamble
 
-    author_name = params.get('author_name')
-    if not author_name:
-        author_name = GENERATION_PARAMS_DEFAULTS['author_name']
+    set_default_if_not(params, 'author_name')
     # TODO random select
     poem += f"{author_name}:"
 
