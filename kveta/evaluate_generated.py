@@ -2,74 +2,50 @@
 #coding: utf-8
 
 import sys
+sys.path.append("../backend")
+import parser
+import parsy
 sys.path.append("../kveta")
 from kveta import okvetuj
+from get_measures import get_measures
+from functools import reduce
 
-def get_measures(input_txt):
+poems = []
+current_poem = ""
+separator = False
+with open(sys.argv[1], 'r') as file:
+    for line in file:
+        if line.startswith("================================================================================") or line.startswith("temperature = "):
+            separator = True
+            if current_poem:
+                poems.append(current_poem)
+                current_poem = ""
+        else:
+            current_poem += line
+    if current_poem:
+        poems.append(current_poem)
 
-    text = ""
-    hints = []
+with open('../backend/prompt_templates/tm1.txt', 'r') as f:
+     template_tm = parser.Template(f.read())
 
-    for line in input_txt.split("\n"):
-        line = line.strip()
-        if line.startswith('#'):
-            line = line[1:].strip()
-        items = [v.strip() for v in line.split('#')]
-        if len(items) >= 4 and len(items[0]) > 0 and items[0] != 'N' and items[1].isdigit() and items[2] != 'NON' and len(items[3]) > 0:
-            hints.append([items[0], items[1], items[2]])
-            text += items[3] + "\n"
-        elif line == "":
-            text += "\n"
+for i, poem in enumerate(poems):
+    poem = poem.split('<|end_of_text|>')[0]
+    print('Processing poem', i, file=sys.stderr)
 
-    data, k = okvetuj(text)
-
-    if len(data[0]["body"][0]) != len(hints):
-        print("ERROR: The output length is different from the hints length:", len(data[0]["body"][0]), len(hints))
-        return {}
-
-    unknown_counter = 0
-    words_counter = 0
-    syllable_count_match = 0
-    metre_average_prob = 0
-    rhyme_count = 0
-
-    for i in range(len(hints)):
-        if 'metre_probs' in data[0]["body"][0][i]:
-            if hints[i][0] in data[0]["body"][0][i]['metre_probs']:
-                metre_average_prob += data[0]["body"][0][i]['metre_probs'][hints[i][0]]
-            elif hints[i][0] == 'N':
-                # pro neurcite metrum je vzdy vsechno spravne
-                metre_average_prob += 1
-
-        syllcount = 0
-        for word in data[0]["body"][0][i]['words']:
-            if 'is_unknown' in word:
-                unknown_counter += 1
-            words_counter += 1
-            if 'syllables' in word:
-                syllcount += len(word['syllables'])
-        if syllcount == int(hints[i][1]):
-            syllable_count_match += 1
-        if 'rhyme' in data[0]["body"][0][i] and data[0]["body"][0][i]["rhyme"] != None:
-            rhyme_count += 1
-
-
-    return {'unknown_words': unknown_counter/words_counter,
-            'metre_average_prob': metre_average_prob / len(hints),
-            'syllable_cnt_acc': syllable_count_match / len(hints),
-            'rhyming': rhyme_count / len(hints),
-            'correct_lines': len([t for t in text if len(t.strip()) > 0]),
-            }
-
-if __name__=="__main__":
-
-    with open(sys.argv[1], 'r') as f:
-        input_text = f.read()
-    
     try:
-        results = get_measures(input_text)
-    except:
-        print('ERROR while processing file:', sys.argv[1], file=sys.stderr)
-        raise
+        parsed = (parsy.string('<|begin_of_text|>').optional() >> template_tm.poem_parser()).parse(poem + '\n\n') # TODO fix hack with \n\n
+        author_name = parsed.get('author_name')
+        title = parsed.get('poem_title')
+        verses = reduce(lambda x, y: x + [''] + y, [[v['line'] for v in s['verses']] for s in parsed['stanzas']])
+    except parsy.ParseError as e:
+        print("EXCEPTION Nepodařený parsing básně:" + str(e), file=sys.stderr)
+        continue
 
-    print(sys.argv[1], results)
+    try:
+        results = get_measures("\n".join(verses) + "\n")
+        
+    except:
+        print('ERROR while processing file:', i, file=sys.stderr)
+        raise
+    print(i, results['unknown_words'], results['rhyming'], results['metre_consistency'], results['syllable_count_entropy'], sep="\t")
+
