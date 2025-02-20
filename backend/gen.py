@@ -191,7 +191,7 @@ def generuj_mc(params):
         try:
             _, schema, year = header.split('#')
         except:
-            schema = rhyme_scheme
+            schema = params.get('rhyme_scheme', GENERATION_PARAMS_DEFAULTS['rhyme_scheme'])
             year = '?'
         poem = result[1:]
 
