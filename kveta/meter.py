@@ -92,7 +92,7 @@ class Meter:
             self.poem_[i]['metre'] = dict()
 
             # Defaultní distribuce pro čtyři základní metra
-            self.poem_[i]['metre_probs'] = {'T': 00.1, 'J': 0.01, 'D': 0.01, 'A':0.01 }
+            self.poem_[i]['metre_probs'] = {'T': 0.01, 'J': 0.01, 'D': 0.01, 'A':0.01 }
 
             for pattern in self.patterns_:    
                 self.poem_[i]['metre'][pattern] = 1
