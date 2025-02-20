@@ -42,7 +42,7 @@ except:
 
 def _generate(poet_start, stop_strings=None, params={}):
     
-    if model_tm and params['modelspec'] == 'tm':
+    if model_tm and params.get('modelspec', 'mc') == 'tm':
         model = model_tm
         tokenizer = tokenizer_tm
     else:
@@ -75,7 +75,10 @@ def _generate(poet_start, stop_strings=None, params={}):
     )
 
     # decode and return
-    return tokenizer.decode(out[0])
+    full = tokenizer.decode(out[0])
+    generated = tokenizer.decode(out[0][len(tokenized_poet_start[0]):])
+
+    return full, generated
  
 
 
@@ -138,7 +141,7 @@ def generuj_mc(params):
         for index, word in enumerate(first_words):
             poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
             # generate ending hint
-            poet_start = _generate(poet_start, ' #', params)
+            poet_start, generated = _generate(poet_start, ' #', params)
             # anaphors and epanastrophes have precedence
             # (TODO priority, mutual exclusion)
             if index in anaphors:
@@ -148,7 +151,7 @@ def generuj_mc(params):
             # force word (may be empty, so what)
             poet_start = f"{poet_start} {word}"
             # generate line
-            poet_start = _generate(poet_start, '\n', params)
+            poet_start, generated = _generate(poet_start, '\n', params)
             if index+1 in anaphors:
                 prev_first = poet_start.split('#')[-1].split()[0]
             if index+1 in epanastrophes:
@@ -156,7 +159,7 @@ def generuj_mc(params):
     else:
         poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
 
-    raw = _generate(poet_start, params=params)
+    raw, generated = _generate(poet_start, params=params)
     
     result = raw.split('<|endoftext|>')[0]
 
@@ -239,12 +242,12 @@ def generuj_tm(params):
     if params.get('title'):
         poem += f" {params['title']} ("
     else:
-        poem = _generate(poem, '(', params)
+        poem, generated = _generate(poem, '(', params)
 
     if params.get('year'):
         poem += f"params['{year}'])\n"
     else:
-        poem = _generate(poem, ')\n', params)
+        poem, generated = _generate(poem, ')\n', params)
 
     # strophes
     strophes = 0
@@ -254,7 +257,7 @@ def generuj_tm(params):
             rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
         else:
-            poem = _generate(poem, '\n', params)
+            poem, generated = _generate(poem, '\n', params)
         
         try:
             verses_count = len(poem.split('\n')[-2].split('#')[1].split())
@@ -266,25 +269,25 @@ def generuj_tm(params):
             if params.get('metre'):
                 poem += f"# {params['metre']} #"
             else:
-                poem = _generate(poem, '#', params)
+                poem, generated = _generate(poem, '#', params)
 
             if params.get('syllables_count'):
                 poem += f" {params['syllables_count']} #"
             else:
-                poem = _generate(poem, '#', params)
+                poem, generated = _generate(poem, '#', params)
 
             # reduplicant
-            poem = _generate(poem, '#', params)
+            poem, generated = _generate(poem, '#', params)
 
             if params.get('first_words'):
                 word = params['first_words'].pop(0)
                 poem += f" {word} "
                 # TODO anaphors and epanastrophes
-            poem = _generate(poem, '\n', params)
+            poem, generated = _generate(poem, '\n', params)
 
         # end of strophe
         # (generate empty line or end of text)
-        # poem = _generate(poem, '\n', params)
+        # poem, generated = _generate(poem, '\n', params)
         if poem[-2:] != '\n\n':
             poem += '\n'
         strophes += 1
