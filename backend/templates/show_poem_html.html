@@ -208,13 +208,33 @@
         <p class="plaintext">{{ plaintext }}</p>
         {% endif %}
         
+        {% if id %}
+        <form method="post" action="processopenai">
+            <input type="text" name="openaiprompt" placeholder="Přelož text následující básně do slovenštiny">
+            (za zadaný prompt se automaticky vloží text básně)
+            <input type="hidden" name="poemid" value="{{ id }}">
+            <input type="submit" value="Zpracovat text básně pomocí ChatGPT"
+            onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
+        </form>
+        {% endif %}
+
+        {% if openaioutput %}
+        <hr>
+        <p>OpenAI prompt:</p>
+        <pre class="raw">{{ openaiprompt }}</pre>
+        <p>OpenAI output:</p>
+        <pre class="raw">{{ openaioutput }}</pre>
+        {% endif %}
+        
         {% if geninput %}
         <hr>
+        <p>Input parameters:</p>
         <pre class="raw">{{ geninput }}</pre>
         {% endif %}
         
         {% if rawtext %}
         <hr>
+        <p>Raw generated output:</p>
         <pre class="raw">{{ rawtext }}</pre>
         {% endif %}
     </div>

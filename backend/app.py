@@ -389,6 +389,24 @@ def call_genmotives():
             redirect_for_poemid(poemid)
             )
 
+@app.route("/processopenai", methods=['GET', 'POST'])
+def call_processopenai():
+    poemid = get_post_arg('poemid')
+    data = get_poem_by_id(poemid)
+    data['openaiprompt'] = get_post_arg('openaiprompt')
+    
+    data['openaioutput'] = generate_with_openai_simple(poem2text(data), data['openaiprompt'])
+    store(data)
+    
+    return return_accepted_type(
+            data['openaioutput'],
+            {
+                'openaiprompt': data['openaiprompt'],
+                'openaioutput': data['openaioutput'],
+            },
+            redirect_for_poemid(poemid)
+            )
+
 @app.route("/genimage", methods=['GET', 'POST'])
 def call_genimage():
     poemid = get_post_arg('poemid')
