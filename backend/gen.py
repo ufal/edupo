@@ -298,7 +298,8 @@ def generuj_tm(params):
 
             if params.get('first_words'):
                 word = params['first_words'].pop(0)
-                poem += f" {word} "
+                if word:
+                    poem += f" {word}"
                 # TODO anaphors and epanastrophes
             poem, generated = _generate(poem, '\n', params)
 
