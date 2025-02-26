@@ -205,7 +205,7 @@ def generuj_mc(params):
                     # we start the line
                     raw, generated = _generate(poet_start, '\n', params)
                     # cut off second half
-                    tokens = generated.split()
+                    tokens = generated.split('#')[-1].split()
                     part = (len(tokens) + 1) // 2
                     continuation = " ".join(tokens[:part])
                     raw = f"{poet_start} # <REDUPLICANT> # {continuation}"
