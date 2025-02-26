@@ -3,7 +3,6 @@
 
 from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response
 from flask_cors import CORS
-from flask_api import status
 from itertools import groupby
 import os
 from gen import generuj
@@ -96,7 +95,7 @@ def get_accepted_type():
             return_type = 'txt'
     return return_type
 
-def return_accepted_type(text, json, html, status=status.HTTP_200_OK):
+def return_accepted_type(text, json, html, status=200):
     return_type = get_accepted_type()
     if return_type == 'html':
         return html
@@ -508,4 +507,4 @@ def handle_exception(e):
     app.logger.error('EXCEPTION: ' + str(e))
     text = "Došlo k chybě. Můžete to zkusit znova. Chyba: " + str(e)
     json = f'{"error": "{text}"}'
-    return return_accepted_type(text, json, text, status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return return_accepted_type(text, json, text, status=500)
