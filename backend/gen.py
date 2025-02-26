@@ -5,6 +5,7 @@ from functools import reduce
 import random
 import re
 import sys
+import json
 
 import logging
 logging.basicConfig(
@@ -24,17 +25,20 @@ MODEL_MC="jinymusim/gpt-czech-poet"
 model_mc, tokenizer_mc, template_mc = None, None, None
 model_tm, tokenizer_tm, template_tm = None, None, None
 
-def load_models(load_mc=True, load_tm=True):
+def load_models(modelspec=['mc', 'tm']):
     global model_mc, tokenizer_mc, template_mc, model_tm, tokenizer_tm, template_tm
-    
-    if load_mc:
+
+    loaded = False
+
+    if 'mc' in modelspec:
         # load Michal's model
         tokenizer_mc = AutoTokenizer.from_pretrained(MODEL_MC)
         model_mc = AutoModelForCausalLM.from_pretrained(MODEL_MC)
         with open('prompt_templates/chudoba.txt', 'r') as f:
                 template_mc = parser.Template(f.read())
+        loaded = True
 
-    if load_tm:
+    if 'tm' in modelspec:
         # Try to load unsloth model
         try:
             import unsloth
@@ -43,10 +47,12 @@ def load_models(load_mc=True, load_tm=True):
             FastLanguageModel.for_inference(model_tm)
             with open('prompt_templates/tm1.txt', 'r') as f:
                 template_tm = parser.Template(f.read())
-
+            loaded = True
         except:
             logging.exception("EXCEPTION Nejde načíst unsloth model.")
             model_tm, tokenizer_tm = None, None
+    
+    return loaded
 
 def _generate(poet_start, stop_strings=None, params={}):
     
@@ -344,16 +350,36 @@ def generuj(params):
 
 
 if __name__=="__main__":
-    load_models()
+    if len(sys.argv) > 1 and sys.argv[1] == 'zmq':
+        # zmq mode
+        modelspec = sys.argv[2]
+        assert modelspec in ['mc', 'tm']
+        port = int(sys.argv[3])
+        logging.info(f'Starting zmq with {modelspec} model on port {port}')
+        
+        import zmq
+        context = zmq.Context()
+        socket = context.socket(zmq.REP)
+        socket.bind(f"tcp://*:{port}")
+        loaded = load_models(modelspec)
+        if loaded:
+            while True:
+                params = json.loads(socket.recv())
+                params['modelspec'] = modelspec
+                result = json.dumps(generuj(params))
+                socket.send_string(result)
+        else:
+            logging.error('Models not loaded')
 
-    try:
-        rhyme_scheme = sys.argv[1]
-    except:
+    else:    
+        # direct mode
+        load_models()
         rhyme_scheme = 'AABB'
-
-    for _ in range(10):
-        result = generuj({
-            'modelspec': 'tm',
+        for modelspec in ['mc', 'tm']:
+            result = generuj({
+            'modelspec': modelspec,
             'rhyme_scheme': rhyme_scheme,
             })
         print(*result, sep='\n')
+
+

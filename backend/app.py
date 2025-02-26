@@ -5,7 +5,7 @@ from flask import Flask, request, render_template, g, redirect, url_for, jsonify
 from flask_cors import CORS
 from itertools import groupby
 import os
-from gen import generuj, load_models
+# from gen import generuj, load_models
 import show_poem_html
 import sqlite3
 import json
@@ -31,10 +31,13 @@ POEMFILES="static/poemfiles"
 # /edupo/ externally so this is a work-around
 EDUPO_SERVER_PATH = os.getenv('EDUPO_SERVER_PATH', '')
 
+MC_MODEL_PORT = os.getenv('MC_MODEL_PORT', 5010)
+TM_MODEL_PORT = os.getenv('TM_MODEL_PORT', 5011)
+
 sqlite3.register_converter("json", json.loads)
 
 # load generator models
-load_models()
+# load_models()
 
 class ExceptionPoemDoesNotExist(Exception):
     pass
@@ -292,6 +295,20 @@ def call_store():
     store(data)
     return return_accepted_type_for_poemid(data)
 
+import zmq
+def gen_zmq(params):
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    if params['modelspec'] == 'tm':
+        try:
+            socket.connect(f"tcp://localhost:{TM_MODEL_PORT}")
+        except:
+            socket.connect(f"tcp://localhost:{MC_MODEL_PORT}")
+    else:
+        socket.connect(f"tcp://localhost:{MC_MODEL_PORT}")
+    socket.send_string(json.dumps(params))
+    return json.loads(socket.recv())
+
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     # empty or 'náhodně' means random
@@ -302,8 +319,8 @@ def call_generuj():
     params['metre'] = get_post_arg('metre')
     params['first_words'] = [word.strip() for word in get_post_arg('first_words', isarray=True, default=[])]
     # TODO if all first_words are empty then ignore
-    params['anaphors'] = set(int(x) for x in get_post_arg('anaphors', isarray=True, default=[]))
-    params['epanastrophes'] = set(int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[]))
+    params['anaphors'] = [int(x) for x in get_post_arg('anaphors', isarray=True, default=[])]
+    params['epanastrophes'] = [int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[])]
     params['temperature'] = float(get_post_arg('temperature', '1'))
     params['max_strophes'] = int(get_post_arg('max_strophes', '2'))
     params['title'] = get_post_arg('title', 'Bez názvu')
@@ -312,7 +329,8 @@ def call_generuj():
     
     geninput = (f"Generate poem with parameters: {params}")
     app.logger.info(geninput)
-    raw_output, clean_verses, author_name, title = generuj(dict(params))
+    # raw_output, clean_verses, author_name, title = generuj(dict(params))
+    raw_output, clean_verses, author_name, title = gen_zmq(params)
     app.logger.info(f"Generated poem {clean_verses}")
   
     # sets must be lists now
