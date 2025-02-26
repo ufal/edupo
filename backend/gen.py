@@ -187,6 +187,7 @@ def generuj_mc(params):
         last = '.'
         for verse in verses:
             if verse:
+                verse = verse.strip()
                 if last in END_PUNCT:
                     verse = verse.capitalize()
                 last = verse[-1]
