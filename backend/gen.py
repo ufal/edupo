@@ -8,7 +8,7 @@ import sys
 
 import logging
 logging.basicConfig(
-    format='%(asctime)s %(message)s',
+    format='%(levelname) %(asctime)s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO)
 
@@ -188,7 +188,7 @@ def generuj_mc(params):
         result = [v['line'] for v in parsed['verses']]
         clean_verses = clean(result)
     except parsy.ParseError as e:
-        logging.exception("EXCEPTION Nepodařený parsing básně:" + str(e))
+        logging.warning("EXCEPTION Nepodařený parsing básně:" + str(e))
         header = result[0]
 
         result = result.split('\n')
@@ -305,7 +305,7 @@ def generuj_tm(params):
         verses = reduce(lambda x, y: x + [''] + y, [[v['line'] for v in s['verses']] for s in parsed['stanzas']])
 
     except parsy.ParseError as e:
-        logging.exception("EXCEPTION Nepodařený parsing básně:" + str(e))
+        logging.warning("EXCEPTION Nepodařený parsing básně:" + str(e))
         
         result = result.split('\n')
         header = result[0]

@@ -6,7 +6,7 @@ import io
 
 import logging
 logging.basicConfig(
-    format='%(asctime)s %(message)s',
+    format='%(levelname) %(asctime)s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO)
 
@@ -19,8 +19,8 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500):
         apikey = infile.read().rstrip()
     try:
         client = OpenAI(api_key=apikey)
-    except Exception as e:
-        print(e)
+    except:
+        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
 
     # https://platform.openai.com/docs/guides/chat/introduction
     try:
@@ -35,7 +35,6 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500):
             frequency_penalty=0,
             logit_bias={},
         )
-        # print(response)
         return response.choices[0].message.content
 
     except:
@@ -43,7 +42,7 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500):
         return None
 
 def generate_with_openai_simple(prompt, system="You are a helpful assistant.", model="gpt-4o-mini", max_tokens=500):
-    print('TEXTGEN Prompt:', show_short(prompt))
+    logging.info('TEXTGEN Prompt: ' + show_short(prompt))
     messages=[
         {"role": "system", "content": system},
         {"role": "user", "content": prompt},
@@ -66,12 +65,12 @@ def generate_image_with_openai(prompt, filename):
         apikey = infile.read().rstrip()
     try:
         client = OpenAI(api_key=apikey)
-    except Exception as e:
-        print(e)
+    except:
+        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
     
-    print('IMGGEN Prompt:', show_short(prompt))
+    logging.info('IMGGEN Prompt: ' + show_short(prompt))
     sanitized_prompt = sanitize_prompt(prompt)
-    print('IMGGEN Sanitized:', show_short(sanitized_prompt))
+    logging.info('IMGGEN Sanitized: ' + show_short(sanitized_prompt))
 
     try:
         response = client.images.generate(
