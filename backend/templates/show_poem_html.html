@@ -224,7 +224,7 @@
         {% for item in openai %}
         <hr>
         <p>OpenAI prompt: {{ item.prompt }}</p>
-        <pre class="raw">{{ openaioutput }}</pre>
+        <pre class="raw">{{ item.output }}</pre>
         {% endfor %}
         {% endif %}
         
