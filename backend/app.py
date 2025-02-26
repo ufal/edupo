@@ -506,5 +506,5 @@ def call_logs():
 def handle_exception(e):
     app.logger.error('EXCEPTION: ' + str(e))
     text = "Došlo k chybě. Můžete to zkusit znova. Chyba: " + str(e)
-    json = f'{"error": "{text}"}'
+    json = '{"error": "' + text + '"}'
     return return_accepted_type(text, json, text, status=500)
