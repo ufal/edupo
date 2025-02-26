@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% elif verses %}
+    <title>Bez názvu ({{ verses[0]['text'] }}...)</title>
+    {% else %}
+    <title>Bez názvu</title>
+    {% endif %}
+    <link rel="stylesheet" href="static/show_poem_base.css" />
+</head>
+<body>
+    
+    <div id="qrimg">
+    <a href="static/qrcodes/{{ id }}.png"><img src="static/qrcodes/{{ id }}.png" alt="QR kód" title="QR kód"></a>
+    <br> 
+    <button onclick="navigator.clipboard.writeText('https://quest.ms.mff.cuni.cz/edupo/show?poemid={{ id }}');">Zkopírovat odkaz</button>
+    </div>
+
+    {% if title %}
+    <h1>{{ title }}</h1>
+    {% elif verses %}
+    <h1>Bez názvu ({{ verses[0]['text'] }}...)</h1>
+    {% else %}
+    <h1>Bez názvu</h1>
+    {% endif %}
+    
+    {% if poemid %}
+    <p class="id">{{ poemid }}</p>
+    {% endif %}
+
+    
+    <div class="body">
+        
+        <form method="post" action="geninter">
+        
+        <input type="hidden" name="poemid" value="{{ poemid }}">
+        <input type="hidden" name="rawtext" value="{{ rawtext }}">
+        <input type="hidden" name="interactive_mode" value="{{ interactive_mode }}">
+        <input type="hidden" name="modelspec" value="{{ modelspec }}">
+        <input type="hidden" name="title" value="{{ title }}">
+        <input type="hidden" name="metre" value="{{ metre }}">
+        <input type="hidden" name="rhyme_scheme" value="{{ rhyme_scheme }}">
+        <input type="hidden" name="syllables_count" value="{{ syllables_count }}">
+    
+
+        <p class="plaintext">{{ plaintext }}{%
+            if interactive_mode == 'verses_gh'
+            %}<input name="userinput" size="30" placeholder="(dopiš verš)">{%
+            endif
+        %}</p>
+
+
+        {% if interactive_mode == 'verses_hg' %}
+        <input name="userinput" size="30" placeholder="(začni další verš)">
+        {% endif %}
+        {% if interactive_mode in ['lines_hg', 'lines_gh'] %}
+        <input name="userinput" size="30" placeholder="(napiš další verš)">
+        {% endif %}
+
+
+        <input type="submit" value="Generovat dál"
+        onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
+        
+        </form>
+
+        <br>nebo<br>
+
+        <form method="get" action="show">
+        <input type="hidden" name="poemid" value="{{ poemid }}">
+        <input type="submit" value="Ukončit generování">
+        </form>
+
+        {% if geninput %}
+        <hr>
+        <p>Input parameters:</p>
+        <pre class="raw">{{ geninput }}</pre>
+        {% endif %}
+        
+        {% if rawtext %}
+        <hr>
+        <p>Raw output:</p>
+        <pre class="raw">{{ rawtext }}</pre>
+        {% endif %}
+    </div>
+
+   <hr>
+   <p><a href="index">Zpět na hlavní stránku</a></p>
+
+</body>
+</html>
+
+<!--
+{{ json|safe }}
+-->

@@ -12,7 +12,8 @@
             <option value="mc">základní</option>
             <option value="tm">nový</option>
         </select>
-        Základní model umí 4verší a 6verší, nový model umí lecjaké délky.
+        Základní model umí 4verší a 6verší, nový model umí lecjaké délky (ale
+        neumí anafory a epanastrofy).
         </p>
 
         <p>Autor: <input name="author"> (v základním modelu se ignoruje)</p>
@@ -103,26 +104,25 @@
         (respektive ve všech verších které mají definovaný požadavek na první slovo)
         </p>
 
-        <p>TODO rozměr (počet stop) -- buď stejný pro celou báseň, nebo pro
+        <!--<p>TODO rozměr (počet stop) -- buď stejný pro celou báseň, nebo pro
         jednotlivé rýmy; není to nutně totéž jako počet slabik (m/f/a se liší
-        počtem slabik při stejném rozměru)</p>
+        počtem slabik při stejném rozměru)</p>-->
 
-        <p>Pevná forma:
+        <!--<p>Pevná forma:
         <select name="form" disabled>
         <option value="">ne</option>
         <option value="sonet">italský sonet</option>
         </select>
-        </p>
+        </p>-->
 
-        <p>Téma/motiv:
+        <!--<p>Téma/motiv:
         <input type="text"
                name="motiv"
                disabled
         >
-        </p>
+        </p>-->
 
         <p>První slova veršů:
-        (TODO placeholder = náhodné slovo?)
         Lze vypnit jen první slovo prvního verše, anebo i první slova dalších
         veršů...
         <ol>
@@ -183,7 +183,7 @@
         </ol>
         </p>
 
-        <p>Typ lyriky:
+        <!--<p>Typ lyriky:
         <select name="lyrika_style" disabled>
         <option value="">ne</option>
         <option value="přírodní">přírodní</option>
@@ -212,7 +212,7 @@
         <option value="">ne</option>
         <option value="ruchovci">ruchovci</option>
         </select>
-        </p>
+        </p>-->
 
         <p>Temperature: <input type="number" name="temperature" value="1.0"
         step="0.01" min="0" max="10"> (1 standard, mezi

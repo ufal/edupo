@@ -1,0 +1,80 @@
+    <form method="post" action="geninter">
+        <p>Mód interaktivního generování:<br>
+        <label>
+            <input type="radio" name="interactive_mode" value="lines_gh" checked>
+            Střídáme se po celých verších, začíná generátor
+        </label><br>
+
+        <label>
+            <input type="radio" name="interactive_mode" value="lines_hg">
+            Střídáme se po celých verších, začíná člověk
+        </label><br>
+
+        <label>
+            <input type="radio" name="interactive_mode" value="verses_hg">
+            Každý verš píšeme společně, člověk ho začne a generátor ho dokončí
+        </label><br>
+
+        <label>
+            <input type="radio" name="interactive_mode" value="verses_gh">
+            Každý verš píšeme společně, generátor ho začne a člověk ho dokončí
+        </label><br>
+        </p>
+        
+        <p>Model:
+        <select name="modelspec">
+            <option value="mc">základní</option>
+            <option value="tm">nový</option>
+        </select>
+        </p>
+
+        </p>
+    
+        <p>Název: <input name="title"> (v základním modelu se ignoruje)</p>
+
+        <p>Metrum:
+        <select name="metre">
+        <option value="T">trochej</option>
+        <option value="J">jamb</option>
+        <option value="D">daktyl</option>
+        <option value="N">volný</option>
+        </select>
+        </p>
+
+        <p>
+        Rýmové schéma:
+        <select name="rhyme_scheme">
+        <option>AABB</option>
+        <option>ABAB</option>
+        <option>ABBA</option>
+        <option>XAXA</option>
+        <option>AAXX</option>
+        <option>XXXX</option>
+        </select>
+        Rýmující verše se označují
+        stejným písmenem, nerýmující se verš se označuje X.
+        <!-- Nejběžnější schémata: ABAB, XXXX, XAXA, XXXXXX, AABB, ABBA, AABBCC, AAXX, ABABXX, ABABCC -->
+        </p>
+        
+        <p>Počet slabik ve verši:
+        <select name="syllables_count" id="syllables_count">
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8" selected>8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+        <option value="15">15</option>
+        <option value="16">16</option>
+        </select>
+        </p>
+
+        <input type="submit" value="Generovat"
+        onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
+    </form>
+

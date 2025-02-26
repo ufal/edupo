@@ -214,6 +214,10 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
             else:
                 return None
 
+    if poemid == 'RANDOMGEN':
+        poemids = [f for f in os.listdir(POEMFILES) if f.endswith('.json')]
+        poemid = random.choice(poemids)
+
     if os.path.isfile(f"{POEMFILES}/{poemid}.json") or os.path.isfile(f"{POEMFILES}/{poemid}"):
         # TODO always analyze ???
         #    kveta_result = okvetuj(data['plaintext'])
@@ -352,6 +356,39 @@ def call_generuj():
     store(data)
     
     return return_accepted_type_for_poemid(data)
+
+@app.route("/geninter", methods=['GET', 'POST'])
+def call_generuj_interaktivne():
+    
+    params = dict()
+    
+    # generation settings
+    params['interactive_mode'] = get_post_arg('interactive_mode', 'lines_gh', True)
+    params['modelspec'] = get_post_arg('modelspec', 'mc', True)
+    params['title'] = get_post_arg('title', 'Bez názvu', True)
+    params['metre'] = get_post_arg('metre', 'T', True)
+    params['rhyme_scheme'] = get_post_arg('rhyme_scheme', 'AABB', True)
+    params['syllables_count'] = int(get_post_arg('syllables_count', 8, True))
+    
+    # generation process
+    params['id'] = get_post_arg('poemid')
+    params['rawtext'] = get_post_arg('rawtext', '')
+    params['userinput'] = get_post_arg('userinput', '')
+
+    app.logger.info(f"Generate interactively poem with parameters: {params}")
+    raw_output, clean_verses, author_name, title = gen_zmq(params)
+    app.logger.info(f"Generated interatively part of poem: {clean_verses}")
+  
+    data = {
+            **params,
+            'geninput': params,
+            'plaintext': "\n".join(clean_verses),
+            'rawtext': raw_output,
+            }
+    data['poemid'] = store(data)
+    
+    html = render_template('interactive_gen_process.html', **data)
+    return return_accepted_type(data['rawtext'], data, html)
 
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():

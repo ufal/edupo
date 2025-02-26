@@ -22,14 +22,22 @@
 
 <h1>EduPo</h1>
 
+<hr>
+<h2>Náhodná báseň</h2>
+<a href="show?poemid=RANDOMGEN">Zobrazit náhodnou vygenerovanou báseň</a>
+<hr>
+
 <h2>Generovat báseň</h2>
 {% include 'gen_input.html' %}
+<hr>
 
 <h2>Interaktivně generovat báseň</h2>
-TODO... něco jako 1 řádek člověk, 1 řádek stroj, apod.
+{% include 'interactive_gen_input.html' %}
+<hr>
 
 <h2>Analyzovat báseň</h2>
 {% include 'ana_input.html' %}
+<hr>
 
 <h2>Zobrazit báseň</h2>
 TODO nějaké vybrané ukázky? A/nebo náhodně nějakou báseň z korpusu? Vybrané autory?
