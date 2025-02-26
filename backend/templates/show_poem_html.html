@@ -124,6 +124,15 @@
     </form>
     {% endif %}
     
+    {% if not translations or not translations.uk %}
+    <form method="post" action="translate">
+        <input type="hidden" name="poemid" value="{{ id }}">
+        <input type="hidden" name="language" value="uk">
+        <input type="submit" value="Перекласти українською"
+        onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
+    </form>
+    {% endif %}
+    
     </div>
 
     <hr style="clear: both">
@@ -242,6 +251,12 @@
         <hr>
         <p>[Automatický preklad do slovenčiny]</p>
         <p style="white-space: pre-line">{{ translations.sk }}</p>
+        {% endif %}
+        
+        {% if translations and translations.uk %}
+        <hr>
+        <p>[Автоматичний переклад українською]</p>
+        <p style="white-space: pre-line">{{ translations.uk }}</p>
         {% endif %}
         
         {% if geninput %}

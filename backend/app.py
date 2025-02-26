@@ -474,20 +474,28 @@ def call_translate():
     language = get_post_arg('language', 'sk')
 
     if language == 'sk':
-        response = requests.get(
+        response = requests.post(
             'https://lindat.mff.cuni.cz/services/rest/cesilko/translate',
-            {'data': poem2text(data)}
+            data={'data': poem2text(data)}
             )
         response.raise_for_status()
         response.encoding='utf8'
         data['translations']['sk'] = response.json()['result']
     else:
-        pass
+        response = requests.post(
+            'http://lindat.mff.cuni.cz/services/translation/api/v2/models/cs-uk',
+            data={'input_text': poem2text(data)},
+            headers={"accept": "text/plain"}
+            )
+        response.raise_for_status()
+        response.encoding='utf8'
+        data['translations'][language] = response.text
+
     store(data)
     
     return return_accepted_type(
-            data['translations']['sk'],
-            data['translations']['sk'],
+            data['translations'][language],
+            data['translations'][language],
             redirect_for_poemid(poemid)
             )
 
