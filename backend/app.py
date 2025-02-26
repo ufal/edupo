@@ -115,7 +115,10 @@ def return_error(text, exception, status=500):
 def return_accepted_type(text, json, html, status=200):
     return_type = get_accepted_type()
     if return_type == 'html':
-        return html, status
+        if status == 200:
+            return html
+        else:
+            return html, status
     elif return_type == 'json':
         if type(json) == str:
             # already JSON

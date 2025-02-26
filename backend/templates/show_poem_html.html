@@ -211,7 +211,8 @@
         {% if id %}
         <hr>
         <form method="post" action="processopenai">
-            <input type="text" size="100" name="openaiprompt" placeholder="Přelož text následující básně do slovenštiny">
+            <input type="text" size="100" name="openaiprompt"
+            placeholder="Zadej prompt pro ChatGPT, např.: přelož text následující básně do slovenštiny">
             (za zadaný prompt se automaticky vloží text básně)
             <input type="hidden" name="poemid" value="{{ id }}">
             <br>
