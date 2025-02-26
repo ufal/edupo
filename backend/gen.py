@@ -21,24 +21,32 @@ import parser
 MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-15000'
 MODEL_MC="jinymusim/gpt-czech-poet"
 
-# Always load Michal's model
-tokenizer_mc = AutoTokenizer.from_pretrained(MODEL_MC)
-model_mc = AutoModelForCausalLM.from_pretrained(MODEL_MC)
-with open('prompt_templates/chudoba.txt', 'r') as f:
-        template_mc = parser.Template(f.read())
+model_mc, tokenizer_mc, template_mc = None, None, None
+model_tm, tokenizer_tm, template_tm = None, None, None
 
-# Try to load unsloth model
-try:
-    import unsloth
-    from unsloth import FastLanguageModel
-    model_tm, tokenizer_tm = FastLanguageModel.from_pretrained(MODEL_TM)
-    FastLanguageModel.for_inference(model_tm)
-    with open('prompt_templates/tm1.txt', 'r') as f:
-        template_tm = parser.Template(f.read())
+def load_models(load_mc=True, load_tm=True):
+    global model_mc, tokenizer_mc, template_mc, model_tm, tokenizer_tm, template_tm
+    
+    if load_mc:
+        # load Michal's model
+        tokenizer_mc = AutoTokenizer.from_pretrained(MODEL_MC)
+        model_mc = AutoModelForCausalLM.from_pretrained(MODEL_MC)
+        with open('prompt_templates/chudoba.txt', 'r') as f:
+                template_mc = parser.Template(f.read())
 
-except:
-    logging.exception("EXCEPTION Nejde načíst unsloth model.")
-    model_tm, tokenizer_tm = None, None
+    if load_tm:
+        # Try to load unsloth model
+        try:
+            import unsloth
+            from unsloth import FastLanguageModel
+            model_tm, tokenizer_tm = FastLanguageModel.from_pretrained(MODEL_TM)
+            FastLanguageModel.for_inference(model_tm)
+            with open('prompt_templates/tm1.txt', 'r') as f:
+                template_tm = parser.Template(f.read())
+
+        except:
+            logging.exception("EXCEPTION Nejde načíst unsloth model.")
+            model_tm, tokenizer_tm = None, None
 
 def _generate(poet_start, stop_strings=None, params={}):
     
@@ -336,6 +344,8 @@ def generuj(params):
 
 
 if __name__=="__main__":
+    load_models()
+
     try:
         rhyme_scheme = sys.argv[1]
     except:

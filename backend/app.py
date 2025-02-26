@@ -5,7 +5,7 @@ from flask import Flask, request, render_template, g, redirect, url_for, jsonify
 from flask_cors import CORS
 from itertools import groupby
 import os
-from gen import generuj
+from gen import generuj, load_models
 import show_poem_html
 import sqlite3
 import json
@@ -32,6 +32,9 @@ POEMFILES="static/poemfiles"
 EDUPO_SERVER_PATH = os.getenv('EDUPO_SERVER_PATH', '')
 
 sqlite3.register_converter("json", json.loads)
+
+# load generator models
+load_models()
 
 class ExceptionPoemDoesNotExist(Exception):
     pass
