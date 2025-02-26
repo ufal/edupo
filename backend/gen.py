@@ -208,7 +208,7 @@ def generuj_mc(params):
                     tokens = generated.split('#')[-1].split()
                     part = (len(tokens) + 1) // 2
                     continuation = " ".join(tokens[:part])
-                    raw = f"{poet_start} # <REDUPLICANT> # {continuation}"
+                    raw = f"{poet_start} <REDUPLICANT> # {continuation}"
             
 
     elif params.get('first_words') or params.get('anaphors') or params.get('epanastrophes'):
