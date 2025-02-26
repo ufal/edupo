@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response
+from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response, send_file
 from flask_cors import CORS
 from itertools import groupby
 import os
@@ -259,6 +259,10 @@ def store(data):
 def hello_world():
     return render_template('index.html')
 
+@app.route("/favicon.ico")
+def favicon():
+    return send_file('static/favicon.ico')
+
 @app.route("/prdel")
 def prdel_world():
     # if request.method == "OPTIONS":
@@ -378,6 +382,9 @@ def call_analyze():
     data = get_poem_by_id()
     if data is None:
         data = get_data_tta()
+    
+    if not data.get('plaintext', ''):
+        raise ExceptionPoemInvalid("Text must not be empty!")
     
     if 'body' in data:
         kveta_result = okvetuj_ccv(data['body'])
