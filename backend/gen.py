@@ -122,6 +122,15 @@ def set_default_if_not(params, key):
     if not params.get(key, None):
         params[key] = DEFAULT[key]
 
+"""
+# ABAB # 1900
+D # 8 # ází #  proč tam ten černý tam mlází,
+D # 8 # emi #  a teď v té zatmělé zemi
+D # 8 # ází #  snad ještě něco přichází
+D # 8 # emi #  a teď tam ti mrtví všemi!
+<|endoftext|>
+"""
+
 def generuj_mc(params):
 
     params['modelspec'] = 'mc'
@@ -143,9 +152,66 @@ def generuj_mc(params):
     if params.get('syllables_count') not in range(1,20):
         params['syllables_count'] = random.choice(range(6, 13))
 
+
+    # ABAB # 1900
     poet_start = f"# {params['rhyme_scheme']} # {params['year']}\n"
-    # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
-    if params.get('first_words') or params.get('anaphors') or params.get('epanastrophes'):
+    if 'interactive_mode' in params:
+        userinput = params['userinput'].strip()
+        if not params['rawtext']:
+            # starting generation
+            poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
+            if params['interactive_mode'].endswith('hg'):
+                # user already started
+                if params['interactive_mode'].startswith('lines'):
+                    # full line from user: get user reduplicant
+                    reduplicant = userinput[-3:]
+                    poet_start += f" {reduplicant} # {userinput}\n{params['metre']} # {params['syllables_count']} #"
+                    raw, generated = _generate(poet_start, '\n', params)
+                else:
+                    # finish the user line: invent reduplicant and generate
+                    poet_start, generated = _generate(poet_start, '#', params)
+                    poet_start += f" {userinput}"
+                    raw, generated = _generate(poet_start, '\n', params)
+            else:
+                # generator starts
+                raw, generated = _generate(poet_start, '\n', params)
+                if params['interactive_mode'].startswith('verses'):
+                    # cut off second half
+                    tokens = generated.split('#')[-1].split()
+                    part = (len(tokens) + 1) // 2
+                    continuation = " ".join(tokens[:part])
+                    raw = f"{poet_start} <REDUPLICANT> # {continuation}"
+        else:
+            # continuing generation: add userinput to rawtext and continue
+            if params['interactive_mode'].startswith('lines'):
+                poet_start = f"{params['rawtext'].strip()}\n{params['metre']} # {params['syllables_count']} #"
+                # full line from user: get user reduplicant
+                reduplicant = userinput[-3:]
+                poet_start += f" {reduplicant} # {userinput}\n{params['metre']} # {params['syllables_count']} #"
+                raw, generated = _generate(poet_start, '\n', params)
+            else:
+                if params['interactive_mode'].endswith('hg'):
+                    poet_start = f"{params['rawtext'].strip()}\n{params['metre']} # {params['syllables_count']} #"
+                    # finish the user line: invent reduplicant and generate
+                    poet_start, generated = _generate(poet_start, '#', params)
+                    poet_start += f" {userinput}"
+                    raw, generated = _generate(poet_start, '\n', params)
+                else:
+                    # fill reduplicant in last line
+                    reduplicant = params['userinput'].strip()[-3:]
+                    poet_start = params['rawtext'].replace('<REDUPLICANT>', reduplicant).strip()
+                    poet_start += f" {params['userinput'].strip()}\n{params['metre']} # {params['syllables_count']} #"
+                    
+                    # we start the line
+                    raw, generated = _generate(poet_start, '\n', params)
+                    # cut off second half
+                    tokens = generated.split()
+                    part = (len(tokens) + 1) // 2
+                    continuation = " ".join(tokens[:part])
+                    raw = f"{poet_start} # <REDUPLICANT> # {continuation}"
+            
+
+    elif params.get('first_words') or params.get('anaphors') or params.get('epanastrophes'):
         first_words = params.get('first_words', [])
         anaphors = params.get('anaphors', set())
         epanastrophes = params.get('epanastrophes', set())
@@ -157,6 +223,7 @@ def generuj_mc(params):
         prev_first = ''
         prev_last = ''
         for index, word in enumerate(first_words):
+            # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
             poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
             # generate ending hint
             poet_start, generated = _generate(poet_start, ' #', params)
@@ -174,10 +241,12 @@ def generuj_mc(params):
                 prev_first = poet_start.split('#')[-1].split()[0]
             if index+1 in epanastrophes:
                 prev_last = poet_start.split()[-1]
+        # generate till the end of the poem
+        raw, generated = _generate(poet_start, params=params)
     else:
+        # generate the poem at once
         poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
-
-    raw, generated = _generate(poet_start, params=params)
+        raw, generated = _generate(poet_start, params=params)
     
     result = raw.split('<|endoftext|>')[0]
 
@@ -222,7 +291,7 @@ def generuj_mc(params):
             result.append(verse.strip())
     
         # TODO výhledově možná rovnou vracet v JSON formátu
-        clean_verses = clean(result[-len(params['rhyme_scheme'])-1:])
+        clean_verses = clean(result)
     return raw, clean_verses, params.get('author_name', 'Anonym'), params.get('title', DEFAULT['title'])
 
 

@@ -13,12 +13,6 @@
 </head>
 <body>
     
-    <div id="qrimg">
-    <a href="static/qrcodes/{{ id }}.png"><img src="static/qrcodes/{{ id }}.png" alt="QR kód" title="QR kód"></a>
-    <br> 
-    <button onclick="navigator.clipboard.writeText('https://quest.ms.mff.cuni.cz/edupo/show?poemid={{ id }}');">Zkopírovat odkaz</button>
-    </div>
-
     {% if title %}
     <h1>{{ title }}</h1>
     {% elif verses %}
@@ -31,12 +25,15 @@
     <p class="id">{{ poemid }}</p>
     {% endif %}
 
+    <p>Parametry generování: rýmové schéma {{ rhyme_scheme }}, metrum {{ metrum }}, {{ syllables_count }} slabik ve verši.</p>
     
     <div class="body">
         
         <form method="post" action="geninter">
         
+        {% if poemid %}
         <input type="hidden" name="poemid" value="{{ poemid }}">
+        {% endif %}
         <input type="hidden" name="rawtext" value="{{ rawtext }}">
         <input type="hidden" name="interactive_mode" value="{{ interactive_mode }}">
         <input type="hidden" name="modelspec" value="{{ modelspec }}">
@@ -48,16 +45,16 @@
 
         <p class="plaintext">{{ plaintext }}{%
             if interactive_mode == 'verses_gh'
-            %}<input name="userinput" size="30" placeholder="(dopiš verš)">{%
+            %}<input name="userinput" size="30" placeholder="(dopiš verš)" autofocus>{%
             endif
         %}</p>
 
 
         {% if interactive_mode == 'verses_hg' %}
-        <input name="userinput" size="30" placeholder="(začni další verš)">
+        <input name="userinput" size="30" placeholder="(začni další verš)" autofocus>
         {% endif %}
         {% if interactive_mode in ['lines_hg', 'lines_gh'] %}
-        <input name="userinput" size="30" placeholder="(napiš další verš)">
+        <input name="userinput" size="30" placeholder="(napiš další verš)" autofocus>
         {% endif %}
 
 

@@ -357,6 +357,13 @@ def call_generuj():
     
     return return_accepted_type_for_poemid(data)
 
+METRENAMES = {
+    'T': 'trochej',
+    'J': 'jamb',
+    'D': 'daktyl',
+    'N': 'volný',
+}
+
 @app.route("/geninter", methods=['GET', 'POST'])
 def call_generuj_interaktivne():
     
@@ -371,24 +378,37 @@ def call_generuj_interaktivne():
     params['syllables_count'] = int(get_post_arg('syllables_count', 8, True))
     
     # generation process
-    params['id'] = get_post_arg('poemid')
+    poemid = get_post_arg('poemid')
+    if poemid:
+        params['id'] = poemid
     params['rawtext'] = get_post_arg('rawtext', '')
     params['userinput'] = get_post_arg('userinput', '')
 
     app.logger.info(f"Generate interactively poem with parameters: {params}")
-    raw_output, clean_verses, author_name, title = gen_zmq(params)
-    app.logger.info(f"Generated interatively part of poem: {clean_verses}")
+    if params['rawtext'] or params['userinput'] or params['interactive_mode'].endswith('gh'):
+        raw_output, clean_verses, author_name, title = gen_zmq(params)
+        app.logger.info(f"Generated interatively part of poem: {clean_verses}")
+        # TODO store author_name, title
+    else:
+        # user starts, nothing to generate yet
+        raw_output, clean_verses = '', []
+    
+    # TODO if the poem is already a full quatrain, handle that
   
     data = {
             **params,
             'geninput': params,
             'plaintext': "\n".join(clean_verses),
             'rawtext': raw_output,
+            'metrum': METRENAMES[params['metre']],
             }
     data['poemid'] = store(data)
     
-    html = render_template('interactive_gen_process.html', **data)
-    return return_accepted_type(data['rawtext'], data, html)
+    if '<|endoftext|>' in raw_output:
+        return return_accepted_type(raw_output, data, redirect_for_poemid(poemid))
+    else:
+        html = render_template('interactive_gen_process.html', **data)
+        return return_accepted_type(raw_output, data, html)
 
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
