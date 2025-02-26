@@ -14,6 +14,8 @@ import re
 import random
 from openai_helper import *
 
+import requests
+
 import sys
 sys.path.append("../kveta")
 sys.path.append("../scripts/diphthongs")
@@ -458,6 +460,34 @@ def call_processopenai():
     return return_accepted_type(
             data['openai'][-1]['output'],
             data['openai'][-1],
+            redirect_for_poemid(poemid)
+            )
+
+@app.route("/translate", methods=['GET', 'POST'])
+def call_translate():
+    poemid = get_post_arg('poemid')
+    data = get_poem_by_id(poemid)
+    
+    if not 'translations' in data:
+        data['translations'] = {}
+    
+    language = get_post_arg('language', 'sk')
+
+    if language == 'sk':
+        response = requests.get(
+            'https://lindat.mff.cuni.cz/services/rest/cesilko/translate',
+            {'data': poem2text(data)}
+            )
+        response.raise_for_status()
+        response.encoding='utf8'
+        data['translations']['sk'] = response.json()['result']
+    else:
+        pass
+    store(data)
+    
+    return return_accepted_type(
+            data['translations']['sk'],
+            data['translations']['sk'],
             redirect_for_poemid(poemid)
             )
 

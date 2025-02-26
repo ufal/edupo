@@ -115,6 +115,15 @@
     </form>
     {% endif %}
 
+    {% if not translations or not translations.sk %}
+    <form method="post" action="translate">
+        <input type="hidden" name="poemid" value="{{ id }}">
+        <input type="hidden" name="language" value="sk">
+        <input type="submit" value="Preložiť do slovenčiny"
+        onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
+    </form>
+    {% endif %}
+    
     </div>
 
     <hr style="clear: both">
@@ -224,9 +233,15 @@
         {% if openai %}
         {% for item in openai %}
         <hr>
-        <p>[OpenAI: {{ item.prompt }}]</p>
+        <p>[ChatGPT: {{ item.prompt }}]</p>
         <pre class="raw">{{ item.output }}</pre>
         {% endfor %}
+        {% endif %}
+        
+        {% if translations and translations.sk %}
+        <hr>
+        <p>[Automatický preklad do slovenčiny]</p>
+        <p style="white-space: pre-line">{{ translations.sk }}</p>
         {% endif %}
         
         {% if geninput %}
