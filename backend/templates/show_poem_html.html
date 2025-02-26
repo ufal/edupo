@@ -220,12 +220,12 @@
         </form>
         {% endif %}
 
-        {% if openaioutput %}
+        {% if openai %}
+        {% for item in openai %}
         <hr>
-        <p>OpenAI prompt:</p>
-        <pre class="raw">{{ openaiprompt }}</pre>
-        <p>OpenAI output:</p>
+        <p>OpenAI prompt: {{ item.prompt }}</p>
         <pre class="raw">{{ openaioutput }}</pre>
+        {% endfor %}
         {% endif %}
         
         {% if geninput %}

@@ -442,17 +442,19 @@ def call_genmotives():
 def call_processopenai():
     poemid = get_post_arg('poemid')
     data = get_poem_by_id(poemid)
-    data['openaiprompt'] = get_post_arg('openaiprompt')
     
-    data['openaioutput'] = generate_with_openai_simple(poem2text(data), data['openaiprompt'])
+    if not 'openai' in data:
+        data['openai'] = []
+
+    
+    prompt = get_post_arg('openaiprompt')
+    output = generate_with_openai_simple(poem2text(data), prompt)
+    data['openai'].append({'prompt': prompt, 'output': output})
     store(data)
     
     return return_accepted_type(
-            data['openaioutput'],
-            {
-                'openaiprompt': data['openaiprompt'],
-                'openaioutput': data['openaioutput'],
-            },
+            data['openai'][-1]['output'],
+            data['openai'][-1],
             redirect_for_poemid(poemid)
             )
 
