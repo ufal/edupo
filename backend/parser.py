@@ -21,7 +21,7 @@ class Fixed(TParser):
         return nonres_chars.map(Fixed).desc('fixed string')
     
     def poem_parser(self):
-        return parsy.string(self.value) >> parsy.success(None).desc(f'fixed string {repr(self.value)}')
+        return parsy.string(self.value).result(None).desc(f'fixed string {repr(self.value)}')
 
 @dataclass
 class Variable(TParser):
