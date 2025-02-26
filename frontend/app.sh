@@ -11,7 +11,7 @@ while true;
 do
     date
     echo Starting frontend server...
-    EDUPO_SERVER_PATH=/edupo authbind EDUPO_API_URL='http://localhost:5000/' --deep gunicorn app:app -b 0.0.0.0:80 -w 3 --access-logfile=- --pid gunicorn.pid
+    EDUPO_SERVER_PATH=/edupo authbind EDUPO_API_URL='http://localhost:5000/' --deep gunicorn app:app -b 0.0.0.0:80 -w 3 --access-logfile=- --pid gunicorn.pid --timeout 200
     echo Frontend server stopped, waiting $T for restart...
     sleep $T
     echo
