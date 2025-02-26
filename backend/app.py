@@ -98,18 +98,18 @@ def get_accepted_type():
 def return_accepted_type(text, json, html, status=200):
     return_type = get_accepted_type()
     if return_type == 'html':
-        return html
+        return html, status
     elif return_type == 'json':
         if type(json) == str:
             # already JSON
-            return Response(json, mimetype='application/json')
+            return Response(json, mimetype='application/json', status=status)
         else:
-            return jsonify(json)
+            return jsonify(json), status
     else:
         assert return_type == 'txt'
         if not text.endswith("\n"):
             text += "\n"
-        return Response(text, mimetype='text/plain')
+        return Response(text, mimetype='text/plain', status=status)
 
 def redirect_for_poemid(poemid):
     return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
@@ -194,12 +194,12 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
         #    kveta_result = okvetuj(data['plaintext'])
         #    data['body'] = kveta_result[0][0]['body']
         data = show_poem_html.show_file(poemid, POEMFILES)
-        assert data['plaintext'], "All JSON files must have plaintext filled in"
+        assert data.get('plaintext',''), "All JSON files must have plaintext filled in"
     else:
         with get_db() as db:
             sql = 'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id=? AND books.id=poems.book_id AND authors.identity=poems.author'
             result = db.execute(sql, (poemid,)).fetchone()
-        assert result != None 
+        assert result != None, "Poem with this id does not exist"
         result = dict(result)
         # always analyze
         result['body'] = okvetuj_ccv(result['body'])
@@ -504,7 +504,7 @@ def call_logs():
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    app.logger.error('EXCEPTION: ' + str(e))
+    app.logger.exception('EXCEPTION')
     text = "Došlo k chybě. Můžete to zkusit znova. Chyba: " + str(e)
     json = '{"error": "' + text + '"}'
     return return_accepted_type(text, json, text, status=500)
