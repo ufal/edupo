@@ -2,7 +2,7 @@
 
 # debug run
 # run only on local computer, not visible from outside
-flask run --debug --port=5001
+EDUPO_API_URL='https://quest.ms.mff.cuni.cz/edupo-api/' flask run --debug --port=5001
 
 # debug VISIBLE FROM OUTSIDE
 # (run this only if you know what are doing)

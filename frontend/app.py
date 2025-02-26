@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response
+from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response, send_file
 from flask_cors import CORS
 import os
 import requests
@@ -14,6 +14,14 @@ print(__name__)
 # I have not been able to persuade Flask that it is under / locally but under
 # /edupo/ externally so this is a work-around
 EDUPO_SERVER_PATH = os.getenv('EDUPO_SERVER_PATH', '')
+
+# the URL of the backend endpoint
+# if backend runs locally, use e.g.:
+# 'http://localhost:5000/'
+# if backend does not run locally, use the public URL:
+# 'https://quest.ms.mff.cuni.cz/edupo-api/'
+APIURL = os.getenv('EDUPO_API_URL', 'https://quest.ms.mff.cuni.cz/edupo-api/')
+
 
 def get_post_arg(key, default=None, nonempty=False, isarray=False):
     result = default
@@ -74,28 +82,30 @@ def store(data, poemid=None, datatype='poemfiles'):
 
 ### INTERFACE STARTS HERE ###
 
-APIURL='http://localhost:5000/'
-#APIURL='https://quest.ms.mff.cuni.cz/edupo-api/'
 HEADERS_JSON = {"accept": "application/json"}
 HEADERS_HTML = {"accept": "text/html"}
 HEADERS_TXT = {"accept": "text/plain"}
-
-# NOTE this is optimistic, has no error handling
 
 @app.route("/")
 @app.route("/index")
 def hello_world():
     return render_template('index.html')
 
+@app.route("/favicon.ico")
+def favicon():
+    return send_file('static/favicon.ico')
+
 @app.route("/prdel")
 def prdel_world():
     response = requests.get(f"{APIURL}/prdel", headers=HEADERS_HTML)
+    response.raise_for_status()
     return response.text
 
 @app.route("/input", methods=['GET', 'POST'])
 def call_store():
     data = get_data(['text', 'title', 'author'])
     response = requests.get(f"{APIURL}/input", data, headers=HEADERS_JSON)
+    response.raise_for_status()
     poem = response.json()
     poemid = poem['id']
     store(poem)
@@ -109,6 +119,7 @@ def call_generuj():
     data['anaphors'] = get_post_arg('anaphors', isarray=True, default=[])
     data['epanastrophes'] = get_post_arg('epanastrophes', isarray=True, default=[])
     response = requests.get(f"{APIURL}/gen", data, headers=HEADERS_JSON)
+    response.raise_for_status()
     poem = response.json()
     poemid = poem['id']
     store(poem)
@@ -140,6 +151,7 @@ def ensure_qr_code(poemid):
 def call_show():
     data = get_data(['poemid'])
     response = requests.get(f"{APIURL}/show", data, headers=HEADERS_JSON)
+    response.raise_for_status()
     poem = response.json()
     poemid = store(poem)
     
@@ -162,12 +174,14 @@ def call_show():
 @app.route("/showlist", methods=['GET', 'POST'])
 def call_showlist():
     response = requests.get(f"{APIURL}/showlist", headers=HEADERS_JSON)
+    response.raise_for_status()
     data = response.json()
     return render_template('showlist.html', rows=data)
 
 @app.route("/showlistgen", methods=['GET', 'POST'])
 def call_showlistgen():
     response = requests.get(f"{APIURL}/showlistgen", headers=HEADERS_JSON)
+    response.raise_for_status()
     data = response.json()
     return render_template('showlistgen.html', poemids=data)
 
@@ -175,6 +189,7 @@ def call_showlistgen():
 def call_showauthor():
     data = get_data(['author'])
     response = requests.get(f"{APIURL}/showauthor", data, headers=HEADERS_HTML)
+    response.raise_for_status()
     return response.text
     # TODO json to tady zatim nevrací
     # data = response.json()
@@ -186,6 +201,7 @@ def call_analyze():
     data = get_data(['poemid', 'text', 'title', 'author'])
     # TODO send whole poem json
     response = requests.post(f"{APIURL}/analyze", data, headers=HEADERS_JSON)
+    response.raise_for_status()
     poem = response.json()
     poemid = poem['id']
     store(poem)
@@ -196,6 +212,7 @@ def call_genmotives():
     data = get_data(['poemid'])
     # TODO send whole poem json
     response = requests.get(f"{APIURL}/genmotives", data, headers=HEADERS_TXT)
+    response.raise_for_status()
     response.encoding='utf8'
     motives = response.text
     store(motives, poemid=data['poemid'], datatype='genmotives')
@@ -206,6 +223,7 @@ def call_genimage():
     data = get_data(['poemid'])
     # TODO send whole poem json
     response = requests.get(f"{APIURL}/genimage", data, headers=HEADERS_JSON)
+    response.raise_for_status()
     store(response.json(), poemid=data['poemid'], datatype='genimg')
     # TODO get and store binary data
     return redirect_for_poemid(data['poemid'])
@@ -215,6 +233,7 @@ def call_gentts():
     data = get_data(['poemid'])
     # TODO send whole poem json
     response = requests.get(f"{APIURL}/gentts", data, headers=HEADERS_JSON)
+    response.raise_for_status()
     store(response.json(), poemid=data['poemid'], datatype='gentts')
     # TODO get and store binary data
     return redirect_for_poemid(data['poemid'])
@@ -223,6 +242,7 @@ def call_gentts():
 def call_search():
     data = get_data(['query', 'use_regex'])
     response = requests.get(f"{APIURL}/search", data, headers=HEADERS_JSON)
+    response.raise_for_status()
     results = response.json()
     return render_template('show_search_result.html', query=data['query'], results=results)
    
@@ -230,5 +250,13 @@ def call_search():
 def call_generate_openai():
     data = get_data(['prompt'])
     response = requests.get(f"{APIURL}/openaigenerate", data, headers=HEADERS_HTML)
+    response.raise_for_status()
     return response.text
     # TODO json to tady zatim nevrací
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    app.logger.error('EXCEPTION: ' + str(e))
+    return "Došlo k chybě. Můžete zkusit stránku obnovit (⟳), anebo jít zpět (←). Chyba: " + str(e)
+
+
