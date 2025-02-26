@@ -33,6 +33,12 @@ EDUPO_SERVER_PATH = os.getenv('EDUPO_SERVER_PATH', '')
 
 sqlite3.register_converter("json", json.loads)
 
+class ExceptionPoemDoesNotExist(Exception):
+    pass
+
+class ExceptionPoemInvalid(Exception):
+    pass
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
@@ -95,6 +101,11 @@ def get_accepted_type():
             return_type = 'txt'
     return return_type
 
+def return_error(text, exception, status=500):
+    text = f"{text} Detaily o chybě: {exception}"
+    json = '{"error": "' + text + '"}'
+    return return_accepted_type(text, json, text, status=status)
+
 def return_accepted_type(text, json, html, status=200):
     return_type = get_accepted_type()
     if return_type == 'html':
@@ -106,7 +117,8 @@ def return_accepted_type(text, json, html, status=200):
         else:
             return jsonify(json), status
     else:
-        assert return_type == 'txt'
+        if return_type != 'txt':
+            return f"Cannot return response of type {return_type}", 406
         if not text.endswith("\n"):
             text += "\n"
         return Response(text, mimetype='text/plain', status=status)
@@ -117,7 +129,8 @@ def redirect_for_poemid(poemid):
 def return_accepted_type_for_poemid(data, html_template=None):
     """redirect for html unless html_template, poem2text_with_header for text"""
     
-    assert 'id' in data, 'id must be specified in data'
+    if not 'id' in data:
+        raise ExceptionPoemInvalid('id must be specified in data')
 
     return_type = get_accepted_type()
     if return_type == 'html':
@@ -128,7 +141,8 @@ def return_accepted_type_for_poemid(data, html_template=None):
     elif return_type == 'json':
         return jsonify(data)
     else:
-        assert return_type == 'txt'
+        if return_type != 'txt':
+            return f"Cannot return response of type {return_type}", 406
         return Response(poem2text_with_header(data), mimetype='text/plain')
 
 def poem2text(data):
@@ -194,12 +208,14 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
         #    kveta_result = okvetuj(data['plaintext'])
         #    data['body'] = kveta_result[0][0]['body']
         data = show_poem_html.show_file(poemid, POEMFILES)
-        assert data.get('plaintext',''), "All JSON files must have plaintext filled in"
+        if 'plaintext' not in data:
+            raise ExceptionPoemInvalid("All JSON files must have plaintext filled in")
     else:
         with get_db() as db:
             sql = 'SELECT *, books.title as b_title FROM poems, books, authors WHERE poems.id=? AND books.id=poems.book_id AND authors.identity=poems.author'
             result = db.execute(sql, (poemid,)).fetchone()
-        assert result != None, "Poem with this id does not exist"
+        if result == None:
+            raise ExceptionPoemDoesNotExist("Poem with this id does not exist")
         result = dict(result)
         # always analyze
         result['body'] = okvetuj_ccv(result['body'])
@@ -215,12 +231,14 @@ def get_data_tta():
             'author_name': f"{get_post_arg('author', 'Anonym', True)} [vloženo uživatelem]",
             }
     
-    assert data['plaintext'], "Text must not be empty!"
+    if 'plaintext' not in data:
+        raise ExceptionPoemInvalid("Text must not be empty!")
     
     return data
 
 def store(data):
-    assert data['plaintext'], "All JSON files must have plaintext filled in"
+    if 'plaintext' not in data:
+        raise ExceptionPoemInvalid("Text must not be empty!")
     
     if 'id' in data:
         poemid = data['id']
@@ -308,14 +326,17 @@ def call_generuj():
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     data = get_poem_by_id(random_if_no_id=True)
-    return return_accepted_type_for_poemid(data, 'show_poem_html.html')
+    if data:
+        return return_accepted_type_for_poemid(data, 'show_poem_html.html')
+    else:
+        return return_error('The requested poem does not exist.', get_post_arg('poemid'), 404)
 
 @app.route("/showlist", methods=['GET', 'POST'])
 def call_showlist():
     with get_db() as db:
         sql = 'SELECT COUNT(id) as count, author FROM poems GROUP BY author ORDER BY count DESC'
         result = db.execute(sql).fetchall()
-    assert result != None 
+    assert result != None, "Database result is empty"
     html = render_template('showlist.html', rows=result)
     text = "\n".join([f"{row['count']}x {row['author']}" for row in result])
     data = [dict(row) for row in result]
@@ -502,9 +523,17 @@ def call_logs():
 
     return return_accepted_type(text, result, html)
 
+@app.errorhandler(ExceptionPoemInvalid)
+def handle_exception(e):
+    app.logger.exception('EXCEPTION')
+    return return_error("Báseň nemá správný formát, např. neobsahuje žádný text.", e, 422)
+
+@app.errorhandler(ExceptionPoemDoesNotExist)
+def handle_exception(e):
+    app.logger.exception('EXCEPTION')
+    return return_error("Požadovaná báseň neexistuje.", e, 404)
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     app.logger.exception('EXCEPTION')
-    text = "Došlo k chybě. Můžete to zkusit znova. Chyba: " + str(e)
-    json = '{"error": "' + text + '"}'
-    return return_accepted_type(text, json, text, status=500)
+    return return_error("Došlo k chybě. Můžete to zkusit znova.", e)

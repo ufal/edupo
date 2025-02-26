@@ -257,5 +257,5 @@ def call_generate_openai():
 @app.errorhandler(Exception)
 def handle_exception(e):
     app.logger.exception('EXCEPTION')
-    return "Došlo k chybě. Můžete zkusit stránku obnovit (⟳), anebo jít zpět (←). Chyba: " + str(e)
+    return "<h1>Došlo k chybě.</h1>Můžete zkusit stránku obnovit (⟳), anebo jít zpět (←).<br><br>Chyba: " + str(e)
 
