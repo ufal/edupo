@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 
-import sys
 from openai import OpenAI
 import base64
 import io
+
+import logging
+logging.basicConfig(
+    format='%(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO)
 
 KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
 
@@ -33,9 +38,8 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500):
         # print(response)
         return response.choices[0].message.content
 
-    except Exception as e:
-        etype, value, traceback = sys.exc_info()
-        print("EXCEPTION", e, etype, value, traceback, sep="\n")
+    except:
+        logging.exception("EXCEPTION Neúspěšné generování pomocí OpenAI.")
         return None
 
 def generate_with_openai_simple(prompt, system="You are a helpful assistant.", model="gpt-4o-mini", max_tokens=500):
@@ -78,9 +82,8 @@ def generate_image_with_openai(prompt, filename):
             n=1,
             response_format="b64_json",
         )
-    except Exception as e:
-        etype, value, traceback = sys.exc_info()
-        print("EXCEPTION", e, etype, value, traceback, sep="\n")
+    except:
+        logging.exception("EXCEPTION Neúspěšné generování obrázku pomocí OpenAI.")
         return None
 
     imgdata = response.data[0].b64_json
