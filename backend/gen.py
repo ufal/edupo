@@ -342,8 +342,6 @@ def generuj_mc(params):
 """
 
 def generuj_tm(params):
-
-    #params['modelspec'] = 'tm'
     
     poem = ''
     
@@ -383,7 +381,7 @@ def generuj_tm(params):
             if params.get('metre'):
                 poem += f"# {params['metre']} #"
             else:
-                poem, generated = _generate(poem, '#', params.get('temperature'), krok='metre')
+                poem, generated = _generate(poem + '#', '#', params.get('temperature'), krok='metre')
 
             if params.get('syllables_count'):
                 poem += f" {params['syllables_count']} #"
