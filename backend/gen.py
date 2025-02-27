@@ -25,6 +25,8 @@ MODEL_MC="jinymusim/gpt-czech-poet"
 model_mc, tokenizer_mc, template_mc = None, None, None
 model_tm, tokenizer_tm, template_tm = None, None, None
 
+modelspec = None
+
 def load_models(modelspec=['mc', 'tm']):
     global model_mc, tokenizer_mc, template_mc, model_tm, tokenizer_tm, template_tm
 
@@ -82,8 +84,10 @@ def _show_tokenization(tokenizer, tokens):
             + '|')
 
 def _generate(poet_start, stop_strings=None, temperature=1, krok=None):
+
+    global modelspec
     
-    if model_tm and params.get('modelspec', 'mc') == 'tm':
+    if model_tm and modelspec == 'tm':
         model = model_tm
         tokenizer = tokenizer_tm
     else:
@@ -440,49 +444,55 @@ def generuj_tm(params):
     return poem, verses, author_name, title
 
 def generuj(params):
+    logging.info(f'Generating with params: {params}')
     if model_tm and params.get('modelspec') == 'tm':
         return generuj_tm(params)
     else:
         return generuj_mc(params)
 
+def main_server():
+    # zmq mode
+    modelspec = sys.argv[2]
+    assert modelspec in ['mc', 'tm']
+    port = int(sys.argv[3])
+    logging.info(f'Starting zmq with {modelspec} model on port {port}')
+    
+    import zmq
+    context = zmq.Context()
+    socket = context.socket(zmq.REP)
+    socket.bind(f"tcp://*:{port}")
+    loaded = load_models(modelspec)
+    if loaded:
+        while True:
+            params = json.loads(socket.recv())
+            params['modelspec'] = modelspec
+            result = json.dumps(generuj(params))
+            socket.send_string(result)
+    else:
+        logging.error('Models not loaded')
+
+def main_standalone():
+    global modelspec # TODO at ma promenna jeden typ, tohle je nekdy string, nekdy list stringů
+    # direct mode
+    load_models()
+    rhyme_scheme = 'ABAB'
+    for ms in ['tm']:
+        modelspec = ms
+        result = generuj({
+        'modelspec': modelspec,
+        'rhyme_scheme': rhyme_scheme,
+        'first_words': ['jedna', 'dva', 'tři', ''],
+        'verses_count': 0,
+        'syllables_count': 0,
+        'metre': '',
+        'max_strophes': 2,
+        'anaphors': [],
+        'epanastrophes': [],
+        })
+    print(*result, sep='\n')
 
 if __name__=="__main__":
     if len(sys.argv) > 1 and sys.argv[1] == 'zmq':
-        # zmq mode
-        modelspec = sys.argv[2]
-        assert modelspec in ['mc', 'tm']
-        port = int(sys.argv[3])
-        logging.info(f'Starting zmq with {modelspec} model on port {port}')
-        
-        import zmq
-        context = zmq.Context()
-        socket = context.socket(zmq.REP)
-        socket.bind(f"tcp://*:{port}")
-        loaded = load_models(modelspec)
-        if loaded:
-            while True:
-                params = json.loads(socket.recv())
-                logging.info(f'Generating with params: {params}')
-                params['modelspec'] = modelspec
-                result = json.dumps(generuj(params))
-                socket.send_string(result)
-        else:
-            logging.error('Models not loaded')
-
+        main_server()
     else:    
-        # direct mode
-        load_models()
-        rhyme_scheme = 'ABAB'
-        for modelspec in ['tm']:
-            result = generuj({
-            'modelspec': modelspec,
-            'rhyme_scheme': rhyme_scheme,
-            'first_words': ['', '', '', ''],
-            'verses_count': 0,
-            'syllables_count': 0,
-            'metre': '',
-            'max_strophes': 2,
-            'anaphors': [],
-            'epanastrophes': [],
-            })
-        print(*result, sep='\n')
+        main_standalone()
