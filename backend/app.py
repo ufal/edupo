@@ -510,7 +510,7 @@ def call_processopenai():
 
     
     prompt = get_post_arg('openaiprompt')
-    output = generate_with_openai_simple(poem2text(data), prompt)
+    output = generate_with_openai_simple(poem2text_with_header(data, False), prompt)
     data['openai'].append({'prompt': prompt, 'output': output})
     store(data)
     
