@@ -356,12 +356,12 @@ def generuj_tm(params):
     if params.get('title'):
         poem += f" {params['title']} ("
     else:
-        poem, generated = _generate(poem, '(', params.get('temperature'))
+        poem, generated = _generate(poem, '(', params.get('temperature'), krok='title')
 
     if params.get('year'):
         poem += f"params['{year}'])\n"
     else:
-        poem, generated = _generate(poem, ')\n', params.get('temperature'))
+        poem, generated = _generate(poem, ')\n', params.get('temperature'), krok='year')
 
     # strophes
     strophes = 0
@@ -371,7 +371,7 @@ def generuj_tm(params):
             rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
         else:
-            poem, generated = _generate(poem, '\n', params.get('temperature'))
+            poem, generated = _generate(poem, '\n', params.get('temperature'), krok='rhyme_scheme')
         
         try:
             verses_count = len(poem.split('\n')[-2].split('#')[1].split())
@@ -383,22 +383,22 @@ def generuj_tm(params):
             if params.get('metre'):
                 poem += f"# {params['metre']} #"
             else:
-                poem, generated = _generate(poem, '#', params.get('temperature'))
+                poem, generated = _generate(poem, '#', params.get('temperature'), krok='metre')
 
             if params.get('syllables_count'):
                 poem += f" {params['syllables_count']} #"
             else:
-                poem, generated = _generate(poem, '#', params.get('temperature'))
+                poem, generated = _generate(poem, '#', params.get('temperature'), krok='syllables_count')
 
             # reduplicant
-            poem, generated = _generate(poem, '#', params.get('temperature'))
+            poem, generated = _generate(poem, '#', params.get('temperature'), krok='reduplicant')
 
             if params.get('first_words'):
                 word = params['first_words'].pop(0) #TODO readonly
                 if word:
                     poem += f" {word}"
                 # TODO anaphors and epanastrophes
-            poem, generated = _generate(poem, '\n', params.get('temperature'))
+            poem, generated = _generate(poem, '\n', params.get('temperature'), krok='verse')
 
         # end of strophe
         # (generate empty line or end of text)
