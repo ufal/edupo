@@ -54,7 +54,34 @@ def load_models(modelspec=['mc', 'tm']):
     
     return loaded
 
-def _generate(poet_start, stop_strings=None, params={}):
+def _show_tokenization(tokenizer, tokens):
+    return ('|' + '|'.join(tokenizer.convert_ids_to_tokens(tokens)
+                   ).replace('Ġ', ' '
+                            ).replace('Ċ', '↲\n'
+                            ).replace('Ã½', 'ý'
+                            ).replace('ÃŃ', 'í'
+                            ).replace('ÄĽ', 'ě'
+                            ).replace('Ã¡', 'á'
+                            ).replace('Å¡', 'š'
+                            ).replace('Äį', 'č'
+                            ).replace('Ãģ', 'Á'
+                            ).replace('ÅĪ', 'ň'
+                            ).replace('âĢĻ', '’'
+                            ).replace('ÅĻ', 'ř'
+                            ).replace('Å¾', 'ž'
+                            ).replace('Ãº', 'ú'
+                            ).replace('Ã©', 'é'
+                            ).replace('Å¥', 'ť'
+                            ).replace('Ãį', 'Í'
+                            ).replace('Å¯', 'ů'
+                            ).replace('Åĺ', 'Ř'
+                            ).replace('ÄĮ', 'Č'
+                            ).replace('Åł', 'Š'
+                            ).replace('âĢĵ', '–'
+                            )
+            + '|')
+
+def _generate(poet_start, stop_strings=None, temperature=1, krok=None):
     
     if model_tm and params.get('modelspec', 'mc') == 'tm':
         model = model_tm
@@ -82,19 +109,20 @@ def _generate(poet_start, stop_strings=None, params={}):
             top_k=50,
             # no_repeat_ngram_size=2,
             pad_token_id= tokenizer.pad_token_id,
-            temperature=params.get('temperature', 1),
+            temperature=temperature,
             tokenizer=tokenizer,
             eos_token_id = tokenizer.eos_token_id,
             **({'stop_strings': stop_strings} if stop_strings else {}),
     )
+    
+    logging.info(f"Tokenization in step {krok}")
+    logging.info(_show_tokenization(tokenizer, out[0])) 
 
     # decode and return
     full = tokenizer.decode(out[0])
     generated = tokenizer.decode(out[0][len(tokenized_poet_start[0]):])
 
     return full, generated
- 
-
 
 RHYME_SCHEMES = {
     4: ['ABAB', 'XXXX', 'XAXA', 'AAXX', 'AABB', 'ABBA'],
@@ -166,15 +194,15 @@ def generuj_mc(params):
                     # full line from user: get user reduplicant
                     reduplicant = userinput[-3:]
                     poet_start += f" {reduplicant} # {userinput}\n{params['metre']} # {params['syllables_count']} #"
-                    raw, generated = _generate(poet_start, '\n', params)
+                    raw, generated = _generate(poet_start, '\n', params.get('temperature'))
                 else:
                     # finish the user line: invent reduplicant and generate
-                    poet_start, generated = _generate(poet_start, '#', params)
+                    poet_start, generated = _generate(poet_start, '#', params.get('temperature'))
                     poet_start += f" {userinput}"
-                    raw, generated = _generate(poet_start, '\n', params)
+                    raw, generated = _generate(poet_start, '\n', params.get('temperature'))
             else:
                 # generator starts
-                raw, generated = _generate(poet_start, '\n', params)
+                raw, generated = _generate(poet_start, '\n', params.get('temperature'))
                 if params['interactive_mode'].startswith('verses'):
                     # cut off second half
                     tokens = generated.split('#')[-1].split()
@@ -188,14 +216,14 @@ def generuj_mc(params):
                 # full line from user: get user reduplicant
                 reduplicant = userinput[-3:]
                 poet_start += f" {reduplicant} # {userinput}\n{params['metre']} # {params['syllables_count']} #"
-                raw, generated = _generate(poet_start, '\n', params)
+                raw, generated = _generate(poet_start, '\n', params.get('temperature'))
             else:
                 if params['interactive_mode'].endswith('hg'):
                     poet_start = f"{params['rawtext'].strip()}\n{params['metre']} # {params['syllables_count']} #"
                     # finish the user line: invent reduplicant and generate
-                    poet_start, generated = _generate(poet_start, '#', params)
+                    poet_start, generated = _generate(poet_start, '#', params.get('temperature'))
                     poet_start += f" {userinput}"
-                    raw, generated = _generate(poet_start, '\n', params)
+                    raw, generated = _generate(poet_start, '\n', params.get('temperature'))
                 else:
                     # fill reduplicant in last line
                     reduplicant = params['userinput'].strip()[-3:]
@@ -203,7 +231,7 @@ def generuj_mc(params):
                     poet_start += f" {params['userinput'].strip()}\n{params['metre']} # {params['syllables_count']} #"
                     
                     # we start the line
-                    raw, generated = _generate(poet_start, '\n', params)
+                    raw, generated = _generate(poet_start, '\n', params.get('temperature'))
                     # cut off second half
                     tokens = generated.split('#')[-1].split()
                     part = (len(tokens) + 1) // 2
@@ -226,7 +254,7 @@ def generuj_mc(params):
             # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
             poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
             # generate ending hint
-            poet_start, generated = _generate(poet_start, ' #', params)
+            poet_start, generated = _generate(poet_start, ' #', params.get('temperature'))
             # anaphors and epanastrophes have precedence
             # (TODO priority, mutual exclusion)
             if index in anaphors:
@@ -236,17 +264,17 @@ def generuj_mc(params):
             # force word (may be empty, so what)
             poet_start = f"{poet_start} {word}"
             # generate line
-            poet_start, generated = _generate(poet_start, '\n', params)
+            poet_start, generated = _generate(poet_start, '\n', params.get('temperature'))
             if index+1 in anaphors:
                 prev_first = poet_start.split('#')[-1].split()[0]
             if index+1 in epanastrophes:
                 prev_last = poet_start.split()[-1]
         # generate till the end of the poem
-        raw, generated = _generate(poet_start, params=params)
+        raw, generated = _generate(poet_start, temperature=params.get('temperature'))
     else:
         # generate the poem at once
         poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
-        raw, generated = _generate(poet_start, params=params)
+        raw, generated = _generate(poet_start, temperature=params.get('temperature'))
     
     result = raw.split('<|endoftext|>')[0]
 
@@ -272,7 +300,7 @@ def generuj_mc(params):
         result = [v['line'] for v in parsed['verses']]
         clean_verses = clean(result)
     except parsy.ParseError as e:
-        logging.warning("EXCEPTION Nepodařený parsing básně:" + str(e))
+        logging.warning("WARNING Nepodařený parsing básně: " + str(e))
         header = result[0]
 
         result = result.split('\n')
@@ -315,25 +343,25 @@ def generuj_mc(params):
 
 def generuj_tm(params):
 
-    params['modelspec'] = 'tm'
+    #params['modelspec'] = 'tm'
     
     poem = ''
     
     # preamble
 
-    set_default_if_not(params, 'author_name')
+    set_default_if_not(params, 'author_name') #TODO readonly
     # TODO random select
     poem += f"{params['author_name']}:"
 
     if params.get('title'):
         poem += f" {params['title']} ("
     else:
-        poem, generated = _generate(poem, '(', params)
+        poem, generated = _generate(poem, '(', params.get('temperature'))
 
     if params.get('year'):
         poem += f"params['{year}'])\n"
     else:
-        poem, generated = _generate(poem, ')\n', params)
+        poem, generated = _generate(poem, ')\n', params.get('temperature'))
 
     # strophes
     strophes = 0
@@ -343,7 +371,7 @@ def generuj_tm(params):
             rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
         else:
-            poem, generated = _generate(poem, '\n', params)
+            poem, generated = _generate(poem, '\n', params.get('temperature'))
         
         try:
             verses_count = len(poem.split('\n')[-2].split('#')[1].split())
@@ -355,22 +383,22 @@ def generuj_tm(params):
             if params.get('metre'):
                 poem += f"# {params['metre']} #"
             else:
-                poem, generated = _generate(poem, '#', params)
+                poem, generated = _generate(poem, '#', params.get('temperature'))
 
             if params.get('syllables_count'):
                 poem += f" {params['syllables_count']} #"
             else:
-                poem, generated = _generate(poem, '#', params)
+                poem, generated = _generate(poem, '#', params.get('temperature'))
 
             # reduplicant
-            poem, generated = _generate(poem, '#', params)
+            poem, generated = _generate(poem, '#', params.get('temperature'))
 
             if params.get('first_words'):
-                word = params['first_words'].pop(0)
+                word = params['first_words'].pop(0) #TODO readonly
                 if word:
                     poem += f" {word}"
                 # TODO anaphors and epanastrophes
-            poem, generated = _generate(poem, '\n', params)
+            poem, generated = _generate(poem, '\n', params.get('temperature'))
 
         # end of strophe
         # (generate empty line or end of text)
@@ -436,6 +464,7 @@ if __name__=="__main__":
         if loaded:
             while True:
                 params = json.loads(socket.recv())
+                logging.info(f'Generating with params: {params}')
                 params['modelspec'] = modelspec
                 result = json.dumps(generuj(params))
                 socket.send_string(result)
@@ -445,12 +474,17 @@ if __name__=="__main__":
     else:    
         # direct mode
         load_models()
-        rhyme_scheme = 'AABB'
-        for modelspec in ['mc', 'tm']:
+        rhyme_scheme = 'ABAB'
+        for modelspec in ['tm']:
             result = generuj({
             'modelspec': modelspec,
             'rhyme_scheme': rhyme_scheme,
+            'first_words': ['', '', '', ''],
+            'verses_count': 0,
+            'syllables_count': 0,
+            'metre': '',
+            'max_strophes': 2,
+            'anaphors': [],
+            'epanastrophes': [],
             })
         print(*result, sep='\n')
-
-
