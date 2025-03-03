@@ -16,14 +16,14 @@ for f, g, _, d in duplicates:
         dupl[f] = dpls
         dupl[g] = dpls
 
-scores = {}
-for f, g, _, d in duplicates:
-    scores[(f, g)] = float(d)
+def num_lines(body):
+    return sum(len(x) for x in body)
 
 sqlite3.register_converter("json", json.loads)
 
 with sqlite3.connect('new.db', detect_types=sqlite3.PARSE_DECLTYPES) as db:
-    db.execute('UPDATE poems SET duplicate_tm=NULL')
+    db.execute('BEGIN TRANSACTION;')
+    #db.execute('UPDATE poems SET duplicate_tm=NULL;')
 
     visited = set()
     for d  in list(dupl.values()):
@@ -31,9 +31,9 @@ with sqlite3.connect('new.db', detect_types=sqlite3.PARSE_DECLTYPES) as db:
         if id in visited:
             continue
         visited.add(id)
-        lst = db.execute('SELECT year, poems.id FROM poems JOIN books ON poems.book_id=books.id WHERE poems.id IN ({})'.format(','.join(d))).fetchall()
-        lst = [(y, i) if (y != 'neuveden') else (0, i) for y, i in lst]
+        lst = db.execute('SELECT year, poems.id, poems.body FROM poems JOIN books ON poems.book_id=books.id WHERE poems.id IN ({})'.format(','.join(d)))
+        lst = [(y if (y != 'neuveden') else 0, i, num_lines(b))  for y, i, b in lst]
         print(lst)
         lst.sort()
         kanonic = lst[-1][1]
-        db.execute('UPDATE poems SET duplicate_tm={} WHERE id IN ({})'.format(kanonic, ','.join([str(id) for _, id in lst[:-1]])))
+        db.execute('UPDATE poems SET duplicate_tm={} WHERE id IN ({})'.format(kanonic, ','.join([str(id) for _, id, _ in lst[:-1]])))
