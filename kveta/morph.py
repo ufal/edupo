@@ -86,7 +86,7 @@ class Morphodita:
         initial_punctuation = ""
 
         for line in response.json()["result"].split("\n"):
-            sent_id = re.match("^# sent_id = (\d+)", line)
+            sent_id = re.match("^# sent_id = (\\d+)", line)
             if sent_id:
                 s = sent_id.groups()[0]
             if line and line[0].isdigit():
