@@ -23,9 +23,8 @@ ptx = phonetix.Phonetix()
 new_body = ptx.phoebe2cft(new_body)
 syl = syllables.Syllables()
 new_body = syl.split_words_to_syllables(new_body)
-rt = rhyme.RhymeDetection(window=rwindow, probability_sampa_min=rpsounds, probability_ngram_min=rpngrams)
+rt = rhyme.RhymeDetection(window=6, probability_sampa_min=0.95, probability_ngram_min=0.95)
 new_body = rt.mark_reduplicants(new_body)
-
 data[0]["body"] = new_body
 
  # evaluate counts of syllables

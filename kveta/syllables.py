@@ -164,7 +164,8 @@ class Syllables:
                         f_pos += 1
                     if syllables:
                         syllables[-1]["ph_end_consonants"] = ph_consonants
-                        syllables[-1]["ort_end_consonants"] = ortographic[o_pos:]
+                        syllables[-1]["ort_end_consonants"] = ort_consonants
+                        syllables[-1]["ort_end_consonants"] += ortographic[o_pos:]
                     else:
                         syllables = [{"ph_consonants": "",
                                       "ph_vowels": "",
