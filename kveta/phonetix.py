@@ -40,15 +40,15 @@ class Phonetix:
         with open(file_loanwords, 'rb') as handle:
             dict_loanwords = pickle.load(handle)
 
-        file_diphthongs = os.path.join(self.parent, 'dicts',
-                                       'diphthongs.pickle')
-        with open(file_diphthongs, 'rb') as handle:
-            dict_diphthongs = pickle.load(handle)
+        #file_diphthongs = os.path.join(self.parent, 'dicts',
+        #                               'diphthongs.pickle')
+        #with open(file_diphthongs, 'rb') as handle:
+        #    dict_diphthongs = pickle.load(handle)
 
         self.dict = {
             'general': dict_general,
             'loanwords': dict_loanwords,
-            'diphthongs': dict_diphthongs,
+        #    'diphthongs': dict_diphthongs,
         }
 
     def replace(self, tab):
