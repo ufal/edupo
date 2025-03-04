@@ -178,6 +178,17 @@ class Syllables:
                     print("Backup splitting on line:", line['text'], file=sys.stderr)
                     print("Backup splitting text:", '|'.join([s['ort_consonants'] + s['ort_vowels'] + s['ort_end_consonants'] for s in syllables]), file=sys.stderr)
                 poem[i]['words'][j]['syllables'] = syllables
-
+            # test: join all syllables and compare with text
+            text_from_syllables = ""
+            for w, word in enumerate(line['words']):
+                if 'punct_before' in word:
+                    text_from_syllables += word['punct_before'].replace(' ','')
+                for s, syllable in enumerate(word['syllables']):
+                    text_from_syllables += syllable['ort_consonants'].replace('_','')+syllable['ort_vowels']+syllable['ort_end_consonants']
+                if 'punct' in word:
+                    text_from_syllables += word['punct'].replace(' ','')
+            original_text = line['text'].replace(' ', '')
+            if text_from_syllables != original_text:
+                print("WARNING: different text in syllables:", text_from_syllables, "vs.", original_text, file=sys.stderr)
         return poem
 
