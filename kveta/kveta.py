@@ -68,6 +68,16 @@ class Kveta:
 
     def read_ccv(self, data):
         self.poem_ = data
+        # move punctuation from verse to words
+        for i, verse in enumerate(self.poem_):
+            if 'punct' in verse:
+                for position in verse['punct']:
+                    pos = int(position)
+                    if pos == 0:
+                        self.poem_[i]['words'][0]['punct_before'] = verse['punct'][position]
+                    elif pos > 0:
+                        self.poem_[i]['words'][pos - 1]['punct'] = verse['punct'][position]
+            #del verse['punct']
 
 def okvetuj(text):
     # Get parameters
