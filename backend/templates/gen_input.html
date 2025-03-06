@@ -86,7 +86,7 @@
         </p>
         
         <p>Počet slabik v prvním verši:
-        <select name="syllables_count" id="syllables_count">
+        <select name="syllables_count">
         <option value="0">náhodně</option>
         <option value="4">4</option>
         <option value="5">5</option>
@@ -105,7 +105,7 @@
         (respektive ve všech verších které mají definovaný požadavek na první slovo)
         </p>
 
-        <!--<p>TODO rozměr (počet stop) -- buď stejný pro celou báseň, nebo pro
+        <!--<p>TODO rozměr (počet stop) - buď stejný pro celou báseň, nebo pro
         jednotlivé rýmy; není to nutně totéž jako počet slabik (m/f/a se liší
         počtem slabik při stejném rozměru)</p>-->
 
@@ -126,6 +126,7 @@
         <p>První slova veršů:
         Lze vypnit jen první slovo prvního verše, anebo i první slova dalších
         veršů...
+        </p>
         <ol>
         <li><input type="text"
                id="fw0"
@@ -182,7 +183,6 @@
         <button onclick="document.getElementById('fw5').value=getRandomNoun()">Náhodné slovo</button>
         
         </ol>
-        </p>
 
         <!--<p>Typ lyriky:
         <select name="lyrika_style" disabled>
