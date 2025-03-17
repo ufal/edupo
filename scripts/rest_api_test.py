@@ -11,7 +11,7 @@ logging.basicConfig(
 
 import requests
 
-base_url = 'https://quest.ms.mff.cuni.cz/edupo/'
+base_url = 'https://quest.ms.mff.cuni.cz/edupo-api/'
 # base_url = 'http://127.0.0.1:5000/'
 
 if False:
