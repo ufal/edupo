@@ -6,7 +6,8 @@ EduPo: Generování české poezie v edukačním a multimediálním prostředí
 ## documentation
 
 - [REST API doc](docs/api_doc.md)
-- [JSON format doc](docs/json_doc.md)
+- [JSON format doc](docs/json_doc.md) (in Czech)
+- [JSON format doc in English](docs/json_doc_en.md) (automatically translated)
 - [JSON format example](docs/json_doc.json)
 
 ## maintainers

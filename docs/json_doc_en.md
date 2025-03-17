@@ -1,108 +1,103 @@
-# EduPo JSON format Dokumentace
+# EduPo JSON Format Documentation
 
-Tento dokument popisuje strukturu JSON dat, která jsou vrácena z EduPo API.
+This document describes the structure of JSON data returned from the EduPo API.
 
-[English version of this document](json_doc_en.md) (automatically translated)
+## Format Description
 
-## Popis formátu
+The description should more or less reflect the state as of 17.3.2025.
+TODO: The structure of syllables is missing; for now, see format examples below...
 
-Popis by měl víceméně odpovídat stavu z 17.3.2025.
-TODO struktura syllables chybí popsat; v tuto chvíli viz úkazky formátu
-níže...
+### Root Elements
 
-### Kořenové prvky
-
-- **author** *(string)* – Jméno autora básně (skutečné jméno člověka).
-- **author_name** *(string)* – Jméno autora uvedené ve sbírce (může být pseudonym).
-- **b_title** *(string)* – Název sbírky, ve které báseň vyšla.
-- **book_id** *(integer)* – Unikátní ID sbírky.
-- **born** *(integer, nullable)* – Rok narození autora.
-- **dedication** *(string, nullable)* – Dedikace básně.
-- **died** *(integer, nullable)* – Rok úmrtí autora.
-- **duplicate** *(integer)* – báseň je duplikátem básně s tímto id
-- **edition** *(integer)* – Číslo vydání knihy.
-- **id** *(integer)* – Unikátní ID básně (**poemid**).
-- **identity** *(string)* – Identifikátor autora.
-- **imgfile** *(string, nullable)* – Cesta k souboru s vygenerovaným obrázkem.
-- **imgtitle** *(string, nullable)* – Popis obrázku vygenerovaného k básni.
-- **motives** *(string, nullable)* – Seznam motivů básně (automaticky určené).
-- **motto** *(string, nullable)* – Motto básně.
-- **motto_aut** *(string, nullable)* – Autor motta.
-- **openai** *(array, nullable)* – Seznam generovaných odpovědí modelu OpenAI.
-  - **prompt** *(string)* – Dotaz položený modelu.
-  - **output** *(string)* – Výstupní odpověď.
-- **pages** *(integer, nullable)* – Počet stran knihy.
-- **place** *(string, nullable)* – Místo vydání.
-- **plaintext** *(string)* – Text básně ve formátu plain text.
-- **poem_id_corp** *(string)* – ID básně v korpusu.
-- **present_metres** *(array, nullable)* – Seznam metrických schémat v básni.
-- **publisher** *(string, nullable)* – Vydavatel knihy.
-- **schemes** *(object)* – Informace o schématu rýmů a formě básně.
-  - **form** *(string, nullable)* – Forma básně (např. sonet).
-  - **rhyme_scheme** *(array)* – Seznam schémat rýmů (TODO asi je prázdný).
-  - **rhymed** *(boolean)* – Indikátor, zda báseň obsahuje rým.
-  - **stanza_scheme** *(array)* – Seznam schémat slok (délky veršů ve slokách).
-  - **stanzaic** *(boolean)* – Indikátor, zda báseň obsahuje pravidelné sloky.
-- **schools** *(array, nullable)* – Seznam literárních škol.
-- **signature** *(string, nullable)* – Signatura knihy.
-- **subtitle** *(string, nullable)* – Podtitul básně.
-- **title** *(string)* – Název básně.
-- **translations** *(object, nullable)* – Překlady básně do jiných jazyků.
-  - **sk** *(string, nullable)* – Překlad do slovenštiny.
+- **author** *(string)* – Name of the poem's author (real name of the person).
+- **author_name** *(string)* – Name of the author as listed in the collection (may be a pseudonym).
+- **b_title** *(string)* – Title of the collection in which the poem was published.
+- **book_id** *(integer)* – Unique ID of the collection.
+- **born** *(integer, nullable)* – Year of birth of the author.
+- **dedication** *(string, nullable)* – Dedication of the poem.
+- **died** *(integer, nullable)* – Year of death of the author.
+- **duplicate** *(integer)* – The poem is a duplicate of the poem with this ID.
+- **edition** *(integer)* – Edition number of the book.
+- **id** *(integer)* – Unique ID of the poem (**poemid**).
+- **identity** *(string)* – Author's identifier.
+- **imgfile** *(string, nullable)* – Path to the file with the generated image.
+- **imgtitle** *(string, nullable)* – Description of the image generated for the poem.
+- **motives** *(string, nullable)* – List of poem motifs (automatically determined).
+- **motto** *(string, nullable)* – Motto of the poem.
+- **motto_aut** *(string, nullable)* – Author of the motto.
+- **openai** *(array, nullable)* – List of generated responses from the OpenAI model.
+  - **prompt** *(string)* – Query posed to the model.
+  - **output** *(string)* – Output response.
+- **pages** *(integer, nullable)* – Number of pages in the book.
+- **place** *(string, nullable)* – Place of publication.
+- **plaintext** *(string)* – Poem text in plain text format.
+- **poem_id_corp** *(string)* – Poem ID in the corpus.
+- **present_metres** *(array, nullable)* – List of metric schemes in the poem.
+- **publisher** *(string, nullable)* – Publisher of the book.
+- **schemes** *(object)* – Information about rhyme schemes and poem form.
+  - **form** *(string, nullable)* – Form of the poem (e.g., sonnet).
+  - **rhyme_scheme** *(array)* – List of rhyme schemes (TODO: likely empty).
+  - **rhymed** *(boolean)* – Indicator whether the poem contains rhyme.
+  - **stanza_scheme** *(array)* – List of stanza schemes (verse lengths in stanzas).
+  - **stanzaic** *(boolean)* – Indicator whether the poem contains regular stanzas.
+- **schools** *(array, nullable)* – List of literary schools.
+- **signature** *(string, nullable)* – Signature of the book.
+- **subtitle** *(string, nullable)* – Subtitle of the poem.
+- **title** *(string)* – Title of the poem.
+- **translations** *(object, nullable)* – Translations of the poem into other languages.
+  - **sk** *(string, nullable)* – Translation into Slovak.
   - ...
-- **ttsfile** *(string, nullable)* – Cesta k souboru s vygenerovaným TTS přednesem.
-- **wiki** *(string, nullable)* – ID článku o autorovi na Wikidatech.
-- **year** *(integer, nullable)* – Rok vydání básně.
-- **zena** *(boolean, nullable)* – Indikátor, zda je autor žena.
+- **ttsfile** *(string, nullable)* – Path to the file with the generated TTS recitation.
+- **wiki** *(string, nullable)* – ID of the author's article on Wikidata.
+- **year** *(integer, nullable)* – Year of publication of the poem.
+- **zena** *(boolean, nullable)* – Indicator whether the author is a woman.
 
-### Struktura **body** (obsah básně, pole veršů)
+### Structure of **body** (poem content, array of verses)
 
-Každý objekt v poli `body` obsahuje informace o jednom verši:
+Each object in the `body` array contains information about one verse:
 
-- **metre** *(object)* – Informace o metru verše.
-  - Tohle je debilní formát, ve **verses** je to líp (viz níže)
-  - **J** *(object, nullable)* – Informace o jambickém metru.
-    - **basic** *(string)* – TODO to nevim co znamená
-    - **clause** *(string)* – Typ metra (m/f/a apod.).
-    - **foot** *(integer)* – Počet stop.
-    - **pattern** *(string)* – Silné a slabé pozice v metru (S/W/V).
-- **punct** *(object, nullable)* – Mapování pozice a interpunkce.
-- **rhyme** *(integer, nullable)* – Rým (1, 2, 3... verš s rhyme=3 se rýmuje s
-  dalšími verši s rhyme=3; rhyme=0 znamená nerýmovaný)
-- **sections** *(string, nullable)* – Přízvuky slabik ve verši (rytmus).
-- **stanza** *(integer)* – Číslo sloky (počínaje 0).
-- **text** *(string)* – Text verše.
-- **words** *(array)* – Pole obsahující podrobné informace o slovech.
-  - **cft** *(string)* – Fonologická transkripce.
-  - **lemma** *(string)* – Lemma slova.
-  - **morph** *(string)* – Morfologická značka.
-  - **phoebe** *(string)* – Fonetická reprezentace.
-  - **syllables** *(array, nullable)* – Seznam slabik. **TODO** dodat podrobný popis
-  - **token** *(string)* – Originální token.
-  - **token_lc** *(string)* – Token v malých písmenech.
-  - **xsampa** *(string)* – X-SAMPA přepis.
+- **metre** *(object)* – Information about the verse's meter.
+  - This format is inconvenient; in **verses**, it is better structured (see below).
+  - **J** *(object, nullable)* – Information about iambic meter.
+    - **basic** *(string)* – TODO: Not sure what this means.
+    - **clause** *(string)* – Type of meter (m/f/a, etc.).
+    - **foot** *(integer)* – Number of feet.
+    - **pattern** *(string)* – Strong and weak positions in the meter (S/W/V).
+- **punct** *(object, nullable)* – Mapping of position and punctuation.
+- **rhyme** *(integer, nullable)* – Rhyme (1, 2, 3... a verse with rhyme=3 rhymes with other verses with rhyme=3; rhyme=0 means unrhymed).
+- **sections** *(string, nullable)* – Syllable accents in the verse (rhythm).
+- **stanza** *(integer)* – Stanza number (starting from 0).
+- **text** *(string)* – Text of the verse.
+- **words** *(array)* – Array containing detailed information about words.
+  - **cft** *(string)* – Phonological transcription.
+  - **lemma** *(string)* – Lemma of the word.
+  - **morph** *(string)* – Morphological tag.
+  - **phoebe** *(string)* – Phonetic representation.
+  - **syllables** *(array, nullable)* – List of syllables. **TODO**: Provide a detailed description.
+  - **token** *(string)* – Original token.
+  - **token_lc** *(string)* – Token in lowercase.
+  - **xsampa** *(string)* – X-SAMPA transcription.
 
-### Struktura **verses** (obsah básně)
+### Structure of **verses** (poem content)
 
-Tohle je znova víceméně totéž jako body, ale trochu přechroustané...
-Některé důležité rozdíly:
+This is essentially the same as `body`, but slightly restructured...
+Some important differences:
 
-Metrum je v rozumnějším formátu. Přímo v kořeni verše jsou položky:
-- **metre** je rovnou string (např. "J")
-- **metrum** je textový název metra (např. "jamb")
+The meter is in a more reasonable format. Directly at the root of the verse, there are items:
+- **metre** is a string (e.g., "J").
+- **metrum** is the textual name of the meter (e.g., "iamb").
 - **clause**
 - **foot**
 - **pattern**
 
-Navíc:
-- **narrators_gender** rod lyrického mluvčího (M/F)
+Additionally:
+- **narrators_gender** – Gender of the lyrical speaker (M/F).
 - **rhymeclass**
-- **rhymeletter** A, B, C... rým jako písmeno, verš C se rýmuje s dalšími
-  verši C...)
-- **rhymesubscript** pokud dojde abeceda, tak se jede znova od A a tady se
-  přidává subscript 1, 2 atd.
+- **rhymeletter** – A, B, C... rhyme as a letter, verse C rhymes with other verses C...
+- **rhymesubscript** – If the alphabet runs out, it starts again from A, and this field adds subscript 1, 2, etc.
 
-## Ukázka (zkrácené `body` a `verses`)
+
+## Example (shorened `body` and `verses`)
 
 ```
 {
@@ -1076,7 +1071,7 @@ Navíc:
 }
 ```
 
-## Ukázka
+## Example
 
 ```
 {
