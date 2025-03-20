@@ -10,6 +10,13 @@ EduPo: Generování české poezie v edukačním a multimediálním prostředí
 - [JSON format doc in English](docs/json_doc_en.md) (automatically translated)
 - [JSON format example](docs/json_doc.json)
 
+## trained poetry models
+
+We publish all models on HuggingFace:
+- basic model: [jinymusim/gpt-czech-poet](https://huggingface.co/jinymusim/gpt-czech-poet)
+- newer model: [tomasmcz/edupo_v0.5](https://huggingface.co/tomasmcz/edupo_v0.5)
+- for other development models see various gpt-czech-poet [jinymusim](https://huggingface.co/jinymusim)
+
 ## maintainers
 - ptakopysk (Rudolf Rosa): the head of the team
 - davidmarecek (David Mareček): senior team member (analysis)
