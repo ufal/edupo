@@ -91,8 +91,14 @@ def _generate(poet_start, stop_strings=None, temperature=1, krok=None):
         model = model_tm
         tokenizer = tokenizer_tm
     else:
+        if modelspec == 'tm':
+            logging.warning('Cannot load tm model, trying to use mc model as backoff')
         model = model_mc
         tokenizer = tokenizer_mc
+    
+    if not model or not tokenizer:
+        logging.error('No model loaded, cannot generate!')
+        raise Exception('No model loaded, cannot generate!')
 
     poet_start = poet_start.replace('<|begin_of_text|>', '')
 
