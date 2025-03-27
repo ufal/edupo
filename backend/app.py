@@ -278,7 +278,7 @@ def hello_world():
 def favicon():
     return send_file('static/favicon.ico')
 
-@app.route("/prdel")
+@app.route("/prdel", methods=['GET', 'POST'])
 def prdel_world():
     # if request.method == "OPTIONS":
     #    response = make_response()
