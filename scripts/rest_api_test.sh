@@ -1,5 +1,11 @@
 #!/bin/bash
 
+
+curl --header "Accept: text/plain" https://quest.ms.mff.cuni.cz/edupo-api/prdel
+
+curl -X POST --header "Accept: text/plain" https://quest.ms.mff.cuni.cz/edupo-api/prdel
+
+
 # text/plain, text/html, application/json
 curl --header "Accept: text/plain" https://quest.ms.mff.cuni.cz/edupo-api/gen
 
