@@ -53,6 +53,9 @@ def load_models(modelspec=None):
             FastLanguageModel.for_inference(model_tm)
             with open('prompt_templates/tm1.txt', 'r') as f:
                 template_tm = parser.Template(f.read())
+
+            logging.info(f"model_tm: {model_tm}")
+            logging.info(f"tokenizer_tm: {tokenizer_tm}")
             loaded = True
         except:
             logging.exception("EXCEPTION Nejde načíst unsloth model.")
