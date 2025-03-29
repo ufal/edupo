@@ -32,6 +32,8 @@ modelspec = None
 def load_models(modelspec=['mc', 'tm']):
     global model_mc, tokenizer_mc, template_mc, model_tm, tokenizer_tm, template_tm
 
+    logging.info(f"Loading model {modelspec}")
+
     loaded = False
 
     if 'mc' in modelspec:
