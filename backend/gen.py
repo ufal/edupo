@@ -56,6 +56,7 @@ def load_models(modelspec=['mc', 'tm']):
             logging.exception("EXCEPTION Nejde načíst unsloth model.")
             model_tm, tokenizer_tm = None, None
     
+    logging.info("Model loaded.")
     return loaded
 
 def _show_tokenization(tokenizer, tokens):
