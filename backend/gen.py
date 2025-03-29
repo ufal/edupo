@@ -29,14 +29,14 @@ model_tm, tokenizer_tm, template_tm = None, None, None
 
 modelspec = None
 
-def load_models(modelspec=['mc', 'tm']):
+def load_models(modelspec=None):
     global model_mc, tokenizer_mc, template_mc, model_tm, tokenizer_tm, template_tm
 
     logging.info(f"Loading model {modelspec}")
 
     loaded = False
 
-    if 'mc' in modelspec:
+    if modelspec == 'mc':
         # load Michal's model
         tokenizer_mc = AutoTokenizer.from_pretrained(MODEL_MC)
         model_mc = AutoModelForCausalLM.from_pretrained(MODEL_MC)
@@ -44,7 +44,7 @@ def load_models(modelspec=['mc', 'tm']):
                 template_mc = parser.Template(f.read())
         loaded = True
 
-    if 'tm' in modelspec:
+    elif modelspec == 'tm':
         # Try to load unsloth model
         try:
             import unsloth
@@ -57,6 +57,9 @@ def load_models(modelspec=['mc', 'tm']):
         except:
             logging.exception("EXCEPTION Nejde načíst unsloth model.")
             model_tm, tokenizer_tm = None, None
+    else:
+        logging.exception("EXCEPTION Nebyl vybrán model.")
+
     
     logging.info("Model loaded.")
     return loaded
