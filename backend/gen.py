@@ -22,6 +22,8 @@ import parser
 MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-15000'
 MODEL_MC="jinymusim/gpt-czech-poet"
 
+verbose_info=False
+
 model_mc, tokenizer_mc, template_mc = None, None, None
 model_tm, tokenizer_tm, template_tm = None, None, None
 
@@ -125,8 +127,9 @@ def _generate(poet_start, stop_strings=None, temperature=1, krok=None):
             **({'stop_strings': stop_strings} if stop_strings else {}),
     )
     
-    logging.info(f"Tokenization in step {krok}")
-    logging.info(_show_tokenization(tokenizer, out[0])) 
+    if verbose_info:
+        logging.info(f"Tokenization in step {krok}")
+        logging.info(_show_tokenization(tokenizer, out[0])) 
 
     # decode and return
     full = tokenizer.decode(out[0])
