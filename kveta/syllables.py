@@ -187,8 +187,8 @@ class Syllables:
                     text_from_syllables += syllable['ort_consonants'].replace('_','')+syllable['ort_vowels']+syllable['ort_end_consonants']
                 if 'punct' in word:
                     text_from_syllables += word['punct'].replace(' ','')
-            original_text = line['text'].replace(' ', '')
-            if text_from_syllables != original_text:
-                print("WARNING: different text in syllables:", text_from_syllables, "vs.", original_text, file=sys.stderr)
+            original_text = line['text'].replace(' ', '').replace('’', '')
+            #if text_from_syllables != original_text:
+            #    print("WARNING: different text in syllables:", text_from_syllables, "vs.", original_text, file=sys.stderr)
         return poem
 
