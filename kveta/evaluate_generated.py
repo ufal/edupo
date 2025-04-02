@@ -47,5 +47,5 @@ for i, poem in enumerate(poems):
     except:
         print('ERROR while processing file:', i, file=sys.stderr)
         raise
-    print(i, results['unknown_words'], results['rhyming'], results['metre_consistency'], results['syllable_count_entropy'], sep="\t")
+    print(i, results['unknown_words'], results['rhyming'], results['metre_consistency'], results['syllable_count_entropy'], results['rhyming_consistency'], sep="\t")
 
