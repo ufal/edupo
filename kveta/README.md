@@ -6,10 +6,10 @@
 - určení počtu slabik, přízvuků, metra, ...
 
 ## Automatická anotace básně v plaintextu:
-kveta.py basen.txt basen.json
+`kveta.py basen.txt basen.json`
 
 ## Automatická anotace existující básně z Korpusu české poezie:
 Extrahuje se pouze text z formátu JSON, ostatní anotace se zahodí a vygenerují se nové automatické anotace
 
-kveta.py input.json output.json
+`kveta.py input.json output.json`
 
