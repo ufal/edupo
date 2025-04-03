@@ -10,6 +10,8 @@ import kveta
 filename = sys.argv[1]
 output_filename = sys.argv[2]
 
+print("Processing", filename, file=sys.stderr)
+
 f = open(filename, "r")
 data = json.load(f)
 stanza = 0

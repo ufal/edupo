@@ -182,13 +182,13 @@ class Syllables:
             text_from_syllables = ""
             for w, word in enumerate(line['words']):
                 if 'punct_before' in word:
-                    text_from_syllables += word['punct_before'].replace(' ','')
+                    text_from_syllables += word['punct_before']
                 for s, syllable in enumerate(word['syllables']):
-                    text_from_syllables += syllable['ort_consonants'].replace('_','')+syllable['ort_vowels']+syllable['ort_end_consonants']
-                if 'punct' in word:
-                    text_from_syllables += word['punct'].replace(' ','')
-            original_text = line['text'].replace(' ', '').replace('’', '')
-            #if text_from_syllables != original_text:
-            #    print("WARNING: different text in syllables:", text_from_syllables, "vs.", original_text, file=sys.stderr)
+                    text_from_syllables += syllable['ort_consonants'].replace('_',' ')+syllable['ort_vowels']+syllable['ort_end_consonants']
+                if word['syllables'] and 'punct' in word:
+                    text_from_syllables += word['punct']
+            original_text = line['text']
+            if text_from_syllables != original_text:
+                print("WARNING: different text in syllables:", text_from_syllables, "vs.", original_text, file=sys.stderr)
         return poem
 

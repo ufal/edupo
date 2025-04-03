@@ -68,16 +68,40 @@ class Kveta:
 
     def read_ccv(self, data):
         self.poem_ = data
+
         # move punctuation from verse to words
         for i, verse in enumerate(self.poem_):
-            if 'punct' in verse:
-                for position in verse['punct']:
-                    pos = int(position)
-                    if pos == 0:
-                        self.poem_[i]['words'][0]['punct_before'] = verse['punct'][position]
-                    elif pos > 0:
-                        self.poem_[i]['words'][pos - 1]['punct'] = verse['punct'][position]
-            #del verse['punct']
+            pos = 0
+            word_index = 0
+            corrupted_word = False
+            while word_index < len(verse['words']) and pos <= len(verse['text']):
+                current_word = verse['words'][word_index]['token']
+                current_punct = ""
+                while pos+len(current_word) <= len(verse['text']) and current_word != verse['text'][pos:pos+len(current_word)] and current_word != verse['text'][pos:pos+len(current_word)+1].replace('’','').replace("'","") and (not verse['text'][pos].isalpha() or corrupted_word):
+                    current_punct += verse['text'][pos]
+                    if corrupted_word and verse['text'][pos].isalpha():
+                        current_punct = ""
+                    pos += 1
+                if current_word == verse['text'][pos:pos+len(current_word)+1].replace('’','').replace("'",""):
+                    current_word = verse['text'][pos:pos+len(current_word)+1]
+                    self.poem_[i]['words'][word_index]['token'] = current_word
+                    corrupted_word = False
+                elif current_word == verse['text'][pos:pos+len(current_word)]:
+                    corrupted_word = False
+                elif verse['text'][pos].isalpha():
+                    # nasledujici slovo v textu neodpovida nasledujicimu tokenu
+                    # preskoc tenhle token a vypis interpunkci
+                    corrupted_word = True
+                if word_index == 0:
+                    self.poem_[i]['words'][0]['punct_before'] = current_punct
+                else:
+                    self.poem_[i]['words'][word_index - 1]['punct'] = current_punct
+                if not corrupted_word:
+                    pos += len(current_word)
+                word_index += 1
+            if not corrupted_word and pos < len(verse['text']):
+                self.poem_[i]['words'][-1]['punct'] = verse['text'][pos:]
+        #del verse['punct']
 
 def okvetuj(text):
     # Get parameters
