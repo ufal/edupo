@@ -5,6 +5,8 @@
 - detekce rýmů a reduplikantů
 - určení počtu slabik, přízvuků, metra, ...
 
+`pip install -r requirements.txt`
+
 ## Automatická anotace básně v plaintextu:
 `kveta.py basen.txt basen.json`
 
