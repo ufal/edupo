@@ -11,9 +11,9 @@ while true;
 do
     date
     echo Starting generator models...
-    python3 gen.py zmq mc 5010 2>> logs/gen_mc.log &
+    python3 gen.py mc 5010 2>> logs/gen_mc.log &
     mcpid=$!
-    python3 gen.py zmq tm 5011 2>> logs/gen_tm.log &
+    python3 gen.py tm 5011 2>> logs/gen_tm.log &
     tmpid=$!
     echo Starting backend server...
     # TODO explicitly set MC_MODEL_PORT and TM_MODEL_PORT?

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
+import argparse
 from functools import reduce
 import random
 import re
@@ -22,50 +23,62 @@ import parser
 MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-15000'
 MODEL_MC="jinymusim/gpt-czech-poet"
 
-verbose_info=False
+VERBOSE_INFO=False
 
-model_mc, tokenizer_mc, template_mc = None, None, None
-model_tm, tokenizer_tm, template_tm = None, None, None
+RHYME_SCHEMES = {
+    4: ['ABAB', 'XXXX', 'XAXA', 'AAXX', 'AABB', 'ABBA'],
+    6: ['AABBCC', 'XXXXXX', 'ABABXX', 'ABABCC'],
+    }
 
-modelspec = None
+# default parameter values
+DEFAULT = {
+    'rhyme_scheme': 'AABB',
+    'metre': 'J',
+    'verses_count': 4,
+    'syllables_count': 8,
+    'first_words': [],
+    'year': 1900,
+    'temperature': 1,
+    'anaphors': [],
+    'epanastrophes': [],
+    'title': 'Bez názvu',
+    'author_name': 'Vrchlický, Jaroslav',
+    'max_strophes': 2,
+    'modelspec': 'tm',
+    }
 
 def load_models(modelspec=None):
-    global model_mc, tokenizer_mc, template_mc, model_tm, tokenizer_tm, template_tm
 
     logging.info(f"Loading model {modelspec}")
 
-    loaded = False
-
     if modelspec == 'mc':
         # load Michal's model
-        tokenizer_mc = AutoTokenizer.from_pretrained(MODEL_MC)
-        model_mc = AutoModelForCausalLM.from_pretrained(MODEL_MC)
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_MC)
+        model = AutoModelForCausalLM.from_pretrained(MODEL_MC)
         with open('prompt_templates/chudoba.txt', 'r') as f:
-                template_mc = parser.Template(f.read())
-        loaded = True
+                template = parser.Template(f.read())
+
 
     elif modelspec == 'tm':
         # Try to load unsloth model
         try:
             import unsloth
             from unsloth import FastLanguageModel
-            model_tm, tokenizer_tm = FastLanguageModel.from_pretrained(MODEL_TM)
-            FastLanguageModel.for_inference(model_tm)
+            model, tokenizer = FastLanguageModel.from_pretrained(MODEL_TM)
+            FastLanguageModel.for_inference(model)
             with open('prompt_templates/tm1.txt', 'r') as f:
-                template_tm = parser.Template(f.read())
+                template = parser.Template(f.read())
 
             #logging.info(f"model_tm: {model_tm}")
             #logging.info(f"tokenizer_tm: {tokenizer_tm}")
-            loaded = True
         except:
             logging.exception("EXCEPTION Nejde načíst unsloth model.")
-            model_tm, tokenizer_tm = None, None
     else:
         logging.exception("EXCEPTION Nebyl vybrán model.")
 
     
     logging.info("Model loaded.")
-    return loaded
+    return model, tokenizer, template
 
 def _show_tokenization(tokenizer, tokens):
     return ('|' + '|'.join(tokenizer.convert_ids_to_tokens(tokens)
@@ -94,79 +107,47 @@ def _show_tokenization(tokenizer, tokens):
                             )
             + '|')
 
-def _generate(poet_start, stop_strings=None, temperature=1, krok=None):
+def _generate(model, tokenizer):
+    def g(poet_start, stop_strings=None, temperature=1, krok=None):
+        if not model or not tokenizer:
+            logging.error('No model loaded, cannot generate!')
+            raise Exception('No model loaded, cannot generate!')
 
-    global modelspec
-    
-    if model_tm and modelspec == 'tm':
-        model = model_tm
-        tokenizer = tokenizer_tm
-    else:
-        if modelspec == 'tm':
-            logging.warning('Cannot load tm model, trying to use mc model as backoff')
-        model = model_mc
-        tokenizer = tokenizer_mc
-    
-    if not model or not tokenizer:
-        logging.error('No model loaded, cannot generate!')
-        raise Exception('No model loaded, cannot generate!')
+        poet_start = poet_start.replace('<|begin_of_text|>', '')
 
-    poet_start = poet_start.replace('<|begin_of_text|>', '')
+        """
+        stop_strings(`str or List[str]`, *optional*):
+                A string or a list of strings that should terminate generation if the model outputs them.
+        """
 
-    """
-    stop_strings(`str or List[str]`, *optional*):
-            A string or a list of strings that should terminate generation if the model outputs them.
-    """
+        # tokenize input
+        tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt').to(model.device)
 
-    # tokenize input
-    tokenized_poet_start = tokenizer.encode(poet_start, return_tensors='pt').to(model.device)
+        # generate a continuation to it
+        out = model.generate(
+                tokenized_poet_start,
+                max_new_tokens=256,
+                do_sample=True,
+                # top_p=0.7,
+                top_k=50,
+                # no_repeat_ngram_size=2,
+                pad_token_id= tokenizer.pad_token_id,
+                temperature=temperature,
+                tokenizer=tokenizer,
+                eos_token_id = tokenizer.eos_token_id,
+                **({'stop_strings': stop_strings} if stop_strings else {}),
+        )
+        
+        if VERBOSE_INFO:
+            logging.info(f"Tokenization in step {krok}")
+            logging.info(_show_tokenization(tokenizer, out[0])) 
 
-    # generate a continuation to it
-    out = model.generate(
-            tokenized_poet_start,
-            max_new_tokens=256,
-            do_sample=True,
-            # top_p=0.7,
-            top_k=50,
-            # no_repeat_ngram_size=2,
-            pad_token_id= tokenizer.pad_token_id,
-            temperature=temperature,
-            tokenizer=tokenizer,
-            eos_token_id = tokenizer.eos_token_id,
-            **({'stop_strings': stop_strings} if stop_strings else {}),
-    )
-    
-    if verbose_info:
-        logging.info(f"Tokenization in step {krok}")
-        logging.info(_show_tokenization(tokenizer, out[0])) 
+        # decode and return
+        full = tokenizer.decode(out[0])
+        generated = tokenizer.decode(out[0][len(tokenized_poet_start[0]):])
 
-    # decode and return
-    full = tokenizer.decode(out[0])
-    generated = tokenizer.decode(out[0][len(tokenized_poet_start[0]):])
-
-    return full, generated
-
-RHYME_SCHEMES = {
-    4: ['ABAB', 'XXXX', 'XAXA', 'AAXX', 'AABB', 'ABBA'],
-    6: ['AABBCC', 'XXXXXX', 'ABABXX', 'ABABCC'],
-    }
-
-# default parameter values
-DEFAULT = {
-    'rhyme_scheme': 'AABB',
-    'metre': 'J',
-    'verses_count': 4,
-    'syllables_count': 8,
-    'first_words': [],
-    'year': 1900,
-    'temperature': 1,
-    'anaphors': [],
-    'epanastrophes': [],
-    'title': 'Bez názvu',
-    'author_name': 'Vrchlický, Jaroslav',
-    'max_strophes': 2,
-    'modelspec': 'tm',
-    }
+        return full, generated
+    return g
 
 def set_default_if_not(params, key):
     if not params.get(key, None):
@@ -181,7 +162,9 @@ D # 8 # emi #  a teď tam ti mrtví všemi!
 <|endoftext|>
 """
 
-def generuj_mc(params):
+def generuj_mc(model, tokenizer, template, params):
+
+    gen = _generate(model, tokenizer)
 
     params['modelspec'] = 'mc'
 
@@ -216,15 +199,15 @@ def generuj_mc(params):
                     # full line from user: get user reduplicant
                     reduplicant = userinput[-3:]
                     poet_start += f" {reduplicant} # {userinput}\n{params['metre']} # {params['syllables_count']} #"
-                    raw, generated = _generate(poet_start, '\n', params.get('temperature'))
+                    raw, generated = gen(poet_start, '\n', params.get('temperature'))
                 else:
                     # finish the user line: invent reduplicant and generate
-                    poet_start, generated = _generate(poet_start, '#', params.get('temperature'))
+                    poet_start, generated = gen(poet_start, '#', params.get('temperature'))
                     poet_start += f" {userinput}"
-                    raw, generated = _generate(poet_start, '\n', params.get('temperature'))
+                    raw, generated = gen(poet_start, '\n', params.get('temperature'))
             else:
                 # generator starts
-                raw, generated = _generate(poet_start, '\n', params.get('temperature'))
+                raw, generated = gen(poet_start, '\n', params.get('temperature'))
                 if params['interactive_mode'].startswith('verses'):
                     # cut off second half
                     tokens = generated.split('#')[-1].split()
@@ -238,14 +221,14 @@ def generuj_mc(params):
                 # full line from user: get user reduplicant
                 reduplicant = userinput[-3:]
                 poet_start += f" {reduplicant} # {userinput}\n{params['metre']} # {params['syllables_count']} #"
-                raw, generated = _generate(poet_start, '\n', params.get('temperature'))
+                raw, generated = gen(poet_start, '\n', params.get('temperature'))
             else:
                 if params['interactive_mode'].endswith('hg'):
                     poet_start = f"{params['rawtext'].strip()}\n{params['metre']} # {params['syllables_count']} #"
                     # finish the user line: invent reduplicant and generate
-                    poet_start, generated = _generate(poet_start, '#', params.get('temperature'))
+                    poet_start, generated = gen(poet_start, '#', params.get('temperature'))
                     poet_start += f" {userinput}"
-                    raw, generated = _generate(poet_start, '\n', params.get('temperature'))
+                    raw, generated = gen(poet_start, '\n', params.get('temperature'))
                 else:
                     # fill reduplicant in last line
                     reduplicant = params['userinput'].strip()[-3:]
@@ -253,7 +236,7 @@ def generuj_mc(params):
                     poet_start += f" {params['userinput'].strip()}\n{params['metre']} # {params['syllables_count']} #"
                     
                     # we start the line
-                    raw, generated = _generate(poet_start, '\n', params.get('temperature'))
+                    raw, generated = gen(poet_start, '\n', params.get('temperature'))
                     # cut off second half
                     tokens = generated.split('#')[-1].split()
                     part = (len(tokens) + 1) // 2
@@ -265,7 +248,7 @@ def generuj_mc(params):
         first_words = params.get('first_words', [])
         anaphors = params.get('anaphors', set())
         epanastrophes = params.get('epanastrophes', set())
-        assert type(first_words) == list, "first_words must be list"
+        assert isinstance(first_words, list), "first_words must be list"
         while len(first_words) < params['verses_count']:
             first_words.append('')
         while len(first_words) > params['verses_count']:
@@ -276,7 +259,7 @@ def generuj_mc(params):
             # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
             poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
             # generate ending hint
-            poet_start, generated = _generate(poet_start, ' #', params.get('temperature'))
+            poet_start, generated = gen(poet_start, ' #', params.get('temperature'))
             # anaphors and epanastrophes have precedence
             # (TODO priority, mutual exclusion)
             if index in anaphors:
@@ -286,17 +269,17 @@ def generuj_mc(params):
             # force word (may be empty, so what)
             poet_start = f"{poet_start} {word}"
             # generate line
-            poet_start, generated = _generate(poet_start, '\n', params.get('temperature'))
+            poet_start, generated = gen(poet_start, '\n', params.get('temperature'))
             if index+1 in anaphors:
                 prev_first = poet_start.split('#')[-1].split()[0]
             if index+1 in epanastrophes:
                 prev_last = poet_start.split()[-1]
         # generate till the end of the poem
-        raw, generated = _generate(poet_start, temperature=params.get('temperature'))
+        raw, generated = gen(poet_start, temperature=params.get('temperature'))
     else:
         # generate the poem at once
         poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
-        raw, generated = _generate(poet_start, temperature=params.get('temperature'))
+        raw, generated = gen(poet_start, temperature=params.get('temperature'))
     
     result = raw.split('<|endoftext|>')[0]
 
@@ -318,7 +301,7 @@ def generuj_mc(params):
         return result
 
     try:
-        parsed = (parsy.string('<|begin_of_text|>').optional() >> template_mc.poem_parser()).parse(result + '\n\n') # TODO fix hack with \n\n
+        parsed = (parsy.string('<|begin_of_text|>').optional() >> template.poem_parser()).parse(result + '\n\n') # TODO fix hack with \n\n
         result = [v['line'] for v in parsed['verses']]
         clean_verses = clean(result)
     except parsy.ParseError as e:
@@ -363,7 +346,9 @@ def generuj_mc(params):
 
 """
 
-def generuj_tm(params):
+def generuj_tm(model, tokenizer, template, params):
+    
+    gen = _generate(model, tokenizer)
     
     poem = ''
     
@@ -376,12 +361,12 @@ def generuj_tm(params):
     if params.get('title'):
         poem += f" {params['title']} ("
     else:
-        poem, generated = _generate(poem, '(', params.get('temperature'), krok='title')
+        poem, generated = gen(poem, '(', params.get('temperature'), krok='title')
 
     if params.get('year'):
-        poem += f"params['{year}'])\n"
+        poem += f"{params['year']})\n"
     else:
-        poem, generated = _generate(poem, ')\n', params.get('temperature'), krok='year')
+        poem, generated = gen(poem, ')\n', params.get('temperature'), krok='year')
 
     # strophes
     strophes = 0
@@ -391,7 +376,7 @@ def generuj_tm(params):
             rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
         else:
-            poem, generated = _generate(poem, '\n', params.get('temperature'), krok='rhyme_scheme')
+            poem, generated = gen(poem, '\n', params.get('temperature'), krok='rhyme_scheme')
         
         try:
             verses_count = len(poem.split('\n')[-2].split('#')[1].split())
@@ -403,22 +388,22 @@ def generuj_tm(params):
             if params.get('metre'):
                 poem += f"# {params['metre']} #"
             else:
-                poem, generated = _generate(poem + '#', '#', params.get('temperature'), krok='metre')
+                poem, generated = gen(poem + '#', '#', params.get('temperature'), krok='metre')
 
             if params.get('syllables_count'):
                 poem += f" {params['syllables_count']} #"
             else:
-                poem, generated = _generate(poem, '#', params.get('temperature'), krok='syllables_count')
+                poem, generated = gen(poem, '#', params.get('temperature'), krok='syllables_count')
 
             # reduplicant
-            poem, generated = _generate(poem, '#', params.get('temperature'), krok='reduplicant')
+            poem, generated = gen(poem, '#', params.get('temperature'), krok='reduplicant')
 
             if params.get('first_words'):
                 word = params['first_words'].pop(0) #TODO readonly
                 if word:
                     poem += f" {word}"
                 # TODO anaphors and epanastrophes
-            poem, generated = _generate(poem, '\n', params.get('temperature'), krok='verse')
+            poem, generated = gen(poem, '\n', params.get('temperature'), krok='verse')
 
         # end of strophe
         # (generate empty line or end of text)
@@ -431,7 +416,7 @@ def generuj_tm(params):
     result = poem.split('<|end_of_text|>')[0]
 
     try:
-        parsed = (parsy.string('<|begin_of_text|>').optional() >> template_tm.poem_parser()).parse(result + '\n\n') # TODO fix hack with \n\n
+        parsed = (parsy.string('<|begin_of_text|>').optional() >> template.poem_parser()).parse(result + '\n\n') # TODO fix hack with \n\n
 
         author_name = parsed.get('author_name')
         title = parsed.get('poem_title')
@@ -461,46 +446,38 @@ def generuj_tm(params):
         
     return poem, verses, author_name, title
 
-def generuj(params):
+def generuj(model, tokenizer, template, params):
     logging.info(f'Generating with params: {params}')
-    if model_tm and params.get('modelspec') == 'tm':
-        return generuj_tm(params)
+    if params.get('modelspec') == 'tm':
+        return generuj_tm(model, tokenizer, template, params)
     else:
-        return generuj_mc(params)
+        return generuj_mc(model, tokenizer, template, params)
 
-def main_server():
-    global modelspec
+def main_server(modelspec, port):
     # zmq mode
-    modelspec = sys.argv[2]
-    assert modelspec in ['mc', 'tm']
-    port = int(sys.argv[3])
     logging.info(f'Starting zmq with {modelspec} model on port {port}')
     
     import zmq
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind(f"tcp://*:{port}")
-    loaded = load_models(modelspec)
-    if loaded:
-        while True:
-            params = json.loads(socket.recv())
-            params['modelspec'] = modelspec
-            result = json.dumps(generuj(params))
-            socket.send_string(result)
-    else:
-        logging.error('Models not loaded')
+    model, tokenizer, template = load_models(modelspec)
 
-def main_standalone():
-    global modelspec # TODO at ma promenna jeden typ, tohle je nekdy string, nekdy list stringů
+    while True:
+        params = json.loads(socket.recv())
+        params['modelspec'] = modelspec
+        result = json.dumps(generuj(model, tokenizer, template, params))
+        socket.send_string(result)
+
+def main_standalone(modelname):
     # direct mode
-    load_models()
+    model, tokenizer, template = load_models(modelname)
     rhyme_scheme = 'ABAB'
-    for ms in ['tm']:
-        modelspec = ms
-        result = generuj({
-        'modelspec': modelspec,
+    result = generuj(
+        model, tokenizer, template, {
+        'modelspec': modelname,
         'rhyme_scheme': rhyme_scheme,
-        'first_words': ['jedna', 'dva', 'tři', ''],
+        'first_words': [],
         'verses_count': 0,
         'syllables_count': 0,
         'metre': '',
@@ -511,7 +488,14 @@ def main_standalone():
     print(*result, sep='\n')
 
 if __name__=="__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == 'zmq':
-        main_server()
+    argparser = argparse.ArgumentParser(description='Generate poetry with LLMs')
+    argparser.add_argument('model', type=str, help='Model to use')
+    argparser.add_argument('port', type=int, nargs='?', help='Port to use')
+    args = argparser.parse_args()
+
+    assert args.model in ['mc', 'tm']
+
+    if args.port:
+        main_server(args.model, args.port)
     else:    
-        main_standalone()
+        main_standalone(args.model)
