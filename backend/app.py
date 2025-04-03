@@ -218,7 +218,12 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
         poemids = [f for f in os.listdir(POEMFILES) if f.endswith('.json')]
         poemid = random.choice(poemids)
 
-    if os.path.isfile(f"{POEMFILES}/{poemid}.json") or os.path.isfile(f"{POEMFILES}/{poemid}"):
+    # check if path is allowed (do not allow traversing parent dirs)
+    requested = os.path.abspath(f"{POEMFILES}/{poemid}")
+    basedir = os.path.abspath(POEMFILES)
+    path_allowed = (basedir == os.path.commonpath(basedir, requested))
+
+    if path_allowed and (os.path.isfile(f"{POEMFILES}/{poemid}.json") or os.path.isfile(f"{POEMFILES}/{poemid}")):
         # TODO always analyze ???
         #    kveta_result = okvetuj(data['plaintext'])
         #    data['body'] = kveta_result[0][0]['body']
