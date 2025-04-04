@@ -7,13 +7,18 @@
 	function toggle_auth() {
 		    var modelSelect = document.getElementById("modelSelect");
 		    var fields = document.querySelectorAll(".authtit");
-		    fields.forEach(field => {
-			if (modelSelect.value === "tm") {
+	            var pversu = document.getElementById("pocetversu");
+		    if (modelSelect.value === "tm") {
+		        fields.forEach(field => {
 			    field.style.display = "block";
+			    });
+			    pversu.style.display = "none";
 			} else {
+		        fields.forEach(field => {
 			    field.style.display = "none";
+			    });
+			    pversu.style.display = "block";
 		        }
-		    })
 	}
     </script>
     
@@ -43,7 +48,7 @@
         </select>
         </p>
 
-        <p>Počet veršů:
+        <p id="pocetversu">Počet veršů:
         <select name="verses_count" id="verses_count"
             onchange="update_datalist('verses_count', 'rhyme_scheme')">
         <option value="0">náhodně</option>
