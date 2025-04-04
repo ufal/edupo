@@ -5,6 +5,8 @@ then
     echo Merging...
 	git merge
     echo Reloading backend...
-    backend/reload.sh
+    cd backend
+    ./reload.sh
+    cd ..
 fi &>> autodeploy.log
 
