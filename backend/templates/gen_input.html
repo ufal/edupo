@@ -3,12 +3,23 @@
             selected = document.getElementById(source_id).value;
             document.getElementById(target_id).setAttribute('list', target_id + '_datalist' + selected);
         }
-
+	
+	function toggle_auth() {
+		    var modelSelect = document.getElementById("modelSelect");
+		    var fields = document.querySelectorAll(".authtit");
+		    fields.forEach(field => {
+			if (modelSelect.value === "tm") {
+			    field.style.display = "block";
+			} else {
+			    field.style.display = "none";
+		        }
+		    })
+	}
     </script>
     
     <form method="post" action="gen">
         <p>Model:
-        <select name="modelspec">
+        <select name="modelspec" onchange="toggle_auth()" id="modelSelect">
             <option value="mc">základní</option>
             <option value="tm">nový</option>
         </select>
@@ -16,9 +27,11 @@
         neumí anafory a epanastrofy).
         </p>
 
-        <p>Autor: <input name="author"> (v základním modelu se ignoruje)</p>
+        <p class="authtit">Autor: <input name="author"> (v základním modelu se ignoruje)</p>
     
-        <p>Název: <input name="title"> (v základním modelu se ignoruje)</p>
+        <p class="authtit">Název: <input name="title"> (v základním modelu se ignoruje)</p>
+
+	<script>toggle_auth()</script>
 
         <p>Metrum:
         <select name="metre">
