@@ -136,8 +136,23 @@
         >
         </p>-->
 
-        <p>První slova veršů:
-        Lze vypnit jen první slovo prvního verše, anebo i první slova dalších
+	<script>
+	    function togglePrvoslova() {
+		    var section = document.getElementById("prvoslova")
+		    var button = document.getElementById("prvoslovaButton")
+		    if (section.style.display === "none") {
+			    section.style.display = "block";  // Show the section
+                            button.textContent = "➖ Skrýt první slova veršů";
+			} else {
+			    section.style.display = "none";   // Hide the section
+			    button.textContent = "➕ První slova veršů";
+			}
+		    }
+	</script>
+
+	<button type="button" id="prvoslovaButton" onclick="togglePrvoslova()">➕ První slova veršů</button>
+	<div id="prvoslova">
+	<p>Lze vypnit jen první slovo prvního verše, anebo i první slova dalších
         veršů...
         </p>
         <ol>
@@ -196,6 +211,9 @@
         <button type="button" onclick="document.getElementById('fw5').value=getRandomNoun()">Náhodné slovo</button>
         
         </ol>
+	</div>
+
+	<script>togglePrvoslova()</script>
 
         <!--<p>Typ lyriky:
         <select name="lyrika_style" disabled>
