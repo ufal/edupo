@@ -1,0 +1,115 @@
+/* Základní reset a písmo */
+html {
+    background-color: #f3f4f6;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+body {
+    max-width: 960px;
+    margin: 2em auto;
+    padding: 2em;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Nadpisy */
+h1, h2 {
+    color: #1f2937;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.3em;
+    margin-top: 1.5em;
+}
+
+/* Odkazy */
+a {
+    color: #2563eb;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* Formuláře */
+form {
+    margin-top: 1em;
+    margin-bottom: 2em;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="submit"],
+select,
+textarea,
+button {
+    padding: 0.5em;
+    margin-top: 0.3em;
+    margin-bottom: 0.8em;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #f9fafb;
+}
+
+input[type="submit"],
+button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    cursor: pointer;
+    width: auto;
+    transition: background-color 0.2s ease-in-out;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: #1e40af;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    width: auto;
+    margin-right: 0.5em;
+}
+
+select {
+    background-color: #f9fafb;
+}
+
+/* Seznam básní */
+ul {
+    padding-left: 1.2em;
+}
+ul li {
+    margin-bottom: 0.3em;
+}
+
+/* Tlačítka u náhodných slov */
+ol {
+    list-style-type: decimal;
+    padding-left: 1.5em;
+}
+
+ol li {
+    margin-bottom: 1em;
+}
+
+/* Logo */
+.logo {
+    max-width: 100%;
+    max-height: 8em;
+    display: block;
+    margin: 1em auto;
+}
+
+/* Oddělovače */
+hr {
+    border: none;
+    border-top: 2px solid #e5e7eb;
+    margin: 2em 0;
+}
