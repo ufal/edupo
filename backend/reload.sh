@@ -1,5 +1,6 @@
 #!/bin/bash
 
+conda activate edupo
 echo Reload generators...
 pkill -e -f gen.py
 python3 gen.py mc 5010 &>> logs/gen_mc.log &
