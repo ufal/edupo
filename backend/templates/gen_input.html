@@ -26,10 +26,12 @@
         <p>Model:
         <select name="modelspec" onchange="toggle_auth()" id="modelSelect">
             <option value="mc">základní</option>
-            <option value="tm">nový</option>
+            <option value="tm" selected>nový</option>
         </select>
         Základní model umí 4verší a 6verší, nový model umí lecjaké délky (ale
         neumí anafory a epanastrofy).
+        Základní model je rychlejší ale horší, nový model je lepší ale
+        generování mu déle trvá.
         </p>
 
         <p class="authtit">Autor: <input name="author"> (v základním modelu se ignoruje)</p>
