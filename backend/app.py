@@ -201,6 +201,12 @@ def text2id(text, add_timestamp=True):
     else:
         return hash64
 
+def listgen():
+    """
+    List generated poem IDs
+    """
+    return [f for f in os.listdir(POEMFILES) if f.endswith('.json') and '_' in f]
+
 # TODO do we need to run show_poem_html.show() always?
 def get_poem_by_id(poemid=None, random_if_no_id=False):
     """If poemid is None, then get it from get/post arguments. If not set,
@@ -215,7 +221,7 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
                 return None
 
     if poemid == 'RANDOMGEN':
-        poemids = [f for f in os.listdir(POEMFILES) if f.endswith('.json')]
+        poemids = listgen()
         poemid = random.choice(poemids)
 
     # check if path is allowed (do not allow traversing parent dirs)
@@ -436,7 +442,7 @@ def call_showlist():
 
 @app.route("/showlistgen", methods=['GET', 'POST'])
 def call_showlistgen():
-    poemids = [f for f in os.listdir(POEMFILES) if f.endswith('.json')]
+    poemids = listgen()
     poemids.sort(reverse=True)
     html = render_template('showlistgen.html', poemids=poemids)
     text = "\n".join(poemids)
