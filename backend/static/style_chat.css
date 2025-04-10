@@ -76,9 +76,7 @@ table.stanza {
     border-collapse: collapse;
 }
 table.stanza td {
-    padding: 0.4em 0.6em;
-    border-bottom: 1px solid #e5e7eb;
-    vertical-align: top;
+    vertical-align: middle;
 }
 
 td.versetext {
