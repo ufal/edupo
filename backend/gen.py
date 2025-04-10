@@ -376,7 +376,10 @@ def generuj_tm(model, tokenizer, template, params):
             rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
         else:
-            poem, generated = gen(poem, '\n', params.get('temperature'), krok='rhyme_scheme')
+            _, generated = gen(poem, '\n', params.get('temperature'), krok='rhyme_scheme')
+            if len(generated.split()) > 21:
+                generated = ' ' + ' '.join(generated.split()[:20]) + ' #\n'
+            poem += generated
         
         try:
             verses_count = len(poem.split('\n')[-2].split('#')[1].split())
