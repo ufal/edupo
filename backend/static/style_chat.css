@@ -1,0 +1,137 @@
+/*
+ * Generated with ChatGPT and slightly manually post-edited.
+ * */
+
+html {
+    background-color: #f3f4f6;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+body {
+    max-width: 960px;
+    margin: 2em auto;
+    padding: 2em;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+    color: #1f2937;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.3em;
+    margin-top: 1.5em;
+}
+
+p, pre {
+    margin: 1em 0;
+}
+
+a {
+    color: #2563eb;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    margin-top: 1em;
+}
+button:hover {
+    background-color: #1e40af;
+}
+
+#qrimg {
+    float: right;
+    text-align: center;
+    margin-left: 2em;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+#genimg {
+    max-width: 30%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.audio {
+    margin-top: 2em;
+}
+
+table.stanza {
+    margin: 2em 0;
+    border-collapse: collapse;
+}
+table.stanza td {
+    padding: 0.4em 0.6em;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+}
+
+td.versetext {
+    font-family: Georgia, serif;
+    font-size: 1.2em;
+    line-height: 1.8;
+}
+
+td.meter,
+td.rhyme,
+td.stressinfo,
+td.meterinfo,
+td.otherinfo {
+    font-size: 0.85em;
+    color: #6b7280;
+    text-align: center;
+}
+
+pre.raw {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 1em;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+form {
+    margin-top: 2em;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: #f9fafb;
+}
+
+input[type="submit"] {
+    background-color: #2563eb;
+    color: white;
+    padding: 0.5em 1.5em;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 0.5em;
+}
+input[type="submit"]:hover {
+    background-color: #1e40af;
+}
+
+hr {
+    border: none;
+    border-top: 2px solid #e5e7eb;
+    margin: 2em 0;
+}
