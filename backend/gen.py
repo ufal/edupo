@@ -477,7 +477,7 @@ def main_standalone(modelname):
         model, tokenizer, template, {
         'modelspec': modelname,
         'rhyme_scheme': rhyme_scheme,
-        'first_words': [],
+        'first_words': ["První", "Druhá", "Třetí", "Čtvrtá"],
         'verses_count': 0,
         'syllables_count': 0,
         'metre': '',
@@ -491,9 +491,13 @@ if __name__=="__main__":
     argparser = argparse.ArgumentParser(description='Generate poetry with LLMs')
     argparser.add_argument('model', type=str, help='Model to use')
     argparser.add_argument('port', type=int, nargs='?', help='Port to use')
+    argparser.add_argument('--verbose', action='store_true', help='Verbose output')
     args = argparser.parse_args()
 
     assert args.model in ['mc', 'tm']
+
+    if args.verbose:
+        VERBOSE_INFO = True
 
     if args.port:
         main_server(args.model, args.port)

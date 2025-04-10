@@ -7,15 +7,22 @@
 	function toggle_auth() {
 		    var modelSelect = document.getElementById("modelSelect");
 		    var fields = document.querySelectorAll(".authtit");
+		    var fields_basic = document.querySelectorAll(".basiconly");
 	            var pversu = document.getElementById("pocetversu");
 		    if (modelSelect.value === "tm") {
 		        fields.forEach(field => {
 			    field.style.display = "block";
 			    });
+		        fields_basic.forEach(field => {
+			    field.style.display = "none";
+			    });
 			    pversu.style.display = "none";
 			} else {
 		        fields.forEach(field => {
 			    field.style.display = "none";
+			    });
+		        fields_basic.forEach(field => {
+			    field.style.display = "inline";
 			    });
 			    pversu.style.display = "block";
 		        }
@@ -34,11 +41,10 @@
         generování mu déle trvá.
         </p>
 
-        <p class="authtit">Autor: <input name="author"> (v základním modelu se ignoruje)</p>
+        <p class="authtit">Autor: <input name="author"></p>
     
-        <p class="authtit">Název: <input name="title"> (v základním modelu se ignoruje)</p>
+        <p class="authtit">Název: <input name="title"></p>
 
-	<script>toggle_auth()</script>
 
         <p>Metrum:
         <select name="metre">
@@ -58,6 +64,7 @@
         <option value="6">6</option>
         </select>
         </p>
+
 
         <p>
         Rýmové schéma:
@@ -167,8 +174,10 @@
                name="first_words"
                placeholder="Muž"
         >
+	<span class="basiconly">
         <input type="checkbox" name="anaphors" value="0"  disabled="disabled"> anafora
         <input type="checkbox" name="epanastrophes" value="0"  disabled="disabled"> epanastrofa
+	</span>
         <button type="button" onclick="document.getElementById('fw0').value=getRandomNoun()">Náhodné slovo</button>
 
         <li><input type="text"
@@ -176,8 +185,10 @@
                name="first_words"
                placeholder="Žena"
         >
+	<span class="basiconly">
         <input type="checkbox" name="anaphors" value="1"> anafora
         <input type="checkbox" name="epanastrophes" value="1"> epanastrofa
+	</span>
         <button type="button" onclick="document.getElementById('fw1').value=getRandomNoun()">Náhodné slovo</button>
         
         <li><input type="text"
@@ -185,8 +196,10 @@
                name="first_words"
                placeholder="Banán"
         >
+	<span class="basiconly">
         <input type="checkbox" name="anaphors" value="2"> anafora
         <input type="checkbox" name="epanastrophes" value="2"> epanastrofa
+	</span>
         <button type="button" onclick="document.getElementById('fw2').value=getRandomNoun()">Náhodné slovo</button>
         
         <li><input type="text"
@@ -194,8 +207,10 @@
                name="first_words"
                placeholder="Mušle"
         >
+	<span class="basiconly">
         <input type="checkbox" name="anaphors" value="3"> anafora
         <input type="checkbox" name="epanastrophes" value="3"> epanastrofa
+	</span>
         <button type="button" onclick="document.getElementById('fw3').value=getRandomNoun()">Náhodné slovo</button>
         
         <li><input type="text"
@@ -203,8 +218,10 @@
                name="first_words"
                placeholder="Lanýž"
         >
+	<span class="basiconly">
         <input type="checkbox" name="anaphors" value="4"> anafora
         <input type="checkbox" name="epanastrophes" value="4"> epanastrofa
+	</span>
         <button type="button" onclick="document.getElementById('fw4').value=getRandomNoun()">Náhodné slovo</button>
         
         <li><input type="text"
@@ -212,14 +229,15 @@
                name="first_words"
                placeholder="Hrob"
         >
+	<span class="basiconly">
         <input type="checkbox" name="anaphors" value="5"> anafora
         <input type="checkbox" name="epanastrophes" value="5"> epanastrofa
+	</span>
         <button type="button" onclick="document.getElementById('fw5').value=getRandomNoun()">Náhodné slovo</button>
         
         </ol>
 	</div>
 
-	<script>togglePrvoslova()</script>
 
         <!--<p>Typ lyriky:
         <select name="lyrika_style" disabled>
@@ -265,3 +283,5 @@
         onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
     </form>
 
+    <script>togglePrvoslova()</script>
+    <script>toggle_auth()</script>
