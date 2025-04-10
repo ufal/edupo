@@ -107,8 +107,8 @@ def _show_tokenization(tokenizer, tokens):
                             )
             + '|')
 
-def _generate(model, tokenizer):
-    def g(poet_start, stop_strings=None, temperature=1, krok=None):
+def _generate(model, tokenizer, temperature=1):
+    def g(poet_start, stop_strings=None, krok=None):
         if not model or not tokenizer:
             logging.error('No model loaded, cannot generate!')
             raise Exception('No model loaded, cannot generate!')
@@ -164,7 +164,7 @@ D # 8 # emi #  a teď tam ti mrtví všemi!
 
 def generuj_mc(model, tokenizer, template, params):
 
-    gen = _generate(model, tokenizer)
+    gen = _generate(model, tokenizer, params.get('temperature'))
 
     params['modelspec'] = 'mc'
 
@@ -199,15 +199,15 @@ def generuj_mc(model, tokenizer, template, params):
                     # full line from user: get user reduplicant
                     reduplicant = userinput[-3:]
                     poet_start += f" {reduplicant} # {userinput}\n{params['metre']} # {params['syllables_count']} #"
-                    raw, generated = gen(poet_start, '\n', params.get('temperature'))
+                    raw, generated = gen(poet_start, '\n')
                 else:
                     # finish the user line: invent reduplicant and generate
-                    poet_start, generated = gen(poet_start, '#', params.get('temperature'))
+                    poet_start, generated = gen(poet_start, '#')
                     poet_start += f" {userinput}"
-                    raw, generated = gen(poet_start, '\n', params.get('temperature'))
+                    raw, generated = gen(poet_start, '\n')
             else:
                 # generator starts
-                raw, generated = gen(poet_start, '\n', params.get('temperature'))
+                raw, generated = gen(poet_start, '\n')
                 if params['interactive_mode'].startswith('verses'):
                     # cut off second half
                     tokens = generated.split('#')[-1].split()
@@ -221,14 +221,14 @@ def generuj_mc(model, tokenizer, template, params):
                 # full line from user: get user reduplicant
                 reduplicant = userinput[-3:]
                 poet_start += f" {reduplicant} # {userinput}\n{params['metre']} # {params['syllables_count']} #"
-                raw, generated = gen(poet_start, '\n', params.get('temperature'))
+                raw, generated = gen(poet_start, '\n')
             else:
                 if params['interactive_mode'].endswith('hg'):
                     poet_start = f"{params['rawtext'].strip()}\n{params['metre']} # {params['syllables_count']} #"
                     # finish the user line: invent reduplicant and generate
-                    poet_start, generated = gen(poet_start, '#', params.get('temperature'))
+                    poet_start, generated = gen(poet_start, '#')
                     poet_start += f" {userinput}"
-                    raw, generated = gen(poet_start, '\n', params.get('temperature'))
+                    raw, generated = gen(poet_start, '\n')
                 else:
                     # fill reduplicant in last line
                     reduplicant = params['userinput'].strip()[-3:]
@@ -236,7 +236,7 @@ def generuj_mc(model, tokenizer, template, params):
                     poet_start += f" {params['userinput'].strip()}\n{params['metre']} # {params['syllables_count']} #"
                     
                     # we start the line
-                    raw, generated = gen(poet_start, '\n', params.get('temperature'))
+                    raw, generated = gen(poet_start, '\n')
                     # cut off second half
                     tokens = generated.split('#')[-1].split()
                     part = (len(tokens) + 1) // 2
@@ -259,7 +259,7 @@ def generuj_mc(model, tokenizer, template, params):
             # D # 11 # eště # po letech v polích jsem ohlížel se ještě,
             poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
             # generate ending hint
-            poet_start, generated = gen(poet_start, ' #', params.get('temperature'))
+            poet_start, generated = gen(poet_start, ' #')
             # anaphors and epanastrophes have precedence
             # (TODO priority, mutual exclusion)
             if index in anaphors:
@@ -269,17 +269,17 @@ def generuj_mc(model, tokenizer, template, params):
             # force word (may be empty, so what)
             poet_start = f"{poet_start} {word}"
             # generate line
-            poet_start, generated = gen(poet_start, '\n', params.get('temperature'))
+            poet_start, generated = gen(poet_start, '\n')
             if index+1 in anaphors:
                 prev_first = poet_start.split('#')[-1].split()[0]
             if index+1 in epanastrophes:
                 prev_last = poet_start.split()[-1]
         # generate till the end of the poem
-        raw, generated = gen(poet_start, temperature=params.get('temperature'))
+        raw, generated = gen(poet_start)
     else:
         # generate the poem at once
         poet_start = f"{poet_start}{params['metre']} # {params['syllables_count']} #"
-        raw, generated = gen(poet_start, temperature=params.get('temperature'))
+        raw, generated = gen(poet_start)
     
     result = raw.split('<|endoftext|>')[0]
 
@@ -348,7 +348,7 @@ def generuj_mc(model, tokenizer, template, params):
 
 def generuj_tm(model, tokenizer, template, params):
     
-    gen = _generate(model, tokenizer)
+    gen = _generate(model, tokenizer, params.get('temperature'))
     
     poem = ''
     
@@ -361,12 +361,12 @@ def generuj_tm(model, tokenizer, template, params):
     if params.get('title'):
         poem += f" {params['title']} ("
     else:
-        poem, generated = gen(poem, '(', params.get('temperature'), krok='title')
+        poem, generated = gen(poem, '(', krok='title')
 
     if params.get('year'):
         poem += f"{params['year']})\n"
     else:
-        poem, generated = gen(poem, ')\n', params.get('temperature'), krok='year')
+        poem, generated = gen(poem, ')\n', krok='year')
 
     # strophes
     strophes = 0
@@ -376,7 +376,7 @@ def generuj_tm(model, tokenizer, template, params):
             rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
         else:
-            _, generated = gen(poem, '\n', params.get('temperature'), krok='rhyme_scheme')
+            _, generated = gen(poem, '\n', krok='rhyme_scheme')
             if len(generated.split()) > 21:
                 generated = ' ' + ' '.join(generated.split()[:20]) + ' #\n'
             poem += generated
@@ -388,25 +388,39 @@ def generuj_tm(model, tokenizer, template, params):
 
         # verses
         for _ in range(verses_count):
+            generated = ''
+
+            # metre
             if params.get('metre'):
                 poem += f"# {params['metre']} #"
             else:
-                poem, generated = gen(poem + '#', '#', params.get('temperature'), krok='metre')
+                poem, generated = gen(poem + '#', '#', krok='metre')
 
+            if '\n' in generated:
+                continue
+            
+            # syllables count
             if params.get('syllables_count'):
                 poem += f" {params['syllables_count']} #"
             else:
-                poem, generated = gen(poem, '#', params.get('temperature'), krok='syllables_count')
+                poem, generated = gen(poem, '#', krok='syllables_count')
+
+            if '\n' in generated:
+                continue
 
             # reduplicant
-            poem, generated = gen(poem, '#', params.get('temperature'), krok='reduplicant')
+            poem, generated = gen(poem, '#', krok='reduplicant')
 
+            if '\n' in generated:
+                continue
+
+            # generate line
             if params.get('first_words'):
                 word = params['first_words'].pop(0) #TODO readonly
                 if word:
                     poem += f" {word}"
                 # TODO anaphors and epanastrophes
-            poem, generated = gen(poem, '\n', params.get('temperature'), krok='verse')
+            poem, generated = gen(poem, '\n', krok='verse')
 
         # end of strophe
         # (generate empty line or end of text)
