@@ -94,10 +94,10 @@ class Morphodita:
                 # if token is a punctuation mark, store it as the 'punct' attribute of the previous word or punc_before attribute of the next word
                 if items[4][0] == 'Z' or (len(items[1]) == 1 and not items[1][0].isalnum()): #items[1][0] in '‛’‘–”“„‚*<>{}()[]'
                     if len(poem[l]['words']) > 0:
-                        if 'punct' in poem[l]['words'][-1]:
-                            poem[l]['words'][-1]['punct'] += " " + items[1]
+                        if poem[l]['words'][-1]['punct'] == " ":
+                            poem[l]['words'][-1]['punct'] = items[1] + " "
                         else:
-                            poem[l]['words'][-1]['punct'] = items[1]
+                            poem[l]['words'][-1]['punct'] += items[1] + " "
                     else:
                         initial_punctuation += items[1]
                 # ...otherwise append token tags to current line
@@ -108,6 +108,7 @@ class Morphodita:
                                 'tok_id': items[0],
                                 'parent': items[6],
                                 'deprel': items[7],
+                                'punct': " ",
                                 'sentence': s
                                 }
                     # include the initial punctuation if exists
@@ -126,10 +127,6 @@ class Morphodita:
                         features['is_unknown'] = True
                     
                     poem[l]['words'].append(features)
-
-                    # the atribut pnct must be filled
-                    if not poem[l]['words'][-1]['punct']:
-                        poem[l]['words'][-1]['punct'] = " "
 
                 if newline_after[t]:
                     l += 1
