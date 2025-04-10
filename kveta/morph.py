@@ -47,6 +47,7 @@ class Morphodita:
 
         vertical_input = ""
         newline_after = []
+        space_after = []
         
         # Iterate over sentences
         while self.tokenizer.nextSentence(self.forms, self.tokens):
@@ -57,8 +58,13 @@ class Morphodita:
                 vertical_input += text[t.start : t.start + t.length] + "\n"
                 if text[t.start + t.length] == "\n":
                     newline_after.append(True)
+                    space_after.append(False)
+                elif text[t.start + t.length] == " ":
+                    newline_after.append(False)
+                    space_after.append(True)
                 else:
                     newline_after.append(False)
+                    space_after.append(False)
             vertical_input += "\n"
 
         # perform the UDPipe request to parse the whole poem
@@ -94,14 +100,17 @@ class Morphodita:
                 # if token is a punctuation mark, store it as the 'punct' attribute of the previous word or punc_before attribute of the next word
                 if items[4][0] == 'Z' or (len(items[1]) == 1 and not items[1][0].isalnum()): #items[1][0] in '‛’‘–”“„‚*<>{}()[]'
                     if len(poem[l]['words']) > 0:
-                        if poem[l]['words'][-1]['punct'] == " ":
-                            poem[l]['words'][-1]['punct'] = items[1] + " "
+                        if 'punct' in poem[l]['words'][-1]:
+                            poem[l]['words'][-1]['punct'] += items[1]
                         else:
-                            poem[l]['words'][-1]['punct'] += items[1] + " "
+                            poem[l]['words'][-1]['punct'] = items[1]
+                        if space_after[t]:
+                            poem[l]['words'][-1]['punct'] += " "
                     else:
                         initial_punctuation += items[1]
                 # ...otherwise append token tags to current line
                 else:
+
                     features = {'token': items[1],
                                 'lemma': items[2],
                                 'morph': items[4],
@@ -111,6 +120,10 @@ class Morphodita:
                                 'punct': " ",
                                 'sentence': s
                                 }
+                    
+                    if not space_after[t]:
+                        features['punct'] = ""
+
                     # include the initial punctuation if exists
                     if initial_punctuation:
                         features['punct_before'] = initial_punctuation
