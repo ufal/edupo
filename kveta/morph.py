@@ -126,6 +126,11 @@ class Morphodita:
                         features['is_unknown'] = True
                     
                     poem[l]['words'].append(features)
+
+                    # the atribut pnct must be filled
+                    if not poem[l]['words'][-1]['punct']:
+                        poem[l]['words'][-1]['punct'] = " "
+
                 if newline_after[t]:
                     l += 1
                 t += 1
