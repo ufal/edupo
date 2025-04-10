@@ -64,7 +64,11 @@ def load_models(modelspec=None):
         try:
             import unsloth
             from unsloth import FastLanguageModel
-            model, tokenizer = FastLanguageModel.from_pretrained(MODEL_TM)
+            model, tokenizer = FastLanguageModel.from_pretrained(
+                MODEL_TM,
+                #dtype = torch.bfloat16,                                                                                                                                                            
+                #load_in_4bit = False,
+                )
             FastLanguageModel.for_inference(model)
             with open('prompt_templates/tm1.txt', 'r') as f:
                 template = parser.Template(f.read())
@@ -139,7 +143,7 @@ def _generate(model, tokenizer, temperature=1):
         )
         
         if VERBOSE_INFO:
-            logging.info(f"Tokenization in step {krok}")
+            logging.info(f"Tokenization in step {krok} with temperature {temperature}:")
             logging.info(_show_tokenization(tokenizer, out[0])) 
 
         # decode and return
@@ -397,6 +401,9 @@ def generuj_tm(model, tokenizer, template, params):
                 poem, generated = gen(poem + '#', '#', krok='metre')
 
             if '\n' in generated:
+                poem = '\n'.join(poem.split('\n')[:-1]) + '\n'
+                if params.get('first_words'):
+                    params['first_words'].pop(0)
                 continue
             
             # syllables count
@@ -406,12 +413,18 @@ def generuj_tm(model, tokenizer, template, params):
                 poem, generated = gen(poem, '#', krok='syllables_count')
 
             if '\n' in generated:
+                poem = '\n'.join(poem.split('\n')[:-1]) + '\n'
+                if params.get('first_words'):
+                    params['first_words'].pop(0)
                 continue
 
             # reduplicant
             poem, generated = gen(poem, '#', krok='reduplicant')
 
             if '\n' in generated:
+                poem = '\n'.join(poem.split('\n')[:-1]) + '\n'
+                if params.get('first_words'):
+                    params['first_words'].pop(0)
                 continue
 
             # generate line
@@ -486,29 +499,34 @@ def main_server(modelspec, port):
         result = json.dumps(generuj(model, tokenizer, template, params))
         socket.send_string(result)
 
-def main_standalone(modelname):
+def main_standalone(modelname, repeat=False):
     # direct mode
     model, tokenizer, template = load_models(modelname)
-    rhyme_scheme = 'ABAB'
-    result = generuj(
-        model, tokenizer, template, {
-        'modelspec': modelname,
-        'rhyme_scheme': rhyme_scheme,
-        'first_words': ["První", "Druhá", "Třetí", "Čtvrtá"],
-        'verses_count': 0,
-        'syllables_count': 0,
-        'metre': '',
-        'max_strophes': 2,
-        'anaphors': [],
-        'epanastrophes': [],
-        })
-    print(*result, sep='\n')
+    rhyme_scheme = ''
+    while True:
+        result = generuj(
+            model, tokenizer, template, {
+            'modelspec': modelname,
+            'temperature': 1,
+            'rhyme_scheme': rhyme_scheme,
+            'first_words': ['První', 'Druhá', 'Třetí', 'Čtvrtá'],
+            'verses_count': 0,
+            'syllables_count': 0,
+            'metre': '',
+            'max_strophes': 2,
+            'anaphors': [],
+            'epanastrophes': [],
+            })
+        print(*result, sep='\n')
+        if not repeat:
+            break
 
 if __name__=="__main__":
     argparser = argparse.ArgumentParser(description='Generate poetry with LLMs')
     argparser.add_argument('model', type=str, help='Model to use')
     argparser.add_argument('port', type=int, nargs='?', help='Port to use')
     argparser.add_argument('--verbose', action='store_true', help='Verbose output')
+    argparser.add_argument('--repeat', action='store_true', help='Repeat forever')
     args = argparser.parse_args()
 
     assert args.model in ['mc', 'tm']
@@ -519,4 +537,4 @@ if __name__=="__main__":
     if args.port:
         main_server(args.model, args.port)
     else:    
-        main_standalone(args.model)
+        main_standalone(args.model, repeat=args.repeat)
