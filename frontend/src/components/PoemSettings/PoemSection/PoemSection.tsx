@@ -7,10 +7,10 @@ export default function PoemSection({title, withSwitch, children } : { title: st
     return (
         <div className="w-full flex gap-4 justify-between">
             {
-                <div className="flex flex-col grow justify-between">
+                <div className="flex flex-col grow">
                     <Title text={title} />
-                    <div className={"h-[" + HEIGHT + "px] flex flex-col justify-center items-center"}>
-                        {children}
+                    <div className={"min-h-[40px] grid place-items-center"}>
+                            {children}
                     </div>
                 </div>
             }
@@ -18,9 +18,9 @@ export default function PoemSection({title, withSwitch, children } : { title: st
                 withSwitch
                     ? (
                         <>
-                            <div className="flex flex-col flex-none justify-between gap-2">
+                            <div className="flex flex-col flex-none gap-2">
                                 <Title text="Náhodně" />
-                                <div className={"h-[" + HEIGHT + "px] flex flex-col justify-center items-center"}>
+                                <div className={"flex flex-col justify-center items-center"}>
                                     <Switch />
                                 </div>
                             </div>

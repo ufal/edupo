@@ -3,6 +3,7 @@ import { Slider } from "../ui/slider";
 import { Combobox } from "../ui/combobox";
 import { Button } from "../ui/button";
 import { ShuffleIcon } from "@radix-ui/react-icons";
+import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 export default function PoemParams() {
@@ -42,8 +43,63 @@ export default function PoemParams() {
                     <AccordionTrigger>
                         Rozšířené nastavení
                     </AccordionTrigger>
-                    <AccordionContent>
-                        TO DO
+                    <AccordionContent className="flex flex-col gap-4">
+                    <Section
+                            title="Styl"
+                            withSwitch={true}>
+                                <Combobox
+                                    placeholder="Styl"
+                                    data={[
+                                        { label: "Romantismus", value: "Romantismus" },
+                                        { label: "Impresionismus", value: "Impresionismus" }
+                                    ]} />
+                        </Section>
+                        <Section
+                            title="Forma"
+                            withSwitch={true}>
+                                <Combobox
+                                    placeholder="Forma"
+                                    data={[
+                                        { label: "Volný verš", value: "Volný verš" },
+                                        { label: "Sonet", value: "Sonet" },
+                                        { label: "Rondel", value: "Rondel" }
+                                    ]} />
+                        </Section>
+                        <div className="flex flex-row gap-6">
+                            <div className="w-1/2">
+                                <Section
+                                    title="Metrum"
+                                    withSwitch={true}>
+                                        <Combobox
+                                            placeholder="Metrum"
+                                            data={[
+                                                { label: "Jamb", value: "Jamb" },
+                                                { label: "Trochej", value: "Trochej" },
+                                                { label: "Daktyl", value: "Daktyl" }
+                                            ]} />
+                                </Section>
+                            </div>
+                            <div className="w-1/2">
+                                <Section
+                                    title="Rýmové schéma"
+                                    withSwitch={true}>
+                                        <Combobox
+                                            placeholder="Schéma"
+                                            data={[
+                                                { label: "ABABCC", value: "ABABCC" },
+                                                { label: "ABBABA", value: "ABBABA" }
+                                            ]} />
+                                </Section>
+                            </div>
+                        </div>
+                        <Section
+                            title="Motivy básně"
+                            withSwitch={true}>
+                                <Textarea
+                                    className="font-normal"
+                                    placeholder="Napište motivy nebo slova veršů"
+                                    />
+                        </Section>
                     </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3">
@@ -51,6 +107,12 @@ export default function PoemParams() {
                         Nastavení generování
                     </AccordionTrigger>
                     <AccordionContent>
+                        <Section title="Počet veršů" withSwitch={true}>
+                            <Slider defaultValue={[5]} min={2} max={6} step={1} />
+                        </Section>
+                        <Section title="Počet slabik v prvním verši" withSwitch={true}>
+                            <Slider defaultValue={[4]} min={4} max={10} step={1} />
+                        </Section>
                         <Section title="Temperature" withSwitch={true}>
                             <Slider defaultValue={[0.56]} max={1} step={0.05} />
                         </Section>
