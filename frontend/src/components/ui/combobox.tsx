@@ -20,16 +20,17 @@ import {
 } from "@/components/ui/popover"
 
 interface ComboboxDataEntry {
-    value: string;
-    label: string;
+  value: string;
+  label: string;
 }
 
 interface ComboboxParams {
-    placeholder: string;
-    data: ComboboxDataEntry[];
+  disabled?: boolean;
+  placeholder: string;
+  data: ComboboxDataEntry[];
 }
 
-export function Combobox({ placeholder, data } : ComboboxParams) {
+export function Combobox({ placeholder, data, disabled } : ComboboxParams) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
 
@@ -37,6 +38,7 @@ export function Combobox({ placeholder, data } : ComboboxParams) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          disabled={disabled}
           variant="outline"
           role="combobox"
           aria-expanded={open}
@@ -52,7 +54,7 @@ export function Combobox({ placeholder, data } : ComboboxParams) {
         <Command>
           <CommandInput placeholder={placeholder} />
           <CommandList>
-            <CommandEmpty>No entries found.</CommandEmpty>
+            <CommandEmpty>Nic nenalezeno.</CommandEmpty>
             <CommandGroup>
               {data.map((d) => (
                 <CommandItem

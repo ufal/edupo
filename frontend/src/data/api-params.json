@@ -1,0 +1,21 @@
+{
+    "gen": {
+        "metre": [
+            "T",
+            "J",
+            "D"
+        ],
+        "syllablesCount": {
+            "min": 1,
+            "max": 12
+        },
+        "versesCount": {
+            "min": 2,
+            "max": 6
+        },
+        "temperature": {
+            "min": 0.1,
+            "max": 1.0
+        }
+    }
+}
