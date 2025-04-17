@@ -271,6 +271,20 @@
         <p>Raw generated output:</p>
         <pre class="raw">{{ rawtext }}</pre>
         {% endif %}
+        
+        {% if measures %}
+        <hr>
+        <p>Automaticky změřená skóre:</p>
+        <ul>
+            <li>Podíl rýmujících se veršů: {{ measures.rhyming * 100 }}%</li>
+            <li>Podíl slok se stejným rýmovým schématem: {{ measures.rhyming_consistency * 100 }}%</li>
+            <li>Konzistence metra: {{ measures.metre_consistency * 100}}%</li>
+            <li>Podíl neznámých slov: {{ measures.unknown_words * 100  }}%
+                (menší je lepší)</li>
+            <li>Entropie počtů slabik: {{ measures.syllable_count_entropy }}
+                (menší je lepší)</li>
+        </ul>
+        {% endif %}
     </div>
 
    <hr>
