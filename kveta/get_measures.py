@@ -24,12 +24,8 @@ def get_rhyme_scheme(numbers):
             scheme += str(n) + '-'
     return scheme
 
-def get_measures(input_txt):
+def get_measures_from_analyzed_poem(poem):    
 
-    data, k = okvetuj(input_txt)
-
-    poem = data[0]["body"]
-    
     unknown_counter = 0
     words_counter = 0
     rhyme_count = 0
@@ -75,6 +71,13 @@ def get_measures(input_txt):
             'syllable_count_entropy': syllable_count_entropy,
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1)
             }
+
+def get_measures(input_txt):
+
+    data, k = okvetuj(input_txt)
+
+    return get_measures_from_analyzed_poem(data[0]["body"])
+
 
 if __name__=="__main__":
 
