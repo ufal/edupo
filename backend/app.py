@@ -20,6 +20,7 @@ import sys
 sys.path.append("../kveta")
 sys.path.append("../scripts/diphthongs")
 from kveta import okvetuj, okvetuj_ccv
+from get_measures import get_measures_from_analyzed_poem
 
 app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
@@ -486,7 +487,9 @@ def call_analyze():
     else:
         kveta_result = okvetuj(data['plaintext'])
         data['body'] = kveta_result[0][0]['body']
-    
+        # metrics
+        data['measures'] = get_measures_from_analyzed_poem(data['body'])
+
     store(data)
 
     return return_accepted_type_for_poemid(data)
