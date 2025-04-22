@@ -24,6 +24,8 @@ MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-15000'
 MODEL_MC="jinymusim/gpt-czech-poet"
 
 VERBOSE_INFO=False
+LOAD16BIT=False
+NOSAMPLE=False
 
 RHYME_SCHEMES = {
     4: ['ABAB', 'XXXX', 'XAXA', 'AAXX', 'AABB', 'ABBA'],
@@ -64,10 +66,13 @@ def load_models(modelspec=None):
         try:
             import unsloth
             from unsloth import FastLanguageModel
+            kwargs = {}
+            if LOAD16BIT:
+                kwargs['dtype'] = torch.bfloat16
+                kwargs['load_in_4bit'] = False
             model, tokenizer = FastLanguageModel.from_pretrained(
                 MODEL_TM,
-                #dtype = torch.bfloat16,                                                                                                                                                            
-                #load_in_4bit = False,
+                **kwargs,
                 )
             FastLanguageModel.for_inference(model)
             with open('prompt_templates/tm1.txt', 'r') as f:
@@ -131,7 +136,7 @@ def _generate(model, tokenizer, temperature=1):
         out = model.generate(
                 tokenized_poet_start,
                 max_new_tokens=256,
-                do_sample=True,
+                do_sample=(not NOSAMPLE),
                 # top_p=0.7,
                 top_k=50,
                 # no_repeat_ngram_size=2,
@@ -509,7 +514,8 @@ def main_standalone(modelname, repeat=False):
             'modelspec': modelname,
             'temperature': 1,
             'rhyme_scheme': rhyme_scheme,
-            'first_words': ['První', 'Druhá', 'Třetí', 'Čtvrtá'],
+            #'first_words': ['První', 'Druhá', 'Třetí', 'Čtvrtá'],
+            'first_words': [],
             'verses_count': 0,
             'syllables_count': 0,
             'metre': '',
@@ -527,12 +533,20 @@ if __name__=="__main__":
     argparser.add_argument('port', type=int, nargs='?', help='Port to use')
     argparser.add_argument('--verbose', action='store_true', help='Verbose output')
     argparser.add_argument('--repeat', action='store_true', help='Repeat forever')
+    argparser.add_argument('--16bit', action='store_true', help='Use 16bit model')
+    argparser.add_argument('--greedy', action='store_true', help='Use greedy decoding')
     args = argparser.parse_args()
 
     assert args.model in ['mc', 'tm']
 
     if args.verbose:
         VERBOSE_INFO = True
+
+    if vars(args).get('16bits', False):
+        LOAD16BIT = True
+
+    if args.greedy:
+        NOSAMPLE = True
 
     if args.port:
         main_server(args.model, args.port)
