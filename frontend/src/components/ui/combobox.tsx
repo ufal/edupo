@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { twMerge } from "tailwind-merge"
 
 interface ComboboxDataEntry {
   value: string;
@@ -25,12 +26,14 @@ interface ComboboxDataEntry {
 }
 
 interface ComboboxParams {
+  searchInput?: boolean;
   disabled?: boolean;
+  highlighted?: boolean;
   placeholder: string;
   data: ComboboxDataEntry[];
 }
 
-export function Combobox({ placeholder, data, disabled } : ComboboxParams) {
+export function Combobox({ searchInput, placeholder, data, disabled, highlighted } : ComboboxParams) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
 
@@ -42,7 +45,7 @@ export function Combobox({ placeholder, data, disabled } : ComboboxParams) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className={twMerge("w-full justify-between", highlighted && "border-blueSoft")}
         >
           {value
             ? data.find((d) => d.value === value)?.label
@@ -50,9 +53,11 @@ export function Combobox({ placeholder, data, disabled } : ComboboxParams) {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
         <Command>
-          <CommandInput placeholder={placeholder} />
+          {
+            (searchInput === true) && <CommandInput placeholder={placeholder} />
+          }
           <CommandList>
             <CommandEmpty>Nic nenalezeno.</CommandEmpty>
             <CommandGroup>
@@ -65,12 +70,16 @@ export function Combobox({ placeholder, data, disabled } : ComboboxParams) {
                     setOpen(false)
                   }}
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === d.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  {
+                    /*
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === d.value ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                    */
+                  }
                   {d.label}
                 </CommandItem>
               ))}

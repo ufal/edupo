@@ -30,23 +30,36 @@ const initPoemGenResult: PoemGenResult = {
 }
 
 export default function Poem({ sidePanelControlElement }: PoemProps) {
-    const { metre, rhymeScheme, temperature, syllablesCount, versesCount, disabledFields } = usePoemParams();
+    const { poemId,currentValues, disabledFields, setPoemId } = usePoemParams();
     const [poemGenResult, setPoemGenResult] = useState<PoemGenResult>(initPoemGenResult);
 
     useEffect(() => {
         const fetchPoem = async () => {
           try {
 
+            console.log(poemId);
+
             const baseUrl = process.env.NEXT_PUBLIC_API_URL!;
             const endpoint = "gen";
             
-            const params = new URLSearchParams({
-              metre,
-              rhyme_scheme: rhymeScheme,
-              syllables_count: syllablesCount.toString(),
-              verses_count: versesCount.toString(),
-              accept: "json",
+            let params = new URLSearchParams({
+              accept: "json"
             });
+            
+            if (!disabledFields.metre)
+              params.append("metre", currentValues.metre);
+
+            if (!disabledFields.rhymeScheme)
+              params.append("rhyme_scheme", currentValues.rhymeScheme);
+
+            if (!disabledFields.syllablesCount)
+              params.append("syllables_count", currentValues.syllablesCount.toString());
+
+            if (!disabledFields.versesCount)
+              params.append("verses_count", currentValues.versesCount.toString());
+
+            if (!disabledFields.temperature)
+              params.append("temperature", currentValues.temperature.toString());
             
             const url = `${baseUrl}${endpoint}?${params.toString()}`;
             const res = await fetch(url);
@@ -66,7 +79,7 @@ export default function Poem({ sidePanelControlElement }: PoemProps) {
             if (!data || typeof data !== "object") {
               throw new Error("Unexpected response format");
             }
-    
+
             /*
             const data =
               {
@@ -104,6 +117,7 @@ export default function Poem({ sidePanelControlElement }: PoemProps) {
               throw new Error("Poem appears to be empty");
             }
     
+            setPoemId(data.id);
             setPoemGenResult({
                 loading: false,
                 error: null,
@@ -123,6 +137,7 @@ export default function Poem({ sidePanelControlElement }: PoemProps) {
           }
         };
     
+        console.log("Fetching poem...");
         fetchPoem();
     }, []);
 

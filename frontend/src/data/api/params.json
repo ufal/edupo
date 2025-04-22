@@ -1,0 +1,38 @@
+{
+    "gen": {
+        "metre": [
+            "D",
+            "J",
+            "T",
+            "N"
+        ],
+        "syllablesCount": {
+            "min": 4,
+            "max": 16
+        },
+        "versesCount": {
+            "min": 4,
+            "max": 6
+        },
+        "temperature": {
+            "min": 0.1,
+            "max": 1.0
+        },
+        "rhymeScheme": {
+            "4": [
+                "AABB",
+                "ABAB",
+                "ABBA",
+                "XAXA",
+                "AAXX",
+                "XXXX"
+            ],
+            "6": [
+                "AABBCC",
+                "ABABCC",
+                "ABABXX",
+                "XXXXXX"
+            ]
+        }
+    }
+}

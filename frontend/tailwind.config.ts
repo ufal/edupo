@@ -29,6 +29,7 @@ export default {
   			blueMiddle: 'var(--blue-middle)',
   			blueSoft: 'var(--blue-soft)',
   			blueSupersoft: 'var(--blue-supersoft)',
+			blueSky: 'var(--blue-sky)',
   			blueCharcoal: 'var(--blue-charcoal)',
   			slateDark: 'var(--slate-dark)',
   			slateMiddle: 'var(--slate-middle)',
