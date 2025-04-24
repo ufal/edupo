@@ -72,6 +72,9 @@ def load_models(modelspec=None):
             if LOAD16BIT:
                 kwargs['dtype'] = torch.bfloat16
                 kwargs['load_in_4bit'] = False
+            else:
+                kwargs['load_in_4bit'] = True
+                logging.info("Loading in 4bit.")
             model, tokenizer = FastLanguageModel.from_pretrained(
                 MODEL_TM,
                 **kwargs,
@@ -358,7 +361,9 @@ def generuj_mc(model, tokenizer, template, params):
 
 """
 
-def generuj_tm(model, tokenizer, template, params):
+def generuj_tm(model, tokenizer, template, params_orig):
+
+    params = params_orig.copy() # TODO fix this ugly hack
 
     gen = _generate(model, tokenizer, params.get('temperature'))
 
@@ -478,7 +483,7 @@ def generuj_tm(model, tokenizer, template, params):
         except:
             author_name = params.get('author_name', 'Anonym')
             title = params.get('title', 'Bez názvu')
-            title = params.get('year', '?')
+            #year = params.get('year', '?')
 
         # verses
         verses = []
@@ -510,16 +515,17 @@ def main_server(modelspec, port):
         result = json.dumps(generuj(model, tokenizer, template, params))
         socket.send_string(result)
 
-def main_standalone(modelname, repeat=False, repeat_n=1):
+def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None):
     # direct mode
     model, tokenizer, template = load_models(modelname)
-    rhyme_scheme = ''
-    while True:
-        result = generuj(
-            model, tokenizer, template, {
+    if json_file:
+        with open(json_file, 'r') as f:
+            params = json.load(f)
+    else:
+        params = {
             'modelspec': modelname,
             'temperature': 1,
-            'rhyme_scheme': rhyme_scheme,
+            'rhyme_scheme': '',
             #'first_words': ['První', 'Druhá', 'Třetí', 'Čtvrtá'],
             'first_words': [],
             'verses_count': 0,
@@ -528,8 +534,10 @@ def main_standalone(modelname, repeat=False, repeat_n=1):
             'max_strophes': 2,
             'anaphors': [],
             'epanastrophes': [],
-            })
-        print(*result, sep='\n')
+            }
+    while True:
+        result, _, _, _ = generuj(model, tokenizer, template, params)
+        print(result)
         if repeat:
             continue
         if repeat_n <= 1:
@@ -545,6 +553,7 @@ if __name__=="__main__":
     argparser.add_argument('--repeat_n', type=int, help='Repeat N times')
     argparser.add_argument('--16bit', action='store_true', help='Use 16bit model')
     argparser.add_argument('--greedy', action='store_true', help='Use greedy decoding')
+    argparser.add_argument('--json', type=str, help='JSON file to use')
     args = argparser.parse_args()
 
     assert args.model in ['mc', 'tm']
@@ -563,5 +572,6 @@ if __name__=="__main__":
     else:
         main_standalone(args.model,
                         repeat=args.repeat,
-                        **({'repeat_n': args.repeat_n} if args.repeat_n else {})
+                        **({'repeat_n': args.repeat_n} if args.repeat_n else {}),
+                        json_file=args.json
                         )
