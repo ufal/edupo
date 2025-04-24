@@ -561,8 +561,9 @@ if __name__=="__main__":
     if args.verbose:
         VERBOSE_INFO = True
 
-    if vars(args).get('16bits', False):
+    if vars(args).get('16bit', False):
         LOAD16BIT = True
+        logging.info("Loading in 16bit.")
 
     if args.greedy:
         NOSAMPLE = True
