@@ -49,6 +49,8 @@ DEFAULT = {
     'modelspec': 'tm',
     }
 
+AUTHORS = open('authors', 'r').read().splitlines()
+
 def load_models(modelspec=None):
 
     logging.info(f"Loading model {modelspec}")
@@ -363,8 +365,8 @@ def generuj_tm(model, tokenizer, template, params):
     
     # preamble
 
-    set_default_if_not(params, 'author_name') #TODO readonly
-    # TODO random select
+    if not params.get('author_name'): #TODO `params` readonly
+        params['author_name'] = random.choice(AUTHORS)
     poem += f"{params['author_name']}:"
 
     if params.get('title'):
@@ -504,7 +506,7 @@ def main_server(modelspec, port):
         result = json.dumps(generuj(model, tokenizer, template, params))
         socket.send_string(result)
 
-def main_standalone(modelname, repeat=False):
+def main_standalone(modelname, repeat=False, repeat_n=1):
     # direct mode
     model, tokenizer, template = load_models(modelname)
     rhyme_scheme = ''
@@ -524,8 +526,11 @@ def main_standalone(modelname, repeat=False):
             'epanastrophes': [],
             })
         print(*result, sep='\n')
-        if not repeat:
+        if repeat:
+            continue
+        if repeat_n <= 1:
             break
+        repeat_n -= 1
 
 if __name__=="__main__":
     argparser = argparse.ArgumentParser(description='Generate poetry with LLMs')
@@ -533,6 +538,7 @@ if __name__=="__main__":
     argparser.add_argument('port', type=int, nargs='?', help='Port to use')
     argparser.add_argument('--verbose', action='store_true', help='Verbose output')
     argparser.add_argument('--repeat', action='store_true', help='Repeat forever')
+    argparser.add_argument('--repeat_n', type=int, help='Repeat N times')
     argparser.add_argument('--16bit', action='store_true', help='Use 16bit model')
     argparser.add_argument('--greedy', action='store_true', help='Use greedy decoding')
     args = argparser.parse_args()
@@ -551,4 +557,7 @@ if __name__=="__main__":
     if args.port:
         main_server(args.model, args.port)
     else:    
-        main_standalone(args.model, repeat=args.repeat)
+        main_standalone(args.model,
+                        repeat=args.repeat,
+                        **({'repeat_n': args.repeat_n} if args.repeat_n else {})
+                        )
