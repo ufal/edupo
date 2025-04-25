@@ -13,7 +13,7 @@
 
 
 {% if t %}
-<a href="/testovani">Rozcestník</a>
+<a href="testovani">Rozcestník</a>
 <h2>Test {{ t }}{% if res %} – výsledky{% endif %}</h2>
     {% if hotovo %}
     <p>Děkujeme za vyplnění.</p>
@@ -52,7 +52,7 @@
             <pre>{{ qb }}</pre>
         </div>
     </div>
-    <form method="post" action="/testovani" class="vote-grid">
+    <form method="post" action="testovani" class="vote-grid">
         <input type="hidden" name="tst" value="{{ tst }}">
     
         <div class="vote-col">
