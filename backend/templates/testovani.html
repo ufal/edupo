@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>EduPo testování</title>
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<h1>EduPo testování</h1>
+
+
+{% if t %}
+<a href="/testovani">Rozcestník</a>
+<h2>Test {{ t }}{% if res %} – výsledky{% endif %}</h2>
+    {% if hotovo %}
+    <p>Děkujeme za vyplnění.</p>
+    {{ hotovo }}
+    {% elif res %}
+    {{ res }}
+    {% if res_data %}
+      
+    <table>
+        <thead>
+          <tr>
+            <th>Výsledek</th>
+            <th>Četnost</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for key, value in res_data.items() %}
+         <tr>
+             <td> {{ key }} </td>
+             <td> {{ value }} </td>
+         </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+     
+    {% elif qa %}
+    
+    <div class="poetry-comparison">
+        <div class="poem">
+            <h4 class="poem-label">A</h4>
+            <pre>{{ qa }}</pre>
+        </div>
+        <div class="poem">
+            <h4 class="poem-label">B</h4>
+            <pre>{{ qb }}</pre>
+        </div>
+    </div>
+    <form method="post" action="/testovani" class="vote-grid">
+        <input type="hidden" name="tst" value="{{ tst }}">
+    
+        <div class="vote-col">
+            <button type="submit" name="hlas" value="A">A</button>
+        </div>
+    
+        <div class="vote-col center">
+            <button type="submit" name="hlas" value="=">=</button>
+        </div>
+    
+        <div class="vote-col">
+            <button type="submit" name="hlas" value="B">B</button>
+        </div>
+    </form>
+    {% else%}
+    <form>
+        <input type="hidden" name="t" value="{{ t }}">
+        Libovolný identifikátor, třeba jméno, iniciály, přezdívka: <input type="text" name="jmeno" placeholder="Jméno" required> 
+        <input type="submit" value="Začít">
+    </form>
+    {% endif %}
+{% endif %}
+
+{% if testy %}
+<h2>Testy</h2>
+<ul>
+    {% for test in testy %}
+        <li>
+            {{ test }} <a href="?t={{ test }}">Vyplnit</a> <a href="?t={{ test }}&res=1">Výsledky</a>
+        </li>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>
+
+

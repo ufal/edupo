@@ -3,7 +3,7 @@
 
 from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response, send_file
 from flask_cors import CORS
-from itertools import groupby
+from itertools import groupby, repeat
 import os
 # from gen import generuj, load_models
 import show_poem_html
@@ -664,6 +664,101 @@ def call_logs():
     html = f"<pre>{text}</pre>"
 
     return return_accepted_type(text, result, html)
+
+@app.route("/testovani", methods=['GET', 'POST'])
+def call_tests():
+    def get_question(filename, line):
+        with open('testovani_data/' + filename) as f:
+            lines = f.readlines()
+            if line >= len(lines):
+                return None
+            return json.loads(lines[line])
+    def test2res(tst):
+        data = zip(tst['otazky'], tst['odpovedi'])
+        #return list(data)
+        res = {}
+        for q, a in data:
+            if a == 'A':
+                res[q[0][0]] = res.get(q[0][0], 0) + 1
+            elif a == 'B':
+                res[q[1][0]] = res.get(q[1][0], 0) + 1
+            elif a == '=':
+                res['='] = res.get('=', 0) + 1
+            else:
+                assert False, "Invalid answer"
+        return res
+    def sumres(res):
+        total = defaultdict(int)
+        for r in res:
+            for k, v in r.items():
+                total[k] += v
+        return total
+    with open('testovani_data/testy') as f:
+        testy = f.readlines()
+        testy_ids = [t.split(';')[0] for t in testy]
+        testy = [t.strip().split(';') for t in testy]
+        testy = {t[0] : t[1:] for t in testy}
+    tst = get_post_arg('tst')
+    if tst:
+        # probíhá test
+        hlas = get_post_arg('hlas')
+        assert hlas, "Hlasování musí být zadáno"
+        tst = json.loads(tst)
+        tst['odpovedi'].append(hlas)
+        if len(tst['odpovedi']) == len(tst['otazky']):
+            # test skončil
+            filename = text2id(tst['jmeno'])
+            with open('testovani_data/results/' + filename + '.json', 'w') as f:
+                json.dump(tst, f, ensure_ascii=False, indent=4)
+            return render_template('testovani.html', t=tst['test'], hotovo=filename)
+        i = len(tst['odpovedi'])
+        return render_template('testovani.html',
+                               t=tst['test'],
+                               qa=get_question(*tst['otazky'][i][0]),
+                               qb=get_question(*tst['otazky'][i][1]),
+                               tst=json.dumps(tst))
+    t = get_post_arg('t')
+    # neznáme test, zobrazíme rozcestník
+    if not t:
+        return render_template('testovani.html', testy=testy_ids)
+    # známe test 
+    res = get_post_arg('res')
+    jmeno = get_post_arg('jmeno')
+    if res: # výsledky
+        dataset = []
+        for filename in os.listdir('testovani_data/results'):
+            with open('testovani_data/results/' + filename) as f:
+                data = json.load(f)
+                if data['test'] == t:
+                    dataset.append(data)
+        if len(dataset) == 0:
+            res = "Zatím nikdo nevyplnil tento test."
+            return render_template('testovani.html', t=t, res=res)
+        else:
+            res = "Výsledky testu:"
+            return render_template('testovani.html', t=t, res=res, res_data=sumres([test2res(d) for d in dataset]))
+    elif jmeno: # vyrobíme nový test
+        acka = open('testovani_data/' + testy[t][0]).readlines()
+        bcka = open('testovani_data/' + testy[t][1]).readlines()
+        a_ids = list(zip(repeat(testy[t][0]), random.sample(range(len(acka)), 10)))
+        b_ids = list(zip(repeat(testy[t][1]), random.sample(range(len(bcka)), 10)))
+        tst=list(zip(a_ids, b_ids))
+        for i in range(len(tst[-1])):
+            if random.choice([True, False]):
+                tst[i] = (tst[i][1], tst[i][0])
+        tst = {
+            'test': t,
+            'jmeno': jmeno,
+            'otazky': tst,
+            'odpovedi': [],
+        }
+        return render_template('testovani.html',
+                               t=t,
+                               qa=get_question(*tst['otazky'][0][0]),
+                               qb=get_question(*tst['otazky'][0][1]),
+                               tst=json.dumps(tst))
+    else: # formulář na zadání jména
+        return render_template('testovani.html', t=t)
 
 @app.errorhandler(ExceptionPoemInvalid)
 def handle_exception(e):
