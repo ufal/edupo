@@ -193,3 +193,8 @@ th {
 tr:hover {
     background-color: #f9fafb;
 }
+
+.instrukce {
+    text-align: center;
+    color: #1e40af;
+}

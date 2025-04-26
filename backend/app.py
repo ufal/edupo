@@ -716,7 +716,9 @@ def call_tests():
                                t=tst['test'],
                                qa=get_question(*tst['otazky'][i][0]),
                                qb=get_question(*tst['otazky'][i][1]),
-                               tst=json.dumps(tst))
+                               tst=json.dumps(tst),
+                               instrukce=testy[tst['test']][2]
+                               )
     t = get_post_arg('t')
     # neznáme test, zobrazíme rozcestník
     if not t:
@@ -756,7 +758,9 @@ def call_tests():
                                t=t,
                                qa=get_question(*tst['otazky'][0][0]),
                                qb=get_question(*tst['otazky'][0][1]),
-                               tst=json.dumps(tst))
+                               tst=json.dumps(tst),
+                               instrukce=testy[t][2]
+                               )
     else: # formulář na zadání jména
         return render_template('testovani.html', t=t)
 
