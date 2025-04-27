@@ -5,6 +5,7 @@ import defaultApiParams from "@/data/api/params-default-values.json";
 type ParamValues = {
   author: string;
   name: string;
+  poemLines: string[] | null;
   style: string;
   form: string;
   metre: string;
@@ -17,10 +18,11 @@ type ParamValues = {
 };
 
 type PoemParamsState = {
-  poemId: string | null;
+
   disabledFields: {
     author: boolean;
     name: boolean;
+    poemLines: boolean;
     style: boolean;
     form: boolean;
     metre: boolean;
@@ -34,7 +36,6 @@ type PoemParamsState = {
   currentValues: ParamValues;
   initialValues: ParamValues;
 
-  setPoemId: (value: string) => void;
   setParam: <K extends keyof ParamValues>(key: K, value: ParamValues[K]) => void;
   setDisabledField: (field: keyof PoemParamsState["disabledFields"], value: boolean) => void;
 
@@ -46,6 +47,7 @@ type PoemParamsState = {
 const defaultValues: ParamValues = {
   author: "",
   name: "",
+  poemLines: null,
   style: "",
   form: "",
   metre: "",
@@ -58,11 +60,11 @@ const defaultValues: ParamValues = {
 };
 
 export const usePoemParams = create<PoemParamsState>((set, get) => ({
-  poemId: null,
 
   disabledFields: {
     author: false,
     name: false,
+    poemLines: false,
     style: false,
     form: false,
     metre: false,
@@ -75,8 +77,6 @@ export const usePoemParams = create<PoemParamsState>((set, get) => ({
 
   currentValues: { ...defaultValues },
   initialValues: { ...defaultValues },
-
-  setPoemId: (value) => set({ poemId: value }),
 
   setParam: (key, value) =>
     set((state) => ({

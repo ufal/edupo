@@ -1,6 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { PoemGenResult } from "@/types/poemGenResult";
 
-export default function PoemAnalysis() {
+interface PoemAnalysisProps {
+    poemGenResult: PoemGenResult;
+}
+
+export default function PoemAnalysis({ poemGenResult } : PoemAnalysisProps) {
     return (
         <Card className="flex flex-col h-full">
             <CardContent>

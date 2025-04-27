@@ -31,7 +31,7 @@ export default function Header() {
     const [value, setValue] = React.useState("");
 
     return (
-        <header className="w-full bg-crimsonRed flex gap-6 justify-between items-center flex-wrap px-docOffsetXSmall tablet:px-docOffsetXBig py-docOffsetY text-white">
+        <header className="w-full h-16 bg-crimsonRed flex gap-6 justify-between items-center flex-wrap px-docOffsetXSmall tablet:px-docOffsetXBig py-docOffsetY text-white">
 
             <div className="flex flex-row items-center gap-3">
                 <Link href={process.env.NEXT_PUBLIC_LINK_BASE ? process.env.NEXT_PUBLIC_LINK_BASE : "/"}>

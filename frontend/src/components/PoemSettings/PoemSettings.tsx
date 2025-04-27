@@ -1,6 +1,5 @@
 "use client"
 import { usePoemParams } from "@/store/poemSettingsStore";
-import { useState, useEffect } from "react";
 
 import apiParams from "@/data/api/params.json";
 import defaultApiParams from "@/data/api/params-default-values.json";
@@ -13,6 +12,7 @@ import { Button } from "../ui/button";
 import { ShuffleIcon } from "@radix-ui/react-icons";
 import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { twMerge } from "tailwind-merge";
 
 interface PoemParamsProps {
   analyseButtonClick: () => void;
@@ -21,7 +21,6 @@ interface PoemParamsProps {
 
 export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }: PoemParamsProps) {
   const {
-    poemId,
     disabledFields,
     setDisabledField,
     currentValues,
@@ -29,36 +28,8 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
   } = usePoemParams();
 
   const setParam = usePoemParams((s) => s.setParam);
-  const haveParamsChanged = usePoemParams((s) => s.haveParamsChanged());
-
-  useEffect(() => {
-      const fetchAnalysis = async () => {
-        try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL!;
-            const endpoint = "analyze";
-            
-            let params = new URLSearchParams({
-                accept: "json"
-            });
-    
-            if (!disabledFields.versesCount)
-                params.append("poemid", poemId!);
-    
-            const response = await fetch(`${baseUrl}${endpoint}?${params}`);
-            const data = await response.json();
-            console.log(data);
-
-        } catch (error) {
-            console.error("Error fetching analysis:", error);
-        }
-      };
-  
-
-      console.log(`Fetching analysis for poem ${poemId}...`);
-      
-      if (poemId)
-        fetchAnalysis();
-  }, []);
+  const havePoemLinesChanged = usePoemParams((s) => s.hasParamChanged("poemLines"));
+  // const haveParamsChanged = usePoemParams((s) => s.haveParamsChanged());
 
   const rhymeScheme = currentValues.versesCount === 4 ? apiParams.gen.rhymeScheme["4"] : (currentValues.versesCount === 6 ? apiParams.gen.rhymeScheme["6"] : null);
 
@@ -76,8 +47,8 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
   }
 
   return (
-    <div className="w-full h-full flex-1 flex flex-col font-bold justify-end">
-        <div className="flex-1 px-docOffsetXSmall tablet:px-docOffsetXBig pb-4">
+    <div className="flex flex-col h-full"> 
+        <div className={"flex-1 overflow-y-auto px-docOffsetXSmall tablet:px-docOffsetXBig pb-4"} style={{ maxHeight: "calc(100vh - 64px - 64px - 40px - 8px - 64px)"}}>
             <Accordion type="multiple">
                 <AccordionItem value="item-1">
                     <AccordionTrigger>
@@ -231,9 +202,14 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                 </AccordionItem>
             </Accordion>
         </div>
-        <div className="w-full h-[64px] flex flex-row items-center px-docOffsetXSmall tablet:px-docOffsetXBig gap-4 inset-shadow-sm">
+        <div
+            className="relative h-[64px] flex flex-row items-center px-docOffsetXSmall tablet:px-docOffsetXBig gap-4 shrink-0"
+            style={{
+                boxShadow: "0px -3px 6px -2px var(--black-shadow)"
+            }}
+            >
             <Button
-                disabled={!haveParamsChanged}
+                disabled={!havePoemLinesChanged}
                 variant="outline"
                 className="flex-1 bg-slateSoft"
                 onClick={analyseButtonClick}>

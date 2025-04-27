@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { PoemGenResult } from "../../Poem";
+import { PoemGenResult } from "@/types/poemGenResult";
 
 const ErrorText = (msg: string) => <p className="text-crimsonRed">Chyba: { msg }</p>;
 
