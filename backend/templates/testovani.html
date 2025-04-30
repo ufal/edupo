@@ -38,6 +38,7 @@
         </tbody>
       </table>
     {% endif %}
+    {% if author_data %}
     <table>
         <thead>
           <tr>
@@ -54,7 +55,6 @@
         {% endfor %}
         </tbody>
       </table>
-    {% if author_data %}
     {% endif %}
 
     {% elif qa %}
