@@ -1,3 +1,4 @@
 T001;100_poems_tm4bit;100_poems_tm16bit;Vyberte lepší báseň
-T002;100vrch4bit;100vrch16bit;Vyberte pestřejší vzorek
-T003;100poems_tm;100poems_mc;Vyberte lepší báseň
+#T002;100vrch4bit;100vrch16bit;Vyberte pestřejší vzorek
+#T003;100poems_tm;100poems_mc;Vyberte lepší báseň
+T004;100poems_tm;100poems_mc_2;Vyberte lepší báseň

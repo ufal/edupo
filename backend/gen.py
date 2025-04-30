@@ -515,7 +515,7 @@ def main_server(modelspec, port):
         result = json.dumps(generuj(model, tokenizer, template, params))
         socket.send_string(result)
 
-def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None):
+def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_output=False):
     # direct mode
     model, tokenizer, template = load_models(modelname)
     if json_file:
@@ -536,8 +536,15 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None):
             'epanastrophes': [],
             }
     while True:
-        result, _, _, _ = generuj(model, tokenizer, template, params)
-        print(result)
+        result, clean_res, _, _ = generuj(model, tokenizer, template, params)
+        if clean_output:
+            if clean_output == 'json':
+                print(json.dumps('\n'.join(clean_res), ensure_ascii=False))
+            else:
+                print('<|begin|>')
+                print('\n'.join(clean_res))
+        else:
+            print(result)
         if repeat:
             continue
         if repeat_n <= 1:
@@ -554,6 +561,8 @@ if __name__=="__main__":
     argparser.add_argument('--16bit', action='store_true', help='Use 16bit model')
     argparser.add_argument('--greedy', action='store_true', help='Use greedy decoding')
     argparser.add_argument('--json', type=str, help='JSON file to use')
+    argparser.add_argument('--clean', action='store_true', help='Clean output')
+    argparser.add_argument('--clean_json', action='store_true', help='Clean JSON output')
     args = argparser.parse_args()
 
     assert args.model in ['mc', 'tm']
@@ -574,5 +583,6 @@ if __name__=="__main__":
         main_standalone(args.model,
                         repeat=args.repeat,
                         **({'repeat_n': args.repeat_n} if args.repeat_n else {}),
-                        json_file=args.json
+                        json_file=args.json,
+                        clean_output='json' if args.clean_json else args.clean,
                         )

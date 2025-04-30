@@ -703,6 +703,7 @@ def call_tests():
         return total
     with open('testovani_data/testy') as f:
         testy = f.readlines()
+        testy = [t for t in testy if t[0] != '#']
         testy_ids = [t.split(';')[0] for t in testy]
         testy = [t.strip().split(';') for t in testy]
         testy = {t[0] : t[1:] for t in testy}
