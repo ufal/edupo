@@ -33,7 +33,7 @@ def get_rhyme_scheme(numbers):
 
     return "".join(scheme)
 
-def get_measures_from_analyzed_poem(poem, parameters):
+def get_measures_from_analyzed_poem(poem, parameters={}):
 
     if not 'rhyme_scheme' in parameters:
         parameters['rhyme_scheme'] = None
