@@ -488,7 +488,17 @@ def call_analyze():
         kveta_result = okvetuj(data['plaintext'])
         data['body'] = kveta_result[0][0]['body']
         # metrics
-        data['measures'] = get_measures_from_analyzed_poem(data['body'])
+        parameters = {}
+        if 'geninput' in data:
+            # is generated
+            rhyme_scheme = data['geninput'].get('rhyme_scheme', '')
+            metre = data['geninput'].get('metre', '')
+            if rhyme_scheme:
+                parameters['rhyme_scheme'] = rhyme_scheme
+            if metre:
+                parameters['metre'] = metre
+        data['measures'] = get_measures_from_analyzed_poem(
+                data['body'], parameters)
 
     store(data)
 
