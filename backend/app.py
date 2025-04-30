@@ -698,6 +698,8 @@ def call_tests():
                     total[a][k] += v
                 else:
                     total[k] += v
+        if byAuthor:
+            total = {k: dict(v) for k, v in total.items()}
         return total
     with open('testovani_data/testy') as f:
         testy = f.readlines()
