@@ -283,6 +283,16 @@
                 (menší je lepší)</li>
             <li>Entropie počtů slabik: {{ measures.syllable_count_entropy }}
                 (menší je lepší)</li>
+            {% if geninput.rhyme_scheme %}
+            <li>Shoda s uživatelem zvoleným rýmovým schématem ({{ geninput.rhyme_scheme }}):
+                {{ measures.rhyme_scheme_accuracy * 100 }}%
+            </li>
+            {% endif %}
+            {% if geninput.metre %}
+            <li>Shoda s uživatelem zvoleným metrem ({{ geninput.metre }}):
+                {{ measures.metre_accuracy * 100 }}%
+            </li>
+            {% endif %}
         </ul>
         {% endif %}
     </div>
