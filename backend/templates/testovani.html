@@ -20,8 +20,7 @@
     {{ hotovo }}
     {% elif res %}
     {{ res }}
-    {% if res_data %}
-      
+    {% if res_data %}  
     <table>
         <thead>
           <tr>
@@ -39,7 +38,25 @@
         </tbody>
       </table>
     {% endif %}
-     
+    <table>
+        <thead>
+          <tr>
+            <th>Výsledek</th>
+            <th>Četnost</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for key, value in author_data.items() %}
+         <tr>
+             <td> {{ key }} </td>
+             <td> {{ value }} </td>
+         </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% if author_data %}
+    {% endif %}
+
     {% elif qa %}
     
     <div class="poetry-comparison">

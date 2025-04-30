@@ -686,12 +686,18 @@ def call_tests():
                 res['='] = res.get('=', 0) + 1
             else:
                 assert False, "Invalid answer"
-        return res
-    def sumres(res):
-        total = defaultdict(int)
-        for r in res:
+        return tst['jmeno'], res
+    def sumres(res, byAuthor=False):
+        if byAuthor:
+            total = defaultdict(lambda: defaultdict(int))
+        else:
+            total = defaultdict(int)
+        for a, r in res:
             for k, v in r.items():
-                total[k] += v
+                if byAuthor:
+                    total[a][k] += v
+                else:
+                    total[k] += v
         return total
     with open('testovani_data/testy') as f:
         testy = f.readlines()
@@ -738,7 +744,12 @@ def call_tests():
             return render_template('testovani.html', t=t, res=res)
         else:
             res = "Výsledky testu:"
-            return render_template('testovani.html', t=t, res=res, res_data=sumres([test2res(d) for d in dataset]))
+            return render_template('testovani.html',
+                                   t=t,
+                                   res=res,
+                                   res_data=sumres([test2res(d) for d in dataset]),
+                                   author_data = sumres([test2res(d) for d in dataset], byAuthor=True),
+                                   )
     elif jmeno: # vyrobíme nový test
         acka = open('testovani_data/' + testy[t][0]).readlines()
         bcka = open('testovani_data/' + testy[t][1]).readlines()
