@@ -16,7 +16,7 @@ export default function SidePanelControlButton({ filled, onClick } : SidePanelCo
 
     return (
         <Button variant="outline" className={cls} onClick={onClick}>
-            <img src="/svg/panel-right-close.svg" className="w-4 h-4" />
+            <img src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "svg/panel-right-close.svg"} className="w-4 h-4" />
             Generování a analýza
         </Button>
     )

@@ -10,7 +10,7 @@ interface PoemModeSwitcherProps {
 function LikeButton() {
   return (
     <Button variant="outline" className="px-6 shadow-sm bg-white">
-      <img src="/svg/like.svg" className="w-6 h-6" />
+      <img src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "svg/like.svg"} className="w-6 h-6" />
       Líbí se mi
     </Button>
   );

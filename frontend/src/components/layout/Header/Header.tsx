@@ -34,18 +34,18 @@ export default function Header() {
         <header className="w-full h-16 bg-crimsonRed flex gap-6 justify-between items-center flex-wrap px-docOffsetXSmall tablet:px-docOffsetXBig py-docOffsetY text-white">
 
             <div className="flex flex-row items-center gap-3">
-                <Link href={process.env.NEXT_PUBLIC_LINK_BASE ? process.env.NEXT_PUBLIC_LINK_BASE : "/"}>
+                <Link href={process.env.NEXT_PUBLIC_LINK_BASE || "/"}>
                     <div className={crimsonPro.className + " pr-3 text-3xl font-bold border-r-2 border-white"}>
                         EduPo
                     </div>
                 </Link>
     
                 <Link href="https://cuni.cz" target="_blank">
-                    <img src="/svg/logo-uk.svg" alt="Logo UK" className="w-8 h-8" />
+                    <img src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "svg/logo-uk.svg"} alt="Logo UK" className="w-8 h-8" />
                 </Link>
                 
                 <Link href="https://ucl.cas.cz/" target="_blank">
-                    <img src="/svg/logo-ucl.svg" alt="Logo ÚČL AV ČR" className="w-8 h-8" />
+                    <img src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "svg/logo-ucl.svg"} alt="Logo ÚČL AV ČR" className="w-8 h-8" />
                 </Link>
             </div>
 
