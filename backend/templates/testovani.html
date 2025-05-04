@@ -11,7 +11,6 @@
 
 <h1>EduPo testování</h1>
 
-
 {% if t %}
 <a href="testovani">Rozcestník</a>
 <h2>Test {{ t }}{% if res %} – výsledky{% endif %}</h2>
@@ -99,7 +98,7 @@
 <ul>
     {% for test in testy %}
         <li>
-            {{ test }} <a href="?t={{ test }}">Vyplnit</a> <a href="?t={{ test }}&res=1">Výsledky</a>
+            {{ test }} <a href="?t={{ test }}">Vyplnit</a> <a href="?t={{ test }}&res=1">Výsledky</a> (vyplněno {{ pocty[test] }} krát)
         </li>
     {% endfor %}
 {% endif %}

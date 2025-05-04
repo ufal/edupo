@@ -711,6 +711,13 @@ def call_tests():
         if byAuthor:
             total = {k: dict(v) for k, v in total.items()}
         return total
+    def counts():
+        counts = defaultdict(int)
+        for filename in os.listdir('testovani_data/results'):
+            with open('testovani_data/results/' + filename) as f:
+                data = json.load(f)
+                counts[data['test']] += 1
+        return counts
     with open('testovani_data/testy') as f:
         testy = f.readlines()
         testy = [t for t in testy if t[0] != '#']
@@ -741,7 +748,7 @@ def call_tests():
     t = get_post_arg('t')
     # neznáme test, zobrazíme rozcestník
     if not t:
-        return render_template('testovani.html', testy=testy_ids)
+        return render_template('testovani.html', testy=testy_ids, pocty=counts())
     # známe test 
     res = get_post_arg('res')
     jmeno = get_post_arg('jmeno')
