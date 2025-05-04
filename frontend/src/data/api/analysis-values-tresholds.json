@@ -1,0 +1,9 @@
+{
+    "metreAccuracy": 0.6,
+    "metreConsistency": 0.6,
+    "rhymeSchemeAccuracy": 0.6,
+    "rhyming": 0.6,
+    "rhymingConsistency": 0.6,
+    "syllableCountEntropy": 0.7,
+    "unknownWords": 5
+}

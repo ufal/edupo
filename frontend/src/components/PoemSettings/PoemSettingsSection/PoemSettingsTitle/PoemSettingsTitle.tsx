@@ -1,6 +1,6 @@
 export default function PoemTitle({ text, value } : { text: string; value?: string }) {
     return (
-        <div className="text-sm pb-[8px]">
+        <div className="text-sm pb-1">
             <span className="font-normal">
                 { text }
             </span>

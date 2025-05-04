@@ -1,9 +1,11 @@
 "use client"
 
 import { usePoemParams } from "@/store/poemSettingsStore";
+import { usePoemAnalysis } from "@/store/poemAnalysisStore";
 import { useState, useEffect, useCallback } from "react";
 
 import { GenResponse } from "@/types/edupoapi/gen";
+import { AnalysisResponse } from "@/types/edupoapi/analysis";
 import { PoemGenResult } from "@/types/poemGenResult";
 
 import Poem from "@/components/Poem";
@@ -24,12 +26,14 @@ export default function Home() {
   const [poemId, setPoemId] = useState(null);
   const [openControlPanel, setOpenControlPanel] = useState(false);
   const [poemGenResult, setPoemGenResult] = useState<PoemGenResult>(initPoemGenResult);
-  const { currentValues, disabledFields, updateInitialValues } = usePoemParams();
+  const { updateInitialValues } = usePoemParams();
+  const { setAnalysisValue } = usePoemAnalysis();
 
   const setParam = usePoemParams((s) => s.setParam);
   const fetchAnalysis = useCallback(async (overrideId = null) => {
 
     const idToUse = overrideId ?? poemId;
+    const { currentValues, disabledFields } = usePoemParams.getState();
 
     if (!idToUse) return;
 
@@ -44,9 +48,32 @@ export default function Home() {
         if (!disabledFields.versesCount)
             params.append("poemid", idToUse!);
   
-        const response = await fetch(`${baseUrl}${endpoint}?${params}`);
-        const data = await response.json();
-        console.log(data);
+        const res = await fetch(`${baseUrl}${endpoint}?${params}`);
+
+        let data: AnalysisResponse;
+
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          throw new Error("Failed to parse JSON response");
+        }
+  
+        if (!data || typeof data !== "object") {
+          throw new Error("Unexpected response format");
+        }
+
+        if (!data.measures || typeof data.measures !== "object") {
+          throw new Error("Missing or invalid 'measures' in response");
+        }
+
+        const measures = data.measures;
+        setAnalysisValue("metreAccuracy", measures.metre_accuracy);
+        setAnalysisValue("metreConsistency", measures.metre_consistency);
+        setAnalysisValue("rhymeSchemeAccuracy", measures.rhyme_scheme_accuracy);
+        setAnalysisValue("rhyming", measures.rhyming);
+        setAnalysisValue("rhymingConsistency", measures.rhyming_consistency);
+        setAnalysisValue("syllableCountEntropy", measures.syllable_count_entropy);
+        setAnalysisValue("unknownWords", measures.unknown_words);
 
     } catch (error) {
         console.error("Error fetching analysis:", error);
@@ -57,6 +84,8 @@ export default function Home() {
   }, [poemId]);
 
   const fetchPoem = useCallback(async () => {
+
+    const { currentValues, disabledFields } = usePoemParams.getState();
 
     setPoemGenResult({
       loading: true,

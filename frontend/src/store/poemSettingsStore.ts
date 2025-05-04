@@ -18,26 +18,14 @@ type ParamValues = {
 };
 
 type PoemParamsState = {
-
-  disabledFields: {
-    author: boolean;
-    name: boolean;
-    poemLines: boolean;
-    style: boolean;
-    form: boolean;
-    metre: boolean;
-    rhymeScheme: boolean;
-    motives: boolean;
-    versesCount: boolean;
-    syllablesCount: boolean;
-    temperature: boolean;
-  };
-
   currentValues: ParamValues;
   initialValues: ParamValues;
 
+  disabledFields: Record<keyof ParamValues, boolean>;
+  initialDisabledFields: Record<keyof ParamValues, boolean>;
+
   setParam: <K extends keyof ParamValues>(key: K, value: ParamValues[K]) => void;
-  setDisabledField: (field: keyof PoemParamsState["disabledFields"], value: boolean) => void;
+  setDisabledField: (field: keyof ParamValues, value: boolean) => void;
 
   updateInitialValues: () => void;
   haveParamsChanged: () => boolean;
@@ -59,24 +47,27 @@ const defaultValues: ParamValues = {
   versesCount: defaultApiParams.gen.versesCount,
 };
 
+const defaultDisabled: Record<keyof ParamValues, boolean> = {
+  author: false,
+  name: false,
+  poemLines: false,
+  style: false,
+  form: false,
+  metre: false,
+  rhyme: false,
+  motives: false,
+  rhymeScheme: false,
+  temperature: false,
+  syllablesCount: false,
+  versesCount: false,
+};
+
 export const usePoemParams = create<PoemParamsState>((set, get) => ({
-
-  disabledFields: {
-    author: false,
-    name: false,
-    poemLines: false,
-    style: false,
-    form: false,
-    metre: false,
-    rhymeScheme: false,
-    motives: false,
-    versesCount: false,
-    syllablesCount: false,
-    temperature: false,
-  },
-
   currentValues: { ...defaultValues },
   initialValues: { ...defaultValues },
+
+  disabledFields: { ...defaultDisabled },
+  initialDisabledFields: { ...defaultDisabled },
 
   setParam: (key, value) =>
     set((state) => ({
@@ -97,15 +88,22 @@ export const usePoemParams = create<PoemParamsState>((set, get) => ({
   updateInitialValues: () =>
     set((state) => ({
       initialValues: { ...state.currentValues },
+      initialDisabledFields: { ...state.disabledFields },
     })),
 
   haveParamsChanged: () => {
-    const { initialValues, currentValues } = get();
-    return !isEqual(initialValues, currentValues);
+    const { initialValues, currentValues, initialDisabledFields, disabledFields } = get();
+    return (
+      !isEqual(initialValues, currentValues) ||
+      !isEqual(initialDisabledFields, disabledFields)
+    );
   },
 
   hasParamChanged: (key) => {
-    const { initialValues, currentValues } = get();
-    return !isEqual(initialValues[key], currentValues[key]);
+    const { initialValues, currentValues, initialDisabledFields, disabledFields } = get();
+    return (
+      !isEqual(initialValues[key], currentValues[key]) ||
+      initialDisabledFields[key] !== disabledFields[key]
+    );
   },
 }));

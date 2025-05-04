@@ -1,18 +1,19 @@
 "use client"
 import { usePoemParams } from "@/store/poemSettingsStore";
+import { usePoemAnalysis } from "@/store/poemAnalysisStore";
 
 import apiParams from "@/data/api/params.json";
 import defaultApiParams from "@/data/api/params-default-values.json";
 import apiParamsTitles from "@/data/api/params-titles.json";
+import analysisTresholdValues from "@/data/api/analysis-values-tresholds.json";
 
-import Section from "./PoemSection";
+import Section from "./PoemSettingsSection";
 import { Slider } from "../ui/slider";
 import { Combobox } from "../ui/combobox";
 import { Button } from "../ui/button";
 import { ShuffleIcon } from "@radix-ui/react-icons";
 import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { twMerge } from "tailwind-merge";
 
 interface PoemParamsProps {
   analyseButtonClick: () => void;
@@ -27,9 +28,14 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
     hasParamChanged
   } = usePoemParams();
 
+  const {
+    currentAnalysisValues
+  } = usePoemAnalysis.getState();
+
+  // console.log(disabledFields.syllablesCount, currentAnalysisValues.syllableCountEntropy, analysisTresholdValues.syllableCountEntropy);
+
   const setParam = usePoemParams((s) => s.setParam);
   const havePoemLinesChanged = usePoemParams((s) => s.hasParamChanged("poemLines"));
-  // const haveParamsChanged = usePoemParams((s) => s.haveParamsChanged());
 
   const rhymeScheme = currentValues.versesCount === 4 ? apiParams.gen.rhymeScheme["4"] : (currentValues.versesCount === 6 ? apiParams.gen.rhymeScheme["6"] : null);
 
@@ -47,18 +53,20 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
   }
 
   return (
-    <div className="flex flex-col h-full"> 
+    <div className="flex flex-col h-full">
         <div className={"flex-1 overflow-y-auto px-docOffsetXSmall tablet:px-docOffsetXBig pb-4"} style={{ maxHeight: "calc(100vh - 64px - 64px - 40px - 8px - 64px)"}}>
             <Accordion type="multiple">
                 <AccordionItem value="item-1">
                     <AccordionTrigger>
                         Základní nastavení
                     </AccordionTrigger>
-                    <AccordionContent className="flex flex-col gap-4">
+                    <AccordionContent className="flex flex-col gap-2">
                         <Section
                             title="Podle autora"
+                            getSwitchValue={() => disabledFields.author}
                             switchFunc={(on) => setDisabledField("author", on)}
-                            hasChanged={hasParamChanged("author")}>
+                            hasChanged={hasParamChanged("author")}
+                            unsuitableToAnalysis={false}>
                             <Combobox
                                 placeholder="Podle autora"
                                 data={[
@@ -69,8 +77,10 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                         </Section>
                         <Section
                             title="Název"
+                            getSwitchValue={() => disabledFields.name}
                             switchFunc={(on) => setDisabledField("name", on)}
-                            hasChanged={hasParamChanged("name")}>
+                            hasChanged={hasParamChanged("name")}
+                            unsuitableToAnalysis={false}>
                                 <Combobox
                                     placeholder="Název"
                                     data={[
@@ -85,11 +95,13 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                     <AccordionTrigger>
                         Rozšířené nastavení
                     </AccordionTrigger>
-                    <AccordionContent className="flex flex-col gap-4">
+                    <AccordionContent className="flex flex-col gap-2">
                         <Section
                             title="Styl"
+                            getSwitchValue={() => disabledFields.style}
                             switchFunc={(on) => setDisabledField("style", on)}
-                            hasChanged={hasParamChanged("style")}>
+                            hasChanged={hasParamChanged("style")}
+                            unsuitableToAnalysis={false}>
                                 <Combobox
                                     placeholder="Styl"
                                     data={[
@@ -100,8 +112,10 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                         </Section>
                         <Section
                             title="Forma"
+                            getSwitchValue={() => disabledFields.form}
                             switchFunc={(on) => setDisabledField("form", on)}
-                            hasChanged={hasParamChanged("form")}>
+                            hasChanged={hasParamChanged("form")}
+                            unsuitableToAnalysis={false}>
                                 <Combobox
                                     highlighted={hasParamChanged("form")}
                                     placeholder="Forma"
@@ -113,11 +127,13 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                     disabled={disabledFields.form} />
                         </Section>
                         <div className="flex flex-row gap-6">
-                            <div className="w-1/2">
+                            <div className="w-1/2 flex flex-col gap-2">
                                 <Section
                                     title="Metrum"
+                                    getSwitchValue={() => disabledFields.metre}
                                     switchFunc={(on) => setDisabledField("metre", on)}
-                                    hasChanged={hasParamChanged("metre")}>
+                                    hasChanged={hasParamChanged("metre")}
+                                    unsuitableToAnalysis={false}>
                                         <Combobox
                                             highlighted={hasParamChanged("metre")}
                                             placeholder="Metrum"
@@ -125,11 +141,13 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                             disabled={disabledFields.metre} />
                                 </Section>
                             </div>
-                            <div className="w-1/2">
+                            <div className="w-1/2 flex flex-col gap-2">
                                 <Section
                                     title="Rýmové schéma"
+                                    getSwitchValue={() => disabledFields.rhymeScheme}
                                     switchFunc={(on) => setDisabledField("rhymeScheme", on)}
-                                    hasChanged={hasParamChanged("rhymeScheme")}>
+                                    hasChanged={hasParamChanged("rhymeScheme")}
+                                    unsuitableToAnalysis={false}>
                                         <Combobox
                                             highlighted={hasParamChanged("rhymeScheme")}
                                             placeholder="Schéma"
@@ -140,13 +158,14 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                         </div>
                         <Section
                             title="Motivy básně"
+                            getSwitchValue={() => disabledFields.motives}
                             switchFunc={(on) => setDisabledField("motives", on)}
-                            hasChanged={hasParamChanged("motives")}>
+                            hasChanged={hasParamChanged("motives")}
+                            unsuitableToAnalysis={false}>
                                 <Textarea
                                     className="font-normal"
                                     placeholder="Napište motivy nebo slova veršů"
-                                    disabled={disabledFields.motives}
-                                    />
+                                    disabled={disabledFields.motives} />
                         </Section>
                     </AccordionContent>
                 </AccordionItem>
@@ -158,45 +177,51 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                         <Section
                             title="Počet veršů"
                             titleValue={String(currentValues.versesCount)}
+                            getSwitchValue={() => disabledFields.versesCount}
                             switchFunc={(on) => setDisabledField("versesCount", on)}
-                            hasChanged={hasParamChanged("versesCount")}>
+                            hasChanged={hasParamChanged("versesCount")}
+                            unsuitableToAnalysis={false}>
                                 <Slider
-                                    defaultValue={[defaultApiParams.gen.versesCount]}
+                                    defaultValue={[currentValues.versesCount]}
                                     min={apiParams.gen.versesCount.min}
                                     max={apiParams.gen.versesCount.max}
                                     step={2}
                                     onValueChange={(v) => setParam("versesCount", v[0])}
-                                    disabled={disabledFields.versesCount}
-                                />
+                                    disabled={disabledFields.versesCount} />
                         </Section>
                         <Section
                             title="Počet slabik v prvním verši"
                             titleValue={String(currentValues.syllablesCount)}
+                            getSwitchValue={() => disabledFields.syllablesCount}
                             switchFunc={(on) => setDisabledField("syllablesCount", on)}
-                            hasChanged={hasParamChanged("syllablesCount")}>
+                            hasChanged={hasParamChanged("syllablesCount")}
+                            unsuitableToAnalysis={
+                                !disabledFields.syllablesCount &&
+                                !!currentAnalysisValues.syllableCountEntropy &&
+                                (currentAnalysisValues.syllableCountEntropy > analysisTresholdValues.syllableCountEntropy)
+                            }>
                                 <Slider
-                                    defaultValue={[defaultApiParams.gen.syllablesCount]}
+                                    defaultValue={[currentValues.syllablesCount]}
                                     min={apiParams.gen.syllablesCount.min}
                                     max={apiParams.gen.syllablesCount.max}
                                     step={1}
                                     onValueChange={(v) => setParam("syllablesCount", v[0])}
-                                    disabled={disabledFields.syllablesCount}
-                                />
+                                    disabled={disabledFields.syllablesCount} />
                         </Section>
                         <Section
                             title="Temperature"
                             titleValue={String(currentValues.temperature)}
                             switchFunc={(on) => setDisabledField("temperature", on)}
+                            getSwitchValue={() => disabledFields.temperature}
                             hasChanged={hasParamChanged("temperature")}
-                            >
+                            unsuitableToAnalysis={false}>
                                 <Slider
-                                    defaultValue={[defaultApiParams.gen.temperature]}
+                                    defaultValue={[currentValues.temperature]}
                                     min={apiParams.gen.temperature.min}
                                     max={apiParams.gen.temperature.max}
                                     step={0.1}
                                     onValueChange={(v) => setParam("temperature", v[0])}
-                                    disabled={disabledFields.temperature}
-                                />
+                                    disabled={disabledFields.temperature} />
                         </Section>
                     </AccordionContent>
                 </AccordionItem>
