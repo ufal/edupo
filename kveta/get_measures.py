@@ -128,7 +128,7 @@ if __name__=="__main__":
         parameters['metre'] = sys.argv[3]
     with open(sys.argv[1], 'r') as file:
         input_text = ""
-        if filename.endswith('.json'):
+        if sys.argv[1].endswith('.json'):
             # convert json to raw txt
             data = json.load(file)
             for s in range(len(data[0]["body"])):
