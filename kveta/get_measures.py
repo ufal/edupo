@@ -115,7 +115,7 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1)
             }
 
-def get_measures(input_txt, parameters):
+def get_measures(input_txt, parameters={}):
 
     data, k = okvetuj(input_txt)
 
