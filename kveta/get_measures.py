@@ -141,10 +141,9 @@ if __name__=="__main__":
             results = get_measures(input_text, parameters)
         except:
             print('ERROR while processing file:', sys.argv[1], file=sys.stderr)
-        raise
         print('Unknown words:', results['unknown_words'])
         print('Rhyming:', results['rhyming'])
-        print('Rhyming accuracy:', results['rhyming_accuracy'])
+        print('Rhyming accuracy:', results['rhyme_scheme_accuracy'])
         print('Rhyming consistency:', results['rhyming_consistency'])
         print('Metre accuracy:', results['metre_accuracy'])
         print('Metre consistency:', results['metre_consistency'])
