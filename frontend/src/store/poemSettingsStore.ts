@@ -101,9 +101,17 @@ export const usePoemParams = create<PoemParamsState>((set, get) => ({
 
   hasParamChanged: (key) => {
     const { initialValues, currentValues, initialDisabledFields, disabledFields } = get();
-    return (
-      !isEqual(initialValues[key], currentValues[key]) ||
-      initialDisabledFields[key] !== disabledFields[key]
-    );
-  },
+  
+    const isDisabled = disabledFields[key];
+    const wasDisabled = initialDisabledFields[key];
+  
+    const valueChanged = !isEqual(initialValues[key], currentValues[key]);
+    const disabledChanged = wasDisabled !== isDisabled;
+  
+    if (isDisabled) {
+      return disabledChanged;
+    }
+  
+    return valueChanged || disabledChanged;
+  }
 }));

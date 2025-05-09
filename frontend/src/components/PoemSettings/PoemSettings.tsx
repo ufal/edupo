@@ -1,4 +1,6 @@
 "use client"
+import { useEffect } from "react";
+
 import { usePoemParams } from "@/store/poemSettingsStore";
 import { usePoemAnalysis } from "@/store/poemAnalysisStore";
 
@@ -52,6 +54,14 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
     }))
   }
 
+  useEffect(() => {
+    const validSchemes = apiParams.gen.rhymeScheme[currentValues.versesCount as 4 | 6] || [];
+    
+    if (!validSchemes.includes(currentValues.rhymeScheme)) {
+      setParam("rhymeScheme", validSchemes[0] ?? "");
+    }
+  }, [currentValues.versesCount]);
+
   return (
     <div className="flex flex-col h-full">
         <div className={"flex-1 overflow-y-auto px-docOffsetXSmall tablet:px-docOffsetXBig pb-4"} style={{ maxHeight: "calc(100vh - 64px - 64px - 40px - 8px - 64px)"}}>
@@ -73,7 +83,9 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                     { label: "Karel Jaromír Erben", value: "Karel Jaromír Erben" },
                                     { label: "Jaroslav Vrchlický", value: "Jaroslav Vrchlický" }
                                 ]}
-                                disabled={disabledFields.author} />
+                                disabled={disabledFields.author}
+                                value={currentValues.author}
+                                onChange={(v) => setParam("author", v)} />
                         </Section>
                         <Section
                             title="Název"
@@ -87,7 +99,9 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                         { label: "Polednice", value: "Polednice" },
                                         { label: "Za trochu lásky", value: "Za trochu lásky" }
                                     ]}
-                                    disabled={disabledFields.name} />
+                                    disabled={disabledFields.name}
+                                    value={currentValues.name}
+                                    onChange={(v) => setParam("name", v)} />
                         </Section>
                     </AccordionContent>
                 </AccordionItem>
@@ -108,7 +122,9 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                         { label: "Romantismus", value: "Romantismus" },
                                         { label: "Impresionismus", value: "Impresionismus" }
                                     ]}
-                                    disabled={disabledFields.style} />
+                                    disabled={disabledFields.style}
+                                    value={currentValues.style}
+                                    onChange={(v) => setParam("style", v)} />
                         </Section>
                         <Section
                             title="Forma"
@@ -124,7 +140,9 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                         { label: "Sonet", value: "Sonet" },
                                         { label: "Rondel", value: "Rondel" }
                                     ]}
-                                    disabled={disabledFields.form} />
+                                    disabled={disabledFields.form}
+                                    value={currentValues.form}
+                                    onChange={(v) => setParam("form", v)} />
                         </Section>
                         <div className="flex flex-row gap-6">
                             <div className="w-1/2 flex flex-col gap-2">
@@ -138,7 +156,9 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                             highlighted={hasParamChanged("metre")}
                                             placeholder="Metrum"
                                             data={inputParams.metre || []}
-                                            disabled={disabledFields.metre} />
+                                            disabled={disabledFields.metre}
+                                            value={currentValues.metre}
+                                            onChange={(v) => setParam("metre", v)} />
                                 </Section>
                             </div>
                             <div className="w-1/2 flex flex-col gap-2">
@@ -152,7 +172,9 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                             highlighted={hasParamChanged("rhymeScheme")}
                                             placeholder="Schéma"
                                             data={inputParams.rhymeScheme || []}
-                                            disabled={disabledFields.rhymeScheme} />
+                                            disabled={disabledFields.rhymeScheme}
+                                            value={currentValues.rhymeScheme}
+                                            onChange={(v) => setParam("rhymeScheme", v)} />
                                 </Section>
                             </div>
                         </div>

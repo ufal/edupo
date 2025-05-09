@@ -46,6 +46,10 @@ h3 {
     --slate-dark: #475569;
     --slate-middle: #cbd5e1;
     --slate-soft: #e2e8f0;
+    --slate-200: #E2E8F0;
+    --slate-200-transparent: #e2e8f04d;
+    --slate-300: #CBD5E1;
+    --slate-700: #334155;
 
     --green-dark: #059669;
     --green-middle: #6ee7b7;
@@ -59,6 +63,26 @@ h3 {
     --yellow-soft: #fef08a;
     --yellow-supersoft: #fffadc;
 
+    --pink-200: #FBCFE8;
+    --pink-200-transparent: #FBCFE84D;
+    --pink-300: #F9A8D4;
+    --pink-600: #DB2777;
+
+    --teal-200: #99F6E4;
+    --teal-200-transparent: #99F6E44D;
+    --teal-300: #5EEAD4;
+    --teal-600: #0D9488;
+
+    --sky-200: #BAE6FD;
+    --sky-200-transparent: #BAE6FD4D;
+    --sky-300: #7DD3FC;
+    --sky-600: #0284C7;
+
+    --yellow-200: #FEF08A;
+    --yellow-200-transparent: #FEF08A4D;
+    --yellow-300: #FDE047;
+    --yellow-600: #CA8A04;
+
     --gray-dark: #3f3f46;
     --gray-middle: #52525b;
     --gray-soft: #71717a;
@@ -67,6 +91,9 @@ h3 {
     --silver-middle: #e4e4e7;
     --silver-soft: #f4f4f4;
     --silver-transparent: #A1A1AA33;
+
+    --zinc-100: #F4F4F5;
+    --zinc-200: #E4E4E7;
 
     --creamy: #fafafa;
 

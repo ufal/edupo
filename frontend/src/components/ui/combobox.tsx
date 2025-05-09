@@ -31,11 +31,13 @@ interface ComboboxParams {
   highlighted?: boolean;
   placeholder: string;
   data: ComboboxDataEntry[];
+
+  value: string;
+  onChange: (value: string) => void;
 }
 
-export function Combobox({ searchInput, placeholder, data, disabled, highlighted } : ComboboxParams) {
-  const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
+export function Combobox({ searchInput, placeholder, data, disabled, highlighted, value, onChange } : ComboboxParams) {
+  const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -66,20 +68,11 @@ export function Combobox({ searchInput, placeholder, data, disabled, highlighted
                   key={d.value}
                   value={d.value}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
-                    setOpen(false)
+                    const newValue = currentValue === value ? "" : currentValue;
+                    onChange(newValue);
+                    setOpen(false);
                   }}
                 >
-                  {
-                    /*
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          value === d.value ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                    */
-                  }
                   {d.label}
                 </CommandItem>
               ))}

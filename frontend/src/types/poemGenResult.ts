@@ -3,4 +3,5 @@ export interface PoemGenResult {
   error: string | null;
   authorName: string | null;
   poemLines: string[] | null;
+  rhymeScheme: string | null;
 }

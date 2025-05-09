@@ -19,7 +19,8 @@ const initPoemGenResult: PoemGenResult = {
   loading: true,
   error: null,
   authorName: null,
-  poemLines: null
+  poemLines: null,
+  rhymeScheme: null
 }
 
 export default function Home() {
@@ -91,7 +92,8 @@ export default function Home() {
       loading: true,
       error: poemGenResult.error,
       authorName: poemGenResult.authorName,
-      poemLines: poemGenResult.poemLines
+      poemLines: poemGenResult.poemLines,
+      rhymeScheme: poemGenResult.rhymeScheme
     });
 
     try {
@@ -177,16 +179,32 @@ export default function Home() {
         throw new Error("Poem appears to be empty");
       }
 
+      const rawText = data.rawtext;
+
+      if (typeof rawText !== "string" || rawText.trim() === "") {
+        throw new Error("Missing or invalid 'rawtext' in response");
+      }
+
+      const firstLine = rawText.split("\n")[0];
+      const parts = firstLine.split("#");
+  
+      if (parts.length < 2) {
+        throw new Error("Poem rawText is not in expected format");
+      }
+  
+      const scheme = parts[1].trim();
+
       setPoemId(data.id);
-      
       setParam("poemLines", lines);
+      setParam("rhymeScheme", scheme);
       updateInitialValues();
 
       setPoemGenResult({
           loading: false,
           error: null,
           authorName: data.author_name || null,
-          poemLines: lines
+          poemLines: lines,
+          rhymeScheme: scheme
       });
 
       fetchAnalysis(data.id);
@@ -197,7 +215,8 @@ export default function Home() {
           loading: false,
           error: err.message || "Unknown error",
           authorName: null,
-          poemLines: null
+          poemLines: null,
+          rhymeScheme: null
       });
     }
 

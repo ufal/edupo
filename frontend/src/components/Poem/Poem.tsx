@@ -1,7 +1,5 @@
 import PoemTitle from "./PoemTitle";
-import PoemAnalysis from "./Modes/PoemAnalysis";
-import PoemEditing from "./Modes/PoemEditing";
-import PoeamReading from "./Modes/PoemReading/PoemReading";
+import PoemContent from "./PoemContent/PoemContent";
 import PoemModeSwitcher from "./PoemModeSwitcher";
 import Footer from "@/components/layout/Footer";
 
@@ -19,9 +17,9 @@ export default function Poem({ poemGenResult, sidePanelControlElement }: PoemPro
               authorName={poemGenResult.authorName}
               sidePanelControlElement={sidePanelControlElement} />
             <PoemModeSwitcher
-              readingModeContent={<PoeamReading poemGenResult={poemGenResult} />}
-              analysisModeContent={<PoemAnalysis poemGenResult={poemGenResult} />}
-              editingModeContent={<PoemEditing poemGenResult={poemGenResult} />} />
+              readingModeContent={<PoemContent poemGenResult={poemGenResult} linesMode="plaintext" />}
+              analysisModeContent={<PoemContent poemGenResult={poemGenResult} linesMode="highlighted" />}
+              editingModeContent={<PoemContent poemGenResult={poemGenResult} linesMode="editable" />} />
             <Footer />
         </div>
     )
