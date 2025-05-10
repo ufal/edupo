@@ -53,7 +53,7 @@ AUTHORS = open('authors', 'r').read().splitlines()
 
 def load_models(modelspec=None):
 
-    logging.info(f"Loading model {modelspec}")
+    logging.info(f"Loading model {modelspec} {MODEL_TM if modelspec == 'tm' else MODEL_MC}")
 
     if modelspec == 'mc':
         # load Michal's model
@@ -563,9 +563,13 @@ if __name__=="__main__":
     argparser.add_argument('--json', type=str, help='JSON file to use')
     argparser.add_argument('--clean', action='store_true', help='Clean output')
     argparser.add_argument('--clean_json', action='store_true', help='Clean JSON output')
+    argparser.add_argument('--checkpoint', type=str, help='Checkpoint to use')
     args = argparser.parse_args()
 
     assert args.model in ['mc', 'tm']
+
+    if args.checkpoint:
+        MODEL_TM = args.checkpoint
 
     if args.verbose:
         VERBOSE_INFO = True
