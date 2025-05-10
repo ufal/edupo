@@ -34,7 +34,7 @@ jobs:
             echo \"sshing into edupo\"
             ssh dosoudil@edupo '
               source .bashrc
-              cd www/edupo-frontend
+              cd www/edupo/frontend
               git pull
               npm run build
               pm2 restart ecosystem.config.cjs
