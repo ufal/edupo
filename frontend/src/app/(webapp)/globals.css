@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+h3 {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@layer base {
+  :root {
+    /* UK colors */
+    --cardinal-red: #d22d40;
+    --university-blue: #003657;
+
+    /* EduPo colors */
+    --crimson-red: #e11d48;
+    
+    --red-dark: #dc2626;
+    --red-middle: #fca5a5;
+    --red-soft: #fecaca;
+    --red-supersoft: #ffefef;
+
+    --blue-dark: #0284c7;
+    --blue-middle: #7dd3fc;
+    --blue-soft: #bae6fd;
+    --blue-supersoft: #eaf7fe;
+    --blue-sky: #0ea5e9;
+    
+    --blue-charcoal: #334155;
+
+    --slate-dark: #475569;
+    --slate-middle: #cbd5e1;
+    --slate-soft: #e2e8f0;
+    --slate-200: #E2E8F0;
+    --slate-200-transparent: #e2e8f04d;
+    --slate-300: #CBD5E1;
+    --slate-700: #334155;
+
+    --green-dark: #059669;
+    --green-middle: #6ee7b7;
+    --green-soft: #a7f3d0;
+    --green-supersoft: #e4fbf1;
+
+    --lime: #22C55E;
+
+    --yellow-dark: #CA8A04;
+    --yellow-middle: #FDE047;
+    --yellow-soft: #fef08a;
+    --yellow-supersoft: #fffadc;
+
+    --pink-200: #FBCFE8;
+    --pink-200-transparent: #FBCFE84D;
+    --pink-300: #F9A8D4;
+    --pink-600: #DB2777;
+
+    --teal-200: #99F6E4;
+    --teal-200-transparent: #99F6E44D;
+    --teal-300: #5EEAD4;
+    --teal-600: #0D9488;
+
+    --sky-200: #BAE6FD;
+    --sky-200-transparent: #BAE6FD4D;
+    --sky-300: #7DD3FC;
+    --sky-600: #0284C7;
+
+    --yellow-200: #FEF08A;
+    --yellow-200-transparent: #FEF08A4D;
+    --yellow-300: #FDE047;
+    --yellow-600: #CA8A04;
+
+    --gray-dark: #3f3f46;
+    --gray-middle: #52525b;
+    --gray-soft: #71717a;
+    --gray-supersoft: #848485;
+
+    --silver-middle: #e4e4e7;
+    --silver-soft: #f4f4f4;
+    --silver-transparent: #A1A1AA33;
+
+    --zinc-100: #F4F4F5;
+    --zinc-200: #E4E4E7;
+
+    --creamy: #fafafa;
+
+    --black: #09090b;
+    --black-soft: #3f3f46;
+    --black-shadow: #00000033;
+
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}

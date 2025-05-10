@@ -8,7 +8,7 @@ class Syllables:
         Initialize Syllables
         '''
         self.SYLLABLE_PEAKS = "aeiouáéíóúAEORLMBPJKV@"
-        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y|ü", "o": "o|au", "u": "u", "á": "á|aa|à", "é": "é|ai|ö|ae|ei|ee|oe|ä|è", "í": "í|ý|ü|ie|ee", "ó": "ó", "ú": "ú|ů|ou", "A": "au", "E": "eu", "O": "ou", "R": "r", "L": "l", "M": "m", "P": "ř", "B": "n", "J": "s", "K": "š", "Y": "z", "V": "ž", "@": "@"}
+        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y|ü", "o": "o|au", "u": "u", "á": "á|aa|à", "é": "é|ai|ö|ae|ei|ee|oe|ä|è", "í": "í|ý|ü|ie|ee", "ó": "ó", "ú": "ú|ů|ou", "A": "au", "E": "eu", "O": "ou", "R": "r", "Ř": "ř", "L": "l", "M": "m", "P": "m", "B": "n", "J": "s", "K": "š", "Y": "z", "V": "ž", "@": "@"}
         self.LONG_PEAKS = "áéíóúAEO"
 
         self.VOWELS = "aàáäâåeèéêȩiìíîoòóöôuùüůúûyýæøїаеёиоуыэюя"
@@ -182,12 +182,12 @@ class Syllables:
             text_from_syllables = ""
             for w, word in enumerate(line['words']):
                 if 'punct_before' in word:
-                    text_from_syllables += word['punct_before'].replace(' ','')
+                    text_from_syllables += word['punct_before']
                 for s, syllable in enumerate(word['syllables']):
-                    text_from_syllables += syllable['ort_consonants'].replace('_','')+syllable['ort_vowels']+syllable['ort_end_consonants']
-                if 'punct' in word:
-                    text_from_syllables += word['punct'].replace(' ','')
-            original_text = line['text'].replace(' ', '')
+                    text_from_syllables += syllable['ort_consonants'].replace('_',' ')+syllable['ort_vowels']+syllable['ort_end_consonants']
+                if word['syllables'] and 'punct' in word:
+                    text_from_syllables += word['punct']
+            original_text = line['text']
             if text_from_syllables != original_text:
                 print("WARNING: different text in syllables:", text_from_syllables, "vs.", original_text, file=sys.stderr)
         return poem

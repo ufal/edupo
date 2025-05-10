@@ -10,6 +10,8 @@ import kveta
 filename = sys.argv[1]
 output_filename = sys.argv[2]
 
+print("Processing", filename, file=sys.stderr)
+
 f = open(filename, "r")
 data = json.load(f)
 stanza = 0
@@ -29,7 +31,7 @@ data[0]["body"] = kveta.okvetuj_ccv(new_body)
 #new_body = rt.mark_reduplicants(new_body)
 #data[0]["body"] = new_body
 
- # evaluate counts of syllables
+# evaluate counts of syllables
 for i, l in enumerate(new_body):
     syll_cnt_our = 0
     for j, w in enumerate(l['words']):

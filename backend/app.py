@@ -3,7 +3,7 @@
 
 from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response, send_file
 from flask_cors import CORS
-from itertools import groupby
+from itertools import groupby, repeat
 import os
 # from gen import generuj, load_models
 import show_poem_html
@@ -20,6 +20,7 @@ import sys
 sys.path.append("../kveta")
 sys.path.append("../scripts/diphthongs")
 from kveta import okvetuj, okvetuj_ccv
+from get_measures import get_measures_from_analyzed_poem
 
 app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
@@ -201,6 +202,12 @@ def text2id(text, add_timestamp=True):
     else:
         return hash64
 
+def listgen():
+    """
+    List generated poem IDs
+    """
+    return [f for f in os.listdir(POEMFILES) if f.endswith('.json') and '_' in f]
+
 # TODO do we need to run show_poem_html.show() always?
 def get_poem_by_id(poemid=None, random_if_no_id=False):
     """If poemid is None, then get it from get/post arguments. If not set,
@@ -215,10 +222,15 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
                 return None
 
     if poemid == 'RANDOMGEN':
-        poemids = [f for f in os.listdir(POEMFILES) if f.endswith('.json')]
+        poemids = listgen()
         poemid = random.choice(poemids)
 
-    if os.path.isfile(f"{POEMFILES}/{poemid}.json") or os.path.isfile(f"{POEMFILES}/{poemid}"):
+    # check if path is allowed (do not allow traversing parent dirs)
+    requested = os.path.abspath(f"{POEMFILES}/{poemid}")
+    basedir = os.path.abspath(POEMFILES)
+    path_allowed = (basedir == os.path.commonpath((basedir, requested)))
+
+    if path_allowed and (os.path.isfile(f"{POEMFILES}/{poemid}.json") or os.path.isfile(f"{POEMFILES}/{poemid}")):
         # TODO always analyze ???
         #    kveta_result = okvetuj(data['plaintext'])
         #    data['body'] = kveta_result[0][0]['body']
@@ -431,7 +443,7 @@ def call_showlist():
 
 @app.route("/showlistgen", methods=['GET', 'POST'])
 def call_showlistgen():
-    poemids = [f for f in os.listdir(POEMFILES) if f.endswith('.json')]
+    poemids = listgen()
     poemids.sort(reverse=True)
     html = render_template('showlistgen.html', poemids=poemids)
     text = "\n".join(poemids)
@@ -475,7 +487,19 @@ def call_analyze():
     else:
         kveta_result = okvetuj(data['plaintext'])
         data['body'] = kveta_result[0][0]['body']
-    
+        # metrics
+        parameters = {}
+        if 'geninput' in data:
+            # is generated
+            rhyme_scheme = data['geninput'].get('rhyme_scheme', '')
+            metre = data['geninput'].get('metre', '')
+            if rhyme_scheme:
+                parameters['rhyme_scheme'] = rhyme_scheme
+            if metre:
+                parameters['metre'] = metre
+        data['measures'] = get_measures_from_analyzed_poem(
+                data['body'], parameters)
+
     store(data)
 
     return return_accepted_type_for_poemid(data)
@@ -634,9 +658,9 @@ def call_generate_openai():
 @app.route("/logs", methods=['GET', 'POST'])
 def call_logs():
     n = int(get_post_arg('n', '20'))
-    backlog = sorted([f for f in os.listdir('logs') if f.endswith('.log')])[-1]
+    backlog = sorted([f for f in os.listdir('logs') if f.startswith('app.')])[-1]
     frontlog = sorted([f for f in os.listdir('../frontend/logs') if f.endswith('.log')])[-1]
-    filenames = ['../autodeploy.log', f"../frontend/logs/{frontlog}", f"../backend/logs/{backlog}"]
+    filenames = ['../autodeploy.log', f"../frontend/logs/{frontlog}", f"../backend/logs/{backlog}", f"../backend/logs/gen_mc.log", f"../backend/logs/gen_tm.log"]
 
     result = list()
     for filename in filenames:
@@ -650,6 +674,126 @@ def call_logs():
     html = f"<pre>{text}</pre>"
 
     return return_accepted_type(text, result, html)
+
+@app.route("/testovani", methods=['GET', 'POST'])
+def call_tests():
+    def get_question(filename, line):
+        with open('testovani_data/' + filename) as f:
+            lines = f.readlines()
+            if line >= len(lines):
+                return None
+            return json.loads(lines[line])
+    def test2res(tst):
+        data = zip(tst['otazky'], tst['odpovedi'])
+        #return list(data)
+        res = {}
+        for q, a in data:
+            if a == 'A':
+                res[q[0][0]] = res.get(q[0][0], 0) + 1
+            elif a == 'B':
+                res[q[1][0]] = res.get(q[1][0], 0) + 1
+            elif a == '=':
+                res['='] = res.get('=', 0) + 1
+            else:
+                assert False, "Invalid answer"
+        return tst['jmeno'], res
+    def sumres(res, byAuthor=False):
+        if byAuthor:
+            total = defaultdict(lambda: defaultdict(int))
+        else:
+            total = defaultdict(int)
+        for a, r in res:
+            for k, v in r.items():
+                if byAuthor:
+                    total[a][k] += v
+                else:
+                    total[k] += v
+        if byAuthor:
+            total = {k: dict(v) for k, v in total.items()}
+        return total
+    def counts():
+        counts = defaultdict(int)
+        for filename in os.listdir('testovani_data/results'):
+            with open('testovani_data/results/' + filename) as f:
+                data = json.load(f)
+                counts[data['test']] += 1
+        return counts
+    with open('testovani_data/testy') as f:
+        testy = f.readlines()
+        testy = [t for t in testy if t[0] != '#']
+        testy_ids = [t.split(';')[0] for t in testy]
+        testy = [t.strip().split(';') for t in testy]
+        testy = {t[0] : t[1:] for t in testy}
+    tst = get_post_arg('tst')
+    if tst:
+        # probíhá test
+        hlas = get_post_arg('hlas')
+        assert hlas, "Hlasování musí být zadáno"
+        tst = json.loads(tst)
+        tst['odpovedi'].append(hlas)
+        if len(tst['odpovedi']) == len(tst['otazky']):
+            # test skončil
+            filename = text2id(tst['jmeno'])
+            with open('testovani_data/results/' + filename + '.json', 'w') as f:
+                json.dump(tst, f, ensure_ascii=False, indent=4)
+            return render_template('testovani.html', t=tst['test'], hotovo=filename)
+        i = len(tst['odpovedi'])
+        return render_template('testovani.html',
+                               t=tst['test'],
+                               qa=get_question(*tst['otazky'][i][0]),
+                               qb=get_question(*tst['otazky'][i][1]),
+                               tst=json.dumps(tst),
+                               instrukce=testy[tst['test']][2]
+                               )
+    t = get_post_arg('t')
+    # neznáme test, zobrazíme rozcestník
+    if not t:
+        return render_template('testovani.html', testy=testy_ids, pocty=counts())
+    # známe test 
+    res = get_post_arg('res')
+    jmeno = get_post_arg('jmeno')
+    if res: # výsledky
+        dataset = []
+        for filename in os.listdir('testovani_data/results'):
+            with open('testovani_data/results/' + filename) as f:
+                data = json.load(f)
+                if data['test'] == t:
+                    dataset.append(data)
+        if len(dataset) == 0:
+            res = "Zatím nikdo nevyplnil tento test."
+            return render_template('testovani.html', t=t, res=res)
+        else:
+            res = "Výsledky testu:"
+            return render_template('testovani.html',
+                                   t=t,
+                                   res=res,
+                                   res_data=sumres([test2res(d) for d in dataset]),
+                                   author_data = sumres([test2res(d) for d in dataset], byAuthor=True),
+                                   )
+    elif jmeno: # vyrobíme nový test
+        acka = open('testovani_data/' + testy[t][0]).readlines()
+        bcka = open('testovani_data/' + testy[t][1]).readlines()
+        a_ids = list(zip(repeat(testy[t][0]), random.sample(range(len(acka)), 10)))
+        b_ids = list(zip(repeat(testy[t][1]), random.sample(range(len(bcka)), 10)))
+        tst=list(zip(a_ids, b_ids))
+        for i in range(len(tst[-1])):
+            if random.choice([True, False]):
+                tst[i] = (tst[i][1], tst[i][0])
+        tst = {
+            'test': t,
+            'jmeno': jmeno,
+            'otazky': tst,
+            'odpovedi': [],
+        }
+        return render_template('testovani.html',
+                               t=t,
+                               qa=get_question(*tst['otazky'][0][0]),
+                               qb=get_question(*tst['otazky'][0][1]),
+                               tst=json.dumps(tst),
+                               instrukce=testy[t][2]
+                               )
+    else: # formulář na zadání jména
+        return render_template('testovani.html', t=t)
 
 @app.errorhandler(ExceptionPoemInvalid)
 def handle_exception(e):

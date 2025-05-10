@@ -190,3 +190,8 @@ span.rhyming {
     white-space: pre-wrap;
 }
 
+table.stanza td {
+    padding: 0.4em 0.6em;
+    border-bottom: 1px solid #e5e7eb;
+}
+

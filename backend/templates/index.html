@@ -3,45 +3,31 @@
 <head>
     <meta charset="utf-8">
     <title>EduPo</title>
-    <style>
-        /*input {display: block;}*/
-        textarea {width: 80%; height: 20em;}
-        .logo {max-width: 100%; max-height: 10em;}
-        html {background-color: whitesmoke;}
-        body {
-            font-family: sans-serif;
-            margin: 2em 2em 2em 2em;
-            padding: 1em 1em 1em 1em;
-            background-color: ivory;
-        }
-
-    </style>
     <script src="static/randomnoun.js" defer></script>
+    <script src="static/reactivate_fields.js" defer></script>
     <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
 
 <h1>EduPo</h1>
 
-<hr>
-<h2>Náhodná báseň</h2>
+<h2>i<i class="fas fa-random"></i> Náhodná báseň</h2>
 <a href="show?poemid=RANDOMGEN">Zobrazit náhodnou vygenerovanou báseň</a>
-<hr>
 
-<h2>Generovat báseň</h2>
+<h2><i class="fas fa-pen-nib"></i> Generovat báseň</h2>
 {% include 'gen_input.html' %}
-<hr>
 
-<h2>Interaktivně generovat báseň</h2>
+<h2><i class="fas fa-comments"></i> Interaktivně generovat báseň</h2>
 {% include 'interactive_gen_input.html' %}
-<hr>
 
-<h2>Analyzovat báseň</h2>
+<h2><i class="fas fa-chart-bar"></i> Analyzovat báseň</h2>
 {% include 'ana_input.html' %}
-<hr>
 
-<h2>Zobrazit báseň</h2>
-TODO nějaké vybrané ukázky? A/nebo náhodně nějakou báseň z korpusu? Vybrané autory?
+<h2><i class="fas fa-book-open"></i> Zobrazit báseň</h2>
+<!--TODO nějaké vybrané ukázky? A/nebo náhodně nějakou báseň z korpusu?
+    Vybrané autory?-->
 <ul>
 <li><a href="show">(náhodná báseň)</a></li>
 <li><a href="show?poemid=78467">Rokyta: Buben</a></li>
@@ -57,18 +43,18 @@ TODO nějaké vybrané ukázky? A/nebo náhodně nějakou báseň z korpusu? Vyb
 <li><a href="showlistgen">vygenerované básně...</a></li>
 </ul>
 
-<h2>Najít báseň</h2>
+<h2><i class="fas fa-search"></i> Najít báseň</h2>
 Najít báseň podle části textu (může to trvat dlouho)
 
 {% include 'search_input.html' %}
 
-<h2>Chat s básníkem</h2>
-Chceme tohle taky?
+<h2><i class="fas fa-user-pen"></i> Chat s básníkem</h2>
+<!-- Chceme tohle taky? -->
 <ul>
     <li><a href="https://chatgpt.com/g/g-nK2NG9nHG-jiri-wolker-2-0">Chat s Jiřím Wolkerem</a></li>
 </ul>
 
-<h2>Dozvědět se více</h2>
+<!--<h2>Dozvědět se více</h2>
 TODO Tady nějaké vzdělávací materiály které připraví ÚČL a ÚFAL ve spolupráci
 s DID.
 <ul>
@@ -81,9 +67,9 @@ TODO
 <ul>
     <li>Metodika</li>
     <li>Pracovni lísty</li>
-</ul>
+</ul>-->
 
-<h2>Tiráž</h2>
+<h2><i class="fas fa-info-circle"></i> Tiráž</h2>
 
 <p>Aplikace byla vytvořena v rámci projektu <a
     href="https://ufal.mff.cuni.cz/grants/edupo">EduPo</a>, na kterém se
@@ -98,14 +84,15 @@ a <a href="https://didaktikon.cz/">Didaktikon UK</a>.
     title="Tento projekt je spolufinancován se státní podporou Technologické agentury ČR v rámci Programu SIGMA DC3."
     ></a>
 
-<p>TODO logo ÚFAL, DIDAKTIKON, AVČR, VŠVU.</p>
+<!--<p>TODO logo ÚFAL, DIDAKTIKON, AVČR, VŠVU.</p>-->
 
 <p>The work described herein has also been using data, tools and services provided by the LINDAT/CLARIAH-CZ Research Infrastructure (https://lindat.cz), supported by the Ministry of Education, Youth and Sports of the Czech Republic (Project No. LM2023062).</p>
 
-<p>Software je zveřejněný <a href="https://github.com/ufal/edupo">na GitHubu</a> pod <a href="https://wiki.pirati.cz/kci/mit_licence">MIT licencí</a>.</p>
+<p>Software je zveřejněný <a href="https://github.com/ufal/edupo">na <i class="fab fa-github"></i> GitHubu</a> pod <a href="https://wiki.pirati.cz/kci/mit_licence">MIT licencí</a>.</p>
 
 <p><a href="https://github.com/ufal/edupo/blob/main/docs/api_doc.md">Dokumentace REST API </a></p>
 
 </body>
 </html>
+
 

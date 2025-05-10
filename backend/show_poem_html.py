@@ -120,12 +120,15 @@ def get_reduplicant_type(words):
             assert rhyme_from == 'v'
             return '1c'
 
-def construct_syllable_parts(syllable, previous_syllable):
+def construct_syllable_parts(syllable, previous_syllable, prev_punct=' '):
     result = []
     # consonants before
     if syllable["ort_consonants"]:
         part = {}
-        part['text'] = syllable["ort_consonants"].replace('_', NBSP)
+        # když to je přilepená předložka, u ní jsou prázdný syllables ale může
+        # mít punct a tu sem dávám namísto '_'
+        prev_punct_html = prev_punct.replace(' ', NBSP)
+        part['text'] = syllable["ort_consonants"].replace('_', prev_punct_html)
         part['classes'] = []
         part['classes'].append('syllpart')
         part['classes'].append('ort_consonants')
@@ -310,26 +313,34 @@ def show(data):
                 "position": "W",
                 "stress": "0",
                 "after": ""}]
+            prev_punct = ' '
             for word in verse["words"]:
                 if "punct_before" in word:
                     syllables[-1]["after"] += word["punct_before"]
-                # add all syllables
-                for syllable in word["syllables"]:
-                    if 'stress' not in syllable:
-                        syllable['position'] = swv[pointer]
-                        syllable['stress'] = stress[pointer]
-                    parts = construct_syllable_parts(syllable, syllables[-1])
-                    syllables.append({
-                        "parts": parts,
-                        "position": syllable['position'],
-                        "stress": syllable['stress'],
-                        "after": ""})
-                    pointer += 1
-                # mark end of word
-                if "punct" in word:
-                    syllables[-1]["after"] += word["punct"]
-                if not syllables[-1]["after"].endswith(NBSP):
-                    syllables[-1]["after"] += NBSP
+                if word["syllables"]:
+
+                    # add all syllables
+                    for syllable in word["syllables"]:
+                        if 'stress' not in syllable:
+                            syllable['position'] = swv[pointer]
+                            syllable['stress'] = stress[pointer]
+                        parts = construct_syllable_parts(
+                                syllable, syllables[-1], prev_punct)
+                        syllables.append({
+                            "parts": parts,
+                            "position": syllable['position'],
+                            "stress": syllable['stress'],
+                            "after": ""})
+                        pointer += 1
+                    # mark end of word
+                    if "punct" in word:
+                        syllables[-1]["after"] += word["punct"].replace(' ', NBSP)
+                    prev_punct = ' '
+                else:
+                    # tady předpokládám že cokoliv nemá syllables a má
+                    # punctuation tak je neslabičná předložka a ta její
+                    # punctuation se pak nacpe tam kam má skrz replace na '_'
+                    prev_punct = word["punct"]
     
             if reduplicant_type == '2':
                 mark_rhyming(syllables[-2]['parts'], 'v')

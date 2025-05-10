@@ -20,7 +20,8 @@
             Každý verš píšeme společně, generátor ho začne a člověk ho dokončí
         </label><br>
         </p>
-        
+
+        <!--
         <p>Model:
         <select name="modelspec" disabled>
             <option value="mc">základní</option>
@@ -29,6 +30,7 @@
         </p>
 
         <p>Název: <input name="title"> (v základním modelu se ignoruje)</p>
+        -->
 
         <p>Metrum:
         <select name="metre">
@@ -72,7 +74,7 @@
         </select>
         </p>
 
-        <input type="submit" value="Generovat"
+        <input type="submit" value="Generovat" title="Generovat"
         onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
     </form>
 
