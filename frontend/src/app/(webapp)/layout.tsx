@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} font-light w-full flex flex-col min-h-screen bg-uk-pattern bg-repeat antialiased`}>
+      <body className={`${inter.className} font-light w-full flex flex-col min-h-screen bg-repeat antialiased`} style={{ backgroundImage: `url(${process.env.NEXT_PUBLIC_LINK_BASE || "/"}svg/uk-pattern-patterned.svg)` }}>
         <Header />
         <Main cls="flex-1 grid">
           { children }
