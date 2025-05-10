@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import isEqual from "lodash/isequal";
+import isEqual from "lodash.isequal";
 import defaultApiParams from "@/data/api/params-default-values.json";
 
 type ParamValues = {
