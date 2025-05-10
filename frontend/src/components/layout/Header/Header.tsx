@@ -36,7 +36,7 @@ export default function Header() {
             <div className="flex flex-row items-center gap-3">
                 <Link href={process.env.NEXT_PUBLIC_LINK_BASE || "/"}>
                     <div className={crimsonPro.className + " pr-3 text-3xl font-bold border-r-2 border-white"}>
-                        EduPo
+                        EduPox
                     </div>
                 </Link>
     
