@@ -551,7 +551,8 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
             break
         repeat_n -= 1
 
-if __name__=="__main__":
+def parse_args():
+    global MODEL_TM, VERBOSE_INFO, LOAD16BIT, NOSAMPLE
     argparser = argparse.ArgumentParser(description='Generate poetry with LLMs')
     argparser.add_argument('model', type=str, help='Model to use')
     argparser.add_argument('port', type=int, nargs='?', help='Port to use')
@@ -580,7 +581,11 @@ if __name__=="__main__":
 
     if args.greedy:
         NOSAMPLE = True
+    
+    return args
 
+if __name__=="__main__":
+    args = parse_args()
     if args.port:
         main_server(args.model, args.port)
     else:
