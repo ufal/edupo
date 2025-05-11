@@ -25,6 +25,8 @@ export default {
 				redMiddle: 'var(--red-middle)',
 				redSoft: 'var(--red-soft)',
 				redSupersoft: 'var(--red-supersoft)',
+				red200: 'var(--red-200)',
+				red700: 'var(--red-700)',
 				blueDark: 'var(--blue-dark)',
 				blueMiddle: 'var(--blue-middle)',
 				blueSoft: 'var(--blue-soft)',
