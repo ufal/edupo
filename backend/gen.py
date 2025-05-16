@@ -64,29 +64,25 @@ def load_models(modelspec=None):
 
 
     elif modelspec == 'tm':
-        # Try to load unsloth model
-        try:
-            import unsloth
-            from unsloth import FastLanguageModel
-            kwargs = {}
-            if LOAD16BIT:
-                kwargs['dtype'] = torch.bfloat16
-                kwargs['load_in_4bit'] = False
-            else:
-                kwargs['load_in_4bit'] = True
-                logging.info("Loading in 4bit.")
-            model, tokenizer = FastLanguageModel.from_pretrained(
-                MODEL_TM,
-                **kwargs,
-                )
-            FastLanguageModel.for_inference(model)
-            with open('prompt_templates/tm1.txt', 'r') as f:
-                template = parser.Template(f.read())
+        import unsloth
+        from unsloth import FastLanguageModel
+        kwargs = {}
+        if LOAD16BIT:
+            kwargs['dtype'] = torch.bfloat16
+            kwargs['load_in_4bit'] = False
+        else:
+            kwargs['load_in_4bit'] = True
+            logging.info("Loading in 4bit.")
+        model, tokenizer = FastLanguageModel.from_pretrained(
+            MODEL_TM,
+            **kwargs,
+            )
+        FastLanguageModel.for_inference(model)
+        with open('prompt_templates/tm1.txt', 'r') as f:
+            template = parser.Template(f.read())
 
-            #logging.info(f"model_tm: {model_tm}")
-            #logging.info(f"tokenizer_tm: {tokenizer_tm}")
-        except:
-            logging.exception("EXCEPTION Nejde načíst unsloth model.")
+        #logging.info(f"model_tm: {model_tm}")
+        #logging.info(f"tokenizer_tm: {tokenizer_tm}")
     else:
         logging.exception("EXCEPTION Nebyl vybrán model.")
 
