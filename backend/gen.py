@@ -488,8 +488,18 @@ def generuj_tm(model, tokenizer, template, params_orig):
 
     return poem, verses, author_name, title
 
-def generuj(model, tokenizer, template, params):
+import copy
+def generuj(model, tokenizer, template, params, params_immutable=True):
     logging.info(f'Generating with params: {params}')
+    """
+    If params_immutable is True, makes a deep copy of params and does not
+    modify params.
+    Otherwise params are modified inside the process.
+    """
+
+    if params_immutable:
+        params = copy.deepcopy(params)
+
     if params.get('modelspec') == 'tm':
         return generuj_tm(model, tokenizer, template, params)
     else:
@@ -508,7 +518,7 @@ def main_server(modelspec, port):
     while True:
         params = json.loads(socket.recv())
         params['modelspec'] = modelspec
-        result = json.dumps(generuj(model, tokenizer, template, params))
+        result = json.dumps(generuj(model, tokenizer, template, params, False))
         socket.send_string(result)
 
 def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_output=False):
