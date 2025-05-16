@@ -13,7 +13,7 @@
 
 {% if t %}
 <a href="testovani">Rozcestník</a>
-<h2>Test {{ t }}{% if res %} – výsledky{% endif %}</h2>
+<h2>Test {{ t }}{% if res %} – výsledky{% endif %}{% if progress %} <span class="progress">{{progress}}</span>{% endif %}</h2>
     {% if hotovo %}
     <p>Děkujeme za vyplnění.</p>
     {{ hotovo }}

@@ -743,7 +743,8 @@ def call_tests():
                                qa=get_question(*tst['otazky'][i][0]),
                                qb=get_question(*tst['otazky'][i][1]),
                                tst=json.dumps(tst),
-                               instrukce=testy[tst['test']][2]
+                               instrukce=testy[tst['test']][2],
+                               progress=str(len(tst['odpovedi']) + 1) + '/' + str(len(tst['otazky'])),
                                )
     t = get_post_arg('t')
     # neznáme test, zobrazíme rozcestník
@@ -790,7 +791,8 @@ def call_tests():
                                qa=get_question(*tst['otazky'][0][0]),
                                qb=get_question(*tst['otazky'][0][1]),
                                tst=json.dumps(tst),
-                               instrukce=testy[t][2]
+                               instrukce=testy[t][2],
+                               progress=str(len(tst['odpovedi']) + 1) + '/' + str(len(tst['otazky'])),
                                )
     else: # formulář na zadání jména
         return render_template('testovani.html', t=t)
