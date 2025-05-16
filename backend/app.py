@@ -776,7 +776,7 @@ def call_tests():
         a_ids = list(zip(repeat(testy[t][0]), random.sample(range(len(acka)), 10)))
         b_ids = list(zip(repeat(testy[t][1]), random.sample(range(len(bcka)), 10)))
         tst=list(zip(a_ids, b_ids))
-        for i in range(len(tst[-1])):
+        for i in range(len(tst)):
             if random.choice([True, False]):
                 tst[i] = (tst[i][1], tst[i][0])
         tst = {
