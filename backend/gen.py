@@ -531,6 +531,7 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
             'anaphors': [],
             'epanastrophes': [],
             }
+    i = 0
     while True:
         result, clean_res, _, _ = generuj(model, tokenizer, template, params)
         if clean_output:
@@ -541,6 +542,8 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
                 print('\n'.join(clean_res))
         else:
             print(result)
+        i += 1
+        logging.info(f"Generated {i} poem" + "s" * (i > 1))
         if repeat:
             continue
         if repeat_n <= 1:
