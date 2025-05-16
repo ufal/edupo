@@ -118,6 +118,17 @@ Podporuje:
 - Příklad:  
   - [https://quest.ms.mff.cuni.cz/edupo-api/gentts?poemid=72197\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/gentts?poemid=72197&accept=txt)   
 
+### Lajkování
+`/like_count`
+- Parametry:
+  - `poemid` = ID básně
+- Vrací: počet lajků básně.
+
+`/add_like`
+- Parametry:
+  - `poemid` = ID básně
+- Vrací: počet lajků básně (předtím ho zvýší o 1).
+
 ### Analýza básně
 `/analyze`
 - Parametry:

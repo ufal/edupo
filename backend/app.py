@@ -795,6 +795,37 @@ def call_tests():
     else: # formulář na zadání jména
         return render_template('testovani.html', t=t)
 
+def get_like_count(poemid):
+    filename = f'static/likes/{poemid}.txt'
+    if os.path.isfile(filename):
+        with open(filename) as infile:
+            contents = infile.read()
+            try:
+                return int(contents)
+            except:
+                return 0
+    else:
+        return 0
+
+def set_like_count(poemid, count):
+    filename = f'static/likes/{poemid}.txt'
+    with open(filename, 'w') as outfile:
+        print(count, file=outfile)
+
+@app.route("/add_like", methods=['GET', 'POST'])
+def call_add_like():
+    poemid = get_post_arg('poemid')
+    count = get_like_count(poemid)
+    count += 1
+    set_like_count(poemid, count)
+    return return_accepted_type(str(count), count, str(count))
+
+@app.route("/like_count", methods=['GET', 'POST'])
+def call_like_count():
+    poemid = get_post_arg('poemid')
+    count = get_like_count(poemid)
+    return return_accepted_type(str(count), count, str(count))
+
 @app.errorhandler(ExceptionPoemInvalid)
 def handle_exception(e):
     app.logger.exception('EXCEPTION')
