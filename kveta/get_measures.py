@@ -8,6 +8,7 @@ import glob
 sys.path.append("../kveta")
 from kveta import okvetuj
 from collections import defaultdict
+from openai import OpenAI
 
 def get_rhyme_scheme(numbers):
     num2id = dict()
@@ -54,9 +55,11 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     
     current_stanza_num = -1
     current_stanza = []
-    
+   
+    raw_text = ""
     for i in range(len(poem)):
         syllcount = 0
+        raw_text += poem[i]['text'] + "\n"
         for word in poem[i]['words']:
             if 'is_unknown' in word:
                 unknown_counter += 1
@@ -104,6 +107,18 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
         rhyme_scheme_total += 1
         rhyme_schemes[rs] += 1
 
+    # ChatGPT metrics
+    client = OpenAI()
+    meaning_response = client.responses.create(
+        model="gpt-4.1",
+        input="Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text
+    )
+
+    meaning_num = int(meaning_response.output_text.strip())
+    if meaning_num > 0 and meaning_num <= 10:
+        meaning_num /= 10
+    else:
+        meaning_num = 0
 
     return {'unknown_words': unknown_counter/words_counter,
             'rhyming': rhyme_count / len(poem),
@@ -112,8 +127,9 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             'metre_accuracy': metre_probs_sum[parameters['metre']] / len(poem),
             #'metre_consistency_rb': max(metre_probs_rb.values()) / syllables_total,
             'syllable_count_entropy': syllable_count_entropy,
-            'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1)
-            }
+            'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
+            'meaningfulness': meaning_num
+           }
 
 def get_measures(input_txt, parameters={}):
 
@@ -148,6 +164,7 @@ if __name__=="__main__":
         print('Metre accuracy:', results['metre_accuracy'])
         print('Metre consistency:', results['metre_consistency'])
         print('Syllable count entropy:', results['syllable_count_entropy'])
+        print('Meaningfulness:', results['meaningfulness'])
 
     #print('name', 'unknown_words', 'rhyming', 'rhyme_scheme_accuracy', 'metre_consistency', 'metre_accuracy', 'syllable_count_entropy', 'rhyming_consistency', sep="\t")
     #for path in sys.argv[1:]:
