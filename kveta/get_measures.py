@@ -5,6 +5,7 @@ import sys
 import math
 import json
 import glob
+import re
 sys.path.append("../kveta")
 from kveta import okvetuj
 from collections import defaultdict
@@ -124,12 +125,36 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     #    input="Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text
     #)
     
-    response = generate_with_openai_simple("Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    meaning_num = int(response.strip())
-    if meaning_num > 0 and meaning_num <= 10:
-        meaning_num /= 10
+    # smysluplnost
+    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
+    numbers = re.findall(r'\d+', response)
+    if numbers:
+        meaning_num = int(numbers[0])
+        if meaning_num > 0 and meaning_num <= 10:
+            meaning_num /= 10
     else:
         meaning_num = 0
+
+    # izotopie
+    #response = generate_with_openai_simple("V následující básni najdi 2 až 4 témata, pro každé napiš seznam slov z básně, kterým témata odpovídají. Format the output in JSON dict of lists.\n\n" + raw_text)
+    #output = json.loads(response)
+    #topics = list()
+    #words = defaultdict(int)
+    #colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'grey', 'orange', 'pink', 'brown']
+
+    #if 'témata' in output:
+    #    for i, topic in enumerate(output['témata'].keys()):
+    #        topics.append(topic)
+    #        for word in output['témata'][topic]
+    #            words[word] = colors[i]
+
+
+
+
+                
+
+
+    #print(response)
 
     return {'unknown_words': unknown_counter/words_counter,
             'rhyming': rhyme_count / len(poem),
@@ -164,10 +189,8 @@ if __name__=="__main__":
                     input_text += "\n"
         else:
             input_text = file.read()
-        try:
-            results = get_measures(input_text, parameters)
-        except:
-            print('ERROR while processing file:', sys.argv[1], file=sys.stderr)
+        
+        results = get_measures(input_text, parameters)
         
         print('Unknown words:', results['unknown_words'])
         print('Rhyming:', results['rhyming'])
