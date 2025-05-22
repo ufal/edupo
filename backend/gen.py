@@ -2,6 +2,7 @@
 #coding: utf-8
 
 import argparse
+from contextlib import redirect_stdout
 from functools import reduce
 import random
 import re
@@ -14,6 +15,7 @@ import torch
 import parsy
 
 import parser
+import sys
 
 logging.basicConfig(
     format='%(levelname)s %(asctime)s %(message)s',
@@ -523,7 +525,8 @@ def main_server(modelspec, port):
 
 def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_output=False):
     # direct mode
-    model, tokenizer, template = load_models(modelname)
+    with redirect_stdout(sys.stderr):
+        model, tokenizer, template = load_models(modelname)
     if json_file:
         with open(json_file, 'r') as f:
             params = json.load(f)
