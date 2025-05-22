@@ -9,8 +9,8 @@ sys.path.append("../kveta")
 from kveta import okvetuj
 from collections import defaultdict
 from openai import OpenAI
-sys.path.append("../backend/testovani_data")
-from openai_helper import generate_with_openai
+sys.path.append("../backend")
+from openai_helper import generate_with_openai_simple
 
 def get_rhyme_scheme(numbers):
     num2id = dict()
@@ -124,7 +124,7 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     #    input="Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text
     #)
     
-    response = generate_with_openai("Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
+    response = generate_with_openai_simple("Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
     meaning_num = int(response.strip())
     if meaning_num > 0 and meaning_num <= 10:
         meaning_num /= 10
@@ -168,6 +168,7 @@ if __name__=="__main__":
             results = get_measures(input_text, parameters)
         except:
             print('ERROR while processing file:', sys.argv[1], file=sys.stderr)
+        
         print('Unknown words:', results['unknown_words'])
         print('Rhyming:', results['rhyming'])
         print('Rhyming accuracy:', results['rhyme_scheme_accuracy'])
