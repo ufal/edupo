@@ -9,6 +9,8 @@ sys.path.append("../kveta")
 from kveta import okvetuj
 from collections import defaultdict
 from openai import OpenAI
+sys.path.append("../backend/testovani_data")
+from openai_helper import generate_with_openai
 
 def get_rhyme_scheme(numbers):
     num2id = dict()
@@ -108,21 +110,22 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
         rhyme_schemes[rs] += 1
 
     # ChatGPT init
-    KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
-    with open(KEY_PATH) as infile:
-        apikey = infile.read().rstrip()
-    try:
-        client = OpenAI(api_key=apikey)
-    except:
-        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
+    #KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
+    #with open(KEY_PATH) as infile:
+    #    apikey = infile.read().rstrip()
+    #try:
+    #    client = OpenAI(api_key=apikey)
+    #except:
+    #    logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
 
     # ChatGPT metrics
-    meaning_response = client.responses.create(
-        model="gpt-4.1",
-        input="Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text
-    )
-
-    meaning_num = int(meaning_response.output_text.strip())
+    #meaning_response = client.responses.create(
+    #    model="gpt-4.1",
+    #    input="Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text
+    #)
+    
+    response = generate_with_openai("Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
+    meaning_num = int(response.strip())
     if meaning_num > 0 and meaning_num <= 10:
         meaning_num /= 10
     else:
