@@ -13,3 +13,4 @@ Pillow
 unsloth[cu124-torch260]
 parsy
 zmq
+pydantic
