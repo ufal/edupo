@@ -283,7 +283,7 @@
                 (menší je lepší)</li>
             <li>Entropie počtů slabik: {{ measures.syllable_count_entropy }}
                 (menší je lepší)</li>
-            {% if measures.meaningfulness %}
+            {% if measures.meaningfulness is defined %}
             <li>Smysluplnost:
                 {{ measures.meaningfulness * 100 }}%
             </li>
