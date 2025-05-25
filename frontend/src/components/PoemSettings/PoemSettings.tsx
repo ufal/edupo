@@ -1,7 +1,7 @@
 "use client"
 import { useEffect } from "react";
 
-import { usePoemParams } from "@/store/poemSettingsStore";
+import { usePoem } from "@/store/poemStore";
 import { usePoemAnalysis } from "@/store/poemAnalysisStore";
 
 import apiParams from "@/data/api/params.json";
@@ -28,7 +28,7 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
     setDisabledField,
     currentValues,
     hasParamChanged
-  } = usePoemParams();
+  } = usePoem();
 
   const {
     currentAnalysisValues
@@ -36,8 +36,8 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
 
   // console.log(disabledFields.syllablesCount, currentAnalysisValues.syllableCountEntropy, analysisTresholdValues.syllableCountEntropy);
 
-  const setParam = usePoemParams((s) => s.setParam);
-  const havePoemLinesChanged = usePoemParams((s) => s.hasParamChanged("poemLines"));
+  const setParam = usePoem((s) => s.setParam);
+  const havePoemLinesChanged = usePoem((s) => s.hasParamChanged("poemLines"));
 
   const rhymeScheme = currentValues.versesCount === 4 ? apiParams.gen.rhymeScheme["4"] : (currentValues.versesCount === 6 ? apiParams.gen.rhymeScheme["6"] : null);
 
@@ -45,21 +45,26 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
 
   const inputParams = {
     metre: apiParams.gen.metre.map((i) => ({
-      label: apiParamsTitles.gen.metre[i as MeterCode] ?? i,
-      value: i
+        label: apiParamsTitles.gen.metre[i as MeterCode] ?? i,
+        value: i
     })),
     rhymeScheme: rhymeScheme?.map((i) => ({
-      label: i,
-      value: i
-    }))
+        label: i,
+        value: i
+    })).concat([
+        {
+            label: "?",
+            value: "?"
+        }
+    ])
   }
 
   useEffect(() => {
     const validSchemes = apiParams.gen.rhymeScheme[currentValues.versesCount as 4 | 6] || [];
+    const isValidSchemeSelected = validSchemes.includes(currentValues.rhymeScheme);
+
+    setParam("rhymeScheme", isValidSchemeSelected ? validSchemes[0] : "?");
     
-    if (!validSchemes.includes(currentValues.rhymeScheme)) {
-      setParam("rhymeScheme", validSchemes[0] ?? "");
-    }
   }, [currentValues.versesCount]);
 
   return (
@@ -174,7 +179,7 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                             data={inputParams.rhymeScheme || []}
                                             disabled={disabledFields.rhymeScheme}
                                             value={currentValues.rhymeScheme}
-                                            onChange={(v) => setParam("rhymeScheme", v)} />
+                                            onChange={(v) => { setParam("rhymeScheme", v) }} />
                                 </Section>
                             </div>
                         </div>

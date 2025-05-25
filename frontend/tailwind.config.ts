@@ -39,6 +39,7 @@ export default {
 				slate200: 'var(--slate-200)',
 				slate200Transparent: 'var(--slate-200-transparent)',
 				slate300: 'var(--slate-300)',
+				slate400: 'var(--slate-400)',
 				slate700: 'var(--slate-700)',
 				greenDark: 'var(--green-dark)',
 				greenMiddle: 'var(--green-middle)',

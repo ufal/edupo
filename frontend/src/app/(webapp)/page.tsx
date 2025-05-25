@@ -1,6 +1,6 @@
 "use client"
 
-import { usePoemParams } from "@/store/poemSettingsStore";
+import { usePoem } from "@/store/poemStore";
 import { usePoemAnalysis } from "@/store/poemAnalysisStore";
 import { useState, useEffect, useCallback } from "react";
 
@@ -18,23 +18,20 @@ import PoemSettingsModeSwitcher from "@/components/PoemSettings/PoemSettingsMode
 const initPoemGenResult: PoemGenResult = {
   loading: true,
   error: null,
-  authorName: null,
-  poemLines: null,
-  rhymeScheme: null
 }
 
 export default function Home() {
   const [poemId, setPoemId] = useState(null);
   const [openControlPanel, setOpenControlPanel] = useState(false);
   const [poemGenResult, setPoemGenResult] = useState<PoemGenResult>(initPoemGenResult);
-  const { updateInitialValues } = usePoemParams();
+  const { updateInitialValues } = usePoem();
   const { setAnalysisValue } = usePoemAnalysis();
 
-  const setParam = usePoemParams((s) => s.setParam);
+  const setParam = usePoem((s) => s.setParam);
   const fetchAnalysis = useCallback(async (overrideId = null) => {
 
     const idToUse = overrideId ?? poemId;
-    const { currentValues, disabledFields } = usePoemParams.getState();
+    const { currentValues, disabledFields } = usePoem.getState();
 
     if (!idToUse) return;
 
@@ -86,14 +83,11 @@ export default function Home() {
 
   const fetchPoem = useCallback(async () => {
 
-    const { currentValues, disabledFields } = usePoemParams.getState();
+    const { currentValues, disabledFields } = usePoem.getState();
 
     setPoemGenResult({
       loading: true,
-      error: poemGenResult.error,
-      authorName: poemGenResult.authorName,
-      poemLines: poemGenResult.poemLines,
-      rhymeScheme: poemGenResult.rhymeScheme
+      error: poemGenResult.error
     });
 
     try {
@@ -197,14 +191,12 @@ export default function Home() {
       setPoemId(data.id);
       setParam("poemLines", lines);
       setParam("rhymeScheme", scheme);
+      setParam("author", data.author_name!);
       updateInitialValues();
 
       setPoemGenResult({
           loading: false,
-          error: null,
-          authorName: data.author_name || null,
-          poemLines: lines,
-          rhymeScheme: scheme
+          error: null
       });
 
       fetchAnalysis(data.id);
@@ -213,10 +205,7 @@ export default function Home() {
       console.error("Error fetching poem:", err);
       setPoemGenResult({
           loading: false,
-          error: err.message || "Unknown error",
-          authorName: null,
-          poemLines: null,
-          rhymeScheme: null
+          error: err.message || "Unknown error"
       });
     }
 

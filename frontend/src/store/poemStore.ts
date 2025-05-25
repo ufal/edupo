@@ -62,7 +62,7 @@ const defaultDisabled: Record<keyof ParamValues, boolean> = {
   versesCount: false,
 };
 
-export const usePoemParams = create<PoemParamsState>((set, get) => ({
+export const usePoem = create<PoemParamsState>((set, get) => ({
   currentValues: { ...defaultValues },
   initialValues: { ...defaultValues },
 
