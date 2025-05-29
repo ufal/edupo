@@ -22,7 +22,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO)
 
-MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-15000'
+MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-7500'
 MODEL_MC="jinymusim/gpt-czech-poet"
 
 VERBOSE_INFO=False
