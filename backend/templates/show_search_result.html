@@ -20,7 +20,7 @@
     {% if result.title %}
         {{ result.title }}
     {% else %}
-        Bez názvu ({{ result.body[0][0]['text'] }}...)
+        Bez názvu ({{ result.body[0]['text'] }}...)
     {% endif %}
     </a>
         <kbd>{{result.match}}</kbd>
