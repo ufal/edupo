@@ -90,6 +90,7 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
 
         if poem[i]['stanza'] != current_stanza_num:
             if current_stanza:
+                raw_text += "\n";
                 rs = get_rhyme_scheme(current_stanza)
                 if parameters['rhyme_scheme'] == rs:
                     rhyme_scheme_correct += 1
@@ -134,27 +135,6 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             meaning_num /= 10
     else:
         meaning_num = 0
-
-    # izotopie
-    #response = generate_with_openai_simple("V následující básni najdi 2 až 4 témata, pro každé napiš seznam slov z básně, kterým témata odpovídají. Format the output in JSON dict of lists.\n\n" + raw_text)
-    #output = json.loads(response)
-    #topics = list()
-    #words = defaultdict(int)
-    #colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'grey', 'orange', 'pink', 'brown']
-
-    #if 'témata' in output:
-    #    for i, topic in enumerate(output['témata'].keys()):
-    #        topics.append(topic)
-    #        for word in output['témata'][topic]
-    #            words[word] = colors[i]
-
-
-
-
-                
-
-
-    #print(response)
 
     return {'unknown_words': unknown_counter/words_counter,
             'rhyming': rhyme_count / len(poem),
