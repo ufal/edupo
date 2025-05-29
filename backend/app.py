@@ -22,6 +22,9 @@ sys.path.append("../scripts/diphthongs")
 from kveta import okvetuj, okvetuj_ccv
 from get_measures import get_measures_from_analyzed_poem
 
+# TODO use this instead of a plain dict
+from data_types import GenerationParameters
+
 app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
@@ -654,6 +657,12 @@ def call_generate_openai():
     prompt = get_post_arg('prompt', 'Máte rádi ptakopysky?')
     result = generate_with_openai_simple(prompt)
     return render_template('openaigenerate.html', prompt=prompt, result=result)
+
+@app.route("/get_generation_parameters_specification", methods=['GET', 'POST'])
+def call_get_generation_parameters_specification():
+    schema = GenerationParameters.schema_json(indent=2)
+    return return_accepted_type(schema, schema, schema)
+
 
 @app.route("/logs", methods=['GET', 'POST'])
 def call_logs():
