@@ -327,7 +327,7 @@ def show(data):
             prev_punct = ' '
             for word in verse["words"]:
                 if "punct_before" in word:
-                    syllables[-1]["after"] += word["punct_before"]
+                    syllables[-1]["after"] += word["punct_before"].replace(' ', NBSP)
                 if word["syllables"]:
 
                     # add all syllables
