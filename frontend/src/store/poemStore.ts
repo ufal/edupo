@@ -3,6 +3,7 @@ import isEqual from "lodash.isequal";
 import defaultApiParams from "@/data/api/params-default-values.json";
 
 type ParamValues = {
+  id: string | null;
   author: string;
   name: string;
   poemLines: string[] | null;
@@ -19,20 +20,35 @@ type ParamValues = {
 
 type PoemParamsState = {
   currentValues: ParamValues;
+  draftValues: ParamValues;
   initialValues: ParamValues;
 
   disabledFields: Record<keyof ParamValues, boolean>;
   initialDisabledFields: Record<keyof ParamValues, boolean>;
 
+  poemLoading: boolean;
+  poemError: string | null;
+
+  alreadyLikedPoemIds: string[];
+  addLikedPoemId: (id: string) => void;
+
+  setPoemLoading: (loading: boolean) => void;
+  setPoemError: (error: string | null) => void;
+
   setParam: <K extends keyof ParamValues>(key: K, value: ParamValues[K]) => void;
+  setDraftParam: <K extends keyof ParamValues>(key: K, value: ParamValues[K]) => void;
   setDisabledField: (field: keyof ParamValues, value: boolean) => void;
 
   updateInitialValues: () => void;
-  haveParamsChanged: () => boolean;
-  hasParamChanged: (key: keyof ParamValues) => boolean;
+  haveDraftParamsChanged: () => boolean;
+  hasDraftParamChanged: (key: keyof ParamValues) => boolean;
+
+  commitDraftToCurrent: () => void;
+  resetDraft: () => void;
 };
 
 const defaultValues: ParamValues = {
+  id: null,
   author: "",
   name: "",
   poemLines: null,
@@ -48,6 +64,7 @@ const defaultValues: ParamValues = {
 };
 
 const defaultDisabled: Record<keyof ParamValues, boolean> = {
+  id: false,
   author: false,
   name: false,
   poemLines: false,
@@ -64,15 +81,38 @@ const defaultDisabled: Record<keyof ParamValues, boolean> = {
 
 export const usePoem = create<PoemParamsState>((set, get) => ({
   currentValues: { ...defaultValues },
+  draftValues: { ...defaultValues },
   initialValues: { ...defaultValues },
 
   disabledFields: { ...defaultDisabled },
   initialDisabledFields: { ...defaultDisabled },
 
+  poemLoading: false,
+  poemError: null,
+
+  setPoemLoading: (loading: boolean) => set(() => ({ poemLoading: loading })),
+  setPoemError: (error: string | null) => set(() => ({ poemError: error })),
+
+  alreadyLikedPoemIds: [],
+
+  addLikedPoemId: (id: string) =>
+    set((state) => ({
+      alreadyLikedPoemIds: [...state.alreadyLikedPoemIds, id]
+    }
+  )),
+
   setParam: (key, value) =>
     set((state) => ({
       currentValues: {
         ...state.currentValues,
+        [key]: value,
+      },
+    })),
+
+  setDraftParam: (key, value) =>
+    set((state) => ({
+      draftValues: {
+        ...state.draftValues,
         [key]: value,
       },
     })),
@@ -89,29 +129,41 @@ export const usePoem = create<PoemParamsState>((set, get) => ({
     set((state) => ({
       initialValues: { ...state.currentValues },
       initialDisabledFields: { ...state.disabledFields },
+      draftValues: { ...state.currentValues },
     })),
 
-  haveParamsChanged: () => {
-    const { initialValues, currentValues, initialDisabledFields, disabledFields } = get();
-    return (
-      !isEqual(initialValues, currentValues) ||
-      !isEqual(initialDisabledFields, disabledFields)
-    );
+  haveDraftParamsChanged: () => {
+    const keys = Object.keys(defaultValues) as (keyof ParamValues)[];
+    const { hasDraftParamChanged } = get();
+
+    return keys.some((key) => hasDraftParamChanged(key));
   },
 
-  hasParamChanged: (key) => {
-    const { initialValues, currentValues, initialDisabledFields, disabledFields } = get();
-  
+  hasDraftParamChanged: (key) => {
+    const { currentValues, draftValues, initialDisabledFields, disabledFields } = get();
+
     const isDisabled = disabledFields[key];
     const wasDisabled = initialDisabledFields[key];
-  
-    const valueChanged = !isEqual(initialValues[key], currentValues[key]);
+
+    const valueChanged = !isEqual(currentValues[key], draftValues[key]);
     const disabledChanged = wasDisabled !== isDisabled;
-  
+
     if (isDisabled) {
       return disabledChanged;
     }
-  
+
     return valueChanged || disabledChanged;
+  },
+
+  commitDraftToCurrent: () => {
+    set((state) => ({
+      currentValues: { ...state.draftValues },
+    }))
+  },
+
+  resetDraft: () => {
+    set((state) => ({
+      draftValues: { ...state.currentValues },
+    }))
   }
 }));

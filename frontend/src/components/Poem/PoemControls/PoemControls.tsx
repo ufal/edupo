@@ -1,22 +1,8 @@
-import { Button } from "@/components/ui/button";
+import LikeButton from "../PoemLikeButton/PoemLikeButton";
+import PoemContent from "../PoemContent/PoemContent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-interface PoemModeSwitcherProps {
-  readingModeContent: React.ReactNode;
-  analysisModeContent: React.ReactNode;
-  editingModeContent: React.ReactNode;
-}
-
-function LikeButton() {
-  return (
-    <Button variant="outline" className="px-6 shadow-sm bg-white">
-      <img src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "svg/like.svg"} className="w-6 h-6" />
-      Líbí se mi
-    </Button>
-  );
-}
-
-export default function PoemModeSwitcher({ readingModeContent, analysisModeContent, editingModeContent }: PoemModeSwitcherProps) {
+export default function PoemControls() {
   return (
     <div className="pt-4 flex-1">
       <Tabs defaultValue="reading" className="w-full h-full flex flex-col">
@@ -26,16 +12,16 @@ export default function PoemModeSwitcher({ readingModeContent, analysisModeConte
             <TabsTrigger value="analysis" className="w-1/3">Analýza</TabsTrigger>
             <TabsTrigger value="editing" className="w-1/3">Úpravy textu</TabsTrigger>
           </TabsList>
-          <LikeButton />
+          <LikeButton onClick={() => { console.log('Like button click'); }} />
         </div>
         <TabsContent value="reading" className="flex-1">
-            {readingModeContent}
+            <PoemContent linesMode="plaintext" />
         </TabsContent>
         <TabsContent value="analysis" className="flex-1">
-            {analysisModeContent}
+            <PoemContent linesMode="highlighted" />
         </TabsContent>
         <TabsContent value="editing" className="flex-1">
-            {editingModeContent}
+            <PoemContent linesMode="editable" />
         </TabsContent>
       </Tabs>
     </div>

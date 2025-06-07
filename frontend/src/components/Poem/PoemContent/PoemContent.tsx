@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { PoemGenResult } from "@/types/poemGenResult";
 import { PoemLinesEditBadge, PoemLinesLetterBadge } from "./PoemLinesBadge";
 import PoemLine from "./PoemLine/PoemLine";
 import { SchemeToColorMappings } from "./SchemeToColorMappings";
@@ -14,11 +13,11 @@ const LoadingText = () => <p className="text-graySoft px-10">Načítám báseň.
 
 type PoemContentLinesMode = "plaintext" | "highlighted" | "editable";
 
-export default function PoemContent({ poemGenResult, linesMode } : { poemGenResult: PoemGenResult, linesMode: PoemContentLinesMode }) {
+export default function PoemContent({ linesMode } : { linesMode: PoemContentLinesMode }) {
     const [unlockedLines, setUnlockedLines] = useState<number[]>([]);
-    const { currentValues, setParam } = usePoem();
-    const poemLines = currentValues.poemLines ?? [];
-    const rhymeScheme = currentValues.rhymeScheme ?? [];
+    const { draftValues, setDraftParam, poemLoading, poemError } = usePoem();
+    const poemLines = draftValues.poemLines ?? [];
+    const rhymeScheme = draftValues.rhymeScheme ?? [];
 
     const unlockLine = (index: number) => {
         setUnlockedLines((prev) =>
@@ -29,26 +28,21 @@ export default function PoemContent({ poemGenResult, linesMode } : { poemGenResu
     const updateLine = (index: number, newText: string) => {
         const updated = [...poemLines];
         updated[index] = newText;
-        setParam("poemLines", updated);
+        setDraftParam("poemLines", updated);
     };
 
-    const deleteLine = (index: number) => {
-        const updatedLines = [...poemLines];
-        updatedLines.splice(index, 1);
-        setParam("poemLines", updatedLines);
-
-        /*
-        const updatedRhymeScheme = rhymeScheme.split("");
-        updatedRhymeScheme.splice(index, 1);
-        setParam("rhymeScheme", updatedRhymeScheme.join(""));
-        */
-        setParam("rhymeScheme", "?");
-
-        setUnlockedLines((prev) => prev.filter((i) => i !== index));
+    const clearLine = (index: number) => {
+        updateLine(index, "");
     };
+
+    useEffect(() => {
+        if (poemLoading) {
+            setUnlockedLines([]);
+        }
+    }, [poemLoading, poemError]);
 
     return (
-        <div className="flex flex-row h-full">
+        <div className="flex flex-row h-full pt-4">
             {
                 (linesMode === "highlighted" || linesMode === "editable") && (
                     (poemLines && rhymeScheme) && (
@@ -77,13 +71,13 @@ export default function PoemContent({ poemGenResult, linesMode } : { poemGenResu
                 <CardContent className="pl-0 pr-6 py-6">
                     <div className="leading-relaxed whitespace-pre-line font-[14px]">
                         {
-                            poemGenResult.loading && LoadingText()
+                            poemLoading && LoadingText()
                         }
                         {
-                            poemGenResult.error && ErrorText(poemGenResult.error)
+                            poemError && ErrorText(poemError)
                         }
                         {
-                            (!poemGenResult.loading && !poemGenResult.error) &&
+                            (!poemLoading && !poemError) &&
                                 (poemLines && rhymeScheme) &&
                                     (
                                         <div className="leading-relaxed whitespace-pre-line flex flex-col gap-1">
@@ -98,7 +92,7 @@ export default function PoemContent({ poemGenResult, linesMode } : { poemGenResu
                                                                     isEditable={true}
                                                                     locked={!unlockedLines.includes(i)}
                                                                     onChange={(newText) => updateLine(i, newText)}
-                                                                    onDelete={() => deleteLine(i)} />
+                                                                    onClear={() => clearLine(i)} />
                                                             )
 
                                                         case "highlighted":

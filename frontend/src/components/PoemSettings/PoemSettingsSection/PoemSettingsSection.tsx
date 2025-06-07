@@ -13,9 +13,10 @@ interface PoemSettingsSectionProps {
     hasChanged: boolean;
     unsuitableToAnalysis: boolean;
     children?: React.ReactElement;
+    readonly?: boolean;
 }
 
-export default function PoemSettingsSection({ title, titleValue, getSwitchValue, switchFunc, hasChanged, unsuitableToAnalysis, children } : PoemSettingsSectionProps) {
+export default function PoemSettingsSection({ title, titleValue, getSwitchValue, switchFunc, hasChanged, unsuitableToAnalysis, children, readonly } : PoemSettingsSectionProps) {
 
     const flagMessages: PoemSettingsFlagMessage[] = [
         unsuitableToAnalysis && "unsuitableToAnalysis",
@@ -41,8 +42,10 @@ export default function PoemSettingsSection({ title, titleValue, getSwitchValue,
                                     <Title text="Náhodně" />
                                     <div className={"flex flex-col justify-center items-center"}>
                                         <Switch
+                                            disabled={readonly}
                                             checked={getSwitchValue()}
-                                            onCheckedChange={switchFunc} />
+                                            onCheckedChange={switchFunc}
+                                             />
                                     </div>
                                 </div>
                             </>

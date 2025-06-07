@@ -9,10 +9,10 @@ interface PoemLineProps {
     isEditable?: boolean;
     locked?: boolean;
     onChange?: (newText: string) => void;
-    onDelete?: () => void;
+    onClear?: () => void;
 }
 
-export default function PoemLine({ text, colorScheme, isEditable, locked, onChange, onDelete} : PoemLineProps) {
+export default function PoemLine({ text, colorScheme, isEditable, locked, onChange, onClear} : PoemLineProps) {
     let cls = "px-10 py-[2px]";
 
     if (colorScheme)
@@ -37,7 +37,7 @@ export default function PoemLine({ text, colorScheme, isEditable, locked, onChan
                                 onChange={(e) => onChange?.(e.target.value)} />
                             <div
                                 className={twMerge("w-[30px] h-[30px] flex items-center justify-center shrink-0", !locked ? "bg-red200 rounded-full cursor-pointer" : null)}
-                                onClick={onDelete}>
+                                onClick={onClear}>
                                 {
                                     !locked && <Trash2Icon className="w-[20px] h-[20px] text-red700" />
                                 }

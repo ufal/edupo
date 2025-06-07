@@ -1,11 +1,8 @@
+import PoemSettings from "../PoemSettings";
+import ImageSettings from "../../ImageSettings";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-interface PoemSettingsModeSwitcherProps {
-  poemModeContent: React.ReactNode;
-  imageModeContent: React.ReactNode;
-}
-
-export default function PoemSettingsModeSwitcher({ poemModeContent, imageModeContent }: PoemSettingsModeSwitcherProps) {
+export default function PoemSettingsModeSwitcher() {
   return (
       <Tabs defaultValue="poem" className="w-full h-full flex flex-col">
         <h2 className="pt-[24px] pb-[16px] px-docOffsetXSmall tablet:px-docOffsetXBig">
@@ -18,10 +15,10 @@ export default function PoemSettingsModeSwitcher({ poemModeContent, imageModeCon
           </TabsList>
         </div>
         <TabsContent value="poem" className="flex-1">
-          {poemModeContent}
+          <PoemSettings />
         </TabsContent>
         <TabsContent value="image">
-          {imageModeContent}
+          <ImageSettings />
         </TabsContent>
       </Tabs>
   )
