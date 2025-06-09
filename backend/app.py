@@ -485,8 +485,10 @@ def call_analyze():
         raise ExceptionPoemInvalid("Text must not be empty!")
     
     if 'body' in data:
-        kveta_result = okvetuj_ccv(data['body'])
-        data['body'] = [kveta_result]
+        # no need to analyze, already analyzed
+        # either explicitly by /analyze
+        # or within get_poem_by_id()
+        pass
     else:
         kveta_result = okvetuj(data['plaintext'])
         data['body'] = kveta_result[0][0]['body']
