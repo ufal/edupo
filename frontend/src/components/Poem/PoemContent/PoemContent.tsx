@@ -5,7 +5,7 @@ import PoemLine from "./PoemLine/PoemLine";
 import { SchemeToColorMappings } from "./SchemeToColorMappings";
 import { PoemLineColorSchemes } from "./PoemLineColorSchemes";
 import { usePoem } from "@/store/poemStore";
-
+import PoemPlayBadge from "./PoemPlayBadge";
 
 const ErrorText = (msg: string) => <p className="text-crimsonRed px-10">Chyba: { msg }</p>;
 
@@ -42,7 +42,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
     }, [poemLoading, poemError]);
 
     return (
-        <div className="flex flex-row h-full pt-4">
+        <div className="flex flex-row h-full pt-4 relative">
             {
                 (linesMode === "highlighted" || linesMode === "editable") && (
                     (poemLines && rhymeScheme) && (
@@ -122,6 +122,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                     </div>
                 </CardContent>
             </Card>
+            <PoemPlayBadge cls="absolute right-4 bottom-4" />
         </div>
     )
 }

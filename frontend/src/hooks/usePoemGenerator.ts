@@ -1,8 +1,12 @@
+import { useRef, useCallback } from "react";
+
 import { usePoem } from "@/store/poemStore";
 import { usePoemAnalysis } from "@/store/poemAnalysisStore";
-import { fetchPoemApi, fetchAnalysisApi, fetchMotivesApi, sendLikeApi } from "@/lib/api/poemApi";
-import { useCallback } from "react";
-import { MetreDetailCode } from "@/types/edupoapi/analysis";
+import { fetchPoemApi, fetchAnalysisApi, fetchMotivesApi, fetchImageApi, fetchTTSApi, sendLikeApi } from "@/lib/edupoApi";
+import { MetreDetailCode, ImageResponse, TTSResponse } from "@/types/edupoapi";
+
+const imageCache = new Map<string, { url: string; description: string }>();
+const TTSCache = new Map<string, { url: string }>();
 
 export function usePoemGenerator() {
     const { setAnalysisValue } = usePoemAnalysis();
@@ -118,6 +122,30 @@ export function usePoemGenerator() {
         }
     }, []);
 
+    const fetchImage = useCallback(async (poemId: string) => {
+        if (imageCache.has(poemId))
+            return imageCache.get(poemId)! as ImageResponse;
+
+        const data = await fetchImageApi(poemId);
+        const url = process.env.NEXT_PUBLIC_API_URL + (data.url?.slice(1) ?? "");
+        const description = data.description ?? "";
+
+        imageCache.set(poemId, { url, description });
+
+        return { url, description } as ImageResponse;
+    }, []);
+
+    const fetchTTS = useCallback(async (poemId: string) => {
+        if (TTSCache.has(poemId))
+            return TTSCache.get(poemId)! as TTSResponse;
+
+        const data = await fetchTTSApi(poemId);
+        const url = process.env.NEXT_PUBLIC_API_URL + (data.url?.slice(1) ?? "");
+
+        TTSCache.set(poemId, { url });
+        return { url } as TTSResponse;
+    }, []);
+
     const sendLike = useCallback(async (id: string) => {
         const data = await sendLikeApi(id);
         console.log("Like sent", data);
@@ -127,6 +155,8 @@ export function usePoemGenerator() {
         fetchPoem,
         fetchAnalysis,
         fetchMotives,
+        fetchImage,
+        fetchTTS,
         sendLike
     };
 }

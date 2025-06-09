@@ -8,11 +8,16 @@ import SidePanelControlButton from "@/components/SidePanelControlButton";
 import PoemSettingsModeSwitcher from "@/components/PoemSettings/PoemSettingsModeSwitcher";
 
 import { usePoemGenerator } from "@/hooks/usePoemGenerator";
+import { usePoemDatabase } from "@/store/poemDatabaseStore";
 
 export default function Home() {
 
   const [openControlPanel, setOpenControlPanel] = useState(false);
   const { fetchPoem, fetchAnalysis, fetchMotives } = usePoemGenerator();
+
+  useEffect(() => {
+    usePoemDatabase.getState().fetchAuthors();
+  }, []);
 
   useEffect(() => {
     const run = async () => {

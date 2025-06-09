@@ -1,6 +1,6 @@
 import { usePoem } from "@/store/poemStore";
 import { Button } from "@/components/ui/button";
-import { sendLikeApi } from "@/lib/api/poemApi";
+import { sendLikeApi } from "@/lib/edupoApi";
 import { useState, useMemo } from "react";
 
 export default function LikeButton() {
@@ -30,13 +30,13 @@ export default function LikeButton() {
   return (
     <Button
       variant="outline"
-      className="px-6 shadow-sm bg-white"
+      className="px-4 shadow-sm bg-white gap-0"
       disabled={poemLoading || alreadyLiked}
       onClick={onClick}
     >
       <img
         src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "svg/like.svg"}
-        className="w-6 h-6 mr-2"
+        className="w-6 h-6"
         alt="Like"
       />
       Líbí se mi
