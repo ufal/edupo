@@ -4,8 +4,6 @@ import { create } from "zustand";
 
 export type AuthorName = string;
 
-const anonymousAuthor = "Anonym [vygenerováno]";
-
 type PoemDatabaseStore = {
   authors: AuthorName[];
   poemsByAuthor: Record<AuthorName, Poem[]>;
@@ -35,7 +33,7 @@ export const usePoemDatabase = create<PoemDatabaseStore>((set, get) => ({
       const res = await fetchAuthorsListApi();
       const data: AuthorName[] = res.map(r => r.author);
       
-      set({ authors: [ anonymousAuthor, ...data], loadingAuthors: false });
+      set({ authors: data, loadingAuthors: false });
 
     } catch (err: any) {
 

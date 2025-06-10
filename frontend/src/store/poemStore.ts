@@ -5,7 +5,7 @@ import defaultApiParams from "@/data/api/params-default-values.json";
 type ParamValues = {
   id: string | null;
   author: string;
-  name: string;
+  title: string;
   poemLines: string[] | null;
   style: string;
   form: string;
@@ -50,7 +50,7 @@ type PoemParamsState = {
 const defaultValues: ParamValues = {
   id: null,
   author: "",
-  name: "",
+  title: "",
   poemLines: null,
   style: "",
   form: "",
@@ -66,7 +66,7 @@ const defaultValues: ParamValues = {
 const defaultDisabled: Record<keyof ParamValues, boolean> = {
   id: false,
   author: false,
-  name: false,
+  title: false,
   poemLines: false,
   style: false,
   form: false,

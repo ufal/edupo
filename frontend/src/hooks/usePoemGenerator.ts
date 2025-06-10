@@ -5,6 +5,9 @@ import { usePoemAnalysis } from "@/store/poemAnalysisStore";
 import { fetchPoemApi, fetchAnalysisApi, fetchMotivesApi, fetchImageApi, fetchTTSApi, sendLikeApi } from "@/lib/edupoApi";
 import { MetreDetailCode, ImageResponse, TTSResponse } from "@/types/edupoapi";
 
+const GENERATED_FLAG = " [vygenerováno]";
+const NO_TITLE_RESP = "Bez názvu";
+
 const imageCache = new Map<string, { url: string; description: string }>();
 const TTSCache = new Map<string, { url: string }>();
 
@@ -19,6 +22,13 @@ export function usePoemGenerator() {
         try {
             let params = new URLSearchParams({ accept: "json" });
 
+            console.log(draftValues);
+            console.log(disabledFields);
+
+            if (!disabledFields.author && draftValues.author)
+                params.append("author", draftValues.author);
+            if (!disabledFields.title && draftValues.title)
+                params.append("title", draftValues.title);
             if (!disabledFields.metre)
                 params.append("metre", draftValues.metre);
             if (!disabledFields.rhymeScheme)
@@ -49,6 +59,10 @@ export function usePoemGenerator() {
 
             const data = await fetchPoemApi(params);
 
+            const author = data.author_name ? data.author_name.replace(GENERATED_FLAG, "") : "";
+
+            const title = (data.title === NO_TITLE_RESP) ? "" : data.title!;
+
             const plaintext = data.plaintext ?? "";
             const lines = plaintext.split("\n").filter(line => line.trim() !== "");
 
@@ -58,8 +72,8 @@ export function usePoemGenerator() {
             const scheme = parts.length >= 2 ? parts[1].trim() : "";
 
             setDraftParam("id", data.id);
-            setDraftParam("name", data.title ?? "");
-            setDraftParam("author", data.author_name ?? "");
+            setDraftParam("title", title);
+            setDraftParam("author", author);
             setDraftParam("poemLines", lines);
             setDraftParam("rhymeScheme", scheme);
 

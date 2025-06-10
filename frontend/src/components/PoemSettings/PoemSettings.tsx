@@ -39,6 +39,11 @@ export default function PoemSettings() {
   } = usePoemAnalysis.getState();
 
   const {
+    authors,
+    poemsByAuthor
+  } = usePoemDatabase();
+
+  const {
     fetchPoem,
     fetchAnalysis,
     fetchMotives
@@ -60,8 +65,6 @@ export default function PoemSettings() {
   const havePoemLinesChanged = usePoem((s) => s.hasDraftParamChanged("poemLines"));
   const rhymeScheme = draftValues.versesCount === 4 ? apiParams.gen.rhymeScheme["4"] : (draftValues.versesCount === 6 ? apiParams.gen.rhymeScheme["6"] : null);
 
-  const authors = usePoemDatabase.getState().authors;
-
   type MeterCode = keyof typeof apiParamsTitles.gen.metre;
 
   const inputParams = {
@@ -74,13 +77,6 @@ export default function PoemSettings() {
         value: i
     }))
   }
-
-  useEffect(() => {
-    const validSchemes = apiParams.gen.rhymeScheme[draftValues.versesCount as 4 | 6] || [];
-    setDraftParam("rhymeScheme", validSchemes[0]);
-    commitDraftToCurrent();
-    
-  }, [draftValues.versesCount]);
 
   const heightElements = [
     { value: 64, unit: "px" },
@@ -95,6 +91,20 @@ export default function PoemSettings() {
   const heightStr = `calc(100vh - ${heightElements
     .map((el) => `${el.value}${el.unit}`)
     .join(" - ")})`;
+
+    const authorOptions = authors.map(a => ({ label: a, value: a }));
+
+    const validAuthor = authorOptions.some(item => item.value === draftValues.author)
+        ? draftValues.author
+        : "";
+
+    const poemOptions = draftValues.author && poemsByAuthor[draftValues.author]
+        ? poemsByAuthor[draftValues.author].map(p => ({ label: p.title, value: p.title }))
+        : [];
+
+    const validTitle = poemOptions.some(item => item.value === draftValues.title)
+        ? draftValues.title
+        : "";
 
   return (
     <div className="flex flex-col h-full">
@@ -111,34 +121,45 @@ export default function PoemSettings() {
                         <Section
                             title="Podle autora"
                             getSwitchValue={() => disabledFields.author}
-                            switchFunc={(on) => setDisabledField("author", on)}
-                            hasChanged={!poemLoading && hasDraftParamChanged("author")}
+                            switchFunc={(on) => {
+                                setDisabledField("author", on);
+
+                                if (on && !disabledFields.title)
+                                    setDisabledField("title", on);
+                            }}
+                            hasChanged={!poemLoading && (hasDraftParamChanged("author") && draftValues.author !== "")}
                             unsuitableToAnalysis={false}>
                             <Combobox
+                                withSearch={true}
                                 placeholder="Podle autora"
-                                data={authors.map(a => { return { label: a, value: a } } )}
+                                data={authorOptions}
                                 disabled={disabledFields.author}
-                                value={draftValues.author}
+                                value={validAuthor}
                                 onChange={(v) => {
                                     setDraftParam("author", v);
+                                    setDraftParam("title", "");
                                     usePoemDatabase.getState().fetchPoemsForAuthor(v);
-                                }} />
+                                }}
+                            />
                         </Section>
                         <Section
                             title="Název"
-                            getSwitchValue={() => disabledFields.name}
-                            switchFunc={(on) => setDisabledField("name", on)}
-                            hasChanged={!poemLoading && hasDraftParamChanged("name")}
+                            getSwitchValue={() => disabledFields.title}
+                            switchFunc={(on) => setDisabledField("title", on)}
+                            hasChanged={!poemLoading && (hasDraftParamChanged("title") && draftValues.title !== "")}
                             unsuitableToAnalysis={false}>
-                                <Combobox
-                                    placeholder="Název"
-                                    data={[
-                                        { label: "Polednice", value: "Polednice" },
-                                        { label: "Za trochu lásky", value: "Za trochu lásky" }
-                                    ]}
-                                    disabled={true || disabledFields.name}
-                                    value={draftValues.name}
-                                    onChange={(v) => setDraftParam("name", v)} />
+                            <Combobox
+                                withSearch={true}
+                                placeholder="Název"
+                                data={poemOptions}
+                                disabled={
+                                    disabledFields.title ||
+                                    !draftValues.author ||
+                                    !(draftValues.author in poemsByAuthor)
+                                }
+                                value={validTitle}
+                                onChange={(v) => setDraftParam("title", v)}
+                            />
                         </Section>
                     </AccordionContent>
                 </AccordionItem>
@@ -154,15 +175,15 @@ export default function PoemSettings() {
                             hasChanged={!poemLoading && hasDraftParamChanged("style")}
                             unsuitableToAnalysis={false}
                             readonly={true}>
-                                <Combobox
-                                    placeholder="Styl"
-                                    data={[
-                                        { label: "Romantismus", value: "Romantismus" },
-                                        { label: "Impresionismus", value: "Impresionismus" }
-                                    ]}
-                                    disabled={true || disabledFields.style}
-                                    value={draftValues.style}
-                                    onChange={(v) => setDraftParam("style", v)} />
+                            <Combobox
+                                placeholder="Styl"
+                                data={[
+                                    { label: "Romantismus", value: "Romantismus" },
+                                    { label: "Impresionismus", value: "Impresionismus" }
+                                ]}
+                                disabled={true || disabledFields.style}
+                                value={draftValues.style}
+                                onChange={(v) => setDraftParam("style", v)} />
                         </Section>
                         <Section
                             title="Forma"
@@ -265,13 +286,19 @@ export default function PoemSettings() {
                             switchFunc={(on) => setDisabledField("versesCount", on)}
                             hasChanged={!poemLoading && hasDraftParamChanged("versesCount")}
                             unsuitableToAnalysis={false}>
-                                <Slider
-                                    defaultValue={[draftValues.versesCount]}
-                                    min={apiParams.gen.versesCount.min}
-                                    max={apiParams.gen.versesCount.max}
-                                    step={2}
-                                    onValueChange={(v) => setDraftParam("versesCount", v[0])}
-                                    disabled={disabledFields.versesCount} />
+                            <Slider
+                                defaultValue={[draftValues.versesCount]}
+                                min={apiParams.gen.versesCount.min}
+                                max={apiParams.gen.versesCount.max}
+                                step={2}
+                                onValueChange={(v) => {
+                                    const newVersesCount = v[0];
+                                    setDraftParam("versesCount", newVersesCount);
+
+                                    const validSchemes = apiParams.gen.rhymeScheme[newVersesCount as 4 | 6] || [];
+                                    setDraftParam("rhymeScheme", validSchemes[0]);
+                                }}
+                                disabled={disabledFields.versesCount} />
                         </Section>
                         <Section
                             title="Počet slabik v prvním verši"

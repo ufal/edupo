@@ -1,9 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { ChevronsUpDown } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -26,7 +25,7 @@ interface ComboboxDataEntry {
 }
 
 interface ComboboxParams {
-  searchInput?: boolean;
+  withSearch?: boolean;
   disabled?: boolean;
   highlighted?: boolean;
   placeholder: string;
@@ -36,7 +35,7 @@ interface ComboboxParams {
   onChange: (value: string) => void;
 }
 
-export function Combobox({ searchInput, placeholder, data, disabled, highlighted, value, onChange } : ComboboxParams) {
+export function Combobox({ withSearch, placeholder, data, disabled, highlighted, value, onChange } : ComboboxParams) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -58,7 +57,7 @@ export function Combobox({ searchInput, placeholder, data, disabled, highlighted
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
         <Command>
           {
-            (searchInput === true) && <CommandInput placeholder={placeholder} />
+            (withSearch === true) && <CommandInput placeholder={placeholder} />
           }
           <CommandList>
             <CommandEmpty>Nic nenalezeno.</CommandEmpty>

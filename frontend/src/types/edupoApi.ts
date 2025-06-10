@@ -6,7 +6,7 @@ export interface Author {
 export type AuthorsListResponse = Author[];
 
 export interface Poem {
-    id: number;
+    id: number | null;
     title: string;
 };
 

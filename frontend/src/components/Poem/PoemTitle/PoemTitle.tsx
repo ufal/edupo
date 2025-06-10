@@ -7,7 +7,7 @@ interface PoemTitleProps {
 export default function PoemTitle({ sidePanelControlElement } : PoemTitleProps) {
     const { currentValues } = usePoem();
 
-    const poemName = currentValues.name ? currentValues.name : "";
+    const poemName = currentValues.title ? currentValues.title : "";
     const authorName = currentValues.author ? currentValues.author : "";
 
     return (
