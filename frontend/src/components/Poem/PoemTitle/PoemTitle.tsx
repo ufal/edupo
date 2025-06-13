@@ -14,7 +14,7 @@ export default function PoemTitle({ sidePanelControlElement } : PoemTitleProps) 
         <div className="flex flex-row justify-between items-center bg-silverTransparent rounded-lg px-6 h-[56px]">
             <div className="w-full flex flex-row items-baseline py-4 gap-4 text-blackSoft">
                 <h1 className="leading-[18px]">
-                    { poemName ? "Generovaná báseň" : "" }
+                    { poemName }
                 </h1>
                 <h3 className="leading-[18px] m-0">
                     { authorName }

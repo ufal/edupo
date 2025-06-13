@@ -2,8 +2,8 @@ import { useRef, useCallback } from "react";
 
 import { usePoem } from "@/store/poemStore";
 import { usePoemAnalysis } from "@/store/poemAnalysisStore";
-import { fetchPoemApi, fetchAnalysisApi, fetchMotivesApi, fetchImageApi, fetchTTSApi, sendLikeApi } from "@/lib/edupoApi";
-import { MetreDetailCode, ImageResponse, TTSResponse } from "@/types/edupoapi";
+import { genPoemApi, fetchPoemApi, fetchAnalysisApi, fetchMotivesApi, fetchImageApi, fetchTTSApi, sendLikeApi } from "@/lib/edupoApi";
+import { MetreDetailCode, ImageResponse, TTSResponse, AnalysisResponse, FetchPoemResponse, GenResponse } from "@/types/edupoApi";
 
 const GENERATED_FLAG = " [vygenerováno]";
 const NO_TITLE_RESP = "Bez názvu";
@@ -11,19 +11,68 @@ const NO_TITLE_RESP = "Bez názvu";
 const imageCache = new Map<string, { url: string; description: string }>();
 const TTSCache = new Map<string, { url: string }>();
 
+const parsePoemResponse = (data: FetchPoemResponse | GenResponse): { author: string; title: string; lines: string[]; rhymeScheme: string | null } => {
+    const author = data.author_name ? data.author_name.replace(GENERATED_FLAG, "") : "";
+    const title = data.title!;
+    // const title =  (data.title === NO_TITLE_RESP) ? "" : data.title!;
+
+    const plaintext = data.plaintext ?? "";
+    const lines = plaintext.split("\n").filter(line => line.trim() !== "");
+
+    let rhymeScheme = null;
+
+    if (data.rawtext)
+    {
+        const firstLine = data.rawtext.split("\n")[0];
+        const parts = firstLine.split("#");
+        rhymeScheme = parts.length >= 2 ? parts[1].trim() : "";
+    }
+
+
+    return { author, title, lines, rhymeScheme };
+}
+
 export function usePoemGenerator() {
     const { setAnalysisValue } = usePoemAnalysis();
     const { draftValues, currentValues, disabledFields, setDraftParam, commitDraftToCurrent, updateInitialValues, setPoemLoading, setPoemError } = usePoem.getState();
 
-    const fetchPoem = useCallback(async (): Promise<string> => {
+    const fetchPoem = useCallback(async (poemId: string): Promise<boolean> => {
         setPoemLoading(true);
         setPoemError(null);
 
         try {
             let params = new URLSearchParams({ accept: "json" });
+            params.append("poemid", poemId.toString());
 
-            console.log(draftValues);
-            console.log(disabledFields);
+            const data = await fetchPoemApi(params);
+            const parsedData = parsePoemResponse(data);
+
+            console.log(parsedData);
+
+            setDraftParam("title", data.title!);
+            setDraftParam("author", parsedData.author);
+            setDraftParam("poemLines", parsedData.lines);
+            setDraftParam("rhymeScheme", parsedData.rhymeScheme);
+
+            commitDraftToCurrent();
+
+            setPoemLoading(false);
+            return true;
+
+        } catch (err: any) {
+            console.error("Error fetching poem:", err);
+            setPoemLoading(false);
+            setPoemError(err.message || "Unknown error");
+            return false;
+        }
+    }, [draftValues, disabledFields]);
+
+    const genPoem = useCallback(async (): Promise<string | null> => {
+        setPoemLoading(true);
+        setPoemError(null);
+
+        try {
+            let params = new URLSearchParams({ accept: "json" });
 
             if (!disabledFields.author && draftValues.author)
                 params.append("author", draftValues.author);
@@ -31,7 +80,7 @@ export function usePoemGenerator() {
                 params.append("title", draftValues.title);
             if (!disabledFields.metre)
                 params.append("metre", draftValues.metre);
-            if (!disabledFields.rhymeScheme)
+            if (!disabledFields.rhymeScheme && draftValues.rhymeScheme)
                 params.append("rhyme_scheme", draftValues.rhymeScheme);
             if (!disabledFields.syllablesCount)
                 params.append("syllables_count", draftValues.syllablesCount.toString());
@@ -57,25 +106,14 @@ export function usePoemGenerator() {
                 params.append("first_words", line);
             });
 
-            const data = await fetchPoemApi(params);
-
-            const author = data.author_name ? data.author_name.replace(GENERATED_FLAG, "") : "";
-
-            const title = (data.title === NO_TITLE_RESP) ? "" : data.title!;
-
-            const plaintext = data.plaintext ?? "";
-            const lines = plaintext.split("\n").filter(line => line.trim() !== "");
-
-            const rawText = data.rawtext;
-            const firstLine = rawText.split("\n")[0];
-            const parts = firstLine.split("#");
-            const scheme = parts.length >= 2 ? parts[1].trim() : "";
+            const data = await genPoemApi(params);
+            const parsedData = parsePoemResponse(data);
 
             setDraftParam("id", data.id);
-            setDraftParam("title", title);
-            setDraftParam("author", author);
-            setDraftParam("poemLines", lines);
-            setDraftParam("rhymeScheme", scheme);
+            setDraftParam("title", parsedData.title);
+            setDraftParam("author", parsedData.author);
+            setDraftParam("poemLines", parsedData.lines);
+            setDraftParam("rhymeScheme", parsedData.rhymeScheme);
 
             commitDraftToCurrent();
             updateInitialValues();
@@ -85,23 +123,30 @@ export function usePoemGenerator() {
             return data.id;
 
         } catch (err: any) {
-            console.error("Error fetching poem:", err);
+            console.error("Error generating poem:", err);
             setPoemLoading(false);
             setPoemError(err.message || "Unknown error");
-            return "";
+            return null;
         }
     }, [draftValues, disabledFields]);
 
-    const fetchAnalysis = useCallback(async (id: string) => {
+    const fetchAnalysis = useCallback(async (id: string, onDataLoaded?: (analysisData: AnalysisResponse) => void) => {
         const data = await fetchAnalysisApi(id);
+
+        if (onDataLoaded)
+            onDataLoaded(data);
+
         const measures = data.measures;
-        setAnalysisValue("metreAccuracy", measures.metre_accuracy);
-        setAnalysisValue("metreConsistency", measures.metre_consistency);
-        setAnalysisValue("rhymeSchemeAccuracy", measures.rhyme_scheme_accuracy);
-        setAnalysisValue("rhyming", measures.rhyming);
-        setAnalysisValue("rhymingConsistency", measures.rhyming_consistency);
-        setAnalysisValue("syllableCountEntropy", measures.syllable_count_entropy);
-        setAnalysisValue("unknownWords", measures.unknown_words);
+
+        if (measures) {
+            setAnalysisValue("metreAccuracy", measures.metre_accuracy);
+            setAnalysisValue("metreConsistency", measures.metre_consistency);
+            setAnalysisValue("rhymeSchemeAccuracy", measures.rhyme_scheme_accuracy);
+            setAnalysisValue("rhyming", measures.rhyming);
+            setAnalysisValue("rhymingConsistency", measures.rhyming_consistency);
+            setAnalysisValue("syllableCountEntropy", measures.syllable_count_entropy);
+            setAnalysisValue("unknownWords", measures.unknown_words);
+        }
 
         const codes = data.body
             .map((item) => {
@@ -115,12 +160,11 @@ export function usePoemGenerator() {
             const allSame = codes.every((code) => code === firstCode);
 
             if (allSame)
-            {
                 setDraftParam("metre", firstCode);
-                commitDraftToCurrent();
-                updateInitialValues();
-            }
         }
+
+        commitDraftToCurrent(); // predpokladam/verim, ze alespon nejaky draftParam se nastavil
+        updateInitialValues();
 
     }, []);
 
@@ -167,6 +211,7 @@ export function usePoemGenerator() {
 
     return {
         fetchPoem,
+        genPoem,
         fetchAnalysis,
         fetchMotives,
         fetchImage,

@@ -1,5 +1,5 @@
 import { fetchAuthorsListApi, fetchPoemsListApi } from "@/lib/edupoApi";
-import { Poem } from "@/types/edupoapi";
+import { Poem } from "@/types/edupoApi";
 import { create } from "zustand";
 
 export type AuthorName = string;

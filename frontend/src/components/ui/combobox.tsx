@@ -67,8 +67,7 @@ export function Combobox({ withSearch, placeholder, data, disabled, highlighted,
                   key={d.value}
                   value={d.value}
                   onSelect={(currentValue) => {
-                    const newValue = currentValue === value ? "" : currentValue;
-                    onChange(newValue);
+                    onChange(currentValue);
                     setOpen(false);
                   }}
                 >

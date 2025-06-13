@@ -12,7 +12,7 @@ export default function PoemControls() {
             <TabsTrigger value="analysis" className="w-1/3">Analýza</TabsTrigger>
             <TabsTrigger value="editing" className="w-1/3">Úpravy textu</TabsTrigger>
           </TabsList>
-          <LikeButton onClick={() => { console.log('Like button click'); }} />
+          <LikeButton />
         </div>
         <TabsContent value="reading" className="flex-1">
             <PoemContent linesMode="plaintext" />

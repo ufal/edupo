@@ -12,6 +12,24 @@ export interface Poem {
 
 export type PoemsListResponse = Poem[];
 
+export interface FetchPoemVerse {
+    metre?: any;
+    punct?: any;
+    rhyme?: any;
+    sections?: any;
+    stanza?: any;
+    text: string;
+    words?: any;
+} 
+
+export interface FetchPoemResponse {
+    plaintext?: string;
+    rawtext?: string;
+    title?: string;
+    author_name?: string;
+    body: FetchPoemVerse[];
+}
+
 export interface GenResponse {
     plaintext?: string;
     title?: string;
@@ -30,6 +48,8 @@ export interface MetreDetail {
 export type MetreDetailCode = "A" | "D" | "J" | "T";
 
 export interface AnalysisResponse {
+    author: string;
+    title: string;
     body: [
         {
             metre: {

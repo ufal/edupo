@@ -33,8 +33,6 @@ export default function PoemPlayBadge({ cls }: { cls: string }) {
 
         const ttsResp = await fetchTTS(poemId);
 
-        console.log("TTS response:", ttsResp);
-
         if (ttsResp.url) {
           setAudioUrl(ttsResp.url);
           toggle(ttsResp.url);

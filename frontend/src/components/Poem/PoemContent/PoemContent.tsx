@@ -15,9 +15,10 @@ type PoemContentLinesMode = "plaintext" | "highlighted" | "editable";
 
 export default function PoemContent({ linesMode } : { linesMode: PoemContentLinesMode }) {
     const [unlockedLines, setUnlockedLines] = useState<number[]>([]);
-    const { draftValues, setDraftParam, poemLoading, poemError } = usePoem();
+    const { draftValues, currentValues, setDraftParam, poemLoading, poemError } = usePoem();
     const poemLines = draftValues.poemLines ?? [];
-    const rhymeScheme = draftValues.rhymeScheme ?? [];
+    const rhymeScheme = currentValues.rhymeScheme ?? [];
+    const isXRhymeScheme = Array(rhymeScheme).every((val) => val === "X");
 
     const unlockLine = (index: number) => {
         setUnlockedLines((prev) =>
@@ -96,9 +97,10 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                                                             )
 
                                                         case "highlighted":
-                                                            const letter = rhymeScheme![i];
+                                                            const letter = isXRhymeScheme ? "X" : rhymeScheme![i];
                                                             const colorSchemeName = (poemLines.length == rhymeScheme.length) ? SchemeToColorMappings[letter as keyof typeof SchemeToColorMappings] : "yellow";
                                                             const colorScheme = PoemLineColorSchemes[colorSchemeName];
+                                                            
                                                             return (
                                                                 <PoemLine
                                                                     key={"letter-" + i}

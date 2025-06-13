@@ -12,7 +12,7 @@ type ParamValues = {
   metre: string;
   rhyme: string;
   motives: string;
-  rhymeScheme: string;
+  rhymeScheme: string | null;
   temperature: number;
   syllablesCount: number;
   versesCount: number;

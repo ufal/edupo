@@ -1,5 +1,5 @@
 "use client"
-import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { usePoem } from "@/store/poemStore";
 import { usePoemAnalysis } from "@/store/poemAnalysisStore";
@@ -23,13 +23,14 @@ import PoemSettingsChangeBadge from "./PoemSettingsChangeBadge";
 
 export default function PoemSettings() {
 
+  const router = useRouter();
+
   const {
     currentValues,
     disabledFields,
     setDisabledField,
     draftValues,
     setDraftParam,
-    commitDraftToCurrent,
     hasDraftParamChanged,
     poemLoading
   } = usePoem();
@@ -44,7 +45,7 @@ export default function PoemSettings() {
   } = usePoemDatabase();
 
   const {
-    fetchPoem,
+    genPoem,
     fetchAnalysis,
     fetchMotives
   } = usePoemGenerator();
@@ -57,9 +58,15 @@ export default function PoemSettings() {
   };
 
   const onGenAnalyseButtonClick = async () => {
-    const newPoemId = await fetchPoem();
-    await fetchAnalysis(newPoemId);
-    await fetchMotives(newPoemId);
+    setDraftParam("motives", "");
+    const newPoemId = await genPoem();
+
+    if (newPoemId) {
+        await fetchAnalysis(newPoemId);
+        await fetchMotives(newPoemId);
+
+        router.replace(`/?poemId=${newPoemId}`);
+    }
   };
 
   const havePoemLinesChanged = usePoem((s) => s.hasDraftParamChanged("poemLines"));
@@ -153,6 +160,7 @@ export default function PoemSettings() {
                                 placeholder="Název"
                                 data={poemOptions}
                                 disabled={
+                                    disabledFields.author ||
                                     disabledFields.title ||
                                     !draftValues.author ||
                                     !(draftValues.author in poemsByAuthor)
@@ -241,7 +249,11 @@ export default function PoemSettings() {
                                             placeholder="Schéma"
                                             data={inputParams.rhymeScheme || []}
                                             disabled={disabledFields.rhymeScheme}
-                                            value={draftValues.rhymeScheme}
+                                            value={
+                                                draftValues.rhymeScheme
+                                                    ? draftValues.rhymeScheme
+                                                    : inputParams.rhymeScheme![inputParams.rhymeScheme?.length! - 1].value
+                                            }
                                             onChange={(v) => setDraftParam("rhymeScheme", v)} />
                                 </Section>
                             </div>
@@ -269,7 +281,6 @@ export default function PoemSettings() {
                             <Textarea
                                 value={draftValues.motives}
                                 className="font-normal"
-                                disabled={disabledFields.motives}
                                 readOnly={true} />
                         </div>
                     </AccordionContent>

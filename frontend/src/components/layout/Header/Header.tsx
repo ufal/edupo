@@ -8,12 +8,23 @@ import { crimsonPro } from "@/app/(webapp)/fonts";
 
 import { Button } from "@/components/ui/button";
 import { Link as LinkIcon, QrCode, Check, ChevronsUpDown } from "lucide-react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
+import { usePoem } from "@/store/poemStore";
+import { usePoemLoader } from "@/hooks/useLoadPoem";
+import { AnalysisResponse } from "@/types/edupoApi";
+import { usePoemDatabase } from "@/store/poemDatabaseStore";
 
 import presetPoems from "@/data/api/preset-poems.json"
 
 export default function Header() {
+    const {
+        setDraftParam
+    } = usePoem.getState();
+
+    const { loadPoem } = usePoemLoader();
+
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState("");
 
@@ -65,8 +76,26 @@ export default function Header() {
                                             key={entry}
                                             value={entry}
                                             onSelect={(currentValue) => {
-                                                setValue(currentValue === value ? "" : currentValue)
-                                                setOpen(false)
+                                                setValue(currentValue === value ? "" : currentValue);
+                                                setOpen(false);
+
+                                                try {
+                                                    const currentValueId = presetPoems.find(e => (e.author + ": " + e.poem) === currentValue)?.id!
+                                                    loadPoem(currentValueId.toString(), async (data: AnalysisResponse) => {
+                                                        
+                                                        if (data.author)
+                                                            setDraftParam("author", data.author);
+                                                        await usePoemDatabase.getState().fetchPoemsForAuthor(data.author);
+
+                                                        const poemTitle = presetPoems.find(e => e.id === currentValueId)?.poem;
+
+                                                        if (poemTitle) {
+                                                            setDraftParam("title", poemTitle);
+                                                        }
+                                                    });
+                                                } catch (err: any) {
+                                                    console.error("Error fetching poem:", err);
+                                                }
                                             }}>
                                                 { entry }
                                                 <Check

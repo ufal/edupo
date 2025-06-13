@@ -1,6 +1,8 @@
 "use client"
 
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import Poem from "@/components/Poem";
 import Sidebar from "@/components/layout/Sidebar";
@@ -9,26 +11,46 @@ import PoemSettingsModeSwitcher from "@/components/PoemSettings/PoemSettingsMode
 
 import { usePoemGenerator } from "@/hooks/usePoemGenerator";
 import { usePoemDatabase } from "@/store/poemDatabaseStore";
+import { usePoemLoader } from "@/hooks/useLoadPoem";
 
 export default function Home() {
 
+  const router = useRouter();
+
   const [openControlPanel, setOpenControlPanel] = useState(false);
-  const { fetchPoem, fetchAnalysis, fetchMotives } = usePoemGenerator();
+  const { genPoem } = usePoemGenerator();
+  
+  const searchParams = useSearchParams();
+  const initialPoemId = searchParams.get("poemId");
+
+  const [hasRunInitialLoad, setHasRunInitialLoad] = useState(false);
+
+  const { loadPoem } = usePoemLoader();
+  const { fetchAnalysis, fetchMotives } = usePoemGenerator();
 
   useEffect(() => {
-    usePoemDatabase.getState().fetchAuthors();
-  }, []);
+      const run = async () => {
+          if (hasRunInitialLoad) return;
+          setHasRunInitialLoad(true);
 
-  useEffect(() => {
-    const run = async () => {
+          if (initialPoemId) {
+              console.log("Loading initial poemId from URL:", initialPoemId);
+              await loadPoem(initialPoemId);
+              await usePoemDatabase.getState().fetchAuthors();
+              return;
+          }
 
-      const newPoemId = await fetchPoem();
-      await fetchAnalysis(newPoemId);
-      await fetchMotives(newPoemId);
-    };
+          const newPoemId = await genPoem();
+          if (!newPoemId) return;
 
-    run();
-  }, []);
+          router.replace(`/?poemId=${newPoemId}`);
+          await fetchAnalysis(newPoemId);
+          await fetchMotives(newPoemId);
+          await usePoemDatabase.getState().fetchAuthors();
+      };
+
+      run();
+  }, [initialPoemId]);
 
   const sidePanelControlButton = (
     <SidePanelControlButton
