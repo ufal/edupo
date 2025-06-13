@@ -482,11 +482,12 @@ def call_analyze():
     data = get_poem_by_id()
     if data is None:
         data = get_data_tta()
+    reananalyze = get_post_arg('reanalyze', default=False, nonempty=True)
     
     if not data.get('plaintext', ''):
         raise ExceptionPoemInvalid("Text must not be empty!")
     
-    if 'body' in data:
+    if 'body' in data and not reanalyze:
         # no need to analyze, already analyzed
         # either explicitly by /analyze
         # or within get_poem_by_id()
