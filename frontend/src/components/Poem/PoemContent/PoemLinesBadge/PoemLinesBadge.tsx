@@ -4,15 +4,15 @@ import { LockKeyholeIcon } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 
 export function PoemLinesEditBadge({ onClick, locked } : { onClick: () => void; locked: boolean }) {
-    const cls = twMerge("w-[28px] h-[30px] bg-slate300 rounded-full flex items-center justify-center", locked ? "cursor-pointer" : null);
+    const cls = twMerge("w-[28px] h-[30px] flex items-center justify-center", locked ? "cursor-pointer bg-slate300 rounded-full" : null);
 
     return (
-        <div className="h-[34px] bg-slate200 flex items-center justify-center rounded-l-md">
+        <div className={twMerge("h-[34px] bg-slate200 flex items-center justify-center rounded-l-md", locked ? "" : "")}>
             <div className={cls} onClick={locked ? onClick : undefined}>
                 {
                     locked
                         ? <Pencil1Icon className="text-slate700 w-[20px] h-[20px]" />
-                        : <LockKeyholeIcon className="text-slate700 w-[20px] h-[20px]" />
+                        : <LockKeyholeIcon className="text-slate400 w-[20px] h-[20px]" />
                 }
             </div>
         </div>

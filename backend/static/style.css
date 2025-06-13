@@ -198,3 +198,8 @@ tr:hover {
     text-align: center;
     color: #1e40af;
 }
+
+.progress {
+    font-size: 1rem;
+    color: #888;
+}

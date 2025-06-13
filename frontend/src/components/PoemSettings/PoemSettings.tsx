@@ -1,15 +1,17 @@
 "use client"
-import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-import { usePoemParams } from "@/store/poemSettingsStore";
+import { usePoem } from "@/store/poemStore";
 import { usePoemAnalysis } from "@/store/poemAnalysisStore";
+import { usePoemGenerator } from "@/hooks/usePoemGenerator";
+import { usePoemDatabase } from "@/store/poemDatabaseStore";
 
 import apiParams from "@/data/api/params.json";
-import defaultApiParams from "@/data/api/params-default-values.json";
 import apiParamsTitles from "@/data/api/params-titles.json";
 import analysisTresholdValues from "@/data/api/analysis-values-tresholds.json";
 
 import Section from "./PoemSettingsSection";
+import Title from "./PoemSettingsSection/PoemSettingsTitle";
 import { Slider } from "../ui/slider";
 import { Combobox } from "../ui/combobox";
 import { Button } from "../ui/button";
@@ -17,54 +19,106 @@ import { ShuffleIcon } from "@radix-ui/react-icons";
 import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-interface PoemParamsProps {
-  analyseButtonClick: () => void;
-  genAnalyseButtonClick: () => void;
-}
+import PoemSettingsChangeBadge from "./PoemSettingsChangeBadge";
 
-export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }: PoemParamsProps) {
+export default function PoemSettings() {
+
+  const router = useRouter();
+
   const {
+    currentValues,
     disabledFields,
     setDisabledField,
-    currentValues,
-    hasParamChanged
-  } = usePoemParams();
-
+    draftValues,
+    setDraftParam,
+    hasDraftParamChanged,
+    poemLoading
+  } = usePoem();
+  
   const {
     currentAnalysisValues
   } = usePoemAnalysis.getState();
 
-  // console.log(disabledFields.syllablesCount, currentAnalysisValues.syllableCountEntropy, analysisTresholdValues.syllableCountEntropy);
+  const {
+    authors,
+    poemsByAuthor
+  } = usePoemDatabase();
 
-  const setParam = usePoemParams((s) => s.setParam);
-  const havePoemLinesChanged = usePoemParams((s) => s.hasParamChanged("poemLines"));
+  const {
+    genPoem,
+    fetchAnalysis,
+    fetchMotives
+  } = usePoemGenerator();
 
-  const rhymeScheme = currentValues.versesCount === 4 ? apiParams.gen.rhymeScheme["4"] : (currentValues.versesCount === 6 ? apiParams.gen.rhymeScheme["6"] : null);
+  const onAnalyseButtonClick = () => {
+    if (currentValues.id) {
+      fetchAnalysis(currentValues.id);
+      fetchMotives(currentValues.id);
+    }
+  };
+
+  const onGenAnalyseButtonClick = async () => {
+    setDraftParam("motives", "");
+    const newPoemId = await genPoem();
+
+    if (newPoemId) {
+        await fetchAnalysis(newPoemId);
+        await fetchMotives(newPoemId);
+
+        router.replace(`/?poemId=${newPoemId}`);
+    }
+  };
+
+  const havePoemLinesChanged = usePoem((s) => s.hasDraftParamChanged("poemLines"));
+  const rhymeScheme = draftValues.versesCount === 4 ? apiParams.gen.rhymeScheme["4"] : (draftValues.versesCount === 6 ? apiParams.gen.rhymeScheme["6"] : null);
 
   type MeterCode = keyof typeof apiParamsTitles.gen.metre;
 
   const inputParams = {
     metre: apiParams.gen.metre.map((i) => ({
-      label: apiParamsTitles.gen.metre[i as MeterCode] ?? i,
-      value: i
+        label: apiParamsTitles.gen.metre[i as MeterCode] ?? i,
+        value: i
     })),
     rhymeScheme: rhymeScheme?.map((i) => ({
-      label: i,
-      value: i
+        label: i,
+        value: i
     }))
   }
 
-  useEffect(() => {
-    const validSchemes = apiParams.gen.rhymeScheme[currentValues.versesCount as 4 | 6] || [];
-    
-    if (!validSchemes.includes(currentValues.rhymeScheme)) {
-      setParam("rhymeScheme", validSchemes[0] ?? "");
-    }
-  }, [currentValues.versesCount]);
+  const heightElements = [
+    { value: 64, unit: "px" },
+    { value: 64, unit: "px" },
+    { value: (!poemLoading && havePoemLinesChanged) ? 66 : 0, unit: "px" },
+    { value: (!poemLoading && havePoemLinesChanged) ? 2 : 0, unit: "rem" },
+    { value: 40, unit: "px" },
+    { value: 8, unit: "px" },
+    { value: 64, unit: "px" },
+  ];
+
+  const heightStr = `calc(100vh - ${heightElements
+    .map((el) => `${el.value}${el.unit}`)
+    .join(" - ")})`;
+
+    const authorOptions = authors.map(a => ({ label: a, value: a }));
+
+    const validAuthor = authorOptions.some(item => item.value === draftValues.author)
+        ? draftValues.author
+        : "";
+
+    const poemOptions = draftValues.author && poemsByAuthor[draftValues.author]
+        ? poemsByAuthor[draftValues.author].map(p => ({ label: p.title, value: p.title }))
+        : [];
+
+    const validTitle = poemOptions.some(item => item.value === draftValues.title)
+        ? draftValues.title
+        : "";
 
   return (
     <div className="flex flex-col h-full">
-        <div className={"flex-1 overflow-y-auto px-docOffsetXSmall tablet:px-docOffsetXBig pb-4"} style={{ maxHeight: "calc(100vh - 64px - 64px - 40px - 8px - 64px)"}}>
+        {
+            (!poemLoading && havePoemLinesChanged) && <PoemSettingsChangeBadge />
+        }
+        <div className={"flex-1 overflow-y-auto px-docOffsetXSmall tablet:px-docOffsetXBig pb-4"} style={{ maxHeight: heightStr}}>
             <Accordion type="multiple">
                 <AccordionItem value="item-1">
                     <AccordionTrigger>
@@ -74,34 +128,46 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                         <Section
                             title="Podle autora"
                             getSwitchValue={() => disabledFields.author}
-                            switchFunc={(on) => setDisabledField("author", on)}
-                            hasChanged={hasParamChanged("author")}
+                            switchFunc={(on) => {
+                                setDisabledField("author", on);
+
+                                if (on && !disabledFields.title)
+                                    setDisabledField("title", on);
+                            }}
+                            hasChanged={!poemLoading && (hasDraftParamChanged("author") && draftValues.author !== "")}
                             unsuitableToAnalysis={false}>
                             <Combobox
+                                withSearch={true}
                                 placeholder="Podle autora"
-                                data={[
-                                    { label: "Karel Jaromír Erben", value: "Karel Jaromír Erben" },
-                                    { label: "Jaroslav Vrchlický", value: "Jaroslav Vrchlický" }
-                                ]}
+                                data={authorOptions}
                                 disabled={disabledFields.author}
-                                value={currentValues.author}
-                                onChange={(v) => setParam("author", v)} />
+                                value={validAuthor}
+                                onChange={(v) => {
+                                    setDraftParam("author", v);
+                                    setDraftParam("title", "");
+                                    usePoemDatabase.getState().fetchPoemsForAuthor(v);
+                                }}
+                            />
                         </Section>
                         <Section
                             title="Název"
-                            getSwitchValue={() => disabledFields.name}
-                            switchFunc={(on) => setDisabledField("name", on)}
-                            hasChanged={hasParamChanged("name")}
+                            getSwitchValue={() => disabledFields.title}
+                            switchFunc={(on) => setDisabledField("title", on)}
+                            hasChanged={!poemLoading && (hasDraftParamChanged("title") && draftValues.title !== "")}
                             unsuitableToAnalysis={false}>
-                                <Combobox
-                                    placeholder="Název"
-                                    data={[
-                                        { label: "Polednice", value: "Polednice" },
-                                        { label: "Za trochu lásky", value: "Za trochu lásky" }
-                                    ]}
-                                    disabled={disabledFields.name}
-                                    value={currentValues.name}
-                                    onChange={(v) => setParam("name", v)} />
+                            <Combobox
+                                withSearch={true}
+                                placeholder="Název"
+                                data={poemOptions}
+                                disabled={
+                                    disabledFields.author ||
+                                    disabledFields.title ||
+                                    !draftValues.author ||
+                                    !(draftValues.author in poemsByAuthor)
+                                }
+                                value={validTitle}
+                                onChange={(v) => setDraftParam("title", v)}
+                            />
                         </Section>
                     </AccordionContent>
                 </AccordionItem>
@@ -114,35 +180,37 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                             title="Styl"
                             getSwitchValue={() => disabledFields.style}
                             switchFunc={(on) => setDisabledField("style", on)}
-                            hasChanged={hasParamChanged("style")}
-                            unsuitableToAnalysis={false}>
-                                <Combobox
-                                    placeholder="Styl"
-                                    data={[
-                                        { label: "Romantismus", value: "Romantismus" },
-                                        { label: "Impresionismus", value: "Impresionismus" }
-                                    ]}
-                                    disabled={disabledFields.style}
-                                    value={currentValues.style}
-                                    onChange={(v) => setParam("style", v)} />
+                            hasChanged={!poemLoading && hasDraftParamChanged("style")}
+                            unsuitableToAnalysis={false}
+                            readonly={true}>
+                            <Combobox
+                                placeholder="Styl"
+                                data={[
+                                    { label: "Romantismus", value: "Romantismus" },
+                                    { label: "Impresionismus", value: "Impresionismus" }
+                                ]}
+                                disabled={true || disabledFields.style}
+                                value={draftValues.style}
+                                onChange={(v) => setDraftParam("style", v)} />
                         </Section>
                         <Section
                             title="Forma"
                             getSwitchValue={() => disabledFields.form}
                             switchFunc={(on) => setDisabledField("form", on)}
-                            hasChanged={hasParamChanged("form")}
-                            unsuitableToAnalysis={false}>
+                            hasChanged={!poemLoading && hasDraftParamChanged("form")}
+                            unsuitableToAnalysis={false}
+                            readonly={true}>
                                 <Combobox
-                                    highlighted={hasParamChanged("form")}
+                                    highlighted={!poemLoading && hasDraftParamChanged("form")}
                                     placeholder="Forma"
                                     data={[
                                         { label: "Volný verš", value: "Volný verš" },
                                         { label: "Sonet", value: "Sonet" },
                                         { label: "Rondel", value: "Rondel" }
                                     ]}
-                                    disabled={disabledFields.form}
-                                    value={currentValues.form}
-                                    onChange={(v) => setParam("form", v)} />
+                                    disabled={true || disabledFields.form}
+                                    value={draftValues.form}
+                                    onChange={(v) => setDraftParam("form", v)} />
                         </Section>
                         <div className="flex flex-row gap-6">
                             <div className="w-1/2 flex flex-col gap-2">
@@ -150,15 +218,19 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                     title="Metrum"
                                     getSwitchValue={() => disabledFields.metre}
                                     switchFunc={(on) => setDisabledField("metre", on)}
-                                    hasChanged={hasParamChanged("metre")}
-                                    unsuitableToAnalysis={false}>
+                                    hasChanged={!poemLoading && hasDraftParamChanged("metre")}
+                                    unsuitableToAnalysis={
+                                        !disabledFields.metre &&
+                                        !!currentAnalysisValues.metreAccuracy &&
+                                        (currentAnalysisValues.metreAccuracy < analysisTresholdValues.metreAccuracy)
+                                    }>
                                         <Combobox
-                                            highlighted={hasParamChanged("metre")}
+                                            highlighted={!poemLoading && hasDraftParamChanged("metre")}
                                             placeholder="Metrum"
                                             data={inputParams.metre || []}
                                             disabled={disabledFields.metre}
-                                            value={currentValues.metre}
-                                            onChange={(v) => setParam("metre", v)} />
+                                            value={draftValues.metre}
+                                            onChange={(v) => setDraftParam("metre", v)} />
                                 </Section>
                             </div>
                             <div className="w-1/2 flex flex-col gap-2">
@@ -166,29 +238,51 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                                     title="Rýmové schéma"
                                     getSwitchValue={() => disabledFields.rhymeScheme}
                                     switchFunc={(on) => setDisabledField("rhymeScheme", on)}
-                                    hasChanged={hasParamChanged("rhymeScheme")}
-                                    unsuitableToAnalysis={false}>
+                                    hasChanged={!poemLoading && hasDraftParamChanged("rhymeScheme")}
+                                    unsuitableToAnalysis={
+                                        !disabledFields.rhymeScheme &&
+                                        !!currentAnalysisValues.rhymeSchemeAccuracy &&
+                                        (currentAnalysisValues.rhymeSchemeAccuracy < analysisTresholdValues.rhymeSchemeAccuracy)
+                                    }>
                                         <Combobox
-                                            highlighted={hasParamChanged("rhymeScheme")}
+                                            highlighted={!poemLoading && hasDraftParamChanged("rhymeScheme")}
                                             placeholder="Schéma"
                                             data={inputParams.rhymeScheme || []}
                                             disabled={disabledFields.rhymeScheme}
-                                            value={currentValues.rhymeScheme}
-                                            onChange={(v) => setParam("rhymeScheme", v)} />
+                                            value={
+                                                draftValues.rhymeScheme
+                                                    ? draftValues.rhymeScheme
+                                                    : inputParams.rhymeScheme![inputParams.rhymeScheme?.length! - 1].value
+                                            }
+                                            onChange={(v) => setDraftParam("rhymeScheme", v)} />
                                 </Section>
                             </div>
                         </div>
+                        {
+                            /*
                         <Section
                             title="Motivy básně"
                             getSwitchValue={() => disabledFields.motives}
                             switchFunc={(on) => setDisabledField("motives", on)}
-                            hasChanged={hasParamChanged("motives")}
-                            unsuitableToAnalysis={false}>
+                            hasChanged={!poemLoading && hasDraftParamChanged("motives")}
+                            unsuitableToAnalysis={false}
+                            readonly={true}>
                                 <Textarea
+                                    value={draftValues.motives}
                                     className="font-normal"
-                                    placeholder="Napište motivy nebo slova veršů"
-                                    disabled={disabledFields.motives} />
+                                    disabled={disabledFields.motives}
+                                    readOnly={true} />
                         </Section>
+                            */
+                        }
+
+                        <div>
+                            <Title text={"Motivy"} />
+                            <Textarea
+                                value={draftValues.motives}
+                                className="font-normal"
+                                readOnly={true} />
+                        </div>
                     </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3">
@@ -198,51 +292,53 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
                     <AccordionContent>
                         <Section
                             title="Počet veršů"
-                            titleValue={String(currentValues.versesCount)}
+                            titleValue={String(draftValues.versesCount)}
                             getSwitchValue={() => disabledFields.versesCount}
                             switchFunc={(on) => setDisabledField("versesCount", on)}
-                            hasChanged={hasParamChanged("versesCount")}
+                            hasChanged={!poemLoading && hasDraftParamChanged("versesCount")}
                             unsuitableToAnalysis={false}>
-                                <Slider
-                                    defaultValue={[currentValues.versesCount]}
-                                    min={apiParams.gen.versesCount.min}
-                                    max={apiParams.gen.versesCount.max}
-                                    step={2}
-                                    onValueChange={(v) => setParam("versesCount", v[0])}
-                                    disabled={disabledFields.versesCount} />
+                            <Slider
+                                defaultValue={[draftValues.versesCount]}
+                                min={apiParams.gen.versesCount.min}
+                                max={apiParams.gen.versesCount.max}
+                                step={2}
+                                onValueChange={(v) => {
+                                    const newVersesCount = v[0];
+                                    setDraftParam("versesCount", newVersesCount);
+
+                                    const validSchemes = apiParams.gen.rhymeScheme[newVersesCount as 4 | 6] || [];
+                                    setDraftParam("rhymeScheme", validSchemes[0]);
+                                }}
+                                disabled={disabledFields.versesCount} />
                         </Section>
                         <Section
                             title="Počet slabik v prvním verši"
-                            titleValue={String(currentValues.syllablesCount)}
+                            titleValue={String(draftValues.syllablesCount)}
                             getSwitchValue={() => disabledFields.syllablesCount}
                             switchFunc={(on) => setDisabledField("syllablesCount", on)}
-                            hasChanged={hasParamChanged("syllablesCount")}
-                            unsuitableToAnalysis={
-                                !disabledFields.syllablesCount &&
-                                !!currentAnalysisValues.syllableCountEntropy &&
-                                (currentAnalysisValues.syllableCountEntropy > analysisTresholdValues.syllableCountEntropy)
-                            }>
+                            hasChanged={!poemLoading && hasDraftParamChanged("syllablesCount")}
+                            unsuitableToAnalysis={false}>
                                 <Slider
-                                    defaultValue={[currentValues.syllablesCount]}
+                                    defaultValue={[draftValues.syllablesCount]}
                                     min={apiParams.gen.syllablesCount.min}
                                     max={apiParams.gen.syllablesCount.max}
                                     step={1}
-                                    onValueChange={(v) => setParam("syllablesCount", v[0])}
+                                    onValueChange={(v) => setDraftParam("syllablesCount", v[0])}
                                     disabled={disabledFields.syllablesCount} />
                         </Section>
                         <Section
                             title="Temperature"
-                            titleValue={String(currentValues.temperature)}
+                            titleValue={String(draftValues.temperature)}
                             switchFunc={(on) => setDisabledField("temperature", on)}
                             getSwitchValue={() => disabledFields.temperature}
-                            hasChanged={hasParamChanged("temperature")}
+                            hasChanged={!poemLoading && hasDraftParamChanged("temperature")}
                             unsuitableToAnalysis={false}>
                                 <Slider
-                                    defaultValue={[currentValues.temperature]}
+                                    defaultValue={[draftValues.temperature]}
                                     min={apiParams.gen.temperature.min}
                                     max={apiParams.gen.temperature.max}
                                     step={0.1}
-                                    onValueChange={(v) => setParam("temperature", v[0])}
+                                    onValueChange={(v) => setDraftParam("temperature", v[0])}
                                     disabled={disabledFields.temperature} />
                         </Section>
                     </AccordionContent>
@@ -256,16 +352,17 @@ export default function PoemParams({ analyseButtonClick, genAnalyseButtonClick }
             }}
             >
             <Button
-                disabled={!havePoemLinesChanged}
+                disabled={poemLoading && !havePoemLinesChanged}
                 variant="outline"
                 className="flex-1 bg-slateSoft"
-                onClick={analyseButtonClick}>
+                onClick={onAnalyseButtonClick}>
                     Znovu analyzovat
             </Button>
             <Button
+                disabled={poemLoading}
                 variant="outline"
                 className="flex-1 bg-blueCharcoal text-creamy"
-                onClick={genAnalyseButtonClick}>
+                onClick={onGenAnalyseButtonClick}>
                     Generovat báseň a analyzovat
                     <ShuffleIcon className="ml-1" />
             </Button>

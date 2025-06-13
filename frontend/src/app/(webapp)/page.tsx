@@ -1,238 +1,56 @@
 "use client"
 
-import { usePoemParams } from "@/store/poemSettingsStore";
-import { usePoemAnalysis } from "@/store/poemAnalysisStore";
-import { useState, useEffect, useCallback } from "react";
-
-import { GenResponse } from "@/types/edupoapi/gen";
-import { AnalysisResponse } from "@/types/edupoapi/analysis";
-import { PoemGenResult } from "@/types/poemGenResult";
+import { useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import Poem from "@/components/Poem";
 import Sidebar from "@/components/layout/Sidebar";
-import ImageSettings from "@/components/ImageSettings";
-import PoemSettings from "@/components/PoemSettings";
 import SidePanelControlButton from "@/components/SidePanelControlButton";
 import PoemSettingsModeSwitcher from "@/components/PoemSettings/PoemSettingsModeSwitcher";
 
-const initPoemGenResult: PoemGenResult = {
-  loading: true,
-  error: null,
-  authorName: null,
-  poemLines: null,
-  rhymeScheme: null
-}
+import { usePoemGenerator } from "@/hooks/usePoemGenerator";
+import { usePoemDatabase } from "@/store/poemDatabaseStore";
+import { usePoemLoader } from "@/hooks/useLoadPoem";
 
 export default function Home() {
-  const [poemId, setPoemId] = useState(null);
+
+  const router = useRouter();
+
   const [openControlPanel, setOpenControlPanel] = useState(false);
-  const [poemGenResult, setPoemGenResult] = useState<PoemGenResult>(initPoemGenResult);
-  const { updateInitialValues } = usePoemParams();
-  const { setAnalysisValue } = usePoemAnalysis();
-
-  const setParam = usePoemParams((s) => s.setParam);
-  const fetchAnalysis = useCallback(async (overrideId = null) => {
-
-    const idToUse = overrideId ?? poemId;
-    const { currentValues, disabledFields } = usePoemParams.getState();
-
-    if (!idToUse) return;
-
-    try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL!;
-        const endpoint = "analyze";
-        
-        let params = new URLSearchParams({
-            accept: "json"
-        });
+  const { genPoem } = usePoemGenerator();
   
-        if (!disabledFields.versesCount)
-            params.append("poemid", idToUse!);
-  
-        const res = await fetch(`${baseUrl}${endpoint}?${params}`);
+  const searchParams = useSearchParams();
+  const initialPoemId = searchParams.get("poemId");
 
-        let data: AnalysisResponse;
+  const [hasRunInitialLoad, setHasRunInitialLoad] = useState(false);
 
-        try {
-          data = await res.json();
-        } catch (jsonErr) {
-          throw new Error("Failed to parse JSON response");
-        }
-  
-        if (!data || typeof data !== "object") {
-          throw new Error("Unexpected response format");
-        }
-
-        if (!data.measures || typeof data.measures !== "object") {
-          throw new Error("Missing or invalid 'measures' in response");
-        }
-
-        const measures = data.measures;
-        setAnalysisValue("metreAccuracy", measures.metre_accuracy);
-        setAnalysisValue("metreConsistency", measures.metre_consistency);
-        setAnalysisValue("rhymeSchemeAccuracy", measures.rhyme_scheme_accuracy);
-        setAnalysisValue("rhyming", measures.rhyming);
-        setAnalysisValue("rhymingConsistency", measures.rhyming_consistency);
-        setAnalysisValue("syllableCountEntropy", measures.syllable_count_entropy);
-        setAnalysisValue("unknownWords", measures.unknown_words);
-
-    } catch (error) {
-        console.error("Error fetching analysis:", error);
-    }
-
-    console.log(`Fetching analysis for poem ${idToUse}...`);
-    
-  }, [poemId]);
-
-  const fetchPoem = useCallback(async () => {
-
-    const { currentValues, disabledFields } = usePoemParams.getState();
-
-    setPoemGenResult({
-      loading: true,
-      error: poemGenResult.error,
-      authorName: poemGenResult.authorName,
-      poemLines: poemGenResult.poemLines,
-      rhymeScheme: poemGenResult.rhymeScheme
-    });
-
-    try {
-      console.log("Fetching poem...", poemId);
-
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL!;
-      const endpoint = "gen";
-      
-      let params = new URLSearchParams({
-        accept: "json"
-      });
-      
-      if (!disabledFields.metre)
-        params.append("metre", currentValues.metre);
-
-      if (!disabledFields.rhymeScheme)
-        params.append("rhyme_scheme", currentValues.rhymeScheme);
-
-      if (!disabledFields.syllablesCount)
-        params.append("syllables_count", currentValues.syllablesCount.toString());
-
-      if (!disabledFields.versesCount)
-        params.append("verses_count", currentValues.versesCount.toString());
-
-      if (!disabledFields.temperature)
-        params.append("temperature", currentValues.temperature.toString());
-      
-      const url = `${baseUrl}${endpoint}?${params.toString()}`;
-      const res = await fetch(url);
-
-      if (!res.ok) {
-        throw new Error(`Server returned ${res.status} ${res.statusText}`);
-      }
-
-      let data: GenResponse;
-
-      try {
-        data = await res.json();
-      } catch (jsonErr) {
-        throw new Error("Failed to parse JSON response");
-      }
-
-      if (!data || typeof data !== "object") {
-        throw new Error("Unexpected response format");
-      }
-
-      /*
-      const data =
-        {
-          "author_name": "Anonym [vygenerov\u00e1no]",
-          "geninput": {
-              "anaphors": [],
-              "author_name": "Anonym",
-              "epanastrophes": [],
-              "first_words": [],
-              "max_strophes": 2,
-              "metre": "D",
-              "modelspec": "mc",
-              "rhyme_scheme": "ABABCC",
-              "syllables_count": 12,
-              "temperature": 1.0,
-              "title": "Bez n\u00e1zvu",
-              "verses_count": 6
-          },
-          "id": "2025-04-13_21-29-47_igkqKOyQcOo",
-          "plaintext": "A v tom, jak v poh\u00e1dce, v tom \u010darovn\u00e9m usm\u00e1n\u00ed\nv tom, jak se v poh\u00e1dku v\u0161ecko se m\u011bn\u00ed,\nv tom, jak se v poh\u00e1dce v\u0161ecko se ukl\u00e1n\u00ed,\nv tom, jak se v poh\u00e1dce v\u0161ecko to cen\u00ed,\nv tom, jak se v poh\u00e1dce v\u0161ecko to pozn\u00e1n\u00ed,\nv tom, jak se v poh\u00e1dce v\u0161ecko to pozn\u00e1n\u00ed.",
-          "rawtext": "# ABABCC # 1900\nD # 12 # \u00e1n\u00ed # a v tom, jak v poh\u00e1dce, v tom \u010darovn\u00e9m usm\u00e1n\u00ed\nD # 11 # \u011bn\u00ed # v tom, jak se v poh\u00e1dku v\u0161ecko se m\u011bn\u00ed,\nD # 12 # \u00e1n\u00ed # v tom, jak se v poh\u00e1dce v\u0161ecko se ukl\u00e1n\u00ed,\nD # 11 # en\u00ed # v tom, jak se v poh\u00e1dce v\u0161ecko to cen\u00ed,\nD # 12 # \u00e1n\u00ed # v tom, jak se v poh\u00e1dce v\u0161ecko to pozn\u00e1n\u00ed,\nD # 12 # \u00e1n\u00ed # v tom, jak se v poh\u00e1dce v\u0161ecko to pozn\u00e1n\u00ed,\n<|endoftext|>",
-          "title": "Bez n\u00e1zvu"
-      };
-      */
-
-      console.log(data);
-      
-      const plaintext = data.plaintext;
-
-      if (typeof plaintext !== "string" || plaintext.trim() === "") {
-        throw new Error("Missing or invalid 'plaintext' in response");
-      }
-
-      const lines = plaintext.split("\n").filter(line => line.trim() !== "");
-
-      if (lines.length < 1) {
-        throw new Error("Poem appears to be empty");
-      }
-
-      const rawText = data.rawtext;
-
-      if (typeof rawText !== "string" || rawText.trim() === "") {
-        throw new Error("Missing or invalid 'rawtext' in response");
-      }
-
-      const firstLine = rawText.split("\n")[0];
-      const parts = firstLine.split("#");
-  
-      if (parts.length < 2) {
-        throw new Error("Poem rawText is not in expected format");
-      }
-  
-      const scheme = parts[1].trim();
-
-      setPoemId(data.id);
-      setParam("poemLines", lines);
-      setParam("rhymeScheme", scheme);
-      updateInitialValues();
-
-      setPoemGenResult({
-          loading: false,
-          error: null,
-          authorName: data.author_name || null,
-          poemLines: lines,
-          rhymeScheme: scheme
-      });
-
-      fetchAnalysis(data.id);
-    } catch (err: any) {
-
-      console.error("Error fetching poem:", err);
-      setPoemGenResult({
-          loading: false,
-          error: err.message || "Unknown error",
-          authorName: null,
-          poemLines: null,
-          rhymeScheme: null
-      });
-    }
-
-  }, []);
+  const { loadPoem } = usePoemLoader();
+  const { fetchAnalysis, fetchMotives } = usePoemGenerator();
 
   useEffect(() => {
-    fetchPoem();
-  }, [fetchPoem]);
+      const run = async () => {
+          if (hasRunInitialLoad) return;
+          setHasRunInitialLoad(true);
 
-  const onAnalyseButtonClick = () => {
-    fetchAnalysis();
-  };
+          if (initialPoemId) {
+              console.log("Loading initial poemId from URL:", initialPoemId);
+              await loadPoem(initialPoemId);
+              await usePoemDatabase.getState().fetchAuthors();
+              return;
+          }
 
-  const onGenAnalyseButtonClick = () => {
-    fetchPoem();
-  };
+          const newPoemId = await genPoem();
+          if (!newPoemId) return;
+
+          router.replace(`/?poemId=${newPoemId}`);
+          await fetchAnalysis(newPoemId);
+          await fetchMotives(newPoemId);
+          await usePoemDatabase.getState().fetchAuthors();
+      };
+
+      run();
+  }, [initialPoemId]);
 
   const sidePanelControlButton = (
     <SidePanelControlButton
@@ -240,27 +58,15 @@ export default function Home() {
       onClick={() => { setOpenControlPanel(!openControlPanel) }} />
   );
 
-  const poemSettingsComponent = (
-    <PoemSettings
-      analyseButtonClick={onAnalyseButtonClick}
-      genAnalyseButtonClick={onGenAnalyseButtonClick} />
-  );
-
-  const imageSettingsComponent = <ImageSettings />;
-
   return (
     <div className="flex h-full">
       <div className="flex-1 px-docOffsetXSmall tablet:px-docOffsetXBig pt-4">
-        <Poem
-          poemGenResult={poemGenResult}
-          sidePanelControlElement={sidePanelControlButton} />
+        <Poem sidePanelControlElement={sidePanelControlButton} />
       </div>
       {
         openControlPanel && (
           <Sidebar>
-            <PoemSettingsModeSwitcher
-              poemModeContent={poemSettingsComponent}
-              imageModeContent={imageSettingsComponent} />
+            <PoemSettingsModeSwitcher />
           </Sidebar>
         )
       }

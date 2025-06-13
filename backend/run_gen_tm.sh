@@ -12,7 +12,7 @@ while true;
 do
     date
     echo Starting/reloading TM generator model...
-    python3 gen.py tm 5011
+    python3 gen.py tm 5011 --16bit
     echo Generator stopped, waiting $T for restart...
     sleep $T
     echo

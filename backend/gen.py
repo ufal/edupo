@@ -2,6 +2,7 @@
 #coding: utf-8
 
 import argparse
+from contextlib import redirect_stdout
 from functools import reduce
 import random
 import re
@@ -14,13 +15,14 @@ import torch
 import parsy
 
 import parser
+import sys
 
 logging.basicConfig(
     format='%(levelname)s %(asctime)s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO)
 
-MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-15000'
+MODEL_TM='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-7500'
 MODEL_MC="jinymusim/gpt-czech-poet"
 
 VERBOSE_INFO=False
@@ -64,29 +66,25 @@ def load_models(modelspec=None):
 
 
     elif modelspec == 'tm':
-        # Try to load unsloth model
-        try:
-            import unsloth
-            from unsloth import FastLanguageModel
-            kwargs = {}
-            if LOAD16BIT:
-                kwargs['dtype'] = torch.bfloat16
-                kwargs['load_in_4bit'] = False
-            else:
-                kwargs['load_in_4bit'] = True
-                logging.info("Loading in 4bit.")
-            model, tokenizer = FastLanguageModel.from_pretrained(
-                MODEL_TM,
-                **kwargs,
-                )
-            FastLanguageModel.for_inference(model)
-            with open('prompt_templates/tm1.txt', 'r') as f:
-                template = parser.Template(f.read())
+        import unsloth
+        from unsloth import FastLanguageModel
+        kwargs = {}
+        if LOAD16BIT:
+            kwargs['dtype'] = torch.bfloat16
+            kwargs['load_in_4bit'] = False
+        else:
+            kwargs['load_in_4bit'] = True
+            logging.info("Loading in 4bit.")
+        model, tokenizer = FastLanguageModel.from_pretrained(
+            MODEL_TM,
+            **kwargs,
+            )
+        FastLanguageModel.for_inference(model)
+        with open('prompt_templates/tm1.txt', 'r') as f:
+            template = parser.Template(f.read())
 
-            #logging.info(f"model_tm: {model_tm}")
-            #logging.info(f"tokenizer_tm: {tokenizer_tm}")
-        except:
-            logging.exception("EXCEPTION Nejde načíst unsloth model.")
+        #logging.info(f"model_tm: {model_tm}")
+        #logging.info(f"tokenizer_tm: {tokenizer_tm}")
     else:
         logging.exception("EXCEPTION Nebyl vybrán model.")
 
@@ -492,8 +490,18 @@ def generuj_tm(model, tokenizer, template, params_orig):
 
     return poem, verses, author_name, title
 
-def generuj(model, tokenizer, template, params):
+import copy
+def generuj(model, tokenizer, template, params, params_immutable=True):
     logging.info(f'Generating with params: {params}')
+    """
+    If params_immutable is True, makes a deep copy of params and does not
+    modify params.
+    Otherwise params are modified inside the process.
+    """
+
+    if params_immutable:
+        params = copy.deepcopy(params)
+
     if params.get('modelspec') == 'tm':
         return generuj_tm(model, tokenizer, template, params)
     else:
@@ -512,12 +520,13 @@ def main_server(modelspec, port):
     while True:
         params = json.loads(socket.recv())
         params['modelspec'] = modelspec
-        result = json.dumps(generuj(model, tokenizer, template, params))
+        result = json.dumps(generuj(model, tokenizer, template, params, False))
         socket.send_string(result)
 
 def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_output=False):
     # direct mode
-    model, tokenizer, template = load_models(modelname)
+    with redirect_stdout(sys.stderr):
+        model, tokenizer, template = load_models(modelname)
     if json_file:
         with open(json_file, 'r') as f:
             params = json.load(f)
@@ -535,6 +544,7 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
             'anaphors': [],
             'epanastrophes': [],
             }
+    i = 0
     while True:
         result, clean_res, _, _ = generuj(model, tokenizer, template, params)
         if clean_output:
@@ -545,13 +555,16 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
                 print('\n'.join(clean_res))
         else:
             print(result)
+        i += 1
+        logging.info(f"Generated {i} poem" + "s" * (i > 1))
         if repeat:
             continue
         if repeat_n <= 1:
             break
         repeat_n -= 1
 
-if __name__=="__main__":
+def parse_args():
+    global MODEL_TM, VERBOSE_INFO, LOAD16BIT, NOSAMPLE
     argparser = argparse.ArgumentParser(description='Generate poetry with LLMs')
     argparser.add_argument('model', type=str, help='Model to use')
     argparser.add_argument('port', type=int, nargs='?', help='Port to use')
@@ -580,7 +593,11 @@ if __name__=="__main__":
 
     if args.greedy:
         NOSAMPLE = True
+    
+    return args
 
+if __name__=="__main__":
+    args = parse_args()
     if args.port:
         main_server(args.model, args.port)
     else:

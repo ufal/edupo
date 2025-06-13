@@ -51,6 +51,7 @@ h3 {
     --slate-200: #E2E8F0;
     --slate-200-transparent: #e2e8f04d;
     --slate-300: #CBD5E1;
+    --slate-400: #94A3B8;
     --slate-700: #334155;
 
     --green-dark: #059669;
@@ -75,10 +76,12 @@ h3 {
     --teal-300: #5EEAD4;
     --teal-600: #0D9488;
 
+    --sky-100: #E0F2FE;
     --sky-200: #BAE6FD;
     --sky-200-transparent: #BAE6FD4D;
     --sky-300: #7DD3FC;
     --sky-600: #0284C7;
+    --sky-800: #075985;
 
     --yellow-200: #FEF08A;
     --yellow-200-transparent: #FEF08A4D;

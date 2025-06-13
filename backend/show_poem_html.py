@@ -276,6 +276,17 @@ def show(data):
         prev_stanza_id = 0
         # list of lines (empty = empty line)
         plaintext = list()
+        
+        # TODO this should not happen but does happen, at least for Ostrava
+        # if body is list of lists, flatten
+        if data['body'] and isinstance(data['body'][0], list):
+            logging.warning(f"Poem body is a list of lists of dicts, should be list of dicts!!! {data['id']}")
+            newbody = []
+            for stanza in data['body']:
+                for verse in stanza:
+                    newbody.append(verse)
+            data['body'] = newbody
+        
         for verse in data['body']:
             rhyme = get_rhyme(verse)
             metre = get_metre(verse)
@@ -316,7 +327,7 @@ def show(data):
             prev_punct = ' '
             for word in verse["words"]:
                 if "punct_before" in word:
-                    syllables[-1]["after"] += word["punct_before"]
+                    syllables[-1]["after"] += word["punct_before"].replace(' ', NBSP)
                 if word["syllables"]:
 
                     # add all syllables

@@ -22,6 +22,9 @@ sys.path.append("../scripts/diphthongs")
 from kveta import okvetuj, okvetuj_ccv
 from get_measures import get_measures_from_analyzed_poem
 
+# TODO use this instead of a plain dict
+from data_types import GenerationParameters
+
 app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
@@ -246,6 +249,8 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
         result = dict(result)
         # always analyze
         result['body'] = okvetuj_ccv(result['body'])
+        # TODO this would be good but get_measures does not work for CCV data
+        # result['measures'] = get_measures_from_analyzed_poem(result['body'])
         data = show_poem_html.show(result)
         data['plaintext'] = poem2text(data)
     
@@ -477,13 +482,16 @@ def call_analyze():
     data = get_poem_by_id()
     if data is None:
         data = get_data_tta()
+    reanalyze = get_post_arg('reanalyze', default=False, nonempty=True)
     
     if not data.get('plaintext', ''):
         raise ExceptionPoemInvalid("Text must not be empty!")
     
-    if 'body' in data:
-        kveta_result = okvetuj_ccv(data['body'])
-        data['body'] = [kveta_result]
+    if 'body' in data and not reanalyze:
+        # no need to analyze, already analyzed
+        # either explicitly by /analyze
+        # or within get_poem_by_id()
+        pass
     else:
         kveta_result = okvetuj(data['plaintext'])
         data['body'] = kveta_result[0][0]['body']
@@ -655,6 +663,12 @@ def call_generate_openai():
     result = generate_with_openai_simple(prompt)
     return render_template('openaigenerate.html', prompt=prompt, result=result)
 
+@app.route("/get_generation_parameters_specification", methods=['GET', 'POST'])
+def call_get_generation_parameters_specification():
+    schema = GenerationParameters.schema_json(indent=2)
+    return return_accepted_type(schema, schema, schema)
+
+
 @app.route("/logs", methods=['GET', 'POST'])
 def call_logs():
     n = int(get_post_arg('n', '20'))
@@ -743,7 +757,8 @@ def call_tests():
                                qa=get_question(*tst['otazky'][i][0]),
                                qb=get_question(*tst['otazky'][i][1]),
                                tst=json.dumps(tst),
-                               instrukce=testy[tst['test']][2]
+                               instrukce=testy[tst['test']][2],
+                               progress=str(len(tst['odpovedi']) + 1) + '/' + str(len(tst['otazky'])),
                                )
     t = get_post_arg('t')
     # neznáme test, zobrazíme rozcestník
@@ -776,7 +791,7 @@ def call_tests():
         a_ids = list(zip(repeat(testy[t][0]), random.sample(range(len(acka)), 10)))
         b_ids = list(zip(repeat(testy[t][1]), random.sample(range(len(bcka)), 10)))
         tst=list(zip(a_ids, b_ids))
-        for i in range(len(tst[-1])):
+        for i in range(len(tst)):
             if random.choice([True, False]):
                 tst[i] = (tst[i][1], tst[i][0])
         tst = {
@@ -790,10 +805,42 @@ def call_tests():
                                qa=get_question(*tst['otazky'][0][0]),
                                qb=get_question(*tst['otazky'][0][1]),
                                tst=json.dumps(tst),
-                               instrukce=testy[t][2]
+                               instrukce=testy[t][2],
+                               progress=str(len(tst['odpovedi']) + 1) + '/' + str(len(tst['otazky'])),
                                )
     else: # formulář na zadání jména
         return render_template('testovani.html', t=t)
+
+def get_like_count(poemid):
+    filename = f'static/likes/{poemid}.txt'
+    if os.path.isfile(filename):
+        with open(filename) as infile:
+            contents = infile.read()
+            try:
+                return int(contents)
+            except:
+                return 0
+    else:
+        return 0
+
+def set_like_count(poemid, count):
+    filename = f'static/likes/{poemid}.txt'
+    with open(filename, 'w') as outfile:
+        print(count, file=outfile)
+
+@app.route("/add_like", methods=['GET', 'POST'])
+def call_add_like():
+    poemid = get_post_arg('poemid')
+    count = get_like_count(poemid)
+    count += 1
+    set_like_count(poemid, count)
+    return return_accepted_type(str(count), count, str(count))
+
+@app.route("/like_count", methods=['GET', 'POST'])
+def call_like_count():
+    poemid = get_post_arg('poemid')
+    count = get_like_count(poemid)
+    return return_accepted_type(str(count), count, str(count))
 
 @app.errorhandler(ExceptionPoemInvalid)
 def handle_exception(e):

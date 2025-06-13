@@ -118,14 +118,26 @@ Podporuje:
 - Příklad:  
   - [https://quest.ms.mff.cuni.cz/edupo-api/gentts?poemid=72197\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/gentts?poemid=72197&accept=txt)   
 
+### Lajkování
+`/like_count`
+- Parametry:
+  - `poemid` = ID básně
+- Vrací: počet lajků básně.
+
+`/add_like`
+- Parametry:
+  - `poemid` = ID básně
+- Vrací: počet lajků básně (předtím ho zvýší o 1).
+
 ### Analýza básně
 `/analyze`
 - Parametry:
   - `poemid` = ID básně
-  - anebo parametry jako u `input` pro báseň co dosud nemá poemid
+  - anebo `text` = text básně (a případně další parametry jako u `input`) pro báseň co dosud nemá poemid
 - Vrací: Versologickou analýzu básně.
 - Příklad:  
   - [https://quest.ms.mff.cuni.cz/edupo-api/analyze?poemid=72197\&accept=json](https://quest.ms.mff.cuni.cz/edupo-api/analyze?poemid=72197&accept=json)   
+  - [https://quest.ms.mff.cuni.cz/edupo-api/analyze?text=Sedí losos na jabloni. Má své oči na mamoni.](https://quest.ms.mff.cuni.cz/edupo-api/analyze?text=Sed%C3%AD%20losos%20na%20jabloni.%0AM%C3%A1%20sv%C3%A9%20o%C4%8Di%20na%20mamoni.)
 
 ---
 
