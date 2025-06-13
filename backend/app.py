@@ -249,8 +249,7 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
         result = dict(result)
         # always analyze
         result['body'] = okvetuj_ccv(result['body'])
-        result['measures'] = get_measures_from_analyzed_poem(
-                result['body'], parameters)
+        result['measures'] = get_measures_from_analyzed_poem(result['body'])
         data = show_poem_html.show(result)
         data['plaintext'] = poem2text(data)
     
