@@ -65,7 +65,8 @@ export default function PoemSettings() {
         await fetchAnalysis(newPoemId);
         await fetchMotives(newPoemId);
 
-        router.replace(`/?poemId=${newPoemId}`);
+        const currentPath = window.location.pathname;
+        router.replace(`${currentPath}?poemId=${newPoemId}`);
     }
   };
 

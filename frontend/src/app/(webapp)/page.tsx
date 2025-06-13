@@ -1,6 +1,5 @@
 "use client"
 
-import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -48,7 +47,9 @@ export default function Home() {
       const newPoemId = await genPoem();
       if (!newPoemId) return;
 
-      router.replace(`/?poemId=${newPoemId}`);
+      const currentPath = window.location.pathname;
+      router.replace(`${currentPath}?poemId=${newPoemId}`);
+
       await fetchAnalysis(newPoemId);
       await fetchMotives(newPoemId);
       await usePoemDatabase.getState().fetchAuthors();
