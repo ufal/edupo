@@ -16,7 +16,9 @@ import { usePoemLoader } from "@/hooks/useLoadPoem";
 import { AnalysisResponse } from "@/types/edupoApi";
 import { usePoemDatabase } from "@/store/poemDatabaseStore";
 
-import presetPoems from "@/data/api/preset-poems.json"
+import presetPoems from "@/data/api/preset-poems.json";
+import CopyLinkButton from "@/components/CopyLinkButton";
+import QRCodeButton from "@/components/QRCodeButton";
 
 export default function Header() {
     const {
@@ -117,12 +119,8 @@ export default function Header() {
             </Popover>
 
             <div className="flex gap-2">
-                <Button variant="outline" size="icon" className="text-black">
-                    <LinkIcon />
-                </Button>
-                <Button variant="outline" size="icon" className="text-black">
-                    <QrCode />
-                </Button>
+                <CopyLinkButton />
+                <QRCodeButton />
             </div>
             
         </header>
