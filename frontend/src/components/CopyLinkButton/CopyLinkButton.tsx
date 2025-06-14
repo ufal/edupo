@@ -32,7 +32,7 @@ export default function CopyLinkButton() {
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          {copied ? "Zkopírováno!" : "Zkopírovat odkaz"}
+          {copied ? "Zkopírováno do schránky!" : "Zkopírovat odkaz"}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
