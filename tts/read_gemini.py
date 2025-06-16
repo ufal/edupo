@@ -22,8 +22,8 @@ from google import genai
 from google.genai import types
 
 
-with open('gemini_key.txt') as infile:
-    apikey = infile.read()
+with open('gemini_key.txt', 'r') as infile:
+    apikey = infile.read().strip()
 
 
 def save_binary_file(file_name, data):
