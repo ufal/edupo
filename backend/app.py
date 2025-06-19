@@ -168,18 +168,14 @@ def poem2text(data):
         return data['plaintext']
     else:
         plaintext = list()
-        prev_stanza_id = 0
+        prev_stanza_id = None
         for verse in data['body']:
             stanza_id = verse.get("stanza", 0)
-            # Only add empty line if this is a new stanza and we have content already
-            # and the last line isn't already empty
-            if prev_stanza_id != stanza_id and plaintext and plaintext[-1] != '':
+            # Add empty line between different stanzas (but not for first stanza)
+            if prev_stanza_id is not None and prev_stanza_id != stanza_id:
                 plaintext.append('')
-                prev_stanza_id = stanza_id
+            prev_stanza_id = stanza_id
             plaintext.append(verse["text"])
-        # Only add final empty line if the last line isn't already empty
-        if plaintext and plaintext[-1] != '':
-            plaintext.append('')
         return '\n'.join(plaintext)
 
 def poem2text_with_header(data, includeid=True):

@@ -384,8 +384,6 @@ def show(data):
                 'clause': verse["metre"][metre]['clause'],
                 'narrators_gender': verse.get('narrators_gender', ''),
                 })
-
-            plaintext.append('')
                 
             # TODO možná restartovat číslování rýmu po každé sloce
             # (ale někdy jde rýmování napříč slokama)
