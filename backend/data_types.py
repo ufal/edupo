@@ -5,7 +5,7 @@ from typing import Optional, Literal, List
 from pydantic import BaseModel, Field, constr
 
 class GenerationParameters(BaseModel):
-    rhyme_scheme: Optional[constr(pattern=r'^[A-Z]+$')] = Field(default=None)
+    rhyme_scheme: Optional[constr(pattern=r'^[A-Z ]+$')] = Field(default=None)
     metre: Optional[Literal['J', 'T', 'D', 'N']] = Field(default=None)
     verses_count: int = Field(default=None, ge=2, le=20)
     syllables_count: int = Field(default=None, ge=1, le=20)

@@ -389,7 +389,13 @@ def generuj_tm(model, tokenizer, template, params_orig):
     while strophes < params.get('max_strophes', 2) and '<|end_of_text|>' not in poem:
         poem += "#"
         if params.get('rhyme_scheme'):
-            rhyme_scheme_tm = " ".join(list(params['rhyme_scheme'].replace("X", "x")))
+            if ' ' in params['rhyme_scheme']:
+                # multischeme poem (such as sonet)
+                rhyme_scheme_parts = params['rhyme_scheme'].split(' ')
+                stanza_rhyme_scheme = rhyme_scheme_parts[strophes % len(rhyme_scheme_parts)]
+            else:
+                stanza_rhyme_scheme = params['rhyme_scheme']
+            rhyme_scheme_tm = " ".join(list(stanza_rhyme_scheme.replace("X", "x")))
             poem += f" {rhyme_scheme_tm} #\n"
         else:
             _, generated = gen(poem, '\n', krok='rhyme_scheme')
