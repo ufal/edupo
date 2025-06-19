@@ -409,7 +409,7 @@ def generuj_tm(model, tokenizer, template, params_orig):
             verses_count = len(params.get('rhyme_scheme', 'AABB'))
 
         # verses
-        for _ in range(verses_count):
+        for verse_index in range(verses_count):
             generated = ''
 
             # metre
@@ -426,7 +426,13 @@ def generuj_tm(model, tokenizer, template, params_orig):
 
             # syllables count
             if params.get('syllables_count'):
-                poem += f" {params['syllables_count']} #"
+                if isinstance(params['syllables_count'], int):
+                    syllcount = params['syllables_count']
+                else:
+                    assert isinstance(params['syllables_count'], str)
+                    syllable_counts = params['syllables_count'].split(' ')
+                    syllcount = int(syllable_counts[verse_index % len(syllable_counts)])
+                poem += f" {syllcount} #"
             else:
                 poem, generated = gen(poem, '#', krok='syllables_count')
 

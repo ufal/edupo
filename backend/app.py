@@ -335,6 +335,18 @@ def gen_zmq(params):
     socket.send_string(json.dumps(params))
     return json.loads(socket.recv())
 
+def set_params_for_form(params):
+    if params['form'] == 'sonet' and params['modelspec'] == 'tm':
+        params['max_strophes'] = 4
+        params['rhyme_scheme'] = 'ABBA CDDC EFG EFG'
+    elif params['form'] == 'limerik':
+        params['max_strophes'] = 1
+        params['rhyme_scheme'] = 'AABBA'
+    elif params['form'] == 'haiku' and params['modelspec'] == 'tm':
+        params['max_strophes'] = 1
+        params['rhyme_scheme'] = 'XXX'
+        params['syllables_count'] = '5 7 5'
+    
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     # empty or 'náhodně' means random
@@ -352,7 +364,10 @@ def call_generuj():
     params['title'] = get_post_arg('title', 'Bez názvu')
     params['author_name'] = get_post_arg('author', 'Anonym')
     params['modelspec'] = get_post_arg('modelspec', 'mc')
+    params['form'] = get_post_arg('form', '')
     
+    set_params_for_form(params)
+
     geninput = (f"Generate poem with parameters: {params}")
     app.logger.info(geninput)
     # raw_output, clean_verses, author_name, title = generuj(dict(params))
