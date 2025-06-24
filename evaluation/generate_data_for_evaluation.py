@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# Usage: python generate_data_for_evaluation.py [unsloth_file] [num poems] [total num poems]
+
 import sys
 sys.path.append("../backend")
 import parser
