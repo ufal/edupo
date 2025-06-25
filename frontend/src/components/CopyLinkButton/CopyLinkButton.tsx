@@ -26,8 +26,7 @@ export default function CopyLinkButton() {
             variant="outline"
             size="icon"
             className="text-black"
-            onClick={handleCopyLink}
-          >
+            onClick={handleCopyLink}>
             <LinkIcon />
           </Button>
         </TooltipTrigger>
