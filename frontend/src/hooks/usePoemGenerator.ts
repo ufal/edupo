@@ -23,11 +23,11 @@ const parsePoemResponse = (data: FetchPoemResponse | GenResponse): { author: str
 
     if (data.rawtext)
     {
-        const firstLine = data.rawtext.split("\n")[0];
-        const parts = firstLine.split("#");
-        rhymeScheme = parts.length >= 2 ? parts[1].trim() : "";
+        const schemeLine = data.rawtext.split("\n").find((line: string) => { return line.startsWith("#") && line.endsWith("#") }) ?? "";
+        const parts = schemeLine.split("#");
+        const schemeRaw = parts.length >= 2 ? parts[1] : "";
+        rhymeScheme = schemeRaw.replace(/\s/g, "");
     }
-
 
     return { author, title, lines, rhymeScheme };
 }
@@ -73,11 +73,14 @@ export function usePoemGenerator() {
 
         try {
             let params = new URLSearchParams({ accept: "json" });
+            params.append("modelspec", "tm");
 
             if (!disabledFields.author && draftValues.author)
                 params.append("author", draftValues.author);
             if (!disabledFields.title && draftValues.title)
                 params.append("title", draftValues.title);
+            if (!disabledFields.form)
+                params.append("form", draftValues.form);
             if (!disabledFields.metre)
                 params.append("metre", draftValues.metre);
             if (!disabledFields.rhymeScheme && draftValues.rhymeScheme)

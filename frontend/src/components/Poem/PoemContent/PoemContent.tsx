@@ -17,8 +17,15 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
     const [unlockedLines, setUnlockedLines] = useState<number[]>([]);
     const { draftValues, currentValues, setDraftParam, poemLoading, poemError } = usePoem();
     const poemLines = draftValues.poemLines ?? [];
-    const rhymeScheme = currentValues.rhymeScheme ?? [];
-    const isXRhymeScheme = Array(rhymeScheme).every((val) => val === "X");
+    const rhymeScheme = currentValues.rhymeScheme ?? "";
+    let rhymeSchemeNormalized = rhymeScheme;
+
+    if (rhymeSchemeNormalized.length != poemLines.length && poemLines.length % rhymeScheme.length === 0) {
+        const repeatCount = poemLines.length / rhymeScheme.length;
+        rhymeSchemeNormalized = rhymeScheme.repeat(repeatCount);
+    }
+
+    const isXRhymeScheme = Array(rhymeSchemeNormalized).every((val) => val === "X");
 
     const unlockLine = (index: number) => {
         setUnlockedLines((prev) =>
@@ -46,7 +53,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
         <div className="flex flex-row h-full pt-4 relative">
             {
                 (linesMode === "highlighted" || linesMode === "editable") && (
-                    (poemLines && rhymeScheme) && (
+                    (poemLines && rhymeSchemeNormalized) && (
 
                         <div className="w-[34px] py-6 leading-relaxed whitespace-pre-line font-[14px]">
                             <div className="leading-relaxed whitespace-pre-line flex flex-col gap-1">
@@ -57,9 +64,13 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                                                 return <PoemLinesEditBadge key={"edit-" + i} onClick={() => unlockLine(i)} locked={!unlockedLines.includes(i)} />;
 
                                             case "highlighted":
-                                                const letter = (poemLines.length == rhymeScheme.length) ? rhymeScheme![i] : "?";
-                                                const colorScheme = (poemLines.length == rhymeScheme.length) ? (SchemeToColorMappings[letter as keyof typeof SchemeToColorMappings]) : "yellow";
-                                                return <PoemLinesLetterBadge key={"letter-" + i} letter={letter} poemLineColorScheme={colorScheme} />;
+                                                const letter = (poemLines.length == rhymeSchemeNormalized.length) ? rhymeSchemeNormalized![i] : "?";
+                                                const colorSchemeName = (poemLines.length != rhymeSchemeNormalized.length)
+                                                                            ? "yellow"
+                                                                            : (typeof SchemeToColorMappings[letter as keyof typeof SchemeToColorMappings] === "undefined")
+                                                                                ? "yellow"
+                                                                                : SchemeToColorMappings[letter as keyof typeof SchemeToColorMappings]
+                                                return <PoemLinesLetterBadge key={"letter-" + i} letter={letter} poemLineColorScheme={colorSchemeName} />;
                                         }
                                     })
                                 }
@@ -79,7 +90,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                         }
                         {
                             (!poemLoading && !poemError) &&
-                                (poemLines && rhymeScheme) &&
+                                (poemLines && rhymeSchemeNormalized) &&
                                     (
                                         <div className="leading-relaxed whitespace-pre-line flex flex-col gap-1">
                                             {
@@ -97,8 +108,12 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                                                             )
 
                                                         case "highlighted":
-                                                            const letter = isXRhymeScheme ? "X" : rhymeScheme![i];
-                                                            const colorSchemeName = (poemLines.length == rhymeScheme.length) ? SchemeToColorMappings[letter as keyof typeof SchemeToColorMappings] : "yellow";
+                                                            const letter = isXRhymeScheme ? "X" : rhymeSchemeNormalized![i];
+                                                            const colorSchemeName = (poemLines.length != rhymeSchemeNormalized.length)
+                                                                                        ? "yellow"
+                                                                                        : (typeof SchemeToColorMappings[letter as keyof typeof SchemeToColorMappings] === "undefined")
+                                                                                            ? "yellow"
+                                                                                            : SchemeToColorMappings[letter as keyof typeof SchemeToColorMappings]
                                                             const colorScheme = PoemLineColorSchemes[colorSchemeName];
                                                             
                                                             return (

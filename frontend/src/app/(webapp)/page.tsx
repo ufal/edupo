@@ -21,7 +21,6 @@ export default function Home() {
   
   const [initialPoemId, setInitialPoemId] = useState<string | null>(null);
   const [hasRunInitialLoad, setHasRunInitialLoad] = useState(false);
-  const [hasTriedLoadingInitialPoem, setHasTriedLoadingInitialPoem] = useState(false);
 
   const { loadPoem } = usePoemLoader();
   const { fetchAnalysis, fetchMotives } = usePoemGenerator();

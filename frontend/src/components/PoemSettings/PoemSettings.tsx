@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 import PoemSettingsChangeBadge from "./PoemSettingsChangeBadge";
+import { Input } from "../ui/input";
 
 export default function PoemSettings() {
 
@@ -71,7 +72,8 @@ export default function PoemSettings() {
   };
 
   const havePoemLinesChanged = usePoem((s) => s.hasDraftParamChanged("poemLines"));
-  const rhymeScheme = draftValues.versesCount === 4 ? apiParams.gen.rhymeScheme["4"] : (draftValues.versesCount === 6 ? apiParams.gen.rhymeScheme["6"] : null);
+
+  // const rhymeScheme = draftValues.versesCount === 4 ? apiParams.gen.rhymeScheme["4"] : (draftValues.versesCount === 6 ? apiParams.gen.rhymeScheme["6"] : null);
 
   type MeterCode = keyof typeof apiParamsTitles.gen.metre;
 
@@ -80,11 +82,14 @@ export default function PoemSettings() {
         label: apiParamsTitles.gen.metre[i as MeterCode] ?? i,
         value: i
     })),
+    /*
     rhymeScheme: rhymeScheme?.map((i) => ({
         label: i,
         value: i
     }))
+    */
   }
+
 
   const heightElements = [
     { value: 64, unit: "px" },
@@ -157,7 +162,8 @@ export default function PoemSettings() {
                             hasChanged={!poemLoading && (hasDraftParamChanged("title") && draftValues.title !== "")}
                             unsuitableToAnalysis={false}>
                             <Combobox
-                                withSearch={true}
+                                withSearch
+                                allowCustomInput
                                 placeholder="Název"
                                 data={poemOptions}
                                 disabled={
@@ -199,17 +205,16 @@ export default function PoemSettings() {
                             getSwitchValue={() => disabledFields.form}
                             switchFunc={(on) => setDisabledField("form", on)}
                             hasChanged={!poemLoading && hasDraftParamChanged("form")}
-                            unsuitableToAnalysis={false}
-                            readonly={true}>
+                            unsuitableToAnalysis={false}>
                                 <Combobox
                                     highlighted={!poemLoading && hasDraftParamChanged("form")}
                                     placeholder="Forma"
                                     data={[
-                                        { label: "Volný verš", value: "Volný verš" },
-                                        { label: "Sonet", value: "Sonet" },
-                                        { label: "Rondel", value: "Rondel" }
+                                        { label: "Sonet", value: "sonet" },
+                                        { label: "Haiku", value: "haiku" },
+                                        { label: "Limerik", value: "limerik" }
                                     ]}
-                                    disabled={true || disabledFields.form}
+                                    disabled={disabledFields.form}
                                     value={draftValues.form}
                                     onChange={(v) => setDraftParam("form", v)} />
                         </Section>
@@ -245,6 +250,7 @@ export default function PoemSettings() {
                                         !!currentAnalysisValues.rhymeSchemeAccuracy &&
                                         (currentAnalysisValues.rhymeSchemeAccuracy < analysisTresholdValues.rhymeSchemeAccuracy)
                                     }>
+                                        { /*
                                         <Combobox
                                             highlighted={!poemLoading && hasDraftParamChanged("rhymeScheme")}
                                             placeholder="Schéma"
@@ -256,6 +262,13 @@ export default function PoemSettings() {
                                                     : inputParams.rhymeScheme![inputParams.rhymeScheme?.length! - 1].value
                                             }
                                             onChange={(v) => setDraftParam("rhymeScheme", v)} />
+                                        */ }
+                                        <Input
+                                            type="text"
+                                            className="focus-visible:ring-0"
+                                            value={draftValues.rhymeScheme ?? ""}
+                                            disabled={disabledFields.rhymeScheme}
+                                            onChange={(e) => setDraftParam("rhymeScheme", e.target.value)} />
                                 </Section>
                             </div>
                         </div>
@@ -297,7 +310,12 @@ export default function PoemSettings() {
                             getSwitchValue={() => disabledFields.versesCount}
                             switchFunc={(on) => setDisabledField("versesCount", on)}
                             hasChanged={!poemLoading && hasDraftParamChanged("versesCount")}
-                            unsuitableToAnalysis={false}>
+                            unsuitableToAnalysis={
+                                !disabledFields.versesCount &&
+                                !!draftValues.versesCount &&
+                                currentValues.poemLines!.length > 0 &&
+                                (draftValues.versesCount != currentValues.poemLines!.length)
+                            }>
                             <Slider
                                 defaultValue={[draftValues.versesCount]}
                                 min={apiParams.gen.versesCount.min}
@@ -307,8 +325,10 @@ export default function PoemSettings() {
                                     const newVersesCount = v[0];
                                     setDraftParam("versesCount", newVersesCount);
 
+                                    /*
                                     const validSchemes = apiParams.gen.rhymeScheme[newVersesCount as 4 | 6] || [];
                                     setDraftParam("rhymeScheme", validSchemes[0]);
+                                    */
                                 }}
                                 disabled={disabledFields.versesCount} />
                         </Section>

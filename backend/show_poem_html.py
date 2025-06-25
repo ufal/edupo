@@ -306,7 +306,8 @@ def show(data):
             stress = verse["sections"]
             pointer = 0
             syllable_count = sum((len(word["syllables"]) for word in verse["words"]))
-            assert len(swv) == len(stress)
+            #assert len(swv) == len(stress)
+            # TODO svw občas obsahuje '-', která by se měla ignorovat při výpočtu, ale zobrazit
             if syllable_count != len(swv):
                 logging.warning(
                     f'Syllable count mismatch: {len(swv)} annotated, {syllable_count} found in poem {data["id"]} verse {verse["text"]}')
@@ -384,8 +385,6 @@ def show(data):
                 'clause': verse["metre"][metre]['clause'],
                 'narrators_gender': verse.get('narrators_gender', ''),
                 })
-
-            plaintext.append('')
                 
             # TODO možná restartovat číslování rýmu po každé sloce
             # (ale někdy jde rýmování napříč slokama)
