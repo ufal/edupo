@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import metadata from "@/data/metadata.json";
+import pageMetadata from "@/data/metadata.json";
 import "./globals.css";
 
 import { inter } from "./fonts";
@@ -7,7 +7,7 @@ import { inter } from "./fonts";
 import Header from "@/components/layout/Header";
 import Main from "@/components/layout/Main";
 
-export const pageMetadata: Metadata = metadata;
+export const metadata: Metadata = pageMetadata;
 
 export default function RootLayout({
   children,

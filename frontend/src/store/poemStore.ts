@@ -15,6 +15,7 @@ type ParamValues = {
   rhymeScheme: string | null;
   temperature: number;
   syllablesCount: number;
+  maxStrophes: number;
   versesCount: number;
 };
 
@@ -60,6 +61,7 @@ const defaultValues: ParamValues = {
   rhymeScheme: "",
   temperature: defaultApiParams.gen.temperature,
   syllablesCount: defaultApiParams.gen.syllablesCount,
+  maxStrophes: defaultApiParams.gen.maxStrophes,
   versesCount: defaultApiParams.gen.versesCount,
 };
 
@@ -76,6 +78,7 @@ const defaultDisabled: Record<keyof ParamValues, boolean> = {
   rhymeScheme: false,
   temperature: false,
   syllablesCount: false,
+  maxStrophes: false,
   versesCount: false,
 };
 

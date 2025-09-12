@@ -11,7 +11,7 @@ interface SidePanelControlButtonProps {
 export default function SidePanelControlButton({ filled, onClick } : SidePanelControlButtonProps) {
     const cls = twMerge(
         "px-4",
-        filled ? "bg-white shadow-md" : "bg-transparent text-graySoft border border-graySoft hover:bg-white hover:border-graySoft"
+        filled ? "bg-white shadow-md" : "bg-transparent text-slate-800 border border-graySoft hover:bg-white hover:border-graySoft"
     );
 
     return (

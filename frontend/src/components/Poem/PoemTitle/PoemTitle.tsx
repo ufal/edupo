@@ -12,7 +12,7 @@ export default function PoemTitle({ sidePanelControlElement } : PoemTitleProps) 
 
     return (
         <div className="flex flex-row justify-between items-center bg-silverTransparent rounded-lg px-6 h-[56px]">
-            <div className="w-full flex flex-row items-baseline py-4 gap-4 text-blackSoft">
+            <div className="w-full flex flex-row items-baseline py-4 gap-4 text-zinc700">
                 <h1 className="leading-[18px]">
                     { poemName }
                 </h1>

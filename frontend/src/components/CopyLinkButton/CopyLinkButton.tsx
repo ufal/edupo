@@ -25,7 +25,7 @@ export default function CopyLinkButton() {
           <Button
             variant="outline"
             size="icon"
-            className="text-black"
+            className="text-slate-800"
             onClick={handleCopyLink}>
             <LinkIcon />
           </Button>

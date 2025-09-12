@@ -10,9 +10,13 @@
             "min": 4,
             "max": 16
         },
+        "maxStrophes": {
+            "min": 1,
+            "max": 2
+        },
         "versesCount": {
-            "min": 4,
-            "max": 16
+            "min": 1,
+            "max": 4
         },
         "temperature": {
             "min": 0.1,

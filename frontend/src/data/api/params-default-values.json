@@ -2,7 +2,8 @@
     "gen": {
         "metre": "T",
         "syllablesCount": 10,
-        "versesCount": 8,
+        "versesCount": 2,
+        "maxStrophes": 1,
         "temperature": 0.5
     }
 }
