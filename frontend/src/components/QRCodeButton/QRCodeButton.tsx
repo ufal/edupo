@@ -16,7 +16,7 @@ export default function QrCodeButton() {
         <Button
           variant="outline"
           size="icon"
-          className="text-black"
+          className="text-slate-800"
           onClick={() => setOpen(true)}
         >
           <QrCode />

@@ -320,17 +320,27 @@ export default function PoemSettings() {
                                 defaultValue={[draftValues.versesCount]}
                                 min={apiParams.gen.versesCount.min}
                                 max={apiParams.gen.versesCount.max}
-                                step={2}
+                                step={1}
                                 onValueChange={(v) => {
                                     const newVersesCount = v[0];
                                     setDraftParam("versesCount", newVersesCount);
-
-                                    /*
-                                    const validSchemes = apiParams.gen.rhymeScheme[newVersesCount as 4 | 6] || [];
-                                    setDraftParam("rhymeScheme", validSchemes[0]);
-                                    */
                                 }}
                                 disabled={disabledFields.versesCount} />
+                        </Section>
+                        <Section
+                            title="Počet strof"
+                            titleValue={String(draftValues.maxStrophes)}
+                            getSwitchValue={() => disabledFields.maxStrophes}
+                            switchFunc={(on) => setDisabledField("maxStrophes", on)}
+                            hasChanged={!poemLoading && hasDraftParamChanged("maxStrophes")}
+                            unsuitableToAnalysis={false}>
+                                <Slider
+                                    defaultValue={[draftValues.maxStrophes]}
+                                    min={apiParams.gen.maxStrophes.min}
+                                    max={apiParams.gen.maxStrophes.max}
+                                    step={1}
+                                    onValueChange={(v) => setDraftParam("maxStrophes", v[0])}
+                                    disabled={disabledFields.maxStrophes} />
                         </Section>
                         <Section
                             title="Počet slabik v prvním verši"

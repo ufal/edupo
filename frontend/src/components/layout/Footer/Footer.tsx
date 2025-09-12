@@ -6,9 +6,13 @@ export default function Footer() {
             <Link className="underline" href={process.env.NEXT_PUBLIC_LINK_BASE + "credits"}>
                 O aplikaci
             </Link>
+            {
+                /*
             <h4>
                 Built with ❤️ on React/Next.js with Payload
             </h4>
+                */
+            }
         </footer>
     )
 }

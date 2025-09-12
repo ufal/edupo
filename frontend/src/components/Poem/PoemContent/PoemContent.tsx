@@ -49,14 +49,30 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
         }
     }, [poemLoading, poemError]);
 
+    const heightElements = [
+        { value: 64, unit: "px" },
+        { value: 1, unit: "rem" },
+        { value: 56, unit: "px" },
+        { value: 1, unit: "rem" },
+        { value: 40, unit: "px" },
+        { value: 1, unit: "rem" },
+        { value: 1.5, unit: "rem" },
+        { value: 1.5, unit: "rem" },
+        { value: 37, unit: "px" }
+    ];
+
+    const heightStr = `calc(100vh - ${heightElements
+        .map((el) => `${el.value}${el.unit}`)
+        .join(" - ")})`;
+
     return (
         <div className="flex flex-row h-full pt-4 relative">
             {
                 (linesMode === "highlighted" || linesMode === "editable") && (
                     (poemLines && rhymeSchemeNormalized) && (
 
-                        <div className="w-[34px] py-6 leading-relaxed whitespace-pre-line font-[14px]">
-                            <div className="leading-relaxed whitespace-pre-line flex flex-col gap-1">
+                        <div className="w-[40px] py-6 leading-tight whitespace-pre-line text-[16px]">
+                            <div className="leading-tight whitespace-pre-line flex flex-col gap-1">
                                 {
                                     poemLines.map((line, i) => {
                                         switch (linesMode) {
@@ -81,7 +97,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
             }
             <Card className="flex flex-col h-full flex-1 mt-[-1px]">
                 <CardContent className="pl-0 pr-6 py-6">
-                    <div className="leading-relaxed whitespace-pre-line font-[14px]">
+                    <div className="leading-tight whitespace-pre-line text-[16px] overflow-auto" style={{ maxHeight: heightStr}}>
                         {
                             poemLoading && LoadingText()
                         }
@@ -92,7 +108,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                             (!poemLoading && !poemError) &&
                                 (poemLines && rhymeSchemeNormalized) &&
                                     (
-                                        <div className="leading-relaxed whitespace-pre-line flex flex-col gap-1">
+                                        <div className="leading-tight whitespace-pre-line flex flex-col gap-1">
                                             {
                                                 poemLines.map((line, i) => {
                                                     switch (linesMode) {
@@ -139,7 +155,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                     </div>
                 </CardContent>
             </Card>
-            <PoemPlayBadge cls="absolute right-4 bottom-4" />
+            <PoemPlayBadge cls="absolute left-4 bottom-4" />
         </div>
     )
 }

@@ -83,12 +83,14 @@ export function usePoemGenerator() {
                 params.append("form", draftValues.form);
             if (!disabledFields.metre)
                 params.append("metre", draftValues.metre);
-            if (!disabledFields.rhymeScheme && draftValues.rhymeScheme)
-                params.append("rhyme_scheme", draftValues.rhymeScheme);
+            //if (!disabledFields.rhymeScheme && draftValues.rhymeScheme)
+            //    params.append("rhyme_scheme", draftValues.rhymeScheme);
             if (!disabledFields.syllablesCount)
                 params.append("syllables_count", draftValues.syllablesCount.toString());
             if (!disabledFields.versesCount)
                 params.append("verses_count", draftValues.versesCount.toString());
+            if (!disabledFields.maxStrophes)
+                params.append("max_strophes", draftValues.maxStrophes.toString());
             if (!disabledFields.temperature)
                 params.append("temperature", draftValues.temperature.toString());
 

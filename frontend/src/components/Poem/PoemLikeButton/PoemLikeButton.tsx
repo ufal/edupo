@@ -30,7 +30,7 @@ export default function LikeButton() {
   return (
     <Button
       variant="outline"
-      className="px-4 shadow-sm bg-white gap-0"
+      className="px-4 shadow-sm bg-white gap-0 text-slate-800"
       disabled={poemLoading || alreadyLiked}
       onClick={onClick}
     >
