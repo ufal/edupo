@@ -68,9 +68,9 @@ def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
         prompt_parts.append(f"Báseň by měla mít maximálně {params['max_strophes']} slok.")
     if params['form']:
         prompt_parts.append(f"Froma básně by měla být {params['form']}.")
-    if params['author_name']:
+    if params['author_name'] and params['author_name'] != 'Anonym':
         prompt_parts.append(f"Báseň by měla být ve stylu známého českého autora, který se jmenoval {params['author_name']}.")
-    if params['title']:
+    if params['title'] and params['title'] != 'Bez názvu':
         prompt_parts.append(f"Název básně je: {params['title']}.")
     # TODO anaphors, epanastrophes
     prompt = ' '.join(prompt_parts)
