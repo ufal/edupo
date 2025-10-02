@@ -12,7 +12,7 @@ logging.basicConfig(
 
 KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
 
-def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500):
+def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500, temperature=0):
     # OPENAI SETUP
     # path to file with authentication key
     with open(KEY_PATH) as infile:
@@ -28,7 +28,7 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500):
             model=model,
             messages=messages,
             max_tokens=max_tokens,
-            temperature=0,
+            temperature=temperature,
             top_p=1,
             stop=[],  # can be e.g. stop = ['\n']
             presence_penalty=0,
@@ -51,16 +51,43 @@ def generate_with_openai_simple(prompt, system="You are a helpful assistant.", m
 
 def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
     system="You are a well-known 19th century Czech poet. You are a master of Czech language, using a large variety of Czech words, including archaic and poetic words. Unless instructed otherwise, you write rhymed poetry following standard poetic metre, such as trochee, iamb or dactyl. Your poems are beautiful, touching on delicate feelings and emotions. Your poems are of medium length, typically between 4 and 20 verses (unless instructed otherwise). Write poems with one verse per line, with empty lines used to separate stanzas. Unless an author name and/or title is specified, invent also an author name and title. In any case, your first line should be in the format 'Author Name: Poem Title'. The following lines hsould contain the text of the poem. Write only the author name, poem title, and poem text."
+    
     prompt_parts = list()
     prompt_parts.append('Napiš českou báseň.')
+    if params['rhyme_scheme']:
+        prompt_parts.append(f"Použij rýmové schéma {params['rhyme_scheme']}.")
+    if params['verses_count']:
+        prompt_parts.append(f"Každá sloka by měla mít {params['verses_count']} veršů.")
+    if params['syllables_count']:
+        prompt_parts.append(f"První verš by měl mít {params['syllables_count']} slabik.")
+    if params['metre']:
+        prompt_parts.append(f"Metrum básně by mělo být {params['metre']}.")
+    if params['first_words']:
+        prompt_parts.append(f"První slova veršů by postupně měla být následující: {';'.join(params['first_words'])}.")
+    if params['max_strophes']:
+        prompt_parts.append(f"Báseň by měla mít maximálně {params['max_strophes']} slok.")
+    if params['form']:
+        prompt_parts.append(f"Froma básně by měla být {params['form']}.")
+    if params['author_name']:
+        prompt_parts.append(f"Báseň by měla být ve stylu známého českého autora, který se jmenoval {params['author_name']}.")
+    if params['title']:
+        prompt_parts.append(f"Název básně je: {params['title']}.")
+    # TODO anaphors, epanastrophes
     prompt = ' '.join(prompt_parts)
     logging.info('TEXTGEN Prompt: ' + show_short(prompt))
+    
     messages=[
         {"role": "system", "content": system},
         {"role": "user", "content": prompt},
     ]
+    
+    # TODO default teď máme 1, chceme to tak i pro GPT?
+    if params['temperature']:
+        temperature = params['temperature']
+    else:
+        temperature = 1
 
-    raw_output = generate_with_openai(messages, model, max_tokens)
+    raw_output = generate_with_openai(messages, model, max_tokens, temperature)
     
     lines = raw_output.split('\n')
     if ':' in lines[0]:
