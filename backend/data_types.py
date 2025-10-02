@@ -17,7 +17,7 @@ class GenerationParameters(BaseModel):
     title: str = Field(default='Bez názvu')
     author_name: str = Field(default=None)
     max_strophes: int = Field(default=2, ge=1, le=20)
-    modelspec: Literal['tm', 'mc'] = Field(default='tm')
+    modelspec: Literal['tm', 'mc', 'gpt'] = Field(default='tm')
 
 if __name__=="__main__":
     print(GenerationParameters.schema_json(indent=2))

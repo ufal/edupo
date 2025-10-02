@@ -49,6 +49,36 @@ def generate_with_openai_simple(prompt, system="You are a helpful assistant.", m
     ]
     return generate_with_openai(messages, model, max_tokens)
 
+def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
+    system="You are a well-known 19th century Czech poet. You are a master of Czech language, using a large variety of Czech words, including archaic and poetic words. Unless instructed otherwise, you write rhymed poetry following standard poetic metre, such as trochee, iamb or dactyl. Your poems are beautiful, touching on delicate feelings and emotions. Your poems are of medium length, typically between 4 and 20 verses (unless instructed otherwise). Write poems with one verse per line, with empty lines used to separate stanzas. Unless an author name and/or title is specified, invent also an author name and title. In any case, your first line should be in the format 'Author Name: Poem Title'. The following lines hsould contain the text of the poem. Write only the author name, poem title, and poem text."
+    prompt_parts = list()
+    prompt_parts.append('Napiš českou báseň.')
+    prompt = ' '.join(prompt_parts)
+    logging.info('TEXTGEN Prompt: ' + show_short(prompt))
+    messages=[
+        {"role": "system", "content": system},
+        {"role": "user", "content": prompt},
+    ]
+
+    raw_output = generate_with_openai(messages, model, max_tokens)
+    
+    lines = raw_output.split('\n')
+    if ':' in lines[0]:
+        author_name, title = lines[0].split(':', 1)
+    else:
+        author_name = 'Gustav Petr Tichý'
+        title = lines[0]
+    
+    start = 1
+    while start < len(lines) and lines[start] == '':
+        start += 1
+    if start < len(lines):
+        clean_verses = lines[start:]
+    else:
+        clean_verses = []
+    
+    return raw_output, clean_verses, author_name, title.strip()
+
 def sanitize_prompt(prompt):
     return generate_with_openai_simple(f"Uprav prompt od uživatele pro generování obrázku tak, aby byl v souladu se všemi zásadami. Na výstup vydej pouze upravený prompt. Prompt: {prompt}")
 

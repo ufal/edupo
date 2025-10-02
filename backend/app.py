@@ -370,8 +370,10 @@ def call_generuj():
 
     geninput = (f"Generate poem with parameters: {params}")
     app.logger.info(geninput)
-    # raw_output, clean_verses, author_name, title = generuj(dict(params))
-    raw_output, clean_verses, author_name, title = gen_zmq(params)
+    if 'gpt' in params['modelspec']:
+        raw_output, clean_verses, author_name, title = generate_poem_with_openai(params)
+    else:
+        raw_output, clean_verses, author_name, title = gen_zmq(params)
     app.logger.info(f"Generated poem {clean_verses}")
   
     # sets must be lists now
