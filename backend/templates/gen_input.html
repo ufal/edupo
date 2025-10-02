@@ -17,9 +17,17 @@
 			    field.style.display = "none";
 			    });
 			    pversu.style.display = "none";
-			} else {
+			} else if (modelSelect.value === "mc") {
 		        fields.forEach(field => {
 			    field.style.display = "none";
+			    });
+		        fields_basic.forEach(field => {
+			    field.style.display = "inline";
+			    });
+			    pversu.style.display = "block";
+			} else {
+		        fields.forEach(field => {
+			    field.style.display = "block";
 			    });
 		        fields_basic.forEach(field => {
 			    field.style.display = "inline";
@@ -34,6 +42,7 @@
         <select name="modelspec" onchange="toggle_auth()" id="modelSelect">
             <option value="mc">základní</option>
             <option value="tm" selected>nový</option>
+            <option value="gpt">ChatGPT</option>
         </select>
         Základní model umí 4verší a 6verší, nový model umí lecjaké délky (ale
         neumí anafory a epanastrofy).
