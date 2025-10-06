@@ -87,9 +87,9 @@ def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
     else:
         temperature = 1
 
-    raw_output = generate_with_openai(messages, model, max_tokens, temperature)
+    output = generate_with_openai(messages, model, max_tokens, temperature)
     
-    lines = raw_output.split('\n')
+    lines = output.split('\n')
     if ':' in lines[0]:
         author_name, title = lines[0].split(':', 1)
     else:
@@ -104,6 +104,8 @@ def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
     else:
         clean_verses = []
     
+    raw_output = f"System prompt: {system}\nUser prompt: {prompt}\nGenerated output:\n{output}"
+
     return raw_output, clean_verses, author_name, title.strip()
 
 def sanitize_prompt(prompt):
