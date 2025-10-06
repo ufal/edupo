@@ -65,9 +65,15 @@ def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
     if params['first_words'] and any(params['first_words']):
         prompt_parts.append(f"První slova veršů by postupně měla být následující: {';'.join(params['first_words'])}.")
     if params['max_strophes']:
-        prompt_parts.append(f"Báseň by měla mít maximálně {params['max_strophes']} slok.")
+        if params['max_strophes'] == 1:
+            slok = 'sloku'
+        elif params['max_strophes'] < 5:
+            slok = 'sloky'
+        else:
+            slok = 'slok'
+        prompt_parts.append(f"Báseň by měla mít maximálně {params['max_strophes']} {slok}.")
     if params['form']:
-        prompt_parts.append(f"Froma básně by měla být {params['form']}.")
+        prompt_parts.append(f"Pevná forma básně by měla být {params['form']}.")
     if params['author_name'] and params['author_name'] != 'Anonym':
         prompt_parts.append(f"Báseň by měla být ve stylu známého českého autora, který se jmenoval {params['author_name']}.")
     if params['title'] and params['title'] != 'Bez názvu':
