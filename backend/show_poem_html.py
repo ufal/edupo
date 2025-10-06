@@ -249,7 +249,7 @@ def ensure_qr_code(poemid):
     filename = f'static/qrcodes/{poemid}.png'
     if not os.path.isfile(filename):
         import qrcode
-        base_url = 'https://quest.ms.mff.cuni.cz/edupo/show?poemid='
+        base_url = 'https://quest.ms.mff.cuni.cz/edupo-api/show?poemid='
         url = f'{base_url}{poemid}'
         img = qrcode.make(url)
         img.save(filename)

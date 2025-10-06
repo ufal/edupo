@@ -23,7 +23,7 @@
     <div id="qrimg">
     <a href="static/qrcodes/{{ id }}.png"><img src="static/qrcodes/{{ id }}.png" alt="QR kód" title="QR kód"></a>
     <br> 
-    <button onclick="navigator.clipboard.writeText('https://quest.ms.mff.cuni.cz/edupo/show?poemid={{ id }}');">Zkopírovat odkaz</button>
+    <button onclick="navigator.clipboard.writeText('https://quest.ms.mff.cuni.cz/edupo-api/show?poemid={{ id }}');">Zkopírovat odkaz</button>
     </div>
 
     {% if title %}
