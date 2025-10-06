@@ -62,7 +62,7 @@ def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
         prompt_parts.append(f"První verš by měl mít {params['syllables_count']} slabik.")
     if params['metre']:
         prompt_parts.append(f"Metrum básně by mělo být {params['metre']}.")
-    if params['first_words']:
+    if params['first_words'] and any(params['first_words']):
         prompt_parts.append(f"První slova veršů by postupně měla být následující: {';'.join(params['first_words'])}.")
     if params['max_strophes']:
         prompt_parts.append(f"Báseň by měla mít maximálně {params['max_strophes']} slok.")
@@ -104,7 +104,7 @@ def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
     else:
         clean_verses = []
     
-    raw_output = f"System prompt: {system}\nUser prompt: {prompt}\nGenerated output:\n{output}"
+    raw_output = f"System prompt: {system}\n\nUser prompt: {prompt}\n\nGenerated output:\n\n{output}"
 
     return raw_output, clean_verses, author_name, title.strip()
 
