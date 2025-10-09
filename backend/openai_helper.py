@@ -10,15 +10,27 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO)
 
+# OpenAI key
 KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
 
+# OpenRouter key
+OR_KEY_PATH = '/net/projects/EduPo/data/apikey_or.txt'
+
 def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500, temperature=0):
+    # OPENAI or OPENROUTER?
+    # OPENROUTER model name always has '/' in it
+    use_or = '/' in model
+
     # OPENAI SETUP
     # path to file with authentication key
-    with open(KEY_PATH) as infile:
+    key_path = OR_KEY_PATH if use_or else KEY_PATH
+    with open(key_path) as infile:
         apikey = infile.read().rstrip()
     try:
-        client = OpenAI(api_key=apikey)
+        if use_or:
+            client = OpenAI(api_key=apikey, base_url="https://openrouter.ai/api/v1")
+        else:
+            client = OpenAI(api_key=apikey)
     except:
         logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
 
@@ -34,7 +46,9 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500, temperat
             presence_penalty=0,
             frequency_penalty=0,
             logit_bias={},
+            extra_headers={ "X-Title": "EduPo" },
         )
+        logging.debug(response)
         return response.choices[0].message.content
 
     except:
@@ -49,7 +63,11 @@ def generate_with_openai_simple(prompt, system="You are a helpful assistant.", m
     ]
     return generate_with_openai(messages, model, max_tokens)
 
+from collections import defaultdict
 def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
+    # set all unknown to ''
+    params = defaultdict(str, params)
+
     system="You are a well-known 19th century Czech poet. You are a master of Czech language, using a large variety of Czech words, including archaic and poetic words. Unless instructed otherwise, you write rhymed poetry following standard poetic metre, such as trochee, iamb or dactyl. Your poems are beautiful, touching on delicate feelings and emotions. Your poems are of medium length, typically between 4 and 20 verses (unless instructed otherwise). Write poems with one verse per line, with empty lines used to separate stanzas. Unless an author name and/or title is specified, invent also an author name and title. In any case, your first line should be in the format 'Author Name: Poem Title'. The following lines hsould contain the text of the poem. Write only the author name, poem title, and poem text."
     
     prompt_parts = list()
@@ -91,7 +109,7 @@ def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
     if params['temperature']:
         temperature = params['temperature']
     else:
-        temperature = 1
+        temperature = 0.5
 
     output = generate_with_openai(messages, model, max_tokens, temperature)
     
@@ -162,12 +180,45 @@ def store_image(imgdata, filename):
         outfile.write(bytestream.getbuffer())
 
 if __name__=="__main__":
-    prompt = input("Zadej prompt: ")
+    GEN_POEM = False
+    GEN_TEXT = True
+    GEN_IMG = False
+
+    if GEN_POEM:
+        title = input("Zadej název básně: ")
+        author_name = input("Zadej jméno autora: ")
+        
+        for model in [
+            "openai/gpt-4o-mini",
+            "openai/gpt-5-mini",
+            "anthropic/claude-sonnet-4.5",
+            "google/gemini-2.5-flash",
+            ]:
+            print(f"USING OPENROUTER {model}")
+            _, text, _, _ = generate_poem_with_openai(
+                    params={'title': title, 'author_name': author_name},
+                    model=model,
+                    max_tokens=5000)
+            print(*text, sep="\n")
     
-    result = generate_with_openai_simple(prompt)
-    print(result)
-    
-    IMGFILE='image.png'
-    image_desc = generate_image_with_openai(prompt, IMGFILE)
-    print(f'Obrázek: {IMGFILE}. ({image_desc})')
+    if GEN_TEXT:
+        prompt = input("Zadej prompt: ")
+        
+        model="gpt-4o-mini"
+        print(f"USING OPENAI {model}")
+        print(generate_with_openai_simple(prompt, model=model))
+
+        for model in [
+            "openai/gpt-4o-mini",
+            "openai/gpt-5-mini",
+            # "anthropic/claude-sonnet-4.5",
+            # "google/gemini-2.5-flash",
+            ]:
+            print(f"USING OPENROUTER {model}")
+            print(generate_with_openai_simple(prompt, model=model, max_tokens=5000))
+
+    if GEN_IMG:
+        IMGFILE='image.png'
+        image_desc = generate_image_with_openai(prompt, IMGFILE)
+        print(f'Obrázek: {IMGFILE}. ({image_desc})')
 
