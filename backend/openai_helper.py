@@ -64,7 +64,7 @@ def generate_with_openai_simple(prompt, system="You are a helpful assistant.", m
     return generate_with_openai(messages, model, max_tokens)
 
 from collections import defaultdict
-def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
+def generate_poem_with_openai(params, model="gpt-4o-mini"):
     # set all unknown to ''
     params = defaultdict(str, params)
 
@@ -100,6 +100,17 @@ def generate_poem_with_openai(params, model="gpt-4o-mini", max_tokens=500):
     prompt = ' '.join(prompt_parts)
     logging.info('TEXTGEN Prompt: ' + show_short(prompt))
     
+    max_tokens = 500
+    if params['verses_count'] or params['max_strophes']:
+        verses = params['verses_count'] if params['verses_count'] else 4
+        strophes = params['max_strophes'] if params['max_strophes'] else 4
+        # max 50 per verse + title + author name
+        max_tokens = 50 * verses * strophes + 100
+    if 'gpt-5' in model:
+        # reasoning models: add reasoning tokens
+        max_tokens += 4000
+    logging.info(f'TEXTGEN max_tokens: {max_tokens}')
+
     messages=[
         {"role": "system", "content": system},
         {"role": "user", "content": prompt},
@@ -197,8 +208,7 @@ if __name__=="__main__":
             print(f"USING OPENROUTER {model}")
             _, text, _, _ = generate_poem_with_openai(
                     params={'title': title, 'author_name': author_name},
-                    model=model,
-                    max_tokens=5000)
+                    model=model)
             print(*text, sep="\n")
     
     if GEN_TEXT:
