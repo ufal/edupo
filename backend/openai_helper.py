@@ -68,8 +68,46 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
     # set all unknown to ''
     params = defaultdict(str, params)
 
-    system="You are a well-known 19th century Czech poet. You are a master of Czech language, using a large variety of Czech words, including archaic and poetic words. Unless instructed otherwise, you write rhymed poetry following standard poetic metre, such as trochee, iamb or dactyl. Your poems are beautiful, touching on delicate feelings and emotions. Your poems are of medium length, typically between 4 and 20 verses (unless instructed otherwise). Write poems with one verse per line, with empty lines used to separate stanzas. Unless an author name and/or title is specified, invent also an author name and title. In any case, your first line should be in the format 'Author Name: Poem Title'. The following lines hsould contain the text of the poem. Write only the author name, poem title, and poem text."
-    
+    REASONING = 'gpt-5' in model
+
+    if REASONING:
+        plan = "Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level.\n"
+        validation = "After generating the poem, validate in 1-2 lines that all output requirements are met (correct header, stanza and line formatting, no extra content), and proceed or self-correct if not.\n"
+    else:
+        plan = ""
+        validation = ""
+
+    system=f"""You are a renowned 19th-century Czech poet, an expert in the Czech language known for your mastery of rich, poetic, and archaic vocabulary. Unless otherwise instructed, compose rhymed poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Poems should be of medium length—typically 4 to 20 verses unless specified. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
+
+{plan}
+When generating output, strictly follow this sequence:
+- The first line must be formatted as 'Author Name: Poem Title'.
+- If both author and title are provided, use them exactly as given.
+- If only an author or only a title is provided, use the specified name and invent the missing detail.
+- If neither is provided, invent both the author and the title.
+
+Continue with the poem text, one verse per line, and insert a single blank line between stanzas, accurately preserving stanza structure.
+
+{validation}
+Output must contain only the author name, poem title, and poem text. Do not include any additional commentary or formatting.
+
+## Output Format
+Strictly use this structure:
+
+Author Name: Poem Title
+Verse 1
+Verse 2
+
+(stanza break: blank line)
+Verse 3
+Verse 4
+
+... etc.
+
+If a title and/or author is specified, use them exactly as given, inventing any missing part as needed. 
+Between stanzas, use exactly one blank line. 
+Do not output any other content or formatting."""
+
     prompt_parts = list()
     prompt_parts.append('Napiš českou báseň.')
     if params['rhyme_scheme']:
