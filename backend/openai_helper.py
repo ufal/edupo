@@ -71,6 +71,7 @@ def generate_with_openai_responses(prompt, system="You are a helpful assistant."
             instructions=system,
             input=prompt,
             reasoning={"effort": "low"},
+            # reasoning={"effort": "low", "summary": "auto"}, TODO should return reasoning summary but does not
             text={"verbosity": "low"},
             max_output_tokens=max_tokens,
             extra_headers={ "X-Title": "EduPo" },
@@ -99,7 +100,7 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
 
     if REASONING:
         plan = "Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level. Do not print this checklist to the output, only create the checklist in the reasoning phase.\n"
-        validation = "After generating the poem, validate in 1-2 lines that all output requirements are met (correct header, stanza and line formatting, no extra content), and proceed or self-correct if not.\n"
+        validation = "After generating the poem, validate in 1-2 lines that all output requirements are met (correct header, stanza and line formatting, no extra content), and proceed or self-correct if not. Do not write the validation top the output, only do it in the reasoning phase.\n"
     else:
         plan = ""
         validation = ""
@@ -267,7 +268,7 @@ if __name__=="__main__":
         author_name = input("Zadej jméno autora: ")
         
         for model in [
-            "gpt-4o-mini",
+            #"gpt-4o-mini",
             "gpt-5-mini",
             # "openai/gpt-4o-mini",
             # "openai/gpt-5-mini",
