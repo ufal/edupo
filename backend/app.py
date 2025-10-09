@@ -370,8 +370,9 @@ def call_generuj():
 
     geninput = (f"Generate poem with parameters: {params}")
     app.logger.info(geninput)
-    if 'gpt' in params['modelspec']:
-        raw_output, clean_verses, author_name, title = generate_poem_with_openai(params, model='gpt-4o-mini')
+    if 'gpt' in params['modelspec'] or '/' in params['modelspec']:
+        # a GPT model or an OpenRouter model
+        raw_output, clean_verses, author_name, title = generate_poem_with_openai(params, model=params['modelspec'])
     else:
         raw_output, clean_verses, author_name, title = gen_zmq(params)
     app.logger.info(f"Generated poem {clean_verses}")
