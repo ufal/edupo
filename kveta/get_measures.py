@@ -136,44 +136,18 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
         meaning_num /= 10
     
     # syntax
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť syntaktickou konzistenci následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    numbers = re.findall(r'\d+', response)
-    syntax_num = 5
-    if numbers:
-        syntax_num = int(numbers[0])
-    if syntax_num > 0 and syntax_num <= 10:
-        syntax_num /= 10
-
-    # rhyming
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť rýmování následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    numbers = re.findall(r'\d+', response)
-    rhyming_num = 5
-    if numbers:
-        rhyming_num = int(numbers[0])
-    if rhyming_num > 0 and rhyming_num <= 10:
-        rhyming_num /= 10
-
-    # language
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť jazykovou konzistenci následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    numbers = re.findall(r'\d+', response)
-    language_num = 5
-    if numbers:
-        language_num = int(numbers[0])
-    if language_num > 0 and language_num <= 10:
-        language_num /= 10
-    
-    # metrum 
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť metrickou konzistenci následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    numbers = re.findall(r'\d+', response)
-    metrum_num = 5
-    if numbers:
-        metrum_num = int(numbers[0])
-    if metrum_num > 0 and metrum_num <= 10:
-        metrum_num /= 10
-    
+    COMPUTE_SYNTAX = False
+    if COMPUTE_SYNTAX:
+        response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť syntaktickou konzistenci následující básně. Napiš pouze to číslo.\n\n" + raw_text)
+        numbers = re.findall(r'\d+', response)
+        syntax_num = 5
+        if numbers:
+            syntax_num = int(numbers[0])
+        if syntax_num > 0 and syntax_num <= 10:
+            syntax_num /= 10
 
 
-    return {'unknown_words': unknown_counter/words_counter,
+    result = {'unknown_words': unknown_counter/words_counter,
             'rhyming': rhyme_count / len(poem),
             'rhyme_scheme_accuracy': rhyme_scheme_correct / rhyme_scheme_total,
             'metre_consistency': max(metre_probs_sum.values()) / len(poem),
@@ -182,11 +156,12 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             'syllable_count_entropy': syllable_count_entropy,
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
             'chatgpt_meaning': meaning_num,
-            'chatgpt_syntax': syntax_num,
-            'chatgpt_rhyming': rhyming_num,
-            'chatgpt_language': language_num,
-            'chatgpt_metrum': metrum_num
            }
+
+    if COMPUTE_SYNTAX:
+        result['chatgpt_syntax'] = syntax_num
+
+    return result
 
 def get_measures(input_txt, parameters={}):
 
