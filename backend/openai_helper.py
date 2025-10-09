@@ -55,6 +55,33 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500, temperat
         logging.exception("EXCEPTION Neúspěšné generování pomocí OpenAI.")
         return None
 
+def generate_with_openai_responses(prompt, system="You are a helpful assistant.", model="gpt-5-mini", max_tokens=5000):
+    # OPENAI SETUP
+    # path to file with authentication key
+    with open(KEY_PATH) as infile:
+        apikey = infile.read().rstrip()
+    try:
+        client = OpenAI(api_key=apikey)
+    except:
+        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
+
+    try:
+        response = client.responses.create(
+            model=model,
+            instructions=system,
+            input=prompt,
+            reasoning={"effort": "low"},
+            text={"verbosity": "low"},
+            max_output_tokens=max_tokens,
+            extra_headers={ "X-Title": "EduPo" },
+        )
+        logging.debug(response)
+        return response.output_text
+
+    except:
+        logging.exception("EXCEPTION Neúspěšné generování pomocí OpenAI.")
+        return None
+
 def generate_with_openai_simple(prompt, system="You are a helpful assistant.", model="gpt-4o-mini", max_tokens=500):
     logging.info('TEXTGEN Prompt: ' + show_short(prompt))
     messages=[
@@ -71,13 +98,13 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
     REASONING = 'gpt-5' in model
 
     if REASONING:
-        plan = "Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level.\n"
+        plan = "Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level. Do not print this checklist to the output, only create the checklist in the reasoning phase.\n"
         validation = "After generating the poem, validate in 1-2 lines that all output requirements are met (correct header, stanza and line formatting, no extra content), and proceed or self-correct if not.\n"
     else:
         plan = ""
         validation = ""
 
-    system=f"""You are a renowned 19th-century Czech poet, an expert in the Czech language known for your mastery of rich, poetic, and archaic vocabulary. Unless otherwise instructed, compose rhymed poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Poems should be of medium length—typically 4 to 20 verses unless specified. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
+    system=f"""You are a renowned 19th-century Czech poet, an expert in the Czech language known for your mastery of rich and poetic vocabulary. Unless otherwise instructed, compose rhymed poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Poems should be of medium length—typically 4 to 20 verses unless specified. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
 
 {plan}
 When generating output, strictly follow this sequence:
@@ -149,19 +176,21 @@ Do not output any other content or formatting."""
         max_tokens += 4000
     logging.info(f'TEXTGEN max_tokens: {max_tokens}')
 
-    messages=[
-        {"role": "system", "content": system},
-        {"role": "user", "content": prompt},
-    ]
-    
-    # TODO default teď máme 1, chceme to tak i pro GPT?
-    if params['temperature']:
-        temperature = params['temperature']
+    if model.startswith('gpt-5'):
+        # use responses API
+        output = generate_with_openai_responses(prompt, system, model, max_tokens)
     else:
-        temperature = 0.5
-
-    output = generate_with_openai(messages, model, max_tokens, temperature)
-    
+        # use completion API
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
+        ]
+        if params['temperature']:
+            temperature = params['temperature']
+        else:
+            temperature = 0.5
+        output = generate_with_openai(messages, model, max_tokens, temperature)
+        
     lines = output.split('\n')
     if ':' in lines[0]:
         author_name, title = lines[0].split(':', 1)
@@ -229,8 +258,8 @@ def store_image(imgdata, filename):
         outfile.write(bytestream.getbuffer())
 
 if __name__=="__main__":
-    GEN_POEM = False
-    GEN_TEXT = True
+    GEN_POEM = True
+    GEN_TEXT = False
     GEN_IMG = False
 
     if GEN_POEM:
@@ -238,12 +267,14 @@ if __name__=="__main__":
         author_name = input("Zadej jméno autora: ")
         
         for model in [
-            "openai/gpt-4o-mini",
-            "openai/gpt-5-mini",
-            "anthropic/claude-sonnet-4.5",
-            "google/gemini-2.5-flash",
+            "gpt-4o-mini",
+            "gpt-5-mini",
+            # "openai/gpt-4o-mini",
+            # "openai/gpt-5-mini",
+            # "anthropic/claude-sonnet-4.5",
+            # "google/gemini-2.5-flash",
             ]:
-            print(f"USING OPENROUTER {model}")
+            print(f"USING {model}")
             _, text, _, _ = generate_poem_with_openai(
                     params={'title': title, 'author_name': author_name},
                     model=model)
