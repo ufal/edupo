@@ -116,7 +116,7 @@ When generating output, strictly follow this sequence:
 Continue with the poem text, one verse per line, and insert a single blank line between stanzas, accurately preserving stanza structure.
 
 {validation}
-Output must contain only the author name, poem title, and poem text. Do not include any additional commentary or formatting.
+Output must contain only the author name, poem title, and poem text. Do not include any additional commentary or formatting. Do not include any marks such as rhyme scheme or metre in the output, only write out the plain text of the poem.
 
 ## Output Format
 Strictly use this structure:
