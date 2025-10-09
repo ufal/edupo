@@ -283,9 +283,9 @@
                 (menší je lepší)</li>
             <li>Entropie počtů slabik: {{ measures.syllable_count_entropy }}
                 (menší je lepší)</li>
-            {% if measures.meaningfulness is defined %}
+            {% if measures.chatgpt_meaning is defined %}
             <li>Smysluplnost:
-                {{ measures.meaningfulness * 100 }}%
+                {{ measures.chatgpt_meaning * 100 }}%
             </li>
             {% endif %}
             {% if geninput and geninput.rhyme_scheme %}
