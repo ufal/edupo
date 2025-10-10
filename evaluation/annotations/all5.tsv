@@ -1,4 +1,4 @@
-filename	system	Rules-Unknown-words	Rules-Rhyming	Rules-Metre	syllable_count_entropy	rhyming_consistency	ChatGPT-Meaning	ChatGPT-Syntax	ChatGPT-Rhyming	ChatGPT-Language	ChatGPT-Metre	Human-Syntax	Human-Meaning	Human-Rhyming	Human-Metre	Human-Unknown-words	Human-Overall
+filename	system	Rules-Unknown-words	Rules-Rhyming	Rules-Metre	syllable_count_entropy	rhyming_consistency	ChatGPT-Semantics	ChatGPT-Syntax	ChatGPT-Rhyming	GPT-Language	ChatGPT-Metre	Human-Syntax	Human-Semantics	Human-Rhyming	Human-Metre	Human-Unk-Words	Human-Overall-Imp
 poems/poem_1.txt	tm4	0.037037037037037035	1.0	0.8817867139725717	0.0	1.0	0.8	0.8	0.8	0.8	0.7	8	6	10	8	9	7
 poems/poem_2.txt	ccv	0.0	1.0	0.8716550558846997	1.0	1.0	0.8	0.9	0.8	0.9	0.8	10	10	10	8	10	10
 poems/poem_3.txt	tm16_40000	0.06329113924050633	1.0	0.7618984716761006	0.0	1.0	0.6	0.7	0.7	0.7	0.6	7	5	9	7	8	6
