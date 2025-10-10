@@ -44,6 +44,8 @@ def check_rs(rs, rhyme_scheme, current_stanza_num):
             return rs == rhyme_scheme
         else:
             assert isinstance(rhyme_scheme, list)
+            # TODO tady ještě potřebuju normalizovat to rhyme scheme
+            # pokud je to například CDDC tak potřebuju z toho udělat ABBA
             return rs == rhyme_scheme[current_stanza_num % len(rhyme_scheme)]
     else:
         return False
@@ -211,10 +213,10 @@ if __name__=="__main__":
         print('Metre consistency:', results['metre_consistency'])
         print('Syllable count entropy:', results['syllable_count_entropy'])
         print('ChatGPT meaning:', results['chatgpt_meaning'])
-        print('ChatGPT syntax:', results['chatgpt_syntax'])
-        print('ChatGPT language:', results['chatgpt_language'])
-        print('ChatGPT rhyming:', results['chatgpt_rhyming'])
-        print('ChatGPT metrum:', results['chatgpt_metrum'])
+        #print('ChatGPT syntax:', results['chatgpt_syntax'])
+        #print('ChatGPT language:', results['chatgpt_language'])
+        #print('ChatGPT rhyming:', results['chatgpt_rhyming'])
+        #print('ChatGPT metrum:', results['chatgpt_metrum'])
 
     #print('name', 'unknown_words', 'rhyming', 'rhyme_scheme_accuracy', 'metre_consistency', 'metre_accuracy', 'syllable_count_entropy', 'rhyming_consistency', sep="\t")
     #for path in sys.argv[1:]:
