@@ -37,10 +37,25 @@ def get_rhyme_scheme(numbers):
 
     return "".join(scheme)
 
+
+def check_rs(rs, rhyme_scheme, current_stanza_num):
+    if rhyme_scheme:
+        if isinstance(rhyme_scheme, str):
+            return rs == rhyme_scheme
+        else:
+            assert isinstance(rhyme_scheme, list)
+            return rs == rhyme_scheme[current_stanza_num % len(rhyme_scheme)]
+    else:
+        return False
+
 def get_measures_from_analyzed_poem(poem, parameters={}):
 
     if not 'rhyme_scheme' in parameters:
-        parameters['rhyme_scheme'] = None
+        rhyme_scheme = None
+    elif ' ' in parameters['rhyme_scheme']:
+        rhyme_scheme = parameters['rhyme_scheme'].split(' ')
+    else:
+        rhyme_scheme = parameters['rhyme_scheme']
     if not 'metre' in parameters:
         parameters['metre'] = None
 
@@ -92,7 +107,7 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             if current_stanza:
                 raw_text += "\n";
                 rs = get_rhyme_scheme(current_stanza)
-                if parameters['rhyme_scheme'] == rs:
+                if check_rs(rs, rhyme_scheme, current_stanza_num):
                     rhyme_scheme_correct += 1
                 rhyme_scheme_total += 1
                 rhyme_schemes[rs] += 1
@@ -106,7 +121,7 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     
     if current_stanza:
         rs = get_rhyme_scheme(current_stanza)
-        if parameters['rhyme_scheme'] == rs:
+        if check_rs(rs, rhyme_scheme, current_stanza_num):
             rhyme_scheme_correct += 1
         rhyme_scheme_total += 1
         rhyme_schemes[rs] += 1

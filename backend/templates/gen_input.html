@@ -1,14 +1,9 @@
     <script>
-        function update_datalist(source_id, target_id) {
-            selected = document.getElementById(source_id).value;
-            document.getElementById(target_id).setAttribute('list', target_id + '_datalist' + selected);
-        }
-	
 	function toggle_auth() {
 		    var modelSelect = document.getElementById("modelSelect");
 		    var fields = document.querySelectorAll(".authtit");
 		    var fields_basic = document.querySelectorAll(".basiconly");
-	            var pversu = document.getElementById("pocetversu");
+            var pversu = document.getElementById("pocetversu");
 		    if (modelSelect.value === "tm") {
 		        fields.forEach(field => {
 			    field.style.display = "block";
@@ -30,7 +25,7 @@
 			    field.style.display = "block";
 			    });
 		        fields_basic.forEach(field => {
-			    field.style.display = "inline";
+			    field.style.display = "none";
 			    });
 			    pversu.style.display = "block";
 		        }
@@ -66,15 +61,14 @@
         </select>
         </p>
 
-        <p id="pocetversu">Počet veršů:
-        <select name="verses_count" id="verses_count"
-            onchange="update_datalist('verses_count', 'rhyme_scheme')">
-        <option value="0">náhodně</option>
-        <option value="4">4</option>
-        <option value="6">6</option>
-        </select>
+        <p id="pocetversu">Počet veršů ve sloce:
+        <input name="verses_count" id="verses_count"
+            type="text" value="0">
+        Typicky 4 nebo 6, ale můžete zadat vlastní hodnotu (0 znamená, že
+        volbu necháte na generujícím modelu). Pokud mají mít jednotlivé sloky
+        různé počty veršů, můžete zadat více hodnot oddělených mezerami (např.
+        "4 4 3 3").
         </p>
-
 
         <p>
         Rýmové schéma:
@@ -82,7 +76,6 @@
                name="rhyme_scheme"
                placeholder="AABB"
                maxlength="20"
-               title="Rýmové schéma za použití 4 nebo 6 velkých písmen abecedy (A, B, C, X), např. ABBA"
                list=rhyme_scheme_datalist0
                id="rhyme_scheme"
                autofocus
@@ -100,25 +93,12 @@
         <option>ABABXX</option>
         <option>XXXXXX</option>
         </datalist>
-        <datalist id="rhyme_scheme_datalist4">
-        <option>náhodně</option>
-        <option>AABB</option>
-        <option>ABAB</option>
-        <option>ABBA</option>
-        <option>XAXA</option>
-        <option>AAXX</option>
-        <option>XXXX</option>
-        </datalist>
-        <datalist id="rhyme_scheme_datalist6">
-        <option>náhodně</option>
-        <option>AABBCC</option>
-        <option>ABABCC</option>
-        <option>ABABXX</option>
-        <option>XXXXXX</option>
-        </datalist>
         Rýmující verše se označují
         stejným písmenem, nerýmující se verš se označuje X.
-        <!-- Nejběžnější schémata: ABAB, XXXX, XAXA, XXXXXX, AABB, ABBA, AABBCC, AAXX, ABABXX, ABABCC -->
+        Můžete si vybrat některé z běžných rýmových schémat, anebo vepsat
+        vlastní.
+        Pokud mají mít jednotlivé sloky různá schémata, můžete vepsat schámata
+        pro jednotlivé sloky oddělená mezerou (např. "ABBA CDC").
         </p>
         
         <p>Počet slabik v prvním verši:
@@ -139,6 +119,9 @@
         <option value="16">16</option>
         </select>
         (respektive ve všech verších které mají definovaný požadavek na první slovo)
+        TODO teď to tu nejde zadat ale model umí i různé počty pro různé
+        verše, např. "8 7" pokud se mají střídat verše o 8 a 7 slabikách, nebo
+        třeba "8 7 7 8"...
         </p>
 
         <!--<p>TODO rozměr (počet stop) - buď stejný pro celou báseň, nebo pro
@@ -152,6 +135,7 @@
         <option value="haiku">haiku</option>
         <option value="limerik">limerik</option>
         </select>
+        Pokud je vybrána pevná forma, nastavení v rozporu s vybranou formou se budou ignorovat.
         </p>
 
         <!--<p>Téma/motiv:
@@ -282,8 +266,7 @@
         </select>
         </p>-->
 
-        <p>Temperature: <input type="number" name="temperature" value="0.5"
-        step="0.01" min="0.01" max="10"> (1 standard, mezi
+        <p>Temperature: <input type="number" name="temperature" value="0.5" step="0.01" min="0.01" max="10"> (1 standard, mezi
         0 a 1 konzervativnější, mezi 1 a 2 náhodnější, víc než 3 už je
         nesmyslné)</p>
 

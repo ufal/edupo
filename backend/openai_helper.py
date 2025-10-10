@@ -10,8 +10,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO)
 
-from show_poem_html import get_metrum
-
 # OpenAI key
 KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
 
@@ -93,6 +91,28 @@ def generate_with_openai_simple(prompt, system="You are a helpful assistant.", m
     ]
     return generate_with_openai(messages, model, max_tokens)
 
+METRE_EN = {
+    'J': 'iambic',
+    'T': 'trochaic',
+    'D': 'dactylic',
+}
+
+FORM_EN = {
+    'sonet': 'sonnet',
+    'haiku': 'haiku',
+    'limerik': 'limerick',
+}
+
+def int2th(i):
+    result = 'th'
+    if i%10 == 1:
+        result = 'st'
+    elif i%10 == 2:
+        result = 'nd'
+    elif i%10 == 3:
+        result = 'rd'
+    return result
+
 from collections import defaultdict
 def generate_poem_with_openai(params, model="gpt-4o-mini"):
     # set all unknown to ''
@@ -139,40 +159,60 @@ Between stanzas, use exactly one blank line.
 Do not output any other content or formatting."""
 
     prompt_parts = list()
+    
+    # FORM: prompting in English
     metre = ''
-    if params['metre'] and params['metre'] != 'N':
-        u = 'i' if params['metre'] == 'T' else 'u'
-        metre = f" v {get_metrum(params['metre'])}{u}"
-    prompt_parts.append(f'Napiš českou báseň{metre}.')
+    if params['metre'] and params['metre'] in METRE_EN:
+        metre = f"{METRE_EN[params['metre']]} "
+    prompt_parts.append(f'Write a {metre}poem in Czech language.')
     if params['rhyme_scheme']:
-        prompt_parts.append(f"Použij rýmové schéma {params['rhyme_scheme']}.")
+        prompt_parts.append(f"Use the {params['rhyme_scheme']} rhyme scheme.")
     if params['verses_count']:
-        prompt_parts.append(f"Každá sloka by měla mít {params['verses_count']} veršů.")
-    if params['syllables_count']:
-        prompt_parts.append(f"První verš by měl mít {params['syllables_count']} slabik.")
-    if params['first_words'] and any(params['first_words']):
-        prompt_parts.append(f"První slova veršů by postupně měla být následující: {';'.join(params['first_words'])}.")
-    if params['max_strophes']:
-        if params['max_strophes'] == 1:
-            slok = 'sloku'
-        elif params['max_strophes'] < 5:
-            slok = 'sloky'
+        if isinstance(params['verses_count'], int):
+            prompt_parts.append(f"Each stanza should have {params['verses_count']} lines.")
         else:
-            slok = 'slok'
-        prompt_parts.append(f"Báseň by měla mít maximálně {params['max_strophes']} {slok}.")
+            assert isinstance(params['verses_count'], list)
+            for i, l in enumerate(params['verses_count']):
+                th = int2th(i+1)
+                prompt_parts.append(f"The {i+1}{th} stanza should have {l} lines.")
+    if params['syllables_count']:
+        if isinstance(params['syllables_count'], int):
+            prompt_parts.append(f"The 1st line should have {params['syllables_count']} syllables.")
+        else:
+            assert isinstance(params['syllables_count'], list)
+            for i, s in enumerate(params['syllables_count']):
+                th = int2th(i+1)
+                prompt_parts.append(f"The {i+1}{th} line should have {s} syllables.")
+    if params['first_words']:
+        for i, w in enumerate(params['first_words']):
+            th = int2th(i+1)
+            if w:
+                prompt_parts.append(f"The {i+1}{th} line should start with the word '{w}'.")
+    if params['max_strophes']:
+        s = 's' if params['max_strophes'] > 1 else ''
+        prompt_parts.append(f"The poem should have at most {params['max_strophes']} stanza{s}.")
     if params['form']:
-        prompt_parts.append(f"Pevná forma básně by měla být {params['form']}.")
+        prompt_parts.append(f"The poem should be a {FORM_EN[params['form']]}.")
+    # CONTENT: prompting in Czech
+    prompt_parts.append(f"\n")
     if params['author_name'] and params['author_name'] != 'Anonym':
         prompt_parts.append(f"Báseň by měla být ve stylu známého českého autora, který se jmenoval {params['author_name']}.")
     if params['title'] and params['title'] != 'Bez názvu':
         prompt_parts.append(f"Název básně je: {params['title']}.")
+    prompt_parts.append(f"Nyní napiš českou báseň dle tohoto zadání.")
+    
     # TODO anaphors, epanastrophes
     prompt = ' '.join(prompt_parts)
     logging.info('TEXTGEN Prompt: ' + show_short(prompt))
     
     max_tokens = 500
     if params['verses_count'] or params['max_strophes']:
-        verses = params['verses_count'] if params['verses_count'] else 4
+        verses = 4
+        if params['verses_count']:
+            if isinstance(params['verses_count'], int):
+                verses = params['verses_count']
+            else:
+                verses = max(params['verses_count'])
         strophes = params['max_strophes'] if params['max_strophes'] else 4
         # max 50 per verse + title + author name
         max_tokens = 50 * verses * strophes + 100

@@ -336,24 +336,33 @@ def gen_zmq(params):
     return json.loads(socket.recv())
 
 def set_params_for_form(params):
-    if params['form'] == 'sonet' and params['modelspec'] == 'tm':
+    if params['form'] == 'sonet' and params['modelspec'] != 'mc':
         params['max_strophes'] = 4
         params['rhyme_scheme'] = 'ABBA CDDC EFG EFG'
+        params['verses_count'] = [4,4,3,3]
     elif params['form'] == 'limerik':
         params['max_strophes'] = 1
         params['rhyme_scheme'] = 'AABBA'
-    elif params['form'] == 'haiku' and params['modelspec'] == 'tm':
+        params['verses_count'] = 5
+    elif params['form'] == 'haiku' and params['modelspec'] != 'mc':
         params['max_strophes'] = 1
         params['rhyme_scheme'] = 'XXX'
-        params['syllables_count'] = '5 7 5'
-    
+        params['syllables_count'] = [5,7,5]
+        params['verses_count'] = 3
+
+def int_or_intlist(text):
+    if ' ' in text:
+        return [int(x) for x in text.split(' ')]
+    else:
+        return int(text)
+
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     # empty or 'náhodně' means random
     params = dict()
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
-    params['verses_count'] = int(get_post_arg('verses_count', 0, True))
-    params['syllables_count'] = int(get_post_arg('syllables_count', 0, True))
+    params['verses_count'] = int_or_intlist(get_post_arg('verses_count', 0, True))
+    params['syllables_count'] = int_or_intlist(get_post_arg('syllables_count', 0, True))
     params['metre'] = get_post_arg('metre')
     params['first_words'] = [word.strip() for word in get_post_arg('first_words', isarray=True, default=[])]
     # TODO if all first_words are empty then ignore
