@@ -10,6 +10,8 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO)
 
+from show_poem_html import get_metrum
+
 # OpenAI key
 KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
 
@@ -106,6 +108,7 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
         validation = ""
 
     system=f"""You are a renowned 19th-century Czech poet, an expert in the Czech language known for your mastery of rich and poetic vocabulary. Unless otherwise instructed, compose rhymed poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Poems should be of medium length—typically 4 to 20 verses unless specified. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
+Do not rhyme the verses with identical words; use similar-sounding but different words.
 
 {plan}
 When generating output, strictly follow this sequence:
@@ -126,7 +129,6 @@ Author Name: Poem Title
 Verse 1
 Verse 2
 
-(stanza break: blank line)
 Verse 3
 Verse 4
 
@@ -137,15 +139,17 @@ Between stanzas, use exactly one blank line.
 Do not output any other content or formatting."""
 
     prompt_parts = list()
-    prompt_parts.append('Napiš českou báseň.')
+    metre = ''
+    if params['metre'] and params['metre'] != 'N':
+        u = 'i' if params['metre'] == 'T' else 'u'
+        metre = f" v {get_metrum(params['metre'])}{u}"
+    prompt_parts.append(f'Napiš českou báseň{metre}.')
     if params['rhyme_scheme']:
         prompt_parts.append(f"Použij rýmové schéma {params['rhyme_scheme']}.")
     if params['verses_count']:
         prompt_parts.append(f"Každá sloka by měla mít {params['verses_count']} veršů.")
     if params['syllables_count']:
         prompt_parts.append(f"První verš by měl mít {params['syllables_count']} slabik.")
-    if params['metre']:
-        prompt_parts.append(f"Metrum básně by mělo být {params['metre']}.")
     if params['first_words'] and any(params['first_words']):
         prompt_parts.append(f"První slova veršů by postupně měla být následující: {';'.join(params['first_words'])}.")
     if params['max_strophes']:
