@@ -361,8 +361,8 @@ def call_generuj():
     # empty or 'náhodně' means random
     params = dict()
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
-    params['verses_count'] = int_or_intlist(get_post_arg('verses_count', 0, True))
-    params['syllables_count'] = int_or_intlist(get_post_arg('syllables_count', 0, True))
+    params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
+    params['syllables_count'] = int_or_intlist(get_post_arg('syllables_count', '0', True))
     params['metre'] = get_post_arg('metre')
     params['first_words'] = [word.strip() for word in get_post_arg('first_words', isarray=True, default=[])]
     # TODO if all first_words are empty then ignore
