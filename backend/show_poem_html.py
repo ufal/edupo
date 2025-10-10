@@ -329,6 +329,9 @@ def show(data):
             for word in verse["words"]:
                 if "punct_before" in word:
                     syllables[-1]["after"] += word["punct_before"].replace(' ', NBSP)
+                classes = ""
+                if word.get("is_unknown", False):
+                    classes = "unknown"
                 if word["syllables"]:
 
                     # add all syllables
@@ -342,7 +345,8 @@ def show(data):
                             "parts": parts,
                             "position": syllable['position'],
                             "stress": syllable['stress'],
-                            "after": ""})
+                            "after": "",
+                            "classes": classes})
                         pointer += 1
                     # mark end of word
                     if "punct" in word:
