@@ -55,10 +55,10 @@ with open(sys.argv[1], 'r') as f:
     lines = [f.readline()]
 
     selected_indices = []
-    #selected_indices = range(0,1000)
-    for i in range(int(sys.argv[3])):
-        selected_indices.append(random.randint(1, int(sys.argv[4])))
-    print("Selected indices:", selected_indices, file=sys.stderr)
+    selected_indices = range(0,1000)
+    #for i in range(int(sys.argv[3])):
+    #    selected_indices.append(random.randint(1, int(sys.argv[4])))
+    #print("Selected indices:", selected_indices, file=sys.stderr)
 
     counter = 0
     out_counter = 0
