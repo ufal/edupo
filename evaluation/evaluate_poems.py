@@ -21,9 +21,13 @@ with open(output_file, "w") as f:
         f.write("\t"+m)
         avg[m] = 0
     f.write("\n")
-    for i in range(1, 1000):
-        num = str(i)
-        filename = input_dir+"/poem_" + num + ".txt"
+    soubory = os.listdir(input_dir)
+    soubory.sort()
+    for soubor in soubory:
+        filename = os.path.join(input_dir, soubor)
+    #for i in range(1, 1000):
+        #num = str(i)
+        #filename = input_dir+"/poem_" + num + ".txt"
         if not os.path.isfile(filename):
             continue
         try:
@@ -34,7 +38,7 @@ with open(output_file, "w") as f:
             print('ERROR while processing', filename, file=sys.stderr)
         
         if results:
-            print (f"poem_{num} processed", file=sys.stderr)
+            print (f"{soubor} processed", file=sys.stderr)
             total += 1
             f.write(filename)
             for m in measures:
