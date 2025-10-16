@@ -380,7 +380,7 @@ def call_generuj():
     params['max_unk'] = float(get_post_arg('max_unk', '0.05'))
     params['max_tries'] = int(get_post_arg('max_tries', '3'))
     if params['max_tries'] < 1:
-        params['max_tries'] = 1:
+        params['max_tries'] = 1
 
     try_no = 1
     results = []
@@ -405,6 +405,7 @@ def call_generuj():
             else:
                 app.logger.info(f"BAD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
                 results.append([measures, raw_output, clean_verses, author_name, title])
+                try_no += 1
     
     if not found:
         # choose best from results, primarily by meaning, secondarily by unk
