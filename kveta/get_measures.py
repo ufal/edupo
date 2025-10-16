@@ -37,6 +37,25 @@ def get_rhyme_scheme(numbers):
 
     return "".join(scheme)
 
+def plechacovina(poem):
+    cluster_to_last_pos = defaultdict(int)
+    #current_stanza = 1
+    plechacovina = ""
+    for i in range(len(poem)):
+        c = poem[i]['rhyme']
+        if not c:
+            plechacovina += "0"
+        elif cluster_to_last_pos[c] == 0:
+            plechacovina += "0"
+            cluster_to_last_pos[c] = i
+        else:
+            plechacovina += str(i - cluster_to_last_pos[c])
+            cluster_to_last_pos[c] = i
+        #if poem[i]['stanza'] != current_stanza:
+        #    current_stanza = poem[i]['stanza']
+        #    plechacovina += " "
+    return plechacovina
+
 
 def check_rs(rs, rhyme_scheme, current_stanza_num):
     if rhyme_scheme:
@@ -52,12 +71,12 @@ def check_rs(rs, rhyme_scheme, current_stanza_num):
 
 def get_measures_from_analyzed_poem(poem, parameters={}):
 
-    if not 'rhyme_scheme' in parameters:
-        rhyme_scheme = None
-    elif ' ' in parameters['rhyme_scheme']:
-        rhyme_scheme = parameters['rhyme_scheme'].split(' ')
-    else:
-        rhyme_scheme = parameters['rhyme_scheme']
+    #if not 'rhyme_scheme' in parameters:
+    #    rhyme_scheme = None
+    #elif ' ' in parameters['rhyme_scheme']:
+    #    rhyme_scheme = parameters['rhyme_scheme'].split(' ')
+    #else:
+    #    rhyme_scheme = parameters['rhyme_scheme']
     if not 'metre' in parameters:
         parameters['metre'] = None
 
@@ -71,8 +90,21 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     #syllables_total = 0
 
     rhyme_scheme_correct = 0
-    rhyme_scheme_total = 0
-    
+    if 'rhyme_scheme' in parameters:
+        # odstran mezery
+        rhyme_scheme = parameters['rhyme_scheme'].replace(" ", "")
+        # plechacovina
+        plech = plechacovina(poem)
+        # spocitej shody
+        pos = 0
+        for pl in plech:
+            # pokud se vycerpal rhyme scheme, jed znovu od zacatku
+            if pos == len(rhyme_scheme):
+                 pos = 0
+            if pl == rhyme_scheme[pos]:
+                rhyme_scheme_correct += 1
+            pos += 1
+
     current_stanza_num = -1
     current_stanza = []
    
@@ -109,9 +141,9 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             if current_stanza:
                 raw_text += "\n";
                 rs = get_rhyme_scheme(current_stanza)
-                if check_rs(rs, rhyme_scheme, current_stanza_num):
-                    rhyme_scheme_correct += 1
-                rhyme_scheme_total += 1
+                #if check_rs(rs, rhyme_scheme, current_stanza_num):
+                #    rhyme_scheme_correct += 1
+                #rhyme_scheme_total += 1
                 rhyme_schemes[rs] += 1
                 current_stanza = []
             current_stanza_num = poem[i]['stanza']
@@ -123,9 +155,9 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     
     if current_stanza:
         rs = get_rhyme_scheme(current_stanza)
-        if check_rs(rs, rhyme_scheme, current_stanza_num):
-            rhyme_scheme_correct += 1
-        rhyme_scheme_total += 1
+        #if check_rs(rs, rhyme_scheme, current_stanza_num):
+        #    rhyme_scheme_correct += 1
+        #rhyme_scheme_total += 1
         rhyme_schemes[rs] += 1
 
     # ChatGPT init
@@ -169,7 +201,7 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
 
     result = {'unknown_words': unknown_counter/words_counter,
             'rhyming': rhyme_count / len(poem),
-            'rhyme_scheme_accuracy': rhyme_scheme_correct / rhyme_scheme_total,
+            'rhyme_scheme_accuracy': rhyme_scheme_correct / len(poem),
             'metre_consistency': max(metre_probs_sum.values()) / len(poem),
             'metre_accuracy': metre_probs_sum[parameters['metre']] / len(poem),
             #'metre_consistency_rb': max(metre_probs_rb.values()) / syllables_total,
