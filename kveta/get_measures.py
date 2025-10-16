@@ -11,7 +11,7 @@ from kveta import okvetuj
 from collections import defaultdict
 from openai import OpenAI
 sys.path.append("../backend")
-from openai_helper import generate_with_openai_simple
+from openai_helper import generate_with_openai_simple, generate_with_openai_responses
 
 def get_rhyme_scheme(numbers):
     num2id = dict()
@@ -144,13 +144,16 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     #)
     
     # smysluplnost
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
+    #response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text")
+    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text, model="google/gemini-2.5-flash")
+    #response = generate_with_openai_responses("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
     numbers = re.findall(r'\d+', response)
     meaning_num = 5
     if numbers:
         meaning_num = int(numbers[0])
     if meaning_num > 0 and meaning_num <= 10:
         meaning_num /= 10
+
     
     # syntax
     COMPUTE_SYNTAX = False
