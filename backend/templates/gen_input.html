@@ -46,8 +46,27 @@
         generování mu déle trvá.
         </p>
 
-        <p class="authtit">Autor: <input name="author"></p>
-    
+        <p class="authtit">Autor:
+            <input type="text"
+               name="author"
+               placeholder="Mácha, Karel Hynek"
+               list=author_datalist0
+               id="author"
+               autofocus
+        >
+        <datalist id="author_datalist0">
+        <option>Mácha, Karel Hynek</option>
+        <option>Erben, Karel Jaromír</option>
+        <option>Neruda, Jan</option>
+        <option>Hálek, Vítězslav</option>
+        <option>Březina, Otokar</option>
+        <option>Karásek ze Lvovic, Jiří</option>
+        <option>Hlaváček, Karel</option>
+        <option>Gellner, František</option>
+        </datalist>
+        Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora.
+        </p>
+
         <p class="authtit">Název: <input name="title"></p>
 
 
