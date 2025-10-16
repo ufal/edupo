@@ -378,7 +378,7 @@ def call_generuj():
     
     params['min_meaning'] = float(get_post_arg('min_meaning', '0.7'))
     params['max_unk'] = float(get_post_arg('max_unk', '0.05'))
-    params['max_tries'] = int(get_post_arg('max_tries', '3'))
+    params['max_tries'] = int(get_post_arg('max_tries', '1'))
     if params['max_tries'] < 1:
         params['max_tries'] = 1
 
