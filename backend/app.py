@@ -543,17 +543,24 @@ def call_analyze():
 def call_genmotives():
     poemid = get_post_arg('poemid')
     data = get_poem_by_id(poemid)
-    
-    basne = 'básně'
-    if data['title'] and not 'Bez názvu' in data['title']:
-        basne = f"básně {data['title']}"
-    system = f"Jste literární vědec se zaměřením na poezii. Vaším úkolem je určit až 5 hlavních témat {basne}. Napište pouze tato témata, nic jiného, každé na samostatný řádek. Takto:\n 1. A\n 2. B\n 3. C"
-    
-    motives = generate_with_openai_simple(poem2text(data), system)
-    
-    with open(f'static/genmotives/{poemid}.txt', 'w') as outfile:
-        print(motives, file=outfile)
-    
+    regenerate = get_post_arg('regenerate', default=False, nonempty=True)
+
+    filename = f'static/genmotives/{poemid}.txt'
+
+    if regenerate or not os.path.exists(filename):
+        basne = 'básně'
+        if data['title'] and not 'Bez názvu' in data['title']:
+            basne = f"básně {data['title']}"
+        system = f"Jste literární vědec se zaměřením na poezii. Vaším úkolem je určit až 5 hlavních témat {basne}. Napište pouze tato témata, nic jiného, každé na samostatný řádek. Takto:\n 1. A\n 2. B\n 3. C"
+        
+        motives = generate_with_openai_simple(poem2text(data), system)
+        
+        with open(filename, 'w') as outfile:
+            print(motives, file=outfile)
+    else:
+        with open(filename, 'r') as infile:
+            motives = infile.read()
+        
     return return_accepted_type(motives,
             {'motives': motives.split("\n")},
             redirect_for_poemid(poemid)
