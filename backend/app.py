@@ -20,7 +20,7 @@ import sys
 sys.path.append("../kveta")
 sys.path.append("../scripts/diphthongs")
 from kveta import okvetuj, okvetuj_ccv
-from get_measures import get_measures_from_analyzed_poem
+from get_measures import get_measures, get_measures_from_analyzed_poem
 
 # TODO use this instead of a plain dict
 from data_types import GenerationParameters
@@ -374,18 +374,47 @@ def call_generuj():
     params['author_name'] = get_post_arg('author', 'Anonym')
     params['modelspec'] = get_post_arg('modelspec', 'mc')
     params['form'] = get_post_arg('form', '')
-    
     set_params_for_form(params)
+    
+    params['min_meaning'] = float(get_post_arg('min_meaning', '0.7'))
+    params['max_unk'] = float(get_post_arg('max_unk', '0.05'))
+    params['max_tries'] = int(get_post_arg('max_tries', '3'))
+    if params['max_tries'] < 1:
+        params['max_tries'] = 1:
 
-    geninput = (f"Generate poem with parameters: {params}")
-    app.logger.info(geninput)
-    if 'gpt' in params['modelspec'] or '/' in params['modelspec']:
-        # a GPT model or an OpenRouter model
-        raw_output, clean_verses, author_name, title = generate_poem_with_openai(params, model=params['modelspec'])
-    else:
-        raw_output, clean_verses, author_name, title = gen_zmq(params)
-    app.logger.info(f"Generated poem {clean_verses}")
-  
+    try_no = 1
+    results = []
+    found = False
+    while try_no <= params['max_tries'] and not found:
+        geninput = (f"Generate poem (try {try_no}) with parameters: {params}")
+        app.logger.info(geninput)
+        if 'gpt' in params['modelspec'] or '/' in params['modelspec']:
+            # a GPT model or an OpenRouter model
+            raw_output, clean_verses, author_name, title = generate_poem_with_openai(params, model=params['modelspec'])
+        else:
+            raw_output, clean_verses, author_name, title = gen_zmq(params)
+        app.logger.info(f"Generated poem {clean_verses}")
+    
+        if True:
+            # TODO sometimes we can skip this
+            measures = get_measures("\n".join(clean_verses))
+            if measures['chatgpt_meaning'] >= params['min_meaning'] and measures['unknown_words'] <= params['max_unk']:
+                # break
+                app.logger.info(f"GOOD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
+                found = True
+            else:
+                app.logger.info(f"BAD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
+                results.append([measures, raw_output, clean_verses, author_name, title])
+    
+    if not found:
+        # choose best from results, primarily by meaning, secondarily by unk
+        best = max(
+            results,
+            key=lambda x: (x[0]["chatgpt_meaning"], -x[0]["unknown_words"])
+        )
+        _, raw_output, clean_verses, author_name, title = best
+        app.logger.info(f"Choosing poem {clean_verses}")
+
     # sets must be lists now
     params['anaphors'] = list(params['anaphors'])
     params['epanastrophes'] = list(params['epanastrophes'])
