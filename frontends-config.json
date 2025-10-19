@@ -1,0 +1,14 @@
+{
+    "FRONTEND": {
+        "URL": {
+            "poemRead": "/edupo/?viewMode=reading&poemId={0}",
+            "poemAnalyze": "/edupo/?viewMode=analysing&poemId={0}",
+            "poemEdit": "/edupo/?viewMode=editing&poemId={0}",
+            "poemVisualize": "/edupo/?genMode=image&poemId={0}"
+        }
+    },
+    "palette": {
+        "red": "#e11d48",
+        "blue": "#334155"
+    }
+}
