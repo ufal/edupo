@@ -256,7 +256,6 @@ def ensure_qr_code(poemid):
 
 def show(data):
     data = defaultdict(str, data)
-    data['json'] = json.dumps(data, indent=4, ensure_ascii=False)
     
     if data['id']:
         data['imgfile'] = filename_if_exists(
