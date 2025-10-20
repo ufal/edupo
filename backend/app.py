@@ -150,10 +150,14 @@ def return_accepted_type_for_poemid(data, html_template=None):
     return_type = get_accepted_type()
     if return_type == 'html':
         if html_template:
+            if not 'verses' in data:
+                data = show_poem_html.show(data)
             return render_template(html_template, **data)
         else:
             return redirect_for_poemid(data['id'])
     elif return_type == 'json':
+        if not 'verses' in data:
+            data = show_poem_html.show(data)
         return jsonify(data)
     else:
         if return_type != 'txt':
