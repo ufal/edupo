@@ -168,6 +168,10 @@ export function usePoemGenerator() {
                 setDraftParam("metre", firstCode);
         }
 
+        const verses = data.verses ?? [];
+        const versesAbbr = verses.map(v => v.rhymeletter).join("");
+        setAnalysisValue("rhymeScheme", versesAbbr);
+
         commitDraftToCurrent(); // predpokladam/verim, ze alespon nejaky draftParam se nastavil
         updateInitialValues();
 

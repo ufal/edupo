@@ -65,7 +65,22 @@ export interface AnalysisResponse {
         rhyming_consistency: number;
         syllable_count_entropy: number;
         unknown_words: number;
-    }
+    },
+    verses: [
+        {
+            clause: string,
+            foot: number,
+            metre: "T" | "D" | "J" | "N",
+            metrum: "trochej" | "daktyl" | "jamb" | "volný",
+            narrators_gender: string,
+            pattern: string,
+            rhymeclass: number,
+            rhymeletter: "A" | "B" | "C" | "D" | "E" | "X",
+            rhymesubscript: string,
+            rythm: string,
+            stanza: number,
+        }
+    ]
 }
 
 export interface MotivesResponse {

@@ -249,7 +249,8 @@ export default function PoemSettings() {
                                         !disabledFields.rhymeScheme &&
                                         !!currentAnalysisValues.rhymeSchemeAccuracy &&
                                         (currentAnalysisValues.rhymeSchemeAccuracy < analysisTresholdValues.rhymeSchemeAccuracy)
-                                    }>
+                                    }
+                                    readonly={true}>
                                         { /*
                                         <Combobox
                                             highlighted={!poemLoading && hasDraftParamChanged("rhymeScheme")}
@@ -266,9 +267,8 @@ export default function PoemSettings() {
                                         <Input
                                             type="text"
                                             className="focus-visible:ring-0"
-                                            value={draftValues.rhymeScheme ?? ""}
-                                            disabled={disabledFields.rhymeScheme}
-                                            onChange={(e) => setDraftParam("rhymeScheme", e.target.value)} />
+                                            value={currentAnalysisValues.rhymeScheme ?? ""}
+                                            disabled={true} />
                                 </Section>
                             </div>
                         </div>
@@ -310,12 +310,7 @@ export default function PoemSettings() {
                             getSwitchValue={() => disabledFields.versesCount}
                             switchFunc={(on) => setDisabledField("versesCount", on)}
                             hasChanged={!poemLoading && hasDraftParamChanged("versesCount")}
-                            unsuitableToAnalysis={
-                                !disabledFields.versesCount &&
-                                !!draftValues.versesCount &&
-                                currentValues.poemLines!.length > 0 &&
-                                (draftValues.versesCount != currentValues.poemLines!.length)
-                            }>
+                            unsuitableToAnalysis={false}>
                             <Slider
                                 defaultValue={[draftValues.versesCount]}
                                 min={apiParams.gen.versesCount.min}

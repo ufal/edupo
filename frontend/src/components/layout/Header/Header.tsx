@@ -49,6 +49,7 @@ export default function Header() {
                 </Link>
             </div>
 
+            { /*
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
@@ -117,6 +118,7 @@ export default function Header() {
                     </Command>
                 </PopoverContent>
             </Popover>
+            */}
 
             <div className="flex gap-2">
                 <CopyLinkButton />

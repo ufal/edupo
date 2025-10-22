@@ -3,6 +3,7 @@ import { create } from "zustand";
 type AnalysisValues = {
   metreAccuracy: number | null;
   metreConsistency: number | null;
+  rhymeScheme: string | null;
   rhymeSchemeAccuracy: number | null;
   rhyming: number | null;
   rhymingConsistency: number | null;
@@ -13,6 +14,7 @@ type AnalysisValues = {
 const defaultValues: AnalysisValues = {
     metreAccuracy: null,
     metreConsistency: null,
+    rhymeScheme: null,
     rhymeSchemeAccuracy: null,
     rhyming: null,
     rhymingConsistency: null,
