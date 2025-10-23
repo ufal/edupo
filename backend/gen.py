@@ -10,7 +10,6 @@ import json
 
 import logging
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 import parsy
 
@@ -58,6 +57,7 @@ def load_models(modelspec=None):
     logging.info(f"Loading model {modelspec} {MODEL_TM if modelspec == 'tm' else MODEL_MC}")
 
     if modelspec == 'mc':
+        from transformers import AutoModelForCausalLM, AutoTokenizer
         # load Michal's model
         tokenizer = AutoTokenizer.from_pretrained(MODEL_MC)
         model = AutoModelForCausalLM.from_pretrained(MODEL_MC)
@@ -65,9 +65,10 @@ def load_models(modelspec=None):
             template = parser.Template(f.read())
 
 
-    elif modelspec == 'tm':
+    elif modelspec == 'tm' or modelspec == 'new':
         import unsloth
         from unsloth import FastLanguageModel
+        from transformers import AutoModelForCausalLM, AutoTokenizer
         kwargs = {}
         if LOAD16BIT:
             kwargs['dtype'] = torch.bfloat16
@@ -80,8 +81,11 @@ def load_models(modelspec=None):
             **kwargs,
             )
         FastLanguageModel.for_inference(model)
-        with open('prompt_templates/tm1.txt', 'r') as f:
-            template = parser.Template(f.read())
+        if modelspec == 'tm':
+            with open('prompt_templates/tm1.txt', 'r') as f:
+                template = parser.Template(f.read())
+        else:
+            template = None
 
         #logging.info(f"model_tm: {model_tm}")
         #logging.info(f"tokenizer_tm: {tokenizer_tm}")
@@ -89,7 +93,7 @@ def load_models(modelspec=None):
         logging.exception("EXCEPTION Nebyl vybrán model.")
 
 
-    logging.info("Model loaded.")
+    logging.info("Model loaded: " + modelspec)
     return model, tokenizer, template
 
 def _show_tokenization(tokenizer, tokens):
@@ -120,7 +124,7 @@ def _show_tokenization(tokenizer, tokens):
             + '|')
 
 def _generate(model, tokenizer, temperature=1):
-    def g(poet_start, stop_strings=None, krok=None):
+    def g(poet_start, stop_strings=None, krok=None, max_new=256):
         """
         stop_strings(`str or List[str]`, *optional*):
                 A string or a list of strings that should terminate generation if the model outputs them.
@@ -138,7 +142,7 @@ def _generate(model, tokenizer, temperature=1):
         # generate a continuation to it
         out = model.generate(
                 tokenized_poet_start,
-                max_new_tokens=256,
+                max_new_tokens=max_new,
                 do_sample=(not NOSAMPLE),
                 # top_p=0.7,
                 top_k=50,
@@ -359,6 +363,17 @@ def generuj_mc(model, tokenizer, template, params):
 
 """
 
+def generuj_new(model, tokenizer, template, params):
+    gen = _generate(model, tokenizer, params.get('temperature'))
+
+    poem = '<poem>\n<format-v-1/>\n'
+
+    _, generated = gen(poem, max_new=2048)
+
+    poem += generated
+
+    return poem, [], 'Anonym', 'Bez názvu'
+
 def generuj_tm(model, tokenizer, template, params_orig):
 
     params = params_orig.copy() # TODO fix this ugly hack
@@ -515,8 +530,10 @@ def generuj(model, tokenizer, template, params, params_immutable=True):
 
     if params.get('modelspec') == 'tm':
         return generuj_tm(model, tokenizer, template, params)
-    else:
+    elif params.get('modelspec') == 'mc':
         return generuj_mc(model, tokenizer, template, params)
+    elif params.get('modelspec') == 'new':
+        return generuj_new(model, tokenizer, template, params)
 
 def main_server(modelspec, port):
     # zmq mode
@@ -534,7 +551,7 @@ def main_server(modelspec, port):
         result = json.dumps(generuj(model, tokenizer, template, params, False))
         socket.send_string(result)
 
-def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_output=False):
+def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_output=False, temperature=1.0):
     # direct mode
     with redirect_stdout(sys.stderr):
         model, tokenizer, template = load_models(modelname)
@@ -544,7 +561,7 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
     else:
         params = {
             'modelspec': modelname,
-            'temperature': 1,
+            'temperature': temperature,
             'rhyme_scheme': '',
             #'first_words': ['První', 'Druhá', 'Třetí', 'Čtvrtá'],
             'first_words': [],
@@ -588,9 +605,10 @@ def parse_args():
     argparser.add_argument('--clean', action='store_true', help='Clean output')
     argparser.add_argument('--clean_json', action='store_true', help='Clean JSON output')
     argparser.add_argument('--checkpoint', type=str, help='Checkpoint to use')
+    argparser.add_argument('--temperature', type=float, default=1.0, help='Temperature for text generation')
     args = argparser.parse_args()
 
-    assert args.model in ['mc', 'tm']
+    assert args.model in ['mc', 'tm', 'new']
 
     if args.checkpoint:
         MODEL_TM = args.checkpoint
@@ -617,4 +635,5 @@ if __name__=="__main__":
                         **({'repeat_n': args.repeat_n} if args.repeat_n else {}),
                         json_file=args.json,
                         clean_output='json' if args.clean_json else args.clean,
+                        temperature=args.temperature,
                         )
