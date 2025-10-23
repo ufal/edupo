@@ -6,6 +6,7 @@ import math
 import json
 import glob
 import re
+import time
 sys.path.append("../kveta")
 from kveta import okvetuj
 from collections import defaultdict
@@ -218,9 +219,14 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
 
 def get_measures(input_txt, parameters={}):
 
+    #print(time.time(), "KVETA START")
     data, k = okvetuj(input_txt)
+    #print(time.time(), "KVETA END")
 
-    return get_measures_from_analyzed_poem(data[0]["body"], parameters)
+    measures = get_measures_from_analyzed_poem(data[0]["body"], parameters)
+    #print(time.time(), "MEASURES END")
+
+    return measures
 
 if __name__=="__main__":
     parameters = {}

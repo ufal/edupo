@@ -405,7 +405,9 @@ def call_generuj():
             # TODO sometimes we can skip this
             # TODO naměřit jak dlouho to trvá
             # TODO stačí jen meaning a unk, na to nemusim pouštět květu
+            app.logger.info("Calling get_measures")
             measures = get_measures("\n".join(clean_verses))
+            app.logger.info(f"Got measures: {measures}")
             if measures['chatgpt_meaning'] >= params['min_meaning'] and measures['unknown_words'] <= params['max_unk']:
                 # break
                 app.logger.info(f"GOOD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
