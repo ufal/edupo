@@ -40,15 +40,17 @@ def get_rhyme_scheme(numbers):
 def plechacovina(clusters):
     cluster_to_last_pos = defaultdict(int)
     plechacovina = ""
-    for i, c in enumerate(clusters):
+    pos = 0
+    for c in clusters:
+        pos += 1
         if not c or c == 'X':
             plechacovina += "0"
         elif cluster_to_last_pos[c] == 0:
             plechacovina += "0"
-            cluster_to_last_pos[c] = i
+            cluster_to_last_pos[c] = pos
         else:
-            plechacovina += str(i - cluster_to_last_pos[c])
-            cluster_to_last_pos[c] = i
+            plechacovina += str(pos - cluster_to_last_pos[c])
+            cluster_to_last_pos[c] = pos
     return plechacovina
 
 
@@ -92,6 +94,8 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
         # plechacovina
         clusters = [ poem[i]['rhyme'] for i in range(len(poem)) ]
         plech = plechacovina(clusters)
+        print(plech)
+        print(plech_scheme)
         # spocitej shody
         pos = 0
         for pl in plech:
