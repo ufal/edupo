@@ -401,6 +401,8 @@ def call_generuj():
     
         if True:
             # TODO sometimes we can skip this
+            # TODO naměřit jak dlouho to trvá
+            # TODO stačí jen meaning a unk, na to nemusim pouštět květu
             measures = get_measures("\n".join(clean_verses))
             if measures['chatgpt_meaning'] >= params['min_meaning'] and measures['unknown_words'] <= params['max_unk']:
                 # break
