@@ -1,9 +1,9 @@
-import { useRef, useCallback } from "react";
+import { useCallback } from "react";
 
 import { usePoem } from "@/store/poemStore";
 import { usePoemAnalysis } from "@/store/poemAnalysisStore";
 import { genPoemApi, fetchPoemApi, fetchAnalysisApi, fetchMotivesApi, fetchImageApi, fetchTTSApi, sendLikeApi } from "@/lib/edupoApi";
-import { MetreDetailCode, ImageResponse, TTSResponse, AnalysisResponse, FetchPoemResponse, GenResponse } from "@/types/edupoApi";
+import { ImageResponse, TTSResponse, AnalysisResponse, FetchPoemResponse, GenResponse } from "@/types/edupoApi";
 
 const GENERATED_FLAG = " [vygenerováno]";
 const NO_TITLE_RESP = "Bez názvu";
@@ -33,7 +33,7 @@ const parsePoemResponse = (data: FetchPoemResponse | GenResponse): { author: str
 }
 
 export function usePoemGenerator() {
-    const { setAnalysisValue } = usePoemAnalysis();
+    const { setAnalysisValue, setAnalysisLoading } = usePoemAnalysis();
     const { draftValues, currentValues, disabledFields, setDraftParam, commitDraftToCurrent, updateInitialValues, setPoemLoading, setPoemError } = usePoem.getState();
 
     const fetchPoem = useCallback(async (poemId: string): Promise<boolean> => {
@@ -118,7 +118,6 @@ export function usePoemGenerator() {
             setDraftParam("title", parsedData.title);
             setDraftParam("author", parsedData.author);
             setDraftParam("poemLines", parsedData.lines);
-            setDraftParam("rhymeScheme", parsedData.rhymeScheme);
 
             commitDraftToCurrent();
             updateInitialValues();
@@ -136,6 +135,8 @@ export function usePoemGenerator() {
     }, [draftValues, disabledFields]);
 
     const fetchAnalysis = useCallback(async (id: string, onDataLoaded?: (analysisData: AnalysisResponse) => void) => {
+        setAnalysisLoading(true);
+
         const data = await fetchAnalysisApi(id);
 
         if (onDataLoaded)
@@ -153,27 +154,27 @@ export function usePoemGenerator() {
             setAnalysisValue("unknownWords", measures.unknown_words);
         }
 
-        const codes = data.body
-            .map((item) => {
-                const keys = Object.keys(item.metre) as MetreDetailCode[];
-                return keys[0] ?? undefined;
-            })
-            .filter((code): code is MetreDetailCode => !!code);
+        const verses = data.verses ?? [];
+        const allSameMetre = verses.length ? verses.every(v => v.metre === data.verses[0].metre) : true;
+        const metre = (verses.length && allSameMetre) ? verses[0].metre : null;
+        setAnalysisValue("metre", metre);
 
-        if (codes.length) {
-            const firstCode = codes[0];
-            const allSame = codes.every((code) => code === firstCode);
-
-            if (allSame)
-                setDraftParam("metre", firstCode);
+        if (draftValues.metre === "" && metre) {
+            setDraftParam("metre", metre);
         }
 
-        const verses = data.verses ?? [];
         const versesAbbr = verses.map(v => v.rhymeletter).join("");
+        console.log("Rhyme scheme from analysis:", versesAbbr);
         setAnalysisValue("rhymeScheme", versesAbbr);
+
+        if (draftValues.rhymeScheme === "" && versesAbbr) {
+            setDraftParam("rhymeScheme", versesAbbr);
+        }
 
         commitDraftToCurrent(); // predpokladam/verim, ze alespon nejaky draftParam se nastavil
         updateInitialValues();
+
+        setAnalysisLoading(false);
 
     }, []);
 

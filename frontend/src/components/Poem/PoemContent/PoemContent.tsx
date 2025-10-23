@@ -27,10 +27,12 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
 
     const isXRhymeScheme = Array(rhymeSchemeNormalized).every((val) => val === "X");
 
-    const unlockLine = (index: number) => {
-        setUnlockedLines((prev) =>
-            prev.includes(index) ? prev : [...prev, index]
-        );
+    const setLineLocking = (locked: boolean, index: number) => {
+        if (locked) {
+            setUnlockedLines((prev) => prev.filter((i) => i !== index));
+        } else {
+            setUnlockedLines((prev) => prev.includes(index) ? prev : [...prev, index]);
+        }
     };
 
     const updateLine = (index: number, newText: string) => {
@@ -77,7 +79,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                                     poemLines.map((line, i) => {
                                         switch (linesMode) {
                                             case "editable":
-                                                return <PoemLinesEditBadge key={"edit-" + i} onClick={() => unlockLine(i)} locked={!unlockedLines.includes(i)} />;
+                                                return <PoemLinesEditBadge key={"edit-" + i} onClick={() => setLineLocking(false, i)} locked={!unlockedLines.includes(i)} />;
 
                                             case "highlighted":
                                                 const letter = (poemLines.length == rhymeSchemeNormalized.length) ? rhymeSchemeNormalized![i] : "?";
@@ -120,6 +122,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                                                                     isEditable={true}
                                                                     locked={!unlockedLines.includes(i)}
                                                                     onChange={(newText) => updateLine(i, newText)}
+                                                                    onBlur={() => setLineLocking(true, i)}
                                                                     onClear={() => clearLine(i)} />
                                                             )
 

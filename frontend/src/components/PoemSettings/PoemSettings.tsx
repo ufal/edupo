@@ -37,7 +37,8 @@ export default function PoemSettings() {
   } = usePoem();
   
   const {
-    currentAnalysisValues
+    currentAnalysisValues,
+    analysisLoading
   } = usePoemAnalysis.getState();
 
   const {
@@ -90,7 +91,6 @@ export default function PoemSettings() {
     */
   }
 
-
   const heightElements = [
     { value: 64, unit: "px" },
     { value: 64, unit: "px" },
@@ -105,19 +105,21 @@ export default function PoemSettings() {
     .map((el) => `${el.value}${el.unit}`)
     .join(" - ")})`;
 
-    const authorOptions = authors.map(a => ({ label: a, value: a }));
+  const authorOptions = authors.map(a => ({ label: a, value: a }));
 
-    const validAuthor = authorOptions.some(item => item.value === draftValues.author)
-        ? draftValues.author
-        : "";
+  const validAuthor = authorOptions.some(item => item.value === draftValues.author)
+    ? draftValues.author
+    : "";
 
-    const poemOptions = draftValues.author && poemsByAuthor[draftValues.author]
-        ? poemsByAuthor[draftValues.author].map(p => ({ label: p.title, value: p.title }))
-        : [];
+  const poemOptions = draftValues.author && poemsByAuthor[draftValues.author]
+    ? poemsByAuthor[draftValues.author].map(p => ({ label: p.title, value: p.title }))
+    : [];
 
-    const validTitle = poemOptions.some(item => item.value === draftValues.title)
-        ? draftValues.title
-        : "";
+  const validTitle = poemOptions.some(item => item.value === draftValues.title)
+    ? draftValues.title
+    : "";
+
+  console.log(draftValues.metre, currentAnalysisValues.metre);
 
   return (
     <div className="flex flex-col h-full">
@@ -226,9 +228,15 @@ export default function PoemSettings() {
                                     switchFunc={(on) => setDisabledField("metre", on)}
                                     hasChanged={!poemLoading && hasDraftParamChanged("metre")}
                                     unsuitableToAnalysis={
+                                        draftValues.metre !== "" &&
+                                        currentAnalysisValues.metre != null &&
+                                        (!analysisLoading && !poemLoading && !hasDraftParamChanged("metre")) &&
+                                        (currentAnalysisValues.metre !== draftValues.metre)
+                                        /*
                                         !disabledFields.metre &&
                                         !!currentAnalysisValues.metreAccuracy &&
                                         (currentAnalysisValues.metreAccuracy < analysisTresholdValues.metreAccuracy)
+                                        */
                                     }>
                                         <Combobox
                                             highlighted={!poemLoading && hasDraftParamChanged("metre")}
