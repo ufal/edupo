@@ -37,13 +37,11 @@ def get_rhyme_scheme(numbers):
 
     return "".join(scheme)
 
-def plechacovina(poem):
+def plechacovina(clusters):
     cluster_to_last_pos = defaultdict(int)
-    #current_stanza = 1
     plechacovina = ""
-    for i in range(len(poem)):
-        c = poem[i]['rhyme']
-        if not c:
+    for i, c in enumerate(clusters):
+        if not c or c == 'X':
             plechacovina += "0"
         elif cluster_to_last_pos[c] == 0:
             plechacovina += "0"
@@ -51,9 +49,6 @@ def plechacovina(poem):
         else:
             plechacovina += str(i - cluster_to_last_pos[c])
             cluster_to_last_pos[c] = i
-        #if poem[i]['stanza'] != current_stanza:
-        #    current_stanza = poem[i]['stanza']
-        #    plechacovina += " "
     return plechacovina
 
 
@@ -93,15 +88,17 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     if 'rhyme_scheme' in parameters:
         # odstran mezery
         rhyme_scheme = parameters['rhyme_scheme'].replace(" ", "")
+        plech_scheme = plechacovina(rhyme_scheme)
         # plechacovina
-        plech = plechacovina(poem)
+        clusters = [ poem[i]['rhyme'] for i in range(len(poem)) ]
+        plech = plechacovina(clusters)
         # spocitej shody
         pos = 0
         for pl in plech:
             # pokud se vycerpal rhyme scheme, jed znovu od zacatku
-            if pos == len(rhyme_scheme):
+            if pos == len(plech_scheme):
                  pos = 0
-            if pl == rhyme_scheme[pos]:
+            if pl == plech_scheme[pos]:
                 rhyme_scheme_correct += 1
             pos += 1
 
