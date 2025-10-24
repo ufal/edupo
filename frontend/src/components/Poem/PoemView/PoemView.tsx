@@ -88,7 +88,7 @@ export default function PoemView({ linesMode } : { linesMode: PoemViewLinesMode 
     const lastChangedIndex = draftValues.changedPoemLineIndexes?.at(-1) ?? -1
 
     return (
-        <div className="flex flex-row h-full pt-4 relative">
+        <div className="flex flex-row h-full py-4 relative">
             {
                 (linesMode === "highlighted" || linesMode === "editable") && (
                     (poemLines && rhymeScheme) && (
