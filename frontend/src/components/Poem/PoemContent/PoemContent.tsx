@@ -18,14 +18,8 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
     const { draftValues, currentValues, setDraftParam, poemLoading, poemError } = usePoem();
     const poemLines = draftValues.poemLines ?? [];
     const rhymeScheme = currentValues.rhymeScheme ?? "";
-    let rhymeSchemeNormalized = rhymeScheme;
-
-    if (rhymeSchemeNormalized.length != poemLines.length && poemLines.length % rhymeScheme.length === 0) {
-        const repeatCount = poemLines.length / rhymeScheme.length;
-        rhymeSchemeNormalized = rhymeScheme.repeat(repeatCount);
-    }
-
-    const isXRhymeScheme = Array(rhymeSchemeNormalized).every((val) => val === "X");
+    const isXRhymeScheme = rhymeScheme.split("").every(ch => ch === "X");
+    //const isXRhymeScheme = Array(rhymeSchemeNormalized).every((val) => val === "X");
 
     const setLineLocking = (locked: boolean, index: number) => {
         if (locked) {
@@ -44,6 +38,26 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
     const clearLine = (index: number) => {
         updateLine(index, "");
     };
+
+    const handleLineChange = (index: number, newText: string) => {
+        const prevDraft = draftValues.poemLines ?? [];
+        const currentLines = currentValues.poemLines ?? [];
+
+        const updatedDraft = [...prevDraft];
+        updatedDraft[index] = newText;
+
+        let lastChangedIndex = -1;
+        const len = Math.min(updatedDraft.length, currentLines.length);
+        for (let i = len - 1; i >= 0; i--) {
+            if (updatedDraft[i] !== currentLines[i]) {
+                lastChangedIndex = i;
+                break;
+            }
+        }
+
+        setDraftParam("poemLines", updatedDraft);
+        setDraftParam("lastPoemLineChangedIndex", lastChangedIndex);
+    }
 
     useEffect(() => {
         if (poemLoading) {
@@ -71,7 +85,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
         <div className="flex flex-row h-full pt-4 relative">
             {
                 (linesMode === "highlighted" || linesMode === "editable") && (
-                    (poemLines && rhymeSchemeNormalized) && (
+                    (poemLines && rhymeScheme) && (
 
                         <div className="w-[40px] py-6 leading-tight whitespace-pre-line text-[16px]">
                             <div className="leading-tight whitespace-pre-line flex flex-col gap-1">
@@ -82,8 +96,8 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                                                 return <PoemLinesEditBadge key={"edit-" + i} onClick={() => setLineLocking(false, i)} locked={!unlockedLines.includes(i)} />;
 
                                             case "highlighted":
-                                                const letter = (poemLines.length == rhymeSchemeNormalized.length) ? rhymeSchemeNormalized![i] : "?";
-                                                const colorSchemeName = (poemLines.length != rhymeSchemeNormalized.length)
+                                                const letter = (poemLines.length == rhymeScheme.length) ? rhymeScheme![i] : "?";
+                                                const colorSchemeName = (poemLines.length != rhymeScheme.length)
                                                                             ? "yellow"
                                                                             : (typeof SchemeToColorMappings[letter as keyof typeof SchemeToColorMappings] === "undefined")
                                                                                 ? "yellow"
@@ -108,7 +122,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                         }
                         {
                             (!poemLoading && !poemError) &&
-                                (poemLines && rhymeSchemeNormalized) &&
+                                (poemLines && rhymeScheme) &&
                                     (
                                         <div className="leading-tight whitespace-pre-line flex flex-col gap-1">
                                             {
@@ -120,15 +134,16 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                                                                     key={"edit-" + i}
                                                                     text={line}
                                                                     isEditable={true}
+                                                                    highlighted={i <= draftValues.lastPoemLineChangedIndex}
                                                                     locked={!unlockedLines.includes(i)}
-                                                                    onChange={(newText) => updateLine(i, newText)}
+                                                                    onChange={(newText) => handleLineChange(i, newText)}
                                                                     onBlur={() => setLineLocking(true, i)}
                                                                     onClear={() => clearLine(i)} />
                                                             )
 
                                                         case "highlighted":
-                                                            const letter = isXRhymeScheme ? "X" : rhymeSchemeNormalized![i];
-                                                            const colorSchemeName = (poemLines.length != rhymeSchemeNormalized.length)
+                                                            const letter = isXRhymeScheme ? "X" : rhymeScheme![i];
+                                                            const colorSchemeName = (poemLines.length != rhymeScheme.length)
                                                                                         ? "yellow"
                                                                                         : (typeof SchemeToColorMappings[letter as keyof typeof SchemeToColorMappings] === "undefined")
                                                                                             ? "yellow"
@@ -139,6 +154,7 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                                                                 <PoemLine
                                                                     key={"letter-" + i}
                                                                     text={line}
+                                                                    highlighted={i <= draftValues.lastPoemLineChangedIndex}
                                                                     colorScheme={colorScheme} />
                                                             )
 
@@ -147,7 +163,8 @@ export default function PoemContent({ linesMode } : { linesMode: PoemContentLine
                                                             return (
                                                                 <PoemLine
                                                                     key={"plain-" + i}
-                                                                    text={line} />
+                                                                    text={line}
+                                                                    highlighted={i <= draftValues.lastPoemLineChangedIndex} />
                                                             )
                                                     }
                                                 })

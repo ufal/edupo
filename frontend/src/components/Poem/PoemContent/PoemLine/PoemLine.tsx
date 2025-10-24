@@ -8,13 +8,14 @@ interface PoemLineProps {
     text: string;
     colorScheme?: PoemLineColorScheme;
     isEditable?: boolean;
+    highlighted?: boolean;
     locked?: boolean;
     onChange?: (newText: string) => void;
     onBlur?: () => void;
     onClear?: () => void;
 }
 
-export default function PoemLine({ text, colorScheme, isEditable, locked, onChange, onBlur, onClear} : PoemLineProps) {
+export default function PoemLine({ text, colorScheme, isEditable, highlighted, locked, onChange, onBlur, onClear} : PoemLineProps) {
     let cls = "px-10 h-[40px] flex items-center";
 
     if (colorScheme)
@@ -22,6 +23,9 @@ export default function PoemLine({ text, colorScheme, isEditable, locked, onChan
 
     if (isEditable)
         cls = twMerge(cls, "pl-8 bg-slate200Transparent");
+    
+    if (highlighted)
+        cls = twMerge(cls, "font-semibold");
     
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {

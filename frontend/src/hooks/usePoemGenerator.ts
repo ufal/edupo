@@ -11,7 +11,7 @@ const NO_TITLE_RESP = "Bez názvu";
 const imageCache = new Map<string, { url: string; description: string }>();
 const TTSCache = new Map<string, { url: string }>();
 
-const parsePoemResponse = (data: FetchPoemResponse | GenResponse): { author: string; title: string; lines: string[]; rhymeScheme: string | null } => {
+const parsePoemResponse = (data: FetchPoemResponse | GenResponse): { author: string; title: string; lines: string[] } => {
     const author = data.author_name ? data.author_name.replace(GENERATED_FLAG, "") : "";
     const title = data.title!;
     // const title =  (data.title === NO_TITLE_RESP) ? "" : data.title!;
@@ -19,6 +19,7 @@ const parsePoemResponse = (data: FetchPoemResponse | GenResponse): { author: str
     const plaintext = data.plaintext ?? "";
     const lines = plaintext.split("\n").filter(line => line.trim() !== "");
 
+    /*
     let rhymeScheme = null;
 
     if (data.rawtext)
@@ -28,8 +29,9 @@ const parsePoemResponse = (data: FetchPoemResponse | GenResponse): { author: str
         const schemeRaw = parts.length >= 2 ? parts[1] : "";
         rhymeScheme = schemeRaw.replace(/\s/g, "");
     }
+    */
 
-    return { author, title, lines, rhymeScheme };
+    return { author, title, lines };
 }
 
 export function usePoemGenerator() {
@@ -52,7 +54,6 @@ export function usePoemGenerator() {
             setDraftParam("title", data.title!);
             setDraftParam("author", parsedData.author);
             setDraftParam("poemLines", parsedData.lines);
-            setDraftParam("rhymeScheme", parsedData.rhymeScheme);
 
             commitDraftToCurrent();
 
@@ -95,21 +96,14 @@ export function usePoemGenerator() {
                 params.append("temperature", draftValues.temperature.toString());
 
             const draftLines = draftValues.poemLines ?? [];
-            const currentLines = currentValues.poemLines ?? [];
-            const linesMaxLength = Math.max(draftLines.length, currentLines.length);
-
-            const lastChangedIndex = Array.from({ length: linesMaxLength })
-                .map((_, i) => i)
-                .findLastIndex((i) => draftLines[i] !== currentLines[i]);
+            const draftLastChangedIndex = draftValues.lastPoemLineChangedIndex;
 
             const changedLines =
-                lastChangedIndex >= 0
-                ? draftLines.slice(0, lastChangedIndex + 1)
+                draftLastChangedIndex >= 0
+                ? draftLines.slice(0, draftLastChangedIndex + 1)
                 : [];
 
-            changedLines.forEach(line => {
-                params.append("first_words", line);
-            });
+            params.append("first_words", changedLines.join("\n"));
 
             const data = await genPoemApi(params);
             const parsedData = parsePoemResponse(data);
@@ -118,6 +112,8 @@ export function usePoemGenerator() {
             setDraftParam("title", parsedData.title);
             setDraftParam("author", parsedData.author);
             setDraftParam("poemLines", parsedData.lines);
+
+            setDraftParam("lastPoemLineChangedIndex", -1);
 
             commitDraftToCurrent();
             updateInitialValues();

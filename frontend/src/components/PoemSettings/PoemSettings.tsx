@@ -83,12 +83,10 @@ export default function PoemSettings() {
         label: apiParamsTitles.gen.metre[i as MeterCode] ?? i,
         value: i
     })),
-    /*
-    rhymeScheme: rhymeScheme?.map((i) => ({
+    form: apiParams.gen.form.map((i) => ({
         label: i,
-        value: i
+        value: i.charAt(0).toUpperCase() + i.slice(1)
     }))
-    */
   }
 
   const heightElements = [
@@ -114,12 +112,6 @@ export default function PoemSettings() {
   const poemOptions = draftValues.author && poemsByAuthor[draftValues.author]
     ? poemsByAuthor[draftValues.author].map(p => ({ label: p.title, value: p.title }))
     : [];
-
-  const validTitle = poemOptions.some(item => item.value === draftValues.title)
-    ? draftValues.title
-    : "";
-
-  console.log(draftValues.metre, currentAnalysisValues.metre);
 
   return (
     <div className="flex flex-col h-full">
@@ -169,12 +161,15 @@ export default function PoemSettings() {
                                 placeholder="Název"
                                 data={poemOptions}
                                 disabled={
+                                    false
+                                    /*
                                     disabledFields.author ||
                                     disabledFields.title ||
                                     !draftValues.author ||
                                     !(draftValues.author in poemsByAuthor)
+                                    */
                                 }
-                                value={validTitle}
+                                value={draftValues.title}
                                 onChange={(v) => setDraftParam("title", v)}
                             />
                         </Section>
@@ -211,11 +206,7 @@ export default function PoemSettings() {
                                 <Combobox
                                     highlighted={!poemLoading && hasDraftParamChanged("form")}
                                     placeholder="Forma"
-                                    data={[
-                                        { label: "Sonet", value: "sonet" },
-                                        { label: "Haiku", value: "haiku" },
-                                        { label: "Limerik", value: "limerik" }
-                                    ]}
+                                    data={inputParams.form || []}
                                     disabled={disabledFields.form}
                                     value={draftValues.form}
                                     onChange={(v) => setDraftParam("form", v)} />

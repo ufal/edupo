@@ -7,6 +7,7 @@ type ParamValues = {
   author: string;
   title: string;
   poemLines: string[] | null;
+  lastPoemLineChangedIndex: number;
   style: string;
   form: string;
   metre: string;
@@ -53,6 +54,7 @@ const defaultValues: ParamValues = {
   author: "",
   title: "",
   poemLines: null,
+  lastPoemLineChangedIndex: -1,
   style: "",
   form: "",
   metre: "",
@@ -70,6 +72,7 @@ const defaultDisabled: Record<keyof ParamValues, boolean> = {
   author: false,
   title: false,
   poemLines: false,
+  lastPoemLineChangedIndex: false,
   style: false,
   form: false,
   metre: false,
