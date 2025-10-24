@@ -249,14 +249,13 @@ def ensure_qr_code(poemid):
     filename = f'static/qrcodes/{poemid}.png'
     if not os.path.isfile(filename):
         import qrcode
-        base_url = 'https://quest.ms.mff.cuni.cz/edupo/show?poemid='
+        base_url = 'https://quest.ms.mff.cuni.cz/edupo-api/show?poemid='
         url = f'{base_url}{poemid}'
         img = qrcode.make(url)
         img.save(filename)
 
 def show(data):
     data = defaultdict(str, data)
-    data['json'] = json.dumps(data, indent=4, ensure_ascii=False)
     
     if data['id']:
         data['imgfile'] = filename_if_exists(
@@ -329,6 +328,9 @@ def show(data):
             for word in verse["words"]:
                 if "punct_before" in word:
                     syllables[-1]["after"] += word["punct_before"].replace(' ', NBSP)
+                classes = ""
+                if word.get("is_unknown", False):
+                    classes = "unknown"
                 if word["syllables"]:
 
                     # add all syllables
@@ -342,7 +344,8 @@ def show(data):
                             "parts": parts,
                             "position": syllable['position'],
                             "stress": syllable['stress'],
-                            "after": ""})
+                            "after": "",
+                            "classes": classes})
                         pointer += 1
                     # mark end of word
                     if "punct" in word:

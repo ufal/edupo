@@ -17,8 +17,8 @@ import { AnalysisResponse } from "@/types/edupoApi";
 import { usePoemDatabase } from "@/store/poemDatabaseStore";
 
 import presetPoems from "@/data/api/preset-poems.json";
-import CopyLinkButton from "@/components/CopyLinkButton";
-import QRCodeButton from "@/components/QRCodeButton";
+import CopyLinkButton from "@/components/layout/Header/CopyLinkButton";
+import QRCodeButton from "@/components/layout/Header/QRCodeButton";
 
 export default function Header() {
     const {
@@ -49,6 +49,7 @@ export default function Header() {
                 </Link>
             </div>
 
+            { /*
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
@@ -117,6 +118,7 @@ export default function Header() {
                     </Command>
                 </PopoverContent>
             </Popover>
+            */}
 
             <div className="flex gap-2">
                 <CopyLinkButton />

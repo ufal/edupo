@@ -35,13 +35,17 @@ def read_poem(lines):
     year = parsed.get('year')
     rhyme_schemes = []
 
+    if not parsed['stanzas']:
+        return ['', '', '', '', '']
+
     for s in parsed['stanzas']:
         rhyme_schemes.append(s.get('rhyme_scheme'))
 
     verses = reduce(lambda x, y: x + [''] + y,
                     [[v['line'] for v in s['verses']] for s in parsed['stanzas']])
 
-    return ['"'+author_name+'"', '"'+title+'"', '"'+year+'"', '"'+"\n".join(rhyme_schemes)+'"', '"'+"\n".join(verses)+'"'] 
+    #return ['"'+author_name+'"', '"'+title+'"', '"'+year+'"', '"'+"\n".join(rhyme_schemes)+'"', '"'+"\n".join(verses)+'"'] 
+    return [author_name, title, year, "\n".join(rhyme_schemes), "\n".join(verses)] 
 
 with open(sys.argv[1], 'r') as f:
     first_line = f.readline()
@@ -51,16 +55,23 @@ with open(sys.argv[1], 'r') as f:
     lines = [f.readline()]
 
     selected_indices = []
-    for i in range(int(sys.argv[3])):
-        selected_indices.append(random.randint(1, int(sys.argv[4])))
-    print("Selected indices:", selected_indices, file=sys.stderr)
+    selected_indices = range(0,1000)
+    #for i in range(int(sys.argv[3])):
+    #    selected_indices.append(random.randint(1, int(sys.argv[4])))
+    #print("Selected indices:", selected_indices, file=sys.stderr)
 
     counter = 0
+    out_counter = 0
     for line in f:
         if "<|begin_of_text|>" in line:
             if counter in selected_indices:
                 poem = read_poem(lines)
-                print (counter, sys.argv[2], poem[0], poem[1], poem[2], poem[3], poem[4], sep=",")
+                #print (counter, sys.argv[2], poem[0], poem[1], poem[2], poem[3], poem[4], sep=",")
+                if not 'x' in poem[3] and (not poem[2].isnumeric() or int(poem[2]) >= 1850):
+                    out_counter += 1
+                    with open("poems/"+sys.argv[2]+"/poem_"+str(out_counter)+".txt", 'w') as f2:
+                        f2.write(poem[4])
+                    f2.close()
             lines = [line]
             counter += 1
         else:

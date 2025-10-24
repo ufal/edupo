@@ -6,12 +6,13 @@ import math
 import json
 import glob
 import re
+import time
 sys.path.append("../kveta")
 from kveta import okvetuj
 from collections import defaultdict
 from openai import OpenAI
 sys.path.append("../backend")
-from openai_helper import generate_with_openai_simple
+from openai_helper import generate_with_openai_simple, generate_with_openai_responses
 
 def get_rhyme_scheme(numbers):
     num2id = dict()
@@ -37,10 +38,43 @@ def get_rhyme_scheme(numbers):
 
     return "".join(scheme)
 
+def plechacovina(clusters):
+    cluster_to_last_pos = defaultdict(int)
+    plechacovina = ""
+    pos = 0
+    for c in clusters:
+        pos += 1
+        if not c or c == 'X':
+            plechacovina += "0"
+        elif cluster_to_last_pos[c] == 0:
+            plechacovina += "0"
+            cluster_to_last_pos[c] = pos
+        else:
+            plechacovina += str(pos - cluster_to_last_pos[c])
+            cluster_to_last_pos[c] = pos
+    return plechacovina
+
+
+def check_rs(rs, rhyme_scheme, current_stanza_num):
+    if rhyme_scheme:
+        if isinstance(rhyme_scheme, str):
+            return rs == rhyme_scheme
+        else:
+            assert isinstance(rhyme_scheme, list)
+            # TODO tady ještě potřebuju normalizovat to rhyme scheme
+            # pokud je to například CDDC tak potřebuju z toho udělat ABBA
+            return rs == rhyme_scheme[current_stanza_num % len(rhyme_scheme)]
+    else:
+        return False
+
 def get_measures_from_analyzed_poem(poem, parameters={}):
 
-    if not 'rhyme_scheme' in parameters:
-        parameters['rhyme_scheme'] = None
+    #if not 'rhyme_scheme' in parameters:
+    #    rhyme_scheme = None
+    #elif ' ' in parameters['rhyme_scheme']:
+    #    rhyme_scheme = parameters['rhyme_scheme'].split(' ')
+    #else:
+    #    rhyme_scheme = parameters['rhyme_scheme']
     if not 'metre' in parameters:
         parameters['metre'] = None
 
@@ -54,8 +88,25 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     #syllables_total = 0
 
     rhyme_scheme_correct = 0
-    rhyme_scheme_total = 0
-    
+    if 'rhyme_scheme' in parameters:
+        # odstran mezery
+        rhyme_scheme = parameters['rhyme_scheme'].replace(" ", "")
+        plech_scheme = plechacovina(rhyme_scheme)
+        # plechacovina
+        clusters = [ poem[i]['rhyme'] for i in range(len(poem)) ]
+        plech = plechacovina(clusters)
+        print(plech)
+        print(plech_scheme)
+        # spocitej shody
+        pos = 0
+        for pl in plech:
+            # pokud se vycerpal rhyme scheme, jed znovu od zacatku
+            if pos == len(plech_scheme):
+                 pos = 0
+            if pl == plech_scheme[pos]:
+                rhyme_scheme_correct += 1
+            pos += 1
+
     current_stanza_num = -1
     current_stanza = []
    
@@ -92,9 +143,9 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             if current_stanza:
                 raw_text += "\n";
                 rs = get_rhyme_scheme(current_stanza)
-                if parameters['rhyme_scheme'] == rs:
-                    rhyme_scheme_correct += 1
-                rhyme_scheme_total += 1
+                #if check_rs(rs, rhyme_scheme, current_stanza_num):
+                #    rhyme_scheme_correct += 1
+                #rhyme_scheme_total += 1
                 rhyme_schemes[rs] += 1
                 current_stanza = []
             current_stanza_num = poem[i]['stanza']
@@ -106,9 +157,9 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     
     if current_stanza:
         rs = get_rhyme_scheme(current_stanza)
-        if parameters['rhyme_scheme'] == rs:
-            rhyme_scheme_correct += 1
-        rhyme_scheme_total += 1
+        #if check_rs(rs, rhyme_scheme, current_stanza_num):
+        #    rhyme_scheme_correct += 1
+        #rhyme_scheme_total += 1
         rhyme_schemes[rs] += 1
 
     # ChatGPT init
@@ -127,72 +178,55 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     #)
     
     # smysluplnost
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
+    #response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text")
+    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text, model="google/gemini-2.5-flash")
+    #response = generate_with_openai_responses("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
     numbers = re.findall(r'\d+', response)
     meaning_num = 5
     if numbers:
         meaning_num = int(numbers[0])
     if meaning_num > 0 and meaning_num <= 10:
         meaning_num /= 10
+
     
     # syntax
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť syntaktickou konzistenci následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    numbers = re.findall(r'\d+', response)
-    syntax_num = 5
-    if numbers:
-        syntax_num = int(numbers[0])
-    if syntax_num > 0 and syntax_num <= 10:
-        syntax_num /= 10
-
-    # rhyming
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť rýmování následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    numbers = re.findall(r'\d+', response)
-    rhyming_num = 5
-    if numbers:
-        rhyming_num = int(numbers[0])
-    if rhyming_num > 0 and rhyming_num <= 10:
-        rhyming_num /= 10
-
-    # language
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť jazykovou konzistenci následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    numbers = re.findall(r'\d+', response)
-    language_num = 5
-    if numbers:
-        language_num = int(numbers[0])
-    if language_num > 0 and language_num <= 10:
-        language_num /= 10
-    
-    # metrum 
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť metrickou konzistenci následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    numbers = re.findall(r'\d+', response)
-    metrum_num = 5
-    if numbers:
-        metrum_num = int(numbers[0])
-    if metrum_num > 0 and metrum_num <= 10:
-        metrum_num /= 10
-    
+    COMPUTE_SYNTAX = False
+    if COMPUTE_SYNTAX:
+        response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť syntaktickou konzistenci následující básně. Napiš pouze to číslo.\n\n" + raw_text)
+        numbers = re.findall(r'\d+', response)
+        syntax_num = 5
+        if numbers:
+            syntax_num = int(numbers[0])
+        if syntax_num > 0 and syntax_num <= 10:
+            syntax_num /= 10
 
 
-    return {'unknown_words': unknown_counter/words_counter,
+    result = {'unknown_words': unknown_counter/words_counter,
             'rhyming': rhyme_count / len(poem),
-            'rhyme_scheme_accuracy': rhyme_scheme_correct / rhyme_scheme_total,
+            'rhyme_scheme_accuracy': rhyme_scheme_correct / len(poem),
             'metre_consistency': max(metre_probs_sum.values()) / len(poem),
             'metre_accuracy': metre_probs_sum[parameters['metre']] / len(poem),
             #'metre_consistency_rb': max(metre_probs_rb.values()) / syllables_total,
             'syllable_count_entropy': syllable_count_entropy,
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
             'chatgpt_meaning': meaning_num,
-            'chatgpt_syntax': syntax_num,
-            'chatgpt_rhyming': rhyming_num,
-            'chatgpt_language': language_num,
-            'chatgpt_metrum': metrum_num
            }
+
+    if COMPUTE_SYNTAX:
+        result['chatgpt_syntax'] = syntax_num
+
+    return result
 
 def get_measures(input_txt, parameters={}):
 
+    #print(time.time(), "KVETA START")
     data, k = okvetuj(input_txt)
+    #print(time.time(), "KVETA END")
 
-    return get_measures_from_analyzed_poem(data[0]["body"], parameters)
+    measures = get_measures_from_analyzed_poem(data[0]["body"], parameters)
+    #print(time.time(), "MEASURES END")
+
+    return measures
 
 if __name__=="__main__":
     parameters = {}
@@ -221,10 +255,10 @@ if __name__=="__main__":
         print('Metre consistency:', results['metre_consistency'])
         print('Syllable count entropy:', results['syllable_count_entropy'])
         print('ChatGPT meaning:', results['chatgpt_meaning'])
-        print('ChatGPT syntax:', results['chatgpt_syntax'])
-        print('ChatGPT language:', results['chatgpt_language'])
-        print('ChatGPT rhyming:', results['chatgpt_rhyming'])
-        print('ChatGPT metrum:', results['chatgpt_metrum'])
+        #print('ChatGPT syntax:', results['chatgpt_syntax'])
+        #print('ChatGPT language:', results['chatgpt_language'])
+        #print('ChatGPT rhyming:', results['chatgpt_rhyming'])
+        #print('ChatGPT metrum:', results['chatgpt_metrum'])
 
     #print('name', 'unknown_words', 'rhyming', 'rhyme_scheme_accuracy', 'metre_consistency', 'metre_accuracy', 'syllable_count_entropy', 'rhyming_consistency', sep="\t")
     #for path in sys.argv[1:]:

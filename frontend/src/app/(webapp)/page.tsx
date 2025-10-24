@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Poem from "@/components/Poem";
 import Sidebar from "@/components/layout/Sidebar";
 import SidePanelControlButton from "@/components/SidePanelControlButton";
-import PoemSettingsModeSwitcher from "@/components/PoemSettings/PoemSettingsModeSwitcher";
+import PoemSettingsModeSwitcher from "@/components/PoemControls/PoemSettingsModeSwitcher";
 
 import { usePoemGenerator } from "@/hooks/usePoemGenerator";
 import { usePoemDatabase } from "@/store/poemDatabaseStore";

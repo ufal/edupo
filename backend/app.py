@@ -20,7 +20,7 @@ import sys
 sys.path.append("../kveta")
 sys.path.append("../scripts/diphthongs")
 from kveta import okvetuj, okvetuj_ccv
-from get_measures import get_measures_from_analyzed_poem
+from get_measures import get_measures, get_measures_from_analyzed_poem
 
 # TODO use this instead of a plain dict
 from data_types import GenerationParameters
@@ -150,10 +150,14 @@ def return_accepted_type_for_poemid(data, html_template=None):
     return_type = get_accepted_type()
     if return_type == 'html':
         if html_template:
+            if not 'verses' in data:
+                data = show_poem_html.show(data)
             return render_template(html_template, **data)
         else:
             return redirect_for_poemid(data['id'])
     elif return_type == 'json':
+        if not 'verses' in data:
+            data = show_poem_html.show(data)
         return jsonify(data)
     else:
         if return_type != 'txt':
@@ -336,44 +340,92 @@ def gen_zmq(params):
     return json.loads(socket.recv())
 
 def set_params_for_form(params):
-    if params['form'] == 'sonet' and params['modelspec'] == 'tm':
+    if params['form'] == 'sonet' and params['modelspec'] != 'mc':
         params['max_strophes'] = 4
         params['rhyme_scheme'] = 'ABBA CDDC EFG EFG'
+        params['verses_count'] = [4,4,3,3]
     elif params['form'] == 'limerik':
         params['max_strophes'] = 1
         params['rhyme_scheme'] = 'AABBA'
-    elif params['form'] == 'haiku' and params['modelspec'] == 'tm':
+        params['verses_count'] = 5
+    elif params['form'] == 'haiku' and params['modelspec'] != 'mc':
         params['max_strophes'] = 1
         params['rhyme_scheme'] = 'XXX'
-        params['syllables_count'] = '5 7 5'
-    
+        params['syllables_count'] = [5,7,5]
+        params['verses_count'] = 3
+
+def int_or_intlist(text):
+    if ' ' in text:
+        return [int(x) for x in text.split(' ')]
+    else:
+        return int(text)
+
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     # empty or 'náhodně' means random
     params = dict()
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
-    params['verses_count'] = int(get_post_arg('verses_count', 0, True))
-    params['syllables_count'] = int(get_post_arg('syllables_count', 0, True))
+    params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
+    params['syllables_count'] = int_or_intlist(get_post_arg('syllables_count', '0', True))
     params['metre'] = get_post_arg('metre')
     params['first_words'] = [word.strip() for word in get_post_arg('first_words', isarray=True, default=[])]
     # TODO if all first_words are empty then ignore
     params['anaphors'] = [int(x) for x in get_post_arg('anaphors', isarray=True, default=[])]
     params['epanastrophes'] = [int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[])]
     params['temperature'] = float(get_post_arg('temperature', '1'))
+    if params['temperature'] <= 0:
+        params['temperature'] = 0.01
     params['max_strophes'] = int(get_post_arg('max_strophes', '2'))
     params['title'] = get_post_arg('title', 'Bez názvu')
     params['author_name'] = get_post_arg('author', 'Anonym')
     params['modelspec'] = get_post_arg('modelspec', 'mc')
     params['form'] = get_post_arg('form', '')
-    
     set_params_for_form(params)
+    
+    params['min_meaning'] = float(get_post_arg('min_meaning', '0.7'))
+    params['max_unk'] = float(get_post_arg('max_unk', '0.05'))
+    params['max_tries'] = int(get_post_arg('max_tries', '1'))
+    if params['max_tries'] < 1:
+        params['max_tries'] = 1
 
-    geninput = (f"Generate poem with parameters: {params}")
-    app.logger.info(geninput)
-    # raw_output, clean_verses, author_name, title = generuj(dict(params))
-    raw_output, clean_verses, author_name, title = gen_zmq(params)
-    app.logger.info(f"Generated poem {clean_verses}")
-  
+    try_no = 1
+    results = []
+    found = False
+    while try_no <= params['max_tries'] and not found:
+        geninput = (f"Generate poem (try {try_no}) with parameters: {params}")
+        app.logger.info(geninput)
+        if 'gpt' in params['modelspec'] or '/' in params['modelspec']:
+            # a GPT model or an OpenRouter model
+            raw_output, clean_verses, author_name, title = generate_poem_with_openai(params, model=params['modelspec'])
+        else:
+            raw_output, clean_verses, author_name, title = gen_zmq(params)
+        app.logger.info(f"Generated poem {clean_verses}")
+    
+        if True:
+            # TODO sometimes we can skip this
+            # TODO naměřit jak dlouho to trvá
+            # TODO stačí jen meaning a unk, na to nemusim pouštět květu
+            app.logger.info("Calling get_measures")
+            measures = get_measures("\n".join(clean_verses))
+            app.logger.info(f"Got measures: {measures}")
+            if measures['chatgpt_meaning'] >= params['min_meaning'] and measures['unknown_words'] <= params['max_unk']:
+                # break
+                app.logger.info(f"GOOD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
+                found = True
+            else:
+                app.logger.info(f"BAD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
+                results.append([measures, raw_output, clean_verses, author_name, title])
+                try_no += 1
+    
+    if not found:
+        # choose best from results, primarily by meaning, secondarily by unk
+        best = max(
+            results,
+            key=lambda x: (x[0]["chatgpt_meaning"], -x[0]["unknown_words"])
+        )
+        _, raw_output, clean_verses, author_name, title = best
+        app.logger.info(f"Choosing poem {clean_verses}")
+
     # sets must be lists now
     params['anaphors'] = list(params['anaphors'])
     params['epanastrophes'] = list(params['epanastrophes'])
@@ -531,17 +583,24 @@ def call_analyze():
 def call_genmotives():
     poemid = get_post_arg('poemid')
     data = get_poem_by_id(poemid)
-    
-    basne = 'básně'
-    if data['title'] and not 'Bez názvu' in data['title']:
-        basne = f"básně {data['title']}"
-    system = f"Jste literární vědec se zaměřením na poezii. Vaším úkolem je určit až 5 hlavních témat {basne}. Napište pouze tato témata, nic jiného, každé na samostatný řádek. Takto:\n 1. A\n 2. B\n 3. C"
-    
-    motives = generate_with_openai_simple(poem2text(data), system)
-    
-    with open(f'static/genmotives/{poemid}.txt', 'w') as outfile:
-        print(motives, file=outfile)
-    
+    regenerate = get_post_arg('regenerate', default=False, nonempty=True)
+
+    filename = f'static/genmotives/{poemid}.txt'
+
+    if regenerate or not os.path.exists(filename):
+        basne = 'básně'
+        if data['title'] and not 'Bez názvu' in data['title']:
+            basne = f"básně {data['title']}"
+        system = f"Jste literární vědec se zaměřením na poezii. Vaším úkolem je určit až 5 hlavních témat {basne}. Napište pouze tato témata, nic jiného, každé na samostatný řádek. Takto:\n 1. A\n 2. B\n 3. C"
+        
+        motives = generate_with_openai_simple(poem2text(data), system)
+        
+        with open(filename, 'w') as outfile:
+            print(motives, file=outfile)
+    else:
+        with open(filename, 'r') as infile:
+            motives = infile.read()
+        
     return return_accepted_type(motives,
             {'motives': motives.split("\n")},
             redirect_for_poemid(poemid)

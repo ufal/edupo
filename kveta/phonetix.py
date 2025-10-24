@@ -466,8 +466,8 @@ class Phonetix:
                     print("WARNING: token mismatch during the transcription:", t, file=sys.stderr)
                     print(l['words'], file=sys.stderr)
                 else:
-                    # pokud je slovem neslabičná předložka, které fonetika přidala nakonec švu, musí se tato šva odstranit
-                    if poem[i]['words'][j]['morph'][0] == 'R' and ts[j][-1] == '@':
+                    # pokud je slovem neslabičná předložka, které fonetika přidala nakonec švu, musí se tato šva odstranit, pokud není poseldní ve verši
+                    if poem[i]['words'][j]['morph'][0] == 'R' and ts[j][-1] == '@' and j < len(poem[i]['words']) - 1:
                         ts[j] = ts[j][:-1]
 
                     poem[i]['words'][j]['cft'] = ts[j]

@@ -23,7 +23,7 @@
     <div id="qrimg">
     <a href="static/qrcodes/{{ id }}.png"><img src="static/qrcodes/{{ id }}.png" alt="QR kód" title="QR kód"></a>
     <br> 
-    <button onclick="navigator.clipboard.writeText('https://quest.ms.mff.cuni.cz/edupo/show?poemid={{ id }}');">Zkopírovat odkaz</button>
+    <button onclick="navigator.clipboard.writeText('https://quest.ms.mff.cuni.cz/edupo-api/show?poemid={{ id }}');">Zkopírovat odkaz</button>
     </div>
 
     {% if title %}
@@ -193,7 +193,7 @@
                                         class
                                     }} {%
                                     endfor
-                                    %}"
+                                    %} {{ syllable.classes }}"
                                     >{{
                                         part.text
                                     }}</span
@@ -276,26 +276,26 @@
         <hr>
         <p>Automaticky změřená skóre:</p>
         <ul>
-            <li>Podíl rýmujících se veršů: {{ measures.rhyming * 100 }}%</li>
-            <li>Podíl slok se stejným rýmovým schématem: {{ measures.rhyming_consistency * 100 }}%</li>
-            <li>Konzistence metra: {{ measures.metre_consistency * 100}}%</li>
-            <li>Podíl neznámých slov: {{ measures.unknown_words * 100  }}%
+            <li>Podíl rýmujících se veršů: {{'%0.2f' % ( measures.rhyming * 100) | float }}%</li>
+            <li>Podíl slok se stejným rýmovým schématem: {{ '%0.2f' % (measures.rhyming_consistency * 100) | float }}%</li>
+            <li>Konzistence metra: {{ '%0.2f' % (measures.metre_consistency * 100) | float }}%</li>
+            <li>Podíl neznámých slov: {{ '%0.2f' % (measures.unknown_words * 100) | float  }}%
                 (menší je lepší)</li>
-            <li>Entropie počtů slabik: {{ measures.syllable_count_entropy }}
+            <li>Entropie počtů slabik: {{ '%0.2f' % (measures.syllable_count_entropy) | float }}
                 (menší je lepší)</li>
-            {% if measures.meaningfulness is defined %}
+            {% if measures.chatgpt_meaning is defined %}
             <li>Smysluplnost:
-                {{ measures.meaningfulness * 100 }}%
+                {{ measures.chatgpt_meaning * 100 }}%
             </li>
             {% endif %}
             {% if geninput and geninput.rhyme_scheme %}
             <li>Shoda s uživatelem zvoleným rýmovým schématem ({{ geninput.rhyme_scheme }}):
-                {{ measures.rhyme_scheme_accuracy * 100 }}%
+                {{ '%0.2f' % (measures.rhyme_scheme_accuracy * 100) | float }}%
             </li>
             {% endif %}
             {% if geninput and geninput.metre %}
             <li>Shoda s uživatelem zvoleným metrem ({{ geninput.metre }}):
-                {{ measures.metre_accuracy * 100 }}%
+                {{ '%0.2f' % (measures.metre_accuracy * 100) | float }}%
             </li>
             {% endif %}
         </ul>
@@ -307,7 +307,3 @@
 
 </body>
 </html>
-
-<!--
-{{ json|safe }}
--->

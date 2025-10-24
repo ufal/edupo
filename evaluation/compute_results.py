@@ -59,6 +59,8 @@ def main():
         for metric, value in zip(metric_names, values):
             try:
                 val = float(value)
+                if metric.startswith("Human"):
+                    val /= 10
                 data = system_data[system][metric]
                 data[0] += val
                 data[1] += val ** 2
@@ -87,6 +89,26 @@ def main():
             metric_plot_data[metric]["stddevs"].append(stddev)
         print(f"{system}\t" + "\t".join(row_values))
 
+    # Generate LaTeX table with metrics as rows and systems as columns,
+    # showing average ± stddev in the same cell
+    with open("metrics_table.tex", "w") as tex_file:
+        tex_file.write("\\begin{tabular}{l" + "c" * len(system_data) + "}\n")
+        tex_file.write("Metric")
+        for system in sorted(system_data):
+            tex_file.write(f" & {system}")
+        tex_file.write(" \\\\\n\\hline\n")
+
+        for metric in metric_names:
+            tex_file.write(metric)
+            for system in sorted(system_data):
+                total, total_sq, count = system_data[system][metric]
+                avg = total / count if count > 0 else float('nan')
+                stddev = compute_stddev(total, total_sq, count)
+                tex_file.write(f" & {avg:.2f} $\\pm$ {stddev:.2f}")
+            tex_file.write(" \\\\\n")
+
+        tex_file.write("\\end{tabular}\n")
+
     # Plotting
     for metric, data in metric_plot_data.items():
         systems = data["systems"]
@@ -96,15 +118,79 @@ def main():
         plt.figure(figsize=(8, 6))
         plt.bar(systems, averages, yerr=stddevs, capsize=5, color='skyblue', edgecolor='black')
         plt.ylabel(metric)
-        plt.title(f"{metric} by System")
+        plt.title(f"{metric}")
         plt.xticks(rotation=45)
         plt.tight_layout()
 
         if args.show_plots:
             plt.show()
         else:
-            plt.savefig(f"{metric}_by_system.png")
+            plt.savefig(f"{metric}.png")
         plt.close()
+
+    def plot_combined(metrics_filter, title, filename):
+        metrics = [m for m in metric_names if metrics_filter(m)]
+        if not metrics:
+            return
+
+        x = range(len(metrics))
+        #systems = sorted(system_data.keys())
+        #systems = ['ccv', 'chatgpt', 'our16-40000', 'our16-7500', 'our4', 'claude-sonet']
+        systems = ['ccv', 'llm', 'our16-40000', 'our16-7500', 'our4']
+        num_systems = len(systems)
+        width = 0.8 / num_systems
+        colors = plt.cm.Set2.colors
+        #hatch_patterns = ['/', '\\', '-', '.', 'o', 'x', '+', '*', 'O']  # Distinct fill patterns
+        hatch_patterns = ['////', '\\\\\\\\', '----', '....', 'oooo', 'xxxx', '++++', '****', 'OOOO']
+
+        plt.figure(figsize=(12, 4))
+
+        for idx, system in enumerate(systems):
+            averages = []
+            stddevs = []
+            for metric in metrics:
+                total, total_sq, count = system_data[system][metric]
+                avg = total / count if count > 0 else float('nan')
+                std = compute_stddev(total, total_sq, count)
+                averages.append(avg)
+                stddevs.append(std)
+
+            bar_positions = [i - 0.4 + width * idx + width / 2 for i in x]
+            plt.bar(bar_positions, averages, width=width, yerr=stddevs, capsize=4,
+            label=system,
+            color=colors[idx % len(colors)],
+            hatch=hatch_patterns[idx % len(hatch_patterns)],
+            edgecolor='black')
+            #plt.bar(bar_positions, averages, width=width, yerr=stddevs, capsize=4,
+            #    label=system, color=colors[idx % len(colors)], edgecolor='black')
+
+        #plt.xticks(x, metrics, rotation=45, ha='right')
+        plt.xticks(x, metrics, rotation=0, ha='center')
+        plt.ylabel("Metric Value")
+        plt.title(title)
+        plt.legend(title="Systems")
+        plt.tight_layout()
+
+        if args.show_plots:
+            plt.show()
+        else:
+            plt.savefig(filename)
+        plt.close()
+
+    # Plot 1: Human metrics only
+    plot_combined(
+        metrics_filter=lambda m: m.startswith("Human"),
+        title="System Comparison Across Human Metrics",
+        filename="human_metrics_by_system.png"
+    )
+
+    # Plot 2: Rules or ChatGPT metrics
+    plot_combined(
+        metrics_filter=lambda m: m.startswith("Stat") or m.startswith("LLM"),
+        title="System Comparison Across Statistical and LLM Metrics",
+        filename="stat_llm_metrics_by_system.png"
+    )
+
 
     # Compute correlation if requested
     if args.correlate:
@@ -140,7 +226,7 @@ def main():
         plt.xlabel(m1)
         plt.ylabel(m2)
         plt.title(f"Correlation between {m1} and {m2}\nPearson r = {corr:.4f}")
-        plt.colorbar(scatter, label='Frequency')
+        plt.colorbar(scatter, label='Frequency', ticks=[5,10,15,20])
         plt.grid(True)
         plt.tight_layout()
 

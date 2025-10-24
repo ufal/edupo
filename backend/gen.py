@@ -429,9 +429,8 @@ def generuj_tm(model, tokenizer, template, params_orig):
                 if isinstance(params['syllables_count'], int):
                     syllcount = params['syllables_count']
                 else:
-                    assert isinstance(params['syllables_count'], str)
-                    syllable_counts = params['syllables_count'].split(' ')
-                    syllcount = int(syllable_counts[verse_index % len(syllable_counts)])
+                    assert isinstance(params['syllables_count'], list)
+                    syllcount = params['syllables_count'][verse_index % len(syllable_counts)]
                 poem += f" {syllcount} #"
             else:
                 poem, generated = gen(poem, '#', krok='syllables_count')

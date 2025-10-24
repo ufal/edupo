@@ -195,3 +195,8 @@ table.stanza td {
     border-bottom: 1px solid #e5e7eb;
 }
 
+.unknown {
+  text-decoration: underline dotted red;
+  text-decoration-thickness: 2px;
+}
+

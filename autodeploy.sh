@@ -6,6 +6,7 @@ then
 	date
     echo Merging...
 	git merge
+    git log -n 1
     echo Reloading backend...
     cd backend
     ./reload.sh
