@@ -31,7 +31,7 @@ interface ComboboxParams {
   highlighted?: boolean
   placeholder: string
   data: ComboboxDataEntry[]
-  value: string // Selected value OR a free typed string (when allowCustomInput)
+  value: string
   onChange: (value: string) => void
 }
 
@@ -48,7 +48,7 @@ export function Combobox({
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState('')
 
-  // Figure out what to show on the trigger button
+  // Jaký text zobrazit na tlačítku
   const matched = data.find((d) => d.value === value)
   const displayLabel = matched?.label ?? (allowCustomInput ? value : '')
 
@@ -61,15 +61,13 @@ export function Combobox({
     ? data.some((d) => d.label.toLowerCase() === normalized)
     : false
 
-  // Keep query in sync when opening/closing so typing feels natural
+  // Když se popover otevírá, nechceme automaticky filtrovat jen na vybranou hodnotu.
+  // Takže při každém otevření query resetujeme na prázdno.
   React.useEffect(() => {
     if (open) {
-      // Prefill with current display value for quick editing/searching
-      setQuery(displayLabel || '')
-    } else {
+      // open -> vyčisti query, ukaž všechny položky
       setQuery('')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   function commitCustom(current: string) {
@@ -82,10 +80,11 @@ export function Combobox({
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (!allowCustomInput) return
     if (e.key === 'Enter') {
-      // If user presses Enter and nothing highlighted/matching exactly, take the raw text
       const highlighted = (document.querySelector(
         '[cmdk-item][data-selected="true"]'
       ) as HTMLElement | null)?.getAttribute('data-value')
+
+      // pokud není nic highlightnutého (šipkami), beru volný text jako hodnotu
       if (!highlighted) {
         e.preventDefault()
         commitCustom(query)
@@ -119,7 +118,6 @@ export function Combobox({
           )}
 
           <CommandList>
-            {/* Empty state */}
             {filtered.length === 0 ? (
               <CommandEmpty>
                 <div className="p-2 text-sm">Nic nenalezeno.</div>
@@ -138,7 +136,6 @@ export function Combobox({
               </CommandEmpty>
             ) : (
               <>
-                {/* Optional creatable row on top */}
                 {allowCustomInput && query.trim().length > 0 && !exactLabelExists && (
                   <div className="border-b">
                     <button
@@ -172,5 +169,29 @@ export function Combobox({
         </Command>
       </PopoverContent>
     </Popover>
+  )
+}
+
+// Example usage demo
+export default function Demo() {
+  const [val, setVal] = React.useState('')
+  const options = [
+    { label: 'Praha', value: 'prg' },
+    { label: 'Brno', value: 'brq' },
+    { label: 'Ostrava', value: 'osr' },
+  ]
+
+  return (
+    <div className="p-6 max-w-md space-y-4">
+      <Combobox
+        placeholder="Vyber nebo napiš…"
+        data={options}
+        value={val}
+        onChange={setVal}
+        withSearch
+        allowCustomInput
+      />
+      <div className="text-sm text-muted-foreground">Aktuální hodnota: {val || '—'}</div>
+    </div>
   )
 }

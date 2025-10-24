@@ -96,7 +96,7 @@ export function usePoemGenerator() {
                 params.append("temperature", draftValues.temperature.toString());
 
             const draftLines = draftValues.poemLines ?? [];
-            const draftLastChangedIndex = draftValues.lastPoemLineChangedIndex;
+            const draftLastChangedIndex = draftValues.changedPoemLineIndexes ? draftValues.changedPoemLineIndexes.find(idx => idx === Math.max(...draftValues.changedPoemLineIndexes!)) ?? -1 : -1;
 
             const changedLines =
                 draftLastChangedIndex >= 0
@@ -113,7 +113,7 @@ export function usePoemGenerator() {
             setDraftParam("author", parsedData.author);
             setDraftParam("poemLines", parsedData.lines);
 
-            setDraftParam("lastPoemLineChangedIndex", -1);
+            setDraftParam("changedPoemLineIndexes", []);
 
             commitDraftToCurrent();
             updateInitialValues();

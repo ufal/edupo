@@ -76,10 +76,26 @@ h3 {
     --teal-300: #5EEAD4;
     --teal-600: #0D9488;
 
+    --violet-200: #DDD6FE;
+    --violet-200-transparent: #DDD6FE4D;
+    --violet-300: #C4B5FD;
+    --violet-600: #7C3AED;
+
+    --lime-200: #D9F99D;
+    --lime-200-transparent: #D9F99D4D;
+    --lime-300: #BEF264;
+    --lime-600: #65A30D;
+
+    --crimson-200: #FECACA;
+    --crimson-200-transparent: #FECACA4D;
+    --crimson-300: #FCA5A5;
+    --crimson-600: #DC2626;
+
     --sky-100: #E0F2FE;
     --sky-200: #BAE6FD;
     --sky-200-transparent: #BAE6FD4D;
     --sky-300: #7DD3FC;
+    --sky-500: #0EA5E9;
     --sky-600: #0284C7;
     --sky-800: #075985;
 

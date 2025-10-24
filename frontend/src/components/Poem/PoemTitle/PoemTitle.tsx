@@ -1,4 +1,5 @@
 import { usePoem } from "@/store/poemStore";
+import RobotIcon from "@/components/ui/RobotIcon";
 
 interface PoemTitleProps {
     sidePanelControlElement?: React.ReactNode
@@ -19,7 +20,7 @@ export default function PoemTitle({ sidePanelControlElement } : PoemTitleProps) 
                 <h3 className="leading-[18px] m-0">
                     { authorName }
                 </h3>
-                { authorName && <img src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "svg/robot.svg"} className="w-5 h-5 relative top-[3px]" /> }
+                { authorName && <RobotIcon type="circle" cls="top-[3px]" /> }
             </div>
             { sidePanelControlElement }
         </div>
