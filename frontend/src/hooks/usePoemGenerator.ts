@@ -51,6 +51,7 @@ export function usePoemGenerator() {
 
             console.log(parsedData);
 
+            setDraftParam("id", poemId);
             setDraftParam("title", data.title!);
             setDraftParam("author", parsedData.author);
             setDraftParam("poemLines", parsedData.lines);
