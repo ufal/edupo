@@ -7,7 +7,18 @@ import { inter } from "./fonts";
 import Header from "@/components/layout/Header";
 import Main from "@/components/layout/Main";
 
-export const metadata: Metadata = pageMetadata;
+const pageMetadataWithPath = {
+  ...pageMetadata,
+  icons: {
+    ...pageMetadata.icons,
+    icon: pageMetadata.icons.icon.map((item) => ({
+      ...item,
+      url: (process.env.NEXT_PUBLIC_LINK_BASE || "/") + item.url,
+    }))
+  }
+};
+
+export const metadata: Metadata = pageMetadataWithPath;
 
 export default function RootLayout({
   children,

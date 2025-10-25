@@ -4,7 +4,7 @@ import { usePoem } from "@/store/poemStore";
 import { usePoemGenerator } from "@/hooks/usePoemGenerator";
 import { useEffect, useState } from "react";
 
-export default function ImageSettings() {
+export default function ImageGen() {
   const { currentValues } = usePoem();
   const { fetchImage } = usePoemGenerator();
 

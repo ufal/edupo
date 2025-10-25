@@ -1,10 +1,12 @@
 import PoemSettings from "../Modes/PoemSettings/PoemSettings";
-import ImageSettings from "../Modes/ImageSettings";
+import ImageGen from "../Modes/ImageGen";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function PoemSettingsModeSwitcher() {
+export type PoemSettingsMode = "poem" | "image";
+
+export default function PoemSettingsModeSwitcher({ defaultMode }: { defaultMode?: PoemSettingsMode }) {
   return (
-      <Tabs defaultValue="poem" className="w-full h-full flex flex-col">
+      <Tabs defaultValue={defaultMode} className="w-full h-full flex flex-col">
         <h2 className="pt-[24px] pb-[16px] px-docOffsetXSmall tablet:px-docOffsetXBig">
           Generování a analýza básně
         </h2>
@@ -18,7 +20,7 @@ export default function PoemSettingsModeSwitcher() {
           <PoemSettings />
         </TabsContent>
         <TabsContent value="image">
-          <ImageSettings />
+          <ImageGen />
         </TabsContent>
       </Tabs>
   )

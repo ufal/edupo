@@ -9,12 +9,11 @@ import PoemPlayBadge from "./PoemPlayBadge";
 import { usePoemAnalysis } from "@/store/poemAnalysisStore";
 
 const ErrorText = (msg: string) => <p className="text-crimsonRed px-10">Chyba: { msg }</p>;
-
 const LoadingText = () => <p className="text-graySoft px-10">Načítám báseň...</p>;
 
-type PoemViewLinesMode = "plaintext" | "highlighted" | "editable";
+export type PoemViewMode = "reading" | "analysis" | "editing";
 
-export default function PoemView({ linesMode } : { linesMode: PoemViewLinesMode }) {
+export default function PoemView({ mode } : { mode: PoemViewMode }) {
     const [ unlockedLines, setUnlockedLines ] = useState<number[]>([]);
 
     const { draftValues, currentValues, setDraftParam, poemLoading, poemError } = usePoem();
@@ -90,18 +89,18 @@ export default function PoemView({ linesMode } : { linesMode: PoemViewLinesMode 
     return (
         <div className="flex flex-row h-full py-4 relative">
             {
-                (linesMode === "highlighted" || linesMode === "editable") && (
+                (mode === "analysis" || mode === "editing") && (
                     (poemLines && rhymeScheme) && (
 
                         <div className="w-[40px] py-6 leading-tight whitespace-pre-line text-[16px]">
                             <div className="leading-tight whitespace-pre-line flex flex-col gap-1">
                                 {
                                     poemLines.map((line, i) => {
-                                        switch (linesMode) {
-                                            case "editable":
+                                        switch (mode) {
+                                            case "editing":
                                                 return <PoemLinesLockedBadge key={"edit-" + i} onClick={() => setLineLocking(false, i)} locked={!unlockedLines.includes(i)} />;
 
-                                            case "highlighted":
+                                            case "analysis":
                                                 const letter = (poemLines.length == rhymeScheme.length) ? rhymeScheme![i] : "?";
                                                 const colorSchemeName = (poemLines.length != rhymeScheme.length)
                                                                             ? "yellow"
@@ -133,8 +132,8 @@ export default function PoemView({ linesMode } : { linesMode: PoemViewLinesMode 
                                         <div className="leading-tight whitespace-pre-line flex flex-col gap-1">
                                             {
                                                 poemLines.map((line, i) => {
-                                                    switch (linesMode) {
-                                                        case "editable":
+                                                    switch (mode) {
+                                                        case "editing":
                                                             return (
                                                                 <PoemLine
                                                                     key={"edit-" + i}
@@ -147,7 +146,7 @@ export default function PoemView({ linesMode } : { linesMode: PoemViewLinesMode 
                                                                     onClear={() => clearLine(i)} />
                                                             )
 
-                                                        case "highlighted":
+                                                        case "analysis":
                                                             const letter = isXRhymeScheme ? "X" : rhymeScheme![i];
                                                             const colorSchemeName = (poemLines.length != rhymeScheme.length)
                                                                                         ? "yellow"
@@ -166,7 +165,7 @@ export default function PoemView({ linesMode } : { linesMode: PoemViewLinesMode 
                                                             )
 
                                                         default:
-                                                        case "plaintext":
+                                                        case "reading":
                                                             return (
                                                                 <PoemLine
                                                                     key={"plain-" + i}
