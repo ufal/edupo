@@ -1,10 +1,10 @@
 {
     "FRONTEND": {
         "URL": {
-            "poemRead": "/edupo/?viewMode=reading&poemId={0}",
-            "poemAnalyze": "/edupo/?viewMode=analysing&poemId={0}",
-            "poemEdit": "/edupo/?viewMode=editing&poemId={0}",
-            "poemVisualize": "/edupo/?genMode=image&poemId={0}"
+            "poemReading": "/edupo/?viewMode=reading&controls=poem&poemId={0}",
+            "poemAnalysis": "/edupo/?viewMode=analysis&controls=poem&poemId={0}",
+            "poemEditing": "/edupo/?viewMode=editing&controls=poem&poemId={0}",
+            "poemGenImage": "/edupo/?controls=image&poemId={0}"
         }
     },
     "palette": {
