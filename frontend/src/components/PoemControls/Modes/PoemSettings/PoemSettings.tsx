@@ -26,7 +26,6 @@ export default function PoemSettings() {
   const router = useRouter();
 
   const {
-    currentValues,
     disabledFields,
     setDisabledField,
     draftValues,
@@ -50,13 +49,6 @@ export default function PoemSettings() {
     fetchAnalysis,
     fetchMotives
   } = usePoemGenerator();
-
-  const onAnalyseButtonClick = () => {
-    if (currentValues.id) {
-      fetchAnalysis(currentValues.id);
-      fetchMotives(currentValues.id);
-    }
-  };
 
   const onGenAnalyseButtonClick = async () => {
     setDraftParam("motives", "");
@@ -323,18 +315,11 @@ export default function PoemSettings() {
             }}
             >
             <Button
-                disabled={poemLoading && !havePoemLinesChanged}
-                variant="outline"
-                className="flex-1 bg-slateSoft"
-                onClick={onAnalyseButtonClick}>
-                    Znovu analyzovat
-            </Button>
-            <Button
                 disabled={poemLoading}
                 variant="outline"
                 className="flex-1 bg-blueCharcoal text-creamy"
                 onClick={onGenAnalyseButtonClick}>
-                    Generovat báseň a analyzovat
+                    Přegenerovat báseň
                     <ShuffleIcon className="ml-1" />
             </Button>
         </div>
