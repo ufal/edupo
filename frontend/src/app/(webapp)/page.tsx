@@ -68,6 +68,7 @@ export default function Home() {
         await loadPoem(poemIdFromUrl);
       } else {
         const newPoemId = await genPoem();
+        
         if (!newPoemId) {
           setPoemReady(true);
           return;
@@ -98,7 +99,6 @@ export default function Home() {
     fetchMotives,
   ]);
 
-  // tlačítko pro sidebar (to klidně můžeme ukázat hned jak známe módy)
   const sidePanelControlButton = hasModesReady ? (
     <SidePanelControlButton
       filled={openControlPanel}
@@ -133,7 +133,7 @@ export default function Home() {
         )}
       </div>
 
-      {hasModesReady && openControlPanel && (
+      {hasModesReady && poemReady && openControlPanel && (
         <Sidebar>
           <PoemSettingsModeSwitcher
             defaultMode={defaultSettingsMode as PoemSettingsMode}
