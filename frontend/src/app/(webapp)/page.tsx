@@ -12,71 +12,134 @@ import { usePoemGenerator } from "@/hooks/usePoemGenerator";
 import { usePoemDatabase } from "@/store/poemDatabaseStore";
 import { usePoemLoader } from "@/hooks/useLoadPoem";
 
-export default function Home() {
+import { PoemViewMode } from "@/components/Poem/PoemView/PoemView";
+import { PoemSettingsMode } from "@/components/PoemControls/PoemSettingsModeSwitcher/PoemSettingsModeSwitcher";
 
+export default function Home() {
   const router = useRouter();
 
   const [openControlPanel, setOpenControlPanel] = useState(false);
-  const { genPoem } = usePoemGenerator();
-  
-  const [initialPoemId, setInitialPoemId] = useState<string | null>(null);
-  const [hasRunInitialLoad, setHasRunInitialLoad] = useState(false);
 
+  const [defaultViewMode, setDefaultViewMode] = useState<PoemViewMode | null>(null);
+  const [defaultSettingsMode, setDefaultSettingsMode] = useState<PoemSettingsMode | null>(null);
+
+  const [hasModesReady, setHasModesReady] = useState(false);
+  const [poemReady, setPoemReady] = useState(false);
+
+  const { genPoem, fetchAnalysis, fetchMotives } = usePoemGenerator();
   const { loadPoem } = usePoemLoader();
-  const { fetchAnalysis, fetchMotives } = usePoemGenerator();
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const poemId = params.get("poemId");
-    setInitialPoemId(poemId);
-  }, []);
+  const [hasRunInitialLoad, setHasRunInitialLoad] = useState(false);
 
   useEffect(() => {
     const run = async () => {
       if (hasRunInitialLoad) return;
       setHasRunInitialLoad(true);
 
-      await usePoemDatabase.getState().fetchAuthors();
-
+      usePoemDatabase.getState().fetchAuthors().catch(() => {});
       const params = new URLSearchParams(window.location.search);
-      const poemId = params.get("poemId");
 
-      if (poemId) {
-        console.log("Loading initial poemId from URL:", poemId);
-        await loadPoem(poemId);
+      const viewModeParam = params.get("viewMode");
+      if (
+        viewModeParam === "reading" ||
+        viewModeParam === "analysis" ||
+        viewModeParam === "editing"
+      ) {
+        setDefaultViewMode(viewModeParam as PoemViewMode);
+      } else {
+        setDefaultViewMode("reading");
+      }
+
+      const controlsParam = params.get("controls");
+      if (controlsParam === "poem" || controlsParam === "image") {
+        setDefaultSettingsMode(controlsParam as PoemSettingsMode);
+        setOpenControlPanel(true);
+      } else {
+        setDefaultSettingsMode("poem");
+        setOpenControlPanel(false);
+      }
+
+      setHasModesReady(true);
+
+      const poemIdFromUrl = params.get("poemId");
+      let activePoemId = poemIdFromUrl;
+
+      if (poemIdFromUrl) {
+        await loadPoem(poemIdFromUrl);
       } else {
         const newPoemId = await genPoem();
-        if (!newPoemId) return;
+        if (!newPoemId) {
+          setPoemReady(true);
+          return;
+        }
 
+        activePoemId = newPoemId;
+
+        params.set("poemId", newPoemId);
         const currentPath = window.location.pathname;
-        router.replace(`${currentPath}?poemId=${newPoemId}`);
+        router.replace(`${currentPath}?${params.toString()}`);
 
-        await fetchAnalysis(newPoemId);
-        await fetchMotives(newPoemId);
+        await loadPoem(newPoemId);
+
+        fetchAnalysis(newPoemId).catch(() => {});
+        fetchMotives(newPoemId).catch(() => {});
       }
+
+      setPoemReady(true);
     };
 
     run();
-  }, [hasRunInitialLoad]);
+  }, [
+    hasRunInitialLoad,
+    router,
+    genPoem,
+    loadPoem,
+    fetchAnalysis,
+    fetchMotives,
+  ]);
 
-  const sidePanelControlButton = (
+  // tlačítko pro sidebar (to klidně můžeme ukázat hned jak známe módy)
+  const sidePanelControlButton = hasModesReady ? (
     <SidePanelControlButton
       filled={openControlPanel}
-      onClick={() => { setOpenControlPanel(!openControlPanel) }} />
-  );
+      onClick={() => {
+        setOpenControlPanel(!openControlPanel);
+      }}
+    />
+  ) : null;
 
   return (
     <div className="flex h-full">
       <div className="flex-1 px-docOffsetXSmall tablet:px-docOffsetXBig pt-4">
-        <Poem sidePanelControlElement={sidePanelControlButton} />
+
+        {!hasModesReady && (
+          <div className="text-muted-foreground text-sm">Loading…</div>
+        )}
+
+        {/*
+          hasModesReady && !poemReady && (
+          <div className="space-y-2">
+            {sidePanelControlButton}
+            <div className="text-muted-foreground text-sm">Loading poem…</div>
+          </div>
+          )
+        */}
+
+        {hasModesReady && (
+          <Poem
+            defaultMode={defaultViewMode as PoemViewMode}
+            sidePanelControlElement={sidePanelControlButton}
+          />
+        )}
       </div>
-      {
-        openControlPanel && (
-          <Sidebar>
-            <PoemSettingsModeSwitcher />
-          </Sidebar>
-        )
-      }
+
+      {hasModesReady && openControlPanel && (
+        <Sidebar>
+          <PoemSettingsModeSwitcher
+            defaultMode={defaultSettingsMode as PoemSettingsMode}
+          />
+        </Sidebar>
+      )}
     </div>
   );
 }

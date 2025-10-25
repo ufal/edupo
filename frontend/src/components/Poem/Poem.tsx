@@ -1,15 +1,12 @@
 import PoemTitle from "./PoemTitle";
 import PoemTabs from "./PoemTabs/PoemTabs";
+import { PoemViewMode } from "@/components/Poem/PoemView/PoemView";
 
-interface PoemProps {
-    sidePanelControlElement: React.ReactNode
-}
-
-export default function Poem({ sidePanelControlElement }: PoemProps) {
+export default function Poem({ defaultMode, sidePanelControlElement }: { sidePanelControlElement: React.ReactNode; defaultMode?: PoemViewMode;}) {
   return (
       <div className="w-full h-full flex flex-col">
           <PoemTitle sidePanelControlElement={sidePanelControlElement} />
-          <PoemTabs />
+          <PoemTabs defaultMode={ defaultMode} />
       </div>
   )
 }
