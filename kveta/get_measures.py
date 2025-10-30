@@ -219,6 +219,8 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
 
 def get_measures(input_txt, parameters={}):
 
+    # TODO if parameters.get('nekvetuj', False): ...
+
     #print(time.time(), "KVETA START")
     data, k = okvetuj(input_txt)
     #print(time.time(), "KVETA END")

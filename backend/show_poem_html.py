@@ -78,20 +78,23 @@ def get_rhyme(verse):
         logging.warning(f"Missing valid rhyme in data.")
         return 0
 
+RHYMING_ALPHABET = string.ascii_uppercase[:22]
+RHYMING_MODULO = len(RHYMING_ALPHABET)
+
 # rhyme is 1-based
 # nonrhyming = None, converts to 0
-def get_rhyme_letter(rhyme, nonrhyming=NBSP):
+def get_rhyme_letter(rhyme, nonrhyming='X'):
     if rhyme == 0:
         return nonrhyming
     else:
-        index = (rhyme-1) % 26
-        return string.ascii_uppercase[index]
+        index = (rhyme-1) % RHYMING_MODULO
+        return RHYMING_ALPHABET[index]
 
 def get_rhyme_subscript(rhyme):
-    if rhyme <= 26:
+    if rhyme <= RHYMING_MODULO:
         return ''
     else:
-        return (rhyme-1) // 26 + 1
+        return (rhyme-1) // RHYMING_MODULO + 1
 
 def get_rhyme_class(rhyme):
     if rhyme == 0:

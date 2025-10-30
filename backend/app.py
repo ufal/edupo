@@ -406,7 +406,7 @@ def call_generuj():
             # TODO naměřit jak dlouho to trvá
             # TODO stačí jen meaning a unk, na to nemusim pouštět květu
             app.logger.info("Calling get_measures")
-            measures = get_measures("\n".join(clean_verses))
+            measures = get_measures("\n".join(clean_verses), {'nekvetuj': True})
             app.logger.info(f"Got measures: {measures}")
             if measures['chatgpt_meaning'] >= params['min_meaning'] and measures['unknown_words'] <= params['max_unk']:
                 # break
