@@ -174,7 +174,7 @@ class Syllables:
                 if '_' in wfs:
                     wfs = wfs.split('_', 1)[1]
                 if wfs != word['token'] and len(fonetic) > 1:
-                    print("WARNING: Syllables do not match the word: ", wfs, "versus", word['token']," Trivial split is used.", file=sys.stderr)
+                    print("WARNING: Syllables do not match the word. Output:", wfs, "Original:", word['token'], "Phonetic: ", fonetic, "Trivial split is used.", file=sys.stderr)
                     syllables = [{"ph_consonants": "",
                                    "ph_vowels": "",
                                    "ph_end_consonants": fonetic,
