@@ -77,16 +77,28 @@ class Kveta:
             while word_index < len(verse['words']) and pos <= len(verse['text']):
                 current_word = verse['words'][word_index]['token']
                 current_punct = ""
-                while pos+len(current_word) <= len(verse['text']) and current_word != verse['text'][pos:pos+len(current_word)] and current_word != verse['text'][pos:pos+len(current_word)+1].replace('’','').replace("'","") and (not verse['text'][pos].isalpha() or corrupted_word):
+                # Case-insensitive comparisons for matching - skip over punctuation
+                while (pos+len(current_word) <= len(verse['text']) and
+                       current_word.lower() != verse['text'][pos:pos+len(current_word)].lower() and
+                       current_word.lower() != verse['text'][pos:pos+len(current_word)+1].replace('’','').replace("'","").lower() and
+                       (not verse['text'][pos].isalpha() or corrupted_word)):
                     current_punct += verse['text'][pos]
                     if corrupted_word and verse['text'][pos].isalpha():
                         current_punct = ""
                     pos += 1
-                if current_word == verse['text'][pos:pos+len(current_word)+1].replace('’','').replace("'",""):
+
+                # After skipping punctuation, get text slices for matching
+                text_slice = verse['text'][pos:pos+len(current_word)]
+                text_slice_plus = verse['text'][pos:pos+len(current_word)+1].replace('’','').replace("'","")
+
+                # Check matches and preserve original capitalization
+                if current_word.lower() == text_slice_plus.lower():
                     current_word = verse['text'][pos:pos+len(current_word)+1]
                     self.poem_[i]['words'][word_index]['token'] = current_word
                     corrupted_word = False
-                elif current_word == verse['text'][pos:pos+len(current_word)]:
+                elif current_word.lower() == text_slice.lower():
+                    # Update token to preserve original capitalization from verse text
+                    self.poem_[i]['words'][word_index]['token'] = text_slice
                     corrupted_word = False
                 elif verse['text'][pos].isalpha():
                     # nasledujici slovo v textu neodpovida nasledujicimu tokenu
