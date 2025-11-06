@@ -494,6 +494,34 @@ def call_generuj_interaktivne():
         html = render_template('interactive_gen_process.html', **data)
         return return_accepted_type(raw_output, data, html)
 
+@app.route("/regen", methods=['GET', 'POST'])
+def call_regenerate_line():
+    poemid = get_post_arg('poemid')
+    badline = get_post_arg('badline')
+    data = get_poem_by_id(poemid)
+    plaintext = poem2text_with_header(data, includeid=False)
+    
+    app.logger.info(f"REGENERATE LINE in poem {poemid}: {badline}")
+
+    system = "You are a Czech professional poet and post-editor. You can improve existing poems by suggesting better lines that fit well the existing poem."
+    prompt = f"I will ask you to improve a Czech poem by replacing the following old line with a new line that is better, makes more sense, and fits well the theme as well as the format of the poem. It should keep the metre and rhyming according to the original poem. This is the old line to be replaced:\n{badline}\n\nHere is the full text of the Czech poem:\n\n{plaintext}\n\nTry to improve the poem by suggesting a better line instead of the following old line:\n{badline}\n\nThe new line should fit nicely the theme and format of the poem. Write only the new line to use instead of the old line, do not write anything else.\nNew line to use instead of the old line:\n"
+    newline = generate_with_openai_simple(prompt, system)
+
+    app.logger.info(f"REGENERATED LINE: {newline}")
+
+    # copy but replace the badline with newline
+    newdata = {
+            'plaintext': data['plaintext'].replace(badline, newline),
+            'rawtext': data['rawtext'] + "\n\n" + f"REGENERATED LINE '{badline}' INTO '{newline}'",
+            'geninput': data['geninput'],
+            'title': data['title'],
+            'author_name': data['author_name'],
+            }
+    store(newdata)
+    
+    return return_accepted_type_for_poemid(newdata)
+ 
+
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     data = get_poem_by_id(random_if_no_id=True)
