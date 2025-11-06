@@ -189,7 +189,16 @@ class Syllables:
                 if 'punct_before' in word:
                     text_from_syllables += word['punct_before']
                 for s, syllable in enumerate(word['syllables']):
-                    text_from_syllables += syllable['ort_consonants'].replace('_',' ')+syllable['ort_vowels']+syllable['ort_end_consonants']
+                    ort_c = syllable['ort_consonants']
+                    # If this syllable contains merged text (indicated by _), replace _ with actual punct from previous word
+                    if '_' in ort_c and w > 0 and not line['words'][w-1]['syllables']:
+                        # Previous word had no syllables and was merged; use its punct instead of just space
+                        prev_punct = line['words'][w-1].get('punct', ' ')
+                        ort_c = ort_c.replace('_', prev_punct)
+                    else:
+                        ort_c = ort_c.replace('_', ' ')
+                    text_from_syllables += ort_c + syllable['ort_vowels'] + syllable['ort_end_consonants']
+                # Only add punct if word has syllables (words without syllables have punct handled via underscore replacement)
                 if word['syllables'] and 'punct' in word:
                     text_from_syllables += word['punct']
             original_text = line['text']
