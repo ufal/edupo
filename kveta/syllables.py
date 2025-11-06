@@ -8,7 +8,7 @@ class Syllables:
         Initialize Syllables
         '''
         self.SYLLABLE_PEAKS = "aeiouáéíóúAEORLMBPJKV@"
-        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y|ü", "o": "o|au", "u": "u", "á": "á|aa|à", "é": "é|ai|ö|ae|ei|ee|oe|ä|è", "í": "í|ý|ü|ie|ee", "ó": "ó", "ú": "ú|ů|ou", "A": "au", "E": "eu", "O": "ou", "R": "r", "Ř": "ř", "L": "l", "M": "m", "P": "m", "B": "n", "J": "s", "K": "š", "Y": "z", "V": "ž", "@": "@"}
+        self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y|ü", "o": "o|au", "u": "u", "á": "á|aa|à|a", "é": "é|ai|ö|ae|ei|ee|oe|ä|è|e", "í": "í|ý|ü|ie|ee|i|y", "ó": "ó|o", "ú": "ú|ů|ou|u", "A": "au", "E": "eu", "O": "ou", "R": "r", "Ř": "ř", "L": "l", "M": "m", "P": "m", "B": "n", "J": "s", "K": "š", "Y": "z", "V": "ž", "@": "@"}
         self.LONG_PEAKS = "áéíóúAEO"
 
         self.VOWELS = "aàáäâåeèéêȩiìíîoòóöôuùüůúûyýæøїаеёиоуыэюя"
