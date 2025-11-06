@@ -166,17 +166,22 @@ class Syllables:
                         syllables[-1]["ph_end_consonants"] = ph_consonants
                         syllables[-1]["ort_end_consonants"] = ort_consonants
                         syllables[-1]["ort_end_consonants"] += ortographic[o_pos:]
-                    else:
-                        syllables = [{"ph_consonants": "",
-                                      "ph_vowels": "",
-                                      "ph_end_consonants": fonetic,
-                                      "ort_consonants": "",
-                                      "ort_vowels": "",
-                                      "ort_end_consonants": ortographic,
-                                      "length": 0}]
-                    print("Backup splitting:", syllables, file=sys.stderr)
-                    print("Backup splitting on line:", line['text'], file=sys.stderr)
-                    print("Backup splitting text:", '|'.join([s['ort_consonants'] + s['ort_vowels'] + s['ort_end_consonants'] for s in syllables]), file=sys.stderr)
+                # test if the joined syllables equal the original word
+                wfs = ""
+                for syllable in syllables:
+                    wfs += syllable['ort_consonants']+syllable['ort_vowels']+syllable['ort_end_consonants']
+                # remove potential non-syllabic preposition
+                if '_' in wfs:
+                    wfs = wfs.split('_', 1)[1]
+                if wfs != word['token'] and len(fonetic) > 1:
+                    print("WARNING: Syllables do not match the word: ", wfs, "versus", word['token']," Trivial split is used.", file=sys.stderr)
+                    syllables = [{"ph_consonants": "",
+                                   "ph_vowels": "",
+                                   "ph_end_consonants": fonetic,
+                                   "ort_consonants": "",
+                                   "ort_vowels": "",
+                                   "ort_end_consonants": ortographic,
+                                   "length": 0}]
                 poem[i]['words'][j]['syllables'] = syllables
             # test: join all syllables and compare with text
             text_from_syllables = ""
