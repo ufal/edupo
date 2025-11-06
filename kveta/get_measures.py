@@ -16,6 +16,22 @@ sys.path.append("../backend")
 from openai_helper import generate_with_openai_simple, generate_with_openai_responses
 from ufal.morphodita import *
 
+class Morphodita:
+    def __init__(self):
+        # Initialize MorphoDiTa
+        filepath = os.path.join(os.path.dirname(__file__),
+                'dicts', 'czech-morfflex-pdt-161115.tagger')
+        filepath_morpho = os.path.join(os.path.dirname(__file__),
+                'dicts', 'czech-morfflex-161115.dict')
+        self.tagger = Tagger.load(filepath)
+        self.morpho = Morpho.load(filepath_morpho)
+        self.forms = Forms()
+        self.lemmas = TaggedLemmas()
+        self.tokens = TokenRanges()
+        self.tokenizer = self.tagger.newTokenizer()
+
+morphodita = Morphodita()
+
 def get_rhyme_scheme(numbers):
     num2id = dict()
     n = 0
@@ -221,31 +237,19 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
 
 def get_measures_fast(text, parameters={}):
 
-    # initialize Morphodita
-    filepath = os.path.join(os.path.dirname(__file__),
-                'dicts', 'czech-morfflex-pdt-161115.tagger')
-    filepath_morpho = os.path.join(os.path.dirname(__file__),
-                'dicts', 'czech-morfflex-161115.dict')
-    tagger = Tagger.load(filepath)
-    morpho = Morpho.load(filepath_morpho)
-    forms = Forms()
-    lemmas = TaggedLemmas()
-    tokens = TokenRanges()
-    tokenizer = tagger.newTokenizer()
-
     # Pass poem to tokenizer
-    tokenizer.setText(text)
+    morphodita.tokenizer.setText(text)
 
     word_counter = 0
     unknown_counter = 0
 
     # Analyze words 
-    while tokenizer.nextSentence(forms, tokens):
-        for form in forms:
-            result = morpho.analyze(form, morpho.GUESSER, lemmas)
+    while morphodita.tokenizer.nextSentence(morphodita.forms, morphodita.tokens):
+        for form in morphodita.forms:
+            result = morphodita.morpho.analyze(form, morphodita.morpho.GUESSER, morphodita.lemmas)
             if len(form) > 1 or form.isalnum():
                 word_counter += 1
-                if result == morpho.GUESSER:
+                if result == morphodita.morpho.GUESSER:
                     unknown_counter += 1
 
     # smysluplnost
