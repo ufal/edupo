@@ -2,6 +2,7 @@
 #coding: utf-8
 
 import sys
+import os
 import math
 import json
 import glob
@@ -13,6 +14,7 @@ from collections import defaultdict
 from openai import OpenAI
 sys.path.append("../backend")
 from openai_helper import generate_with_openai_simple, generate_with_openai_responses
+from ufal.morphodita import *
 
 def get_rhyme_scheme(numbers):
     num2id = dict()
@@ -217,15 +219,62 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
 
     return result
 
+def get_measures_fast(text, parameters={}):
+
+    # initialize Morphodita
+    filepath = os.path.join(os.path.dirname(__file__),
+                'dicts', 'czech-morfflex-pdt-161115.tagger')
+    filepath_morpho = os.path.join(os.path.dirname(__file__),
+                'dicts', 'czech-morfflex-161115.dict')
+    tagger = Tagger.load(filepath)
+    morpho = Morpho.load(filepath_morpho)
+    forms = Forms()
+    lemmas = TaggedLemmas()
+    tokens = TokenRanges()
+    tokenizer = tagger.newTokenizer()
+
+    # Pass poem to tokenizer
+    tokenizer.setText(text)
+
+    word_counter = 0
+    unknown_counter = 0
+
+    # Analyze words 
+    while tokenizer.nextSentence(forms, tokens):
+        for form in forms:
+            result = morpho.analyze(form, morpho.GUESSER, lemmas)
+            if len(form) > 1 or form.isalnum():
+                word_counter += 1
+                if result == morpho.GUESSER:
+                    unknown_counter += 1
+
+    # smysluplnost
+    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + text, model="google/gemini-2.5-flash")
+    numbers = re.findall(r'\d+', response)
+    meaning_num = 5
+    if numbers:
+        meaning_num = int(numbers[0])
+    if meaning_num > 0 and meaning_num <= 10:
+        meaning_num /= 10
+
+    result = {'unknown_words': unknown_counter/word_counter,
+              'chatgpt_meaning': meaning_num,
+             }
+
+    return result
+
+
 def get_measures(input_txt, parameters={}):
 
-    # TODO if parameters.get('nekvetuj', False): ...
-
-    #print(time.time(), "KVETA START")
-    data, k = okvetuj(input_txt)
-    #print(time.time(), "KVETA END")
-
-    measures = get_measures_from_analyzed_poem(data[0]["body"], parameters)
+    #print(time.time(), "MEASURES START")
+    if parameters.get('nekvetuj', False):
+        measures = get_measures_fast(input_txt, parameters)
+    else:
+        #print(time.time(), "KVETA START")
+        data, k = okvetuj(input_txt)
+        #print(time.time(), "KVETA END")
+        measures = get_measures_from_analyzed_poem(data[0]["body"], parameters)
+    
     #print(time.time(), "MEASURES END")
 
     return measures
@@ -247,16 +296,17 @@ if __name__=="__main__":
         else:
             input_text = file.read()
         
-        results = get_measures(input_text, parameters)
+        #results = get_measures(input_text, parameters)
+        results = get_measures_fast(input_text, parameters)
         
         print('Unknown words:', results['unknown_words'])
-        print('Rhyming:', results['rhyming'])
-        print('Rhyming accuracy:', results['rhyme_scheme_accuracy'])
-        print('Rhyming consistency:', results['rhyming_consistency'])
-        print('Metre accuracy:', results['metre_accuracy'])
-        print('Metre consistency:', results['metre_consistency'])
-        print('Syllable count entropy:', results['syllable_count_entropy'])
-        print('ChatGPT meaning:', results['chatgpt_meaning'])
+        #print('Rhyming:', results['rhyming'])
+        #print('Rhyming accuracy:', results['rhyme_scheme_accuracy'])
+        #print('Rhyming consistency:', results['rhyming_consistency'])
+        #print('Metre accuracy:', results['metre_accuracy'])
+        #print('Metre consistency:', results['metre_consistency'])
+        #print('Syllable count entropy:', results['syllable_count_entropy'])
+        print('Gemini meaning:', results['chatgpt_meaning'])
         #print('ChatGPT syntax:', results['chatgpt_syntax'])
         #print('ChatGPT language:', results['chatgpt_language'])
         #print('ChatGPT rhyming:', results['chatgpt_rhyming'])
