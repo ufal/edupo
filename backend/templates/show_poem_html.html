@@ -219,6 +219,13 @@
                     <td class="stressinfo">{{ verse.rythm }} {{ verse.pattern }}</td>
                     <td class="meterinfo">{{ verse.metrum }}-{{ verse.foot}}-{{ verse.clause }}</td>
                     <td class="otherinfo">{% if verse.narrators_gender %}Rod lyrického subjektu: {{ verse.narrators_gender }}{% endif %}</td>
+                    <td class="regen">
+                        <form method="post" action="regen">
+                        <input type="hidden" name="poemid" value="{{ id }}">
+                        <input type="hidden" name="badline" value="{{ verse.text }}">
+                        <input type="submit" value="🔁" />
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </table>
