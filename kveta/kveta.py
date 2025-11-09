@@ -80,7 +80,7 @@ class Kveta:
                 # Case-insensitive comparisons for matching - skip over punctuation
                 while (pos+len(current_word) <= len(verse['text']) and
                        current_word.lower() != verse['text'][pos:pos+len(current_word)].lower() and
-                       current_word.lower() != verse['text'][pos:pos+len(current_word)+1].replace('’','').replace("'","").lower() and
+                       current_word.lower() != verse['text'][pos:pos+len(current_word)+1].replace('\u2019','').replace('\u2018','').replace("'","").lower() and
                        (not verse['text'][pos].isalpha() or corrupted_word)):
                     current_punct += verse['text'][pos]
                     if corrupted_word and verse['text'][pos].isalpha():
@@ -89,11 +89,22 @@ class Kveta:
 
                 # After skipping punctuation, get text slices for matching
                 text_slice = verse['text'][pos:pos+len(current_word)]
-                text_slice_plus = verse['text'][pos:pos+len(current_word)+1].replace('’','').replace("'","")
+                # Remove apostrophes: U+2019 (RIGHT), U+2018 (LEFT), U+0027 (STRAIGHT)
+                text_slice_plus = verse['text'][pos:pos+len(current_word)+1].replace('\u2019','').replace('\u2018','').replace("'","")
 
                 # Check matches and preserve original capitalization
                 if current_word.lower() == text_slice_plus.lower():
-                    current_word = verse['text'][pos:pos+len(current_word)+1]
+                    # Matched by removing apostrophe - check if we should capture it
+                    # Don't capture apostrophe if it's followed by letters (belongs to next word/clitic)
+                    if (pos+len(current_word) < len(verse['text']) and
+                        verse['text'][pos+len(current_word)] in ['\u2019', '\u2018', "'"] and
+                        pos+len(current_word)+1 < len(verse['text']) and
+                        verse['text'][pos+len(current_word)+1].isalpha()):
+                        # Apostrophe is before clitic - don't capture
+                        current_word = verse['text'][pos:pos+len(current_word)]
+                    else:
+                        # Capture word + apostrophe
+                        current_word = verse['text'][pos:pos+len(current_word)+1]
                     self.poem_[i]['words'][word_index]['token'] = current_word
                     corrupted_word = False
                 elif current_word.lower() == text_slice.lower():
