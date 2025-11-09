@@ -11,7 +11,7 @@ class Syllables:
         self.PEAKS2CHARS = {"a": "a", "e": "e|ě", "i": "i|y|ü", "o": "o|au", "u": "u", "á": "á|aa|à|a", "é": "é|ai|ö|ae|ei|ee|oe|ä|è|e", "í": "í|ý|ü|ie|ee|i|y", "ó": "ó|o", "ú": "ú|ů|ou|u", "A": "au", "E": "eu", "O": "ou", "R": "r", "Ř": "ř", "L": "l", "M": "m", "P": "m", "B": "n", "J": "s", "K": "š", "Y": "z", "V": "ž", "@": "@"}
         self.LONG_PEAKS = "áéíóúAEO"
 
-        self.VOWELS = "aàáäâåeèéêȩiìíîoòóöôuùüůúûyýæøїаеёиоуыэюя"
+        self.VOWELS = "aàáäâåeëèéêȩiïìíîoòóöôuùüůúûyýÿæøїаеёиоуыэюя"
 
     def split_words_to_syllables(self, poem):
 
@@ -35,6 +35,7 @@ class Syllables:
                         ph_vowels = fonetic[f_pos]
                         v_options = self.PEAKS2CHARS[ph_vowels].split('|')
                         found = False
+                        initial_o_pos = o_pos
                         while o_pos < len(ortographic):
                             for v in v_options:
                                 if ortographic_lower[o_pos:o_pos+len(v)] == v:
@@ -73,6 +74,33 @@ class Syllables:
                                 break
                             ort_consonants += ortographic[o_pos]
                             o_pos += 1
+                        if not found:
+                            # Vowel peak couldn't be matched - reset o_pos to avoid consuming the rest of the word
+                            # Try to find any vowel character from the VOWELS list instead
+                            o_pos = initial_o_pos
+                            ort_consonants = ""  # Reset ort_consonants since we're starting over
+                            ort_vowels = ""
+                            # Skip consonants and collect them
+                            while o_pos < len(ortographic) and ortographic_lower[o_pos] not in self.VOWELS:
+                                ort_consonants += ortographic[o_pos]
+                                o_pos += 1
+                            # Collect vowel group if found
+                            if o_pos < len(ortographic) and ortographic_lower[o_pos] in self.VOWELS:
+                                while o_pos < len(ortographic) and ortographic_lower[o_pos] in self.VOWELS:
+                                    ort_vowels += ortographic[o_pos]
+                                    o_pos += 1
+                                length = 0
+                                if ph_vowels in self.LONG_PEAKS:
+                                    length = 1
+                                syllables.append({"ph_consonants": ph_consonants,
+                                                  "ph_vowels": ph_vowels,
+                                                  "ph_end_consonants": "",
+                                                  "ort_consonants": ort_consonants,
+                                                  "ort_vowels": ort_vowels,
+                                                  "ort_end_consonants": "",
+                                                  "length": length})
+                                ph_consonants = ""
+                                ort_consonants = ""
                     else:
                         ph_consonants += fonetic[f_pos]
                     f_pos += 1
