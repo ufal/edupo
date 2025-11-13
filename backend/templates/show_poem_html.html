@@ -237,6 +237,13 @@
         {% if id %}
         <hr>
         <form method="post" action="processopenai">
+            <select name="modelspec">
+                <option value="gpt-4o-mini">GPT 4o mini</option>
+                <option value="gpt-5-mini">GPT 5 mini</option>
+                <option value="gpt-4o">GPT 4o</option>
+                <option value="gpt-4.1">GPT 4.1</option>
+                <option value="gpt-5">GPT 5</option>
+            </select>
             <input type="text" size="100" name="openaiprompt"
             placeholder="Zadej prompt pro ChatGPT, např.: přelož text následující básně do slovenštiny">
             (za zadaný prompt se automaticky vloží text básně)
@@ -250,7 +257,7 @@
         {% if openai %}
         {% for item in openai %}
         <hr>
-        <p>[ChatGPT: {{ item.prompt }}]</p>
+        <p><kbd>{{item.model}}</kbd> <i>{{ item.prompt }}</i></p>
         <pre class="raw">{{ item.output }}</pre>
         {% endfor %}
         {% endif %}

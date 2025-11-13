@@ -638,6 +638,7 @@ def call_genmotives():
 def call_processopenai():
     poemid = get_post_arg('poemid')
     data = get_poem_by_id(poemid)
+    model = get_post_arg('modelspec', 'gpt-4o-mini')
     
     if not 'openai' in data:
         data['openai'] = []
@@ -645,7 +646,7 @@ def call_processopenai():
     
     prompt = get_post_arg('openaiprompt')
     output = generate_with_openai_simple(poem2text_with_header(data, False), prompt)
-    data['openai'].append({'prompt': prompt, 'output': output})
+    data['openai'].append({'model': model, 'prompt': prompt, 'output': output})
     store(data)
     
     return return_accepted_type(

@@ -85,11 +85,18 @@ def generate_with_openai_responses(prompt, system="You are a helpful assistant."
 
 def generate_with_openai_simple(prompt, system="You are a helpful assistant.", model="gpt-4o-mini", max_tokens=500):
     logging.info('TEXTGEN Prompt: ' + show_short(prompt))
-    messages=[
-        {"role": "system", "content": system},
-        {"role": "user", "content": prompt},
-    ]
-    return generate_with_openai(messages, model, max_tokens)
+    if 'gpt-5' in model:
+        # reasoning models
+        # add reasoning tokens
+        max_tokens += 4000
+        # use responses API
+        return generate_with_openai_responses(prompt, system, model, max_tokens)
+    else:
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
+        ]
+        return generate_with_openai(messages, model, max_tokens)
 
 METRE_EN = {
     'J': 'iambic',
