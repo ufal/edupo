@@ -9,7 +9,7 @@ import os
 import show_poem_html
 import sqlite3
 import json
-from collections import defaultdict
+from collections import defaultdict, Counter
 import re
 import random
 from openai_helper import *
@@ -570,6 +570,83 @@ def call_showauthor():
     
     # TODO JSON to nevrací
     return return_accepted_type("\n".join(text), {'author': author, 'books': data}, html)
+
+RYMY = "ABCDEFGHIJKLMNOPQRSTUV"
+@app.route("/typfeatures", methods=['GET', 'POST'])
+def call_typfeatures():
+    author = get_post_arg('author', 'Sova, Antonín', True)
+    data = []
+    with get_db() as db:
+        sql = 'SELECT id, title, book_id, body FROM poems WHERE author=?'
+        poems = db.execute(sql, (author,)).fetchall()
+        for book_id, p in groupby(poems, lambda p: p[2]):
+            book = db.execute('SELECT title, year FROM books WHERE id = ?', (book_id,)).fetchone()
+            data.append({'book': book, 'poems': list(p)})
+
+    metres = Counter()
+    rhymes = Counter()
+    words = Counter()
+    for book in data:
+        title = book['book']
+        for poem in book['poems']:
+            body = poem['body']
+            metre = list(body[0]["metre"].keys())[0]
+            metres[metre] += 1
+            
+            rhyme = []
+            stanza = 0
+            for verse in body:
+                if verse["stanza"] != stanza:
+                    rhyming = [x for x in rhyme if x]
+                    m = min(rhyming) if rhyming else 0
+                    n = [RYMY[x-m] if x else 'X' for x in rhyme]
+                    rhymes[''.join(n)] += 1
+                    rhyme = []
+                    stanza = verse["stanza"]
+                rhyme.append(verse["rhyme"])
+
+                for word in verse["words"]:
+                    words[word['lemma']] += 1
+
+    # TODO TF.IDF on words
+    # https://melaniewalsh.github.io/Intro-Cultural-Analytics/05-Text-Analysis/03-TF-IDF-Scikit-Learn.html
+                
+
+    text = []
+    
+    text.append(author)
+    text.append('')
+    
+    text.append('== Básně a sbírky ==')
+    text.append(f"{len(poems)} básní v {len(data)} sbírkách")
+    text.append('')
+
+    text.append('== Metrum (top 4) ==')
+    total = len(poems)
+    for (metre, count) in metres.most_common(4):
+        text.append(f"{100*count/total:.0f}% {metre} ({count}x)")
+    text.append(f'...celkem {len(metres)} různých')
+    text.append('')
+
+    text.append('== Rýmová schémata (top 10, po stanzách) ==')
+    total = len(poems)
+    for (rhyme, count) in rhymes.most_common(10):
+        text.append(f"{100*count/total:.0f}% {rhyme} ({count}x)")
+    text.append(f'...celkem {len(rhymes)} různých')
+    text.append('')
+
+    totalwords = sum(words.values())
+    text.append('== Slova (top 50) ==')
+    total = len(poems)
+    for (rhyme, count) in words.most_common(50):
+        text.append(f"{100*count/totalwords:.0f}% {rhyme} ({count}x)")
+    text.append(f'...celkem {len(words)} různých')
+    text.append('')
+
+
+
+    # TODO return_accepted_type -- now only text
+    return Response("\n".join(text), mimetype='text/plain')
 
 # can be called from input on main page -> no id
 @app.route("/analyze", methods=['GET', 'POST'])
