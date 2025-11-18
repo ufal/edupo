@@ -682,7 +682,7 @@ def call_typfeatures():
         for word in words[author]:
             tfidf[word] = words[author][word] / words_total[author] * idf[word]
         for word, score in tfidf.most_common(40):
-            text.append(f'{word} ({words[author][word]}x) (tf.idf={score*10000:.00f})')
+            text.append(f'{word} ({words[author][word]}x) (tf.idf={score*10000:.2f})')
         text.append('')
 
 
