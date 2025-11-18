@@ -636,7 +636,7 @@ def call_typfeatures():
                         words[author][word['lemma']] += 1
 
                 # motives
-                motives.update(poem['motives'])
+                motives.update(json.loads(poem['motives']))
         
 
         words_total[author] = sum(words[author].values())
