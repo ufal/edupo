@@ -637,8 +637,8 @@ def call_typfeatures():
 
                 # motives
                 m = poem['motives']
-                app.logger.info(m)
-                motives.update(json.loads(m))
+                if m:
+                    motives.update(json.loads(m))
         
 
         words_total[author] = sum(words[author].values())
