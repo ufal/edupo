@@ -653,24 +653,24 @@ def call_typfeatures():
         text.append('')
 
         text.append('== Rýmová schémata (top 10, po stanzách) ==')
-        total = len(poems)
+        total = sum(rhymes.values())
         for (rhyme, count) in rhymes.most_common(10):
             text.append(f"{100*count/total:.0f}% {rhyme} ({count}x)")
         text.append(f'...celkem {len(rhymes)} různých')
         text.append('')
 
-        text.append('== Slova (top 50) ==')
-        total = len(poems)
-        for (word, count) in words[author].most_common(50):
-            text.append(f"{100*count/words_total[author]:.0f}% {word} ({count}x)")
-        text.append(f'...celkem {len(words[author])} různých')
-        text.append('')
+        #text.append('== Slova (top 50) ==')
+        #total = len(poems)
+        #for (word, count) in words[author].most_common(50):
+        #    text.append(f"{100*count/words_total[author]:.0f}% {word} ({count}x)")
+        #text.append(f'...celkem {len(words[author])} různých')
+        #text.append('')
 
         text.append('')
         text.append('')
 
     # for all authors
-    text.append('==== TF.IDF (top 20 per author) ====')
+    text.append('==== TF.IDF (top 40 per author) ====')
     
     idf = dict()
     for word in words_doccounts:
@@ -681,8 +681,8 @@ def call_typfeatures():
         tfidf = Counter()
         for word in words[author]:
             tfidf[word] = words[author][word] / words_total[author] * idf[word]
-        for word, score in tfidf.most_common(20):
-            text.append(f'{word} ({words[author][word]}x) (tf.idf={score})')
+        for word, score in tfidf.most_common(40):
+            text.append(f'{word} ({words[author][word]}x) (tf.idf={score*10000.00f})')
         text.append('')
 
 
