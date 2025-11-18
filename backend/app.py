@@ -579,9 +579,16 @@ def call_typfeatures():
     if author:
         authors = [author]
     else:
-        authors = ['Karásek ze Lvovic, Jiří',
+        authors = [
+            'Mácha, Karel Hynek',
+            'Erben, Karel Jaromír',
+            'Neruda, Jan',
+            'Hálek, Vítězslav',
             'Březina, Otokar',
+            'Karásek ze Lvovic, Jiří',
             'Hlaváček, Karel',
+            'Gellner, František',
+            'Bezruč, Petr',
             ]
 
     # output
