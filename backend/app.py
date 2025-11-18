@@ -603,7 +603,7 @@ def call_typfeatures():
     for author in authors:
         data = []
         with get_db() as db:
-            sql = 'SELECT id, title, book_id, body FROM poems WHERE author=?'
+            sql = 'SELECT id, title, book_id, body, motives FROM poems WHERE author=?'
             poems = db.execute(sql, (author,)).fetchall()
             for book_id, p in groupby(poems, lambda p: p[2]):
                 book = db.execute('SELECT title, year FROM books WHERE id = ?', (book_id,)).fetchone()
@@ -612,6 +612,7 @@ def call_typfeatures():
         metres = Counter()
         rhymes = Counter()
         words[author] = Counter()
+        motives = Counter()
         for book in data:
             title = book['book']
             for poem in book['poems']:
@@ -633,6 +634,10 @@ def call_typfeatures():
 
                     for word in verse["words"]:
                         words[author][word['lemma']] += 1
+
+                # motives
+                motives.update(poem['motives'])
+        
 
         words_total[author] = sum(words[author].values())
         for word in words[author]:
@@ -657,6 +662,13 @@ def call_typfeatures():
         for (rhyme, count) in rhymes.most_common(10):
             text.append(f"{100*count/total:.0f}% {rhyme} ({count}x)")
         text.append(f'...celkem {len(rhymes)} různých')
+        text.append('')
+
+        text.append('== Motivy (top 10) ==')
+        total = len(poems)
+        for (mot, count) in motives.most_common(10):
+            text.append(f"{100*count/total:.0f}% {mot} ({count}x)")
+        text.append(f'...celkem {len(motives)} různých')
         text.append('')
 
         #text.append('== Slova (top 50) ==')
