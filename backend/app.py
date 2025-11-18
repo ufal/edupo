@@ -572,7 +572,7 @@ def call_showauthor():
     return return_accepted_type("\n".join(text), {'author': author, 'books': data}, html)
 
 import math
-RYMY = "ABCDEFGHIJKLMNOPQRSTUV"
+RYMY = "ABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUV"
 @app.route("/typfeatures", methods=['GET', 'POST'])
 def call_typfeatures():
     author = get_post_arg('author', '')
