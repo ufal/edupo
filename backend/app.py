@@ -571,78 +571,112 @@ def call_showauthor():
     # TODO JSON to nevrací
     return return_accepted_type("\n".join(text), {'author': author, 'books': data}, html)
 
+import math
 RYMY = "ABCDEFGHIJKLMNOPQRSTUV"
 @app.route("/typfeatures", methods=['GET', 'POST'])
 def call_typfeatures():
-    author = get_post_arg('author', 'Sova, Antonín', True)
-    data = []
-    with get_db() as db:
-        sql = 'SELECT id, title, book_id, body FROM poems WHERE author=?'
-        poems = db.execute(sql, (author,)).fetchall()
-        for book_id, p in groupby(poems, lambda p: p[2]):
-            book = db.execute('SELECT title, year FROM books WHERE id = ?', (book_id,)).fetchone()
-            data.append({'book': book, 'poems': list(p)})
+    author = get_post_arg('author', '')
+    if author:
+        authors = [author]
+    else:
+        authors = ['Karásek ze Lvovic, Jiří',
+            'Březina, Otokar',
+            'Hlaváček, Karel',
+            ]
 
-    metres = Counter()
-    rhymes = Counter()
-    words = Counter()
-    for book in data:
-        title = book['book']
-        for poem in book['poems']:
-            body = poem['body']
-            metre = list(body[0]["metre"].keys())[0]
-            metres[metre] += 1
-            
-            rhyme = []
-            stanza = 0
-            for verse in body:
-                if verse["stanza"] != stanza:
-                    rhyming = [x for x in rhyme if x]
-                    m = min(rhyming) if rhyming else 0
-                    n = [RYMY[x-m] if x else 'X' for x in rhyme]
-                    rhymes[''.join(n)] += 1
-                    rhyme = []
-                    stanza = verse["stanza"]
-                rhyme.append(verse["rhyme"])
-
-                for word in verse["words"]:
-                    words[word['lemma']] += 1
-
-    # TODO TF.IDF on words
-    # https://melaniewalsh.github.io/Intro-Cultural-Analytics/05-Text-Analysis/03-TF-IDF-Scikit-Learn.html
-                
-
+    # output
     text = []
+    # count per author
+    words = dict()
+    # total count per author
+    words_total = dict()
+    # 1 per author
+    words_doccounts = Counter()
+        
+    for author in authors:
+        data = []
+        with get_db() as db:
+            sql = 'SELECT id, title, book_id, body FROM poems WHERE author=?'
+            poems = db.execute(sql, (author,)).fetchall()
+            for book_id, p in groupby(poems, lambda p: p[2]):
+                book = db.execute('SELECT title, year FROM books WHERE id = ?', (book_id,)).fetchone()
+                data.append({'book': book, 'poems': list(p)})
+
+        metres = Counter()
+        rhymes = Counter()
+        words[author] = Counter()
+        for book in data:
+            title = book['book']
+            for poem in book['poems']:
+                body = poem['body']
+                metre = list(body[0]["metre"].keys())[0]
+                metres[metre] += 1
+                
+                rhyme = []
+                stanza = 0
+                for verse in body:
+                    if verse["stanza"] != stanza:
+                        rhyming = [x for x in rhyme if x]
+                        m = min(rhyming) if rhyming else 0
+                        n = [RYMY[x-m] if x else 'X' for x in rhyme]
+                        rhymes[''.join(n)] += 1
+                        rhyme = []
+                        stanza = verse["stanza"]
+                    rhyme.append(verse["rhyme"])
+
+                    for word in verse["words"]:
+                        words[author][word['lemma']] += 1
+
+        words_total[author] = sum(words[author].values())
+        for word in words[author]:
+            words_doccounts[word] += 1
+
+        text.append(f'==== {author} ====')
+        text.append('')
+        
+        text.append('== Básně a sbírky ==')
+        text.append(f"{len(poems)} básní v {len(data)} sbírkách")
+        text.append('')
+
+        text.append('== Metrum (top 4) ==')
+        total = len(poems)
+        for (metre, count) in metres.most_common(4):
+            text.append(f"{100*count/total:.0f}% {metre} ({count}x)")
+        text.append(f'...celkem {len(metres)} různých')
+        text.append('')
+
+        text.append('== Rýmová schémata (top 10, po stanzách) ==')
+        total = len(poems)
+        for (rhyme, count) in rhymes.most_common(10):
+            text.append(f"{100*count/total:.0f}% {rhyme} ({count}x)")
+        text.append(f'...celkem {len(rhymes)} různých')
+        text.append('')
+
+        text.append('== Slova (top 50) ==')
+        total = len(poems)
+        for (word, count) in words[author].most_common(50):
+            text.append(f"{100*count/words_total[author]:.0f}% {word} ({count}x)")
+        text.append(f'...celkem {len(words[author])} různých')
+        text.append('')
+
+        text.append('')
+        text.append('')
+
+    # for all authors
+    text.append('==== TF.IDF (top 20 per author) ====')
     
-    text.append(author)
-    text.append('')
-    
-    text.append('== Básně a sbírky ==')
-    text.append(f"{len(poems)} básní v {len(data)} sbírkách")
-    text.append('')
+    idf = dict()
+    for word in words_doccounts:
+        idf[word] = math.log(len(authors) / words_doccounts[word])
 
-    text.append('== Metrum (top 4) ==')
-    total = len(poems)
-    for (metre, count) in metres.most_common(4):
-        text.append(f"{100*count/total:.0f}% {metre} ({count}x)")
-    text.append(f'...celkem {len(metres)} různých')
-    text.append('')
-
-    text.append('== Rýmová schémata (top 10, po stanzách) ==')
-    total = len(poems)
-    for (rhyme, count) in rhymes.most_common(10):
-        text.append(f"{100*count/total:.0f}% {rhyme} ({count}x)")
-    text.append(f'...celkem {len(rhymes)} různých')
-    text.append('')
-
-    totalwords = sum(words.values())
-    text.append('== Slova (top 50) ==')
-    total = len(poems)
-    for (rhyme, count) in words.most_common(50):
-        text.append(f"{100*count/totalwords:.0f}% {rhyme} ({count}x)")
-    text.append(f'...celkem {len(words)} různých')
-    text.append('')
-
+    for author in authors:
+        text.append(f'== {author} ==')
+        tfidf = Counter()
+        for word in words[author]:
+            tfidf[word] = words[author][word] / words_total[author] * idf[word]
+        for word, score in tfidf.most_common(20):
+            text.append(f'{word} ({words[author][word]}x) (tf.idf={score})')
+        text.append('')
 
 
     # TODO return_accepted_type -- now only text
