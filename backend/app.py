@@ -591,8 +591,8 @@ def call_typfeatures():
             'Bezruč, Petr',
             ]
 
-    # output
-    text = []
+    # output per author
+    outputs = dict()
     # count per author
     words = dict()
     # total count per author
@@ -601,6 +601,9 @@ def call_typfeatures():
     words_doccounts = Counter()
         
     for author in authors:
+        # output
+        text = []
+        
         data = []
         with get_db() as db:
             sql = 'SELECT id, title, book_id, body, motives FROM poems WHERE author=?'
@@ -683,25 +686,27 @@ def call_typfeatures():
         text.append('')
         text.append('')
 
+        outputs[author] = text
+
     # for all authors
-    text.append('==== TF.IDF (top 40 per author) ====')
-    
     idf = dict()
     for word in words_doccounts:
         idf[word] = math.log(len(authors) / words_doccounts[word])
 
     for author in authors:
-        text.append(f'== {author} ==')
+        outputs[author].append('== typická slova TF.IDF (top 40) ==')
         tfidf = Counter()
         for word in words[author]:
             tfidf[word] = words[author][word] / words_total[author] * idf[word]
         for word, score in tfidf.most_common(40):
-            text.append(f'{word} ({words[author][word]}x) (tf.idf={score*10000:.2f})')
-        text.append('')
+            outputs[author].append(f'{word} ({words[author][word]}x) (tf.idf={score*10000:.2f})')
+        outputs[author].append('')
+
+    result = "\n".join(["\n".join(outputs[author]) for author in outputs])
 
 
     # TODO return_accepted_type -- now only text
-    return Response("\n".join(text), mimetype='text/plain')
+    return Response(result, mimetype='text/plain')
 
 # can be called from input on main page -> no id
 @app.route("/analyze", methods=['GET', 'POST'])
