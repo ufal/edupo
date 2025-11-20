@@ -127,17 +127,28 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
 
     current_stanza_num = -1
     current_stanza = []
+    word_repetitions = 0
+    line_repetitions = 0
    
     raw_text = ""
+    lines_before = dict()
     for i in range(len(poem)):
         syllcount = 0
         raw_text += poem[i]['text'] + "\n"
+        previous_word = ""
+        if poem[i]['text'].lower() in lines_before:
+            line_repetitions += 1
+        lines_before[poem[i]['text'].lower()] = 1
         for word in poem[i]['words']:
             if 'is_unknown' in word:
                 unknown_counter += 1
             words_counter += 1
             if 'syllables' in word:
                 syllcount += len(word['syllables'])
+            if word['token'].lower() == previous_word:
+                word_repetitions += 1
+            previous_word = word['token'].lower()
+
         num_syllables_count[syllcount] += 1
         if 'rhyme' in poem[i] and poem[i]["rhyme"] != None:
             rhyme_count += 1
@@ -228,6 +239,8 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             'syllable_count_entropy': syllable_count_entropy,
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
             'chatgpt_meaning': meaning_num,
+            'word_repetitions': word_repetitions / words_counter,
+            'line_repetitions': line_repetitions / len(poem),
            }
 
     if COMPUTE_SYNTAX:
@@ -300,8 +313,8 @@ if __name__=="__main__":
         else:
             input_text = file.read()
         
-        #results = get_measures(input_text, parameters)
-        results = get_measures_fast(input_text, parameters)
+        results = get_measures(input_text, parameters)
+        #results = get_measures_fast(input_text, parameters)
         
         print('Unknown words:', results['unknown_words'])
         #print('Rhyming:', results['rhyming'])
@@ -311,6 +324,8 @@ if __name__=="__main__":
         #print('Metre consistency:', results['metre_consistency'])
         #print('Syllable count entropy:', results['syllable_count_entropy'])
         print('Gemini meaning:', results['chatgpt_meaning'])
+        print('Word repetitions:', results['word_repetitions'])
+        print('Line repetitions:', results['line_repetitions'])
         #print('ChatGPT syntax:', results['chatgpt_syntax'])
         #print('ChatGPT language:', results['chatgpt_language'])
         #print('ChatGPT rhyming:', results['chatgpt_rhyming'])
