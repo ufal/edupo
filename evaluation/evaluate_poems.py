@@ -9,7 +9,7 @@ from get_measures import get_measures
 
 input_dir = sys.argv[1]
 output_file = sys.argv[2]
-measures = ('unknown_words', 'rhyming', 'metre_accuracy', 'chatgpt_meaning')
+measures = ('unknown_words', 'chatgpt_meaning')
 avg=dict()
 total = 0
 
@@ -24,6 +24,8 @@ with open(output_file, "w") as f:
     soubory = os.listdir(input_dir)
     soubory.sort()
     for soubor in soubory:
+        if soubor.startswith('header'):
+            continue
         filename = os.path.join(input_dir, soubor)
     #for i in range(1, 1000):
         #num = str(i)

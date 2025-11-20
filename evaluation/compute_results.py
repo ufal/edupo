@@ -110,23 +110,23 @@ def main():
         tex_file.write("\\end{tabular}\n")
 
     # Plotting
-    for metric, data in metric_plot_data.items():
-        systems = data["systems"]
-        averages = data["averages"]
-        stddevs = data["stddevs"]
-
-        plt.figure(figsize=(8, 6))
-        plt.bar(systems, averages, yerr=stddevs, capsize=5, color='skyblue', edgecolor='black')
-        plt.ylabel(metric)
-        plt.title(f"{metric}")
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-
-        if args.show_plots:
-            plt.show()
-        else:
-            plt.savefig(f"{metric}.png")
-        plt.close()
+    #for metric, data in metric_plot_data.items():
+    #    systems = data["systems"]
+    #    averages = data["averages"]
+    #    stddevs = data["stddevs"]
+    #
+    #    plt.figure(figsize=(8, 6))
+    #    plt.bar(systems, averages, yerr=stddevs, capsize=5, color='skyblue', edgecolor='black')
+    #    plt.ylabel(metric)
+    #    plt.title(f"{metric}")
+    #    plt.xticks(rotation=45)
+    #    plt.tight_layout()
+    #
+    #    if args.show_plots:
+    #        plt.show()
+    #    else:
+    #        plt.savefig(f"{metric}.png")
+    #    plt.close()
 
     def plot_combined(metrics_filter, title, filename):
         metrics = [m for m in metric_names if metrics_filter(m)]
@@ -136,7 +136,8 @@ def main():
         x = range(len(metrics))
         #systems = sorted(system_data.keys())
         #systems = ['ccv', 'chatgpt', 'our16-40000', 'our16-7500', 'our4', 'claude-sonet']
-        systems = ['ccv', 'llm', 'our16-40000', 'our16-7500', 'our4']
+        #systems = ['ccv', 'llm', 'our16-40000', 'our16-7500', 'our4']
+        systems = ['ccv']
         num_systems = len(systems)
         width = 0.8 / num_systems
         colors = plt.cm.Set2.colors
@@ -178,18 +179,18 @@ def main():
         plt.close()
 
     # Plot 1: Human metrics only
-    plot_combined(
-        metrics_filter=lambda m: m.startswith("Human"),
-        title="System Comparison Across Human Metrics",
-        filename="human_metrics_by_system.png"
-    )
+    #plot_combined(
+    #    metrics_filter=lambda m: m.startswith("Human"),
+    #    title="System Comparison Across Human Metrics",
+    #    filename="human_metrics_by_system.png"
+    #)
 
     # Plot 2: Rules or ChatGPT metrics
-    plot_combined(
-        metrics_filter=lambda m: m.startswith("Stat") or m.startswith("LLM"),
-        title="System Comparison Across Statistical and LLM Metrics",
-        filename="stat_llm_metrics_by_system.png"
-    )
+    #plot_combined(
+    #    metrics_filter=lambda m: m.startswith("Stat") or m.startswith("LLM"),
+    #    title="System Comparison Across Statistical and LLM Metrics",
+    #    filename="stat_llm_metrics_by_system.png"
+    #)
 
 
     # Compute correlation if requested
