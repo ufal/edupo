@@ -136,6 +136,13 @@ class MotiveFormat(Enum):
     GUESS = "guess"  # <guess_motives/> in header, <motives>...</motives> after poem
 
 
+class BookFormat(Enum):
+    """Book title field format variations."""
+    FULL = "full"  # <book_title>Title Text</book_title>
+    OMIT = "omit"  # No book_title tag
+    GUESS = "guess"  # <guess_book_title/> in header, <book_title>...</book_title> after poem
+
+
 @dataclass
 class FormatConfig:
     """Configuration for format variations."""
@@ -143,12 +150,14 @@ class FormatConfig:
     title_format: TitleFormat = TitleFormat.FULL
     year_format: YearFormat = YearFormat.FULL
     motive_format: MotiveFormat = MotiveFormat.FULL
+    book_format: BookFormat = BookFormat.FULL
 
     @classmethod
     def random_config(cls, author_weights: Optional[Dict[AuthorFormat, float]] = None,
                      title_weights: Optional[Dict[TitleFormat, float]] = None,
                      year_weights: Optional[Dict[YearFormat, float]] = None,
-                     motive_weights: Optional[Dict[MotiveFormat, float]] = None):
+                     motive_weights: Optional[Dict[MotiveFormat, float]] = None,
+                     book_weights: Optional[Dict[BookFormat, float]] = None):
         """Generate a random format configuration.
 
         Args:
@@ -159,6 +168,8 @@ class FormatConfig:
             year_weights: Dictionary mapping YearFormat to probability weights.
                           If None, uses equal weights for all formats.
             motive_weights: Dictionary mapping MotiveFormat to probability weights.
+                          If None, uses equal weights for all formats.
+            book_weights: Dictionary mapping BookFormat to probability weights.
                           If None, uses equal weights for all formats.
         """
         # Select author format
@@ -197,8 +208,18 @@ class FormatConfig:
             weights = list(motive_weights.values())
             motive_format = random.choices(motive_formats, weights=weights, k=1)[0]
 
+        # Select book format
+        if book_weights is None:
+            book_formats = list(BookFormat)
+            book_format = random.choice(book_formats)
+        else:
+            book_formats = list(book_weights.keys())
+            weights = list(book_weights.values())
+            book_format = random.choices(book_formats, weights=weights, k=1)[0]
+
         return cls(author_format=author_format, title_format=title_format,
-                  year_format=year_format, motive_format=motive_format)
+                  year_format=year_format, motive_format=motive_format,
+                  book_format=book_format)
 
 
 class FormatV3:
@@ -311,6 +332,15 @@ def poem_header(poem, formatter, format_config: FormatConfig):
             # If parsing fails, skip motives
             pass
 
+    # Handle book title field variations
+    if poem.get('b_title') is not None and poem['b_title']:
+        if format_config.book_format == BookFormat.FULL:
+            header_tags.append(f"<book_title>{poem['b_title']}</book_title>\n")
+        elif format_config.book_format == BookFormat.GUESS:
+            header_tags.append("<guess_book_title/>\n")
+            footers.append(f"<book_title>{poem['b_title']}</book_title>\n")
+        # elif BookFormat.OMIT: do nothing
+
     # Handle form
     if poem['schemes']['form'] is not None:
         header_tags.append(f"<form>{poem['schemes']['form']}</form>\n")
@@ -409,15 +439,17 @@ class DynamicPoemDataset(Dataset):
         title_weights: Dictionary mapping TitleFormat to probability weights
         year_weights: Dictionary mapping YearFormat to probability weights
         motive_weights: Dictionary mapping MotiveFormat to probability weights
+        book_weights: Dictionary mapping BookFormat to probability weights
         verse_regenerate_prob: Probability of verse regeneration mode (default: 0.1)
     """
 
-    def __init__(self, db_path="../../data/db_s_motivama.db", max_poems=None, format_version=3,
+    def __init__(self, db_path="../../data/new.db", max_poems=None, format_version=3,
                  shuffle=True, random_seed=None, use_format_variations=True,
                  author_weights: Optional[Dict[AuthorFormat, float]] = None,
                  title_weights: Optional[Dict[TitleFormat, float]] = None,
                  year_weights: Optional[Dict[YearFormat, float]] = None,
                  motive_weights: Optional[Dict[MotiveFormat, float]] = None,
+                 book_weights: Optional[Dict[BookFormat, float]] = None,
                  verse_regenerate_prob: float = 0.1):
         self.db_path = db_path
         self.format_version = format_version
@@ -430,6 +462,7 @@ class DynamicPoemDataset(Dataset):
         self.title_weights = title_weights
         self.year_weights = year_weights
         self.motive_weights = motive_weights
+        self.book_weights = book_weights
         self.verse_regenerate_prob = verse_regenerate_prob
 
         # Load and process poems from database
@@ -449,7 +482,7 @@ class DynamicPoemDataset(Dataset):
         sqlite3.register_converter("json", json.loads)
         with sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES) as db:
             db.row_factory = dict_factory
-            query = "SELECT poems.id, poems.author, poems.title, body, year, poems.schemes, poems.motives FROM poems JOIN books on poems.book_id = books.id WHERE poems.duplicate IS NULL"
+            query = "SELECT poems.id, poems.author, poems.title, body, year, poems.schemes, poems.motives, books.title as b_title FROM poems JOIN books on poems.book_id = books.id WHERE poems.duplicate IS NULL"
             if max_poems is not None:
                 query += f" LIMIT {max_poems}"
             query += ";"
@@ -516,7 +549,8 @@ class DynamicPoemDataset(Dataset):
             format_config = FormatConfig.random_config(author_weights=self.author_weights,
                                                        title_weights=self.title_weights,
                                                        year_weights=self.year_weights,
-                                                       motive_weights=self.motive_weights)
+                                                       motive_weights=self.motive_weights,
+                                                       book_weights=self.book_weights)
         else:
             # Use default configuration (all FULL formats)
             format_config = FormatConfig()
