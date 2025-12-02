@@ -9,7 +9,7 @@ from get_measures import get_measures
 
 input_dir = sys.argv[1]
 output_file = sys.argv[2]
-measures = ('unknown_words', 'chatgpt_meaning')
+measures = ('unknown_words', 'chatgpt_meaning', 'rhyming', 'word_repetitions', 'line_repetitions')
 avg=dict()
 total = 0
 
@@ -48,8 +48,10 @@ with open(output_file, "w") as f:
                 avg[m] += float(results[m])
             f.write("\n")
         results = {}
-
-for m in measures:
-    print("Average", m, ":", str(avg[m]/total))
 f.close()
+print(output_file, end='')
+for m in measures:
+    print('\t'+str(avg[m]/total), end='')
+print()
+
 

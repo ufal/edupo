@@ -135,10 +135,17 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     for i in range(len(poem)):
         syllcount = 0
         raw_text += poem[i]['text'] + "\n"
-        previous_word = ""
+
+        # počítám kolik veršů se v rámci sloky opakuje
         if poem[i]['text'].lower() in lines_before:
             line_repetitions += 1
         lines_before[poem[i]['text'].lower()] = 1
+        if poem[i]['stanza'] != current_stanza_num:
+            lines_before = {}
+        
+        # počítám (mimo jiné) v kolika verších jsou dvě stejná slova po sobě
+        is_repetition = 0
+        previous_word = ""
         for word in poem[i]['words']:
             if 'is_unknown' in word:
                 unknown_counter += 1
@@ -146,8 +153,10 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             if 'syllables' in word:
                 syllcount += len(word['syllables'])
             if word['token'].lower() == previous_word:
-                word_repetitions += 1
+                is_repetition = 1
             previous_word = word['token'].lower()
+        if is_repetition:
+            word_repetitions += 1
 
         num_syllables_count[syllcount] += 1
         if 'rhyme' in poem[i] and poem[i]["rhyme"] != None:
@@ -214,9 +223,9 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     meaning_num = 5
     if numbers:
         meaning_num = int(numbers[0])
-    if meaning_num > 0 and meaning_num <= 10:
-        meaning_num /= 10
-
+    meaning_num /= 10
+    if meaning_num > 1:
+        meaning_num = 1
     
     # syntax
     COMPUTE_SYNTAX = False
@@ -239,7 +248,7 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             'syllable_count_entropy': syllable_count_entropy,
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
             'chatgpt_meaning': meaning_num,
-            'word_repetitions': word_repetitions / words_counter,
+            'word_repetitions': word_repetitions / len(poem),
             'line_repetitions': line_repetitions / len(poem),
            }
 
