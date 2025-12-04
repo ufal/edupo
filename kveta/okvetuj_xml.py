@@ -49,6 +49,10 @@ def collect_and_remove_headPoems(div2):
     #return None
 
     head_poem = div2.find(".//headPoem")
+    if head_poem is None:
+        head_poem = div2.find(".//headPoemAdd")
+    if head_poem is None:
+        head_poem = div2.find(".//headPoemIncAdd")
     head_poem_text = None
 
     if head_poem is not None:
@@ -79,6 +83,18 @@ def extract_div2_text(xml_file, output_dir="output"):
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
+    # collect metadata
+    metadata = dict()
+    for tag in ("surname", "name", "date", "titleColl", "born", "died", "nomedeplume", "gender"):
+        metadata[tag] = "".join(root.find(".//"+tag).itertext()).strip()
+    identity = metadata["surname"]+", "+metadata["name"]
+    p_author = {"identity": identity, "name": identity, "born": metadata["born"], "died": metadata["died"], "zena": None}
+    if metadata["nomedeplume"]:
+        p_author["name"] = metadata["nomedeplume"]
+    if metadata["gender"] == "F":
+        p_author["zena"] = "1"
+    biblio = {"b_title": metadata["titleColl"], "p_title": "", "year": metadata["date"]}
+
     # Najdeme všechny div2 elementy (bez ohledu na namespace)
     div2_elements = [e for e in root.iter() if local_name(e.tag) == "div2"]
     total = len(div2_elements)
@@ -88,16 +104,18 @@ def extract_div2_text(xml_file, output_dir="output"):
         # 1) vyjmout a uložit headPoem(y)
         head_poem_text = collect_and_remove_headPoems(div2)
 
-        # 2) odstranit všechny pageNum a graphic (včetně obsahu)
-        remove_elements(div2, {"pageNum", "pageNumAdd", "graphic"})
+        # 2) odstranit všechny bordely mimo verše (včetně obsahu)
+        remove_elements(div2, {"pageNum", "pageNumAdd", "graphic", "list", "speaker", "stage", "datelinePoem", "datelinePoemAdd", "datelineChapter", "datelineChapterAdd", "headPoem", "headPoemAdd", "subheadPoem", "subheadPoemAdd", "headPoemIncAdd", "headChapter", "subheadChapter", "headChapterAdd", "subheadChapterAdd", "dedicationPoem", "dedicationChapter", "noteAuthor", "noteOther", "biblCit", "epigraph", "quiteEpi", "biblEpi"})
 
         # 3) z div2 získat text (itertext zachová obsah <foreign> i ostatní texty)
         main_text = ''.join(div2.itertext()).strip()
 
         # 4) okvetuj
         output, k = okvetuj(main_text)
+        output[0]['p_author'] = p_author
+        output[0]['biblio'] = biblio
         if head_poem_text:
-            output[0]['p_title'] = head_poem_text
+            output[0]['biblio']['p_title'] = head_poem_text
         else:
             print("Warning: <headPoem> not found.", file=sys.stderr)
 
