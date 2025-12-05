@@ -85,15 +85,16 @@ def extract_div2_text(xml_file, output_dir="output"):
 
     # collect metadata
     metadata = dict()
-    for tag in ("surname", "name", "date", "titleColl", "born", "died", "nomedeplume", "gender"):
+    for tag in ("surname", "name", "date", "titleColl", "subtitleColl", "born", "died", "nomedeplume", "gender", "publisher", "pubPlace", "edition", "idno"):
         metadata[tag] = "".join(root.find(".//"+tag).itertext()).strip()
     identity = metadata["surname"]+", "+metadata["name"]
-    p_author = {"identity": identity, "name": identity, "born": metadata["born"], "died": metadata["died"], "zena": None}
+    b_author = {"identity": identity, "name": identity, "born": metadata["born"], "died": metadata["died"], "zena": None}
     if metadata["nomedeplume"]:
-        p_author["name"] = metadata["nomedeplume"]
+        b_author["name"] = metadata["nomedeplume"]
     if metadata["gender"] == "F":
-        p_author["zena"] = "1"
-    biblio = {"b_title": metadata["titleColl"], "p_title": "", "year": metadata["date"]}
+        b_author["zena"] = "1"
+    biblio = {"b_title": metadata["titleColl"], "b_subtitle": metadata["subtitleColl"], "p_title": "", "year": metadata["date"], "publisher": metadata["publisher"], "edition": metadata["edition"], "place": metadata["pubPlace"]}
+    book_id = metadata["idno"]
 
     # Najdeme všechny div2 elementy (bez ohledu na namespace)
     div2_elements = [e for e in root.iter() if local_name(e.tag) == "div2"]
@@ -112,8 +113,9 @@ def extract_div2_text(xml_file, output_dir="output"):
 
         # 4) okvetuj
         output, k = okvetuj(main_text)
-        output[0]['p_author'] = p_author
+        output[0]['b_author'] = b_author
         output[0]['biblio'] = biblio
+        output[0]['book_id'] = book_id
         if head_poem_text:
             output[0]['biblio']['p_title'] = head_poem_text
         else:
@@ -125,6 +127,10 @@ def extract_div2_text(xml_file, output_dir="output"):
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(output, f, ensure_ascii=False, indent=4)
             print(f"{idx_str}.json", file=sys.stderr)
+        
+        txt_path = os.path.join(output_dir, f"{idx_str}.txt")
+        with open(txt_path, "w", encoding="utf-8") as f:
+            f.write(main_text)
             
 
 if __name__ == "__main__":

@@ -2,8 +2,8 @@
 
 #INPUT_DIR="/net/projects/EduPo/data/KCV_ROBERT_listopad_2025"
 #OUTPUT_DIR="/net/projects/EduPo/data/KCV_ROBERT_okvetovano"
-INPUT_DIR="/net/projects/EduPo/data/KSP_od_Karla/EduPo"
-OUTPUT_DIR="/net/projects/EduPo/data/KSP_od_Karla_okvetovano/EduPo"
+INPUT_DIR="/net/projects/EduPo/data/KSP_od_Karla/XML_brezen_2022"
+OUTPUT_DIR="/net/projects/EduPo/data/KSP_od_Karla_okvetovano/XML_brezen_2022"
 
 from_file="Bondy_Basnicke_spisy_I_2014_IV"
 kvetuj=true
