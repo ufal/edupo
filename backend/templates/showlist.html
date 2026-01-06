@@ -17,6 +17,8 @@
         <a href="showauthor?author={{ row.author }}"
             >{{ row.author }}
             (počet básní: {{ row.count }})</a>
+        [<a href="typfeatures?author={{ row.author }}"
+            >analyzovat typické rysy</a>]
     </li>
 {% endfor %}
 </ul>

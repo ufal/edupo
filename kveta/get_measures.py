@@ -2,6 +2,7 @@
 #coding: utf-8
 
 import sys
+import os
 import math
 import json
 import glob
@@ -13,6 +14,23 @@ from collections import defaultdict
 from openai import OpenAI
 sys.path.append("../backend")
 from openai_helper import generate_with_openai_simple, generate_with_openai_responses
+from ufal.morphodita import *
+
+class Morphodita:
+    def __init__(self):
+        # Initialize MorphoDiTa
+        filepath = os.path.join(os.path.dirname(__file__),
+                'dicts', 'czech-morfflex-pdt-161115.tagger')
+        filepath_morpho = os.path.join(os.path.dirname(__file__),
+                'dicts', 'czech-morfflex-161115.dict')
+        self.tagger = Tagger.load(filepath)
+        self.morpho = Morpho.load(filepath_morpho)
+        self.forms = Forms()
+        self.lemmas = TaggedLemmas()
+        self.tokens = TokenRanges()
+        self.tokenizer = self.tagger.newTokenizer()
+
+morphodita = Morphodita()
 
 def get_rhyme_scheme(numbers):
     num2id = dict()
@@ -109,17 +127,37 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
 
     current_stanza_num = -1
     current_stanza = []
+    word_repetitions = 0
+    line_repetitions = 0
    
     raw_text = ""
+    lines_before = dict()
     for i in range(len(poem)):
         syllcount = 0
         raw_text += poem[i]['text'] + "\n"
+
+        # počítám kolik veršů se v rámci sloky opakuje
+        if poem[i]['text'].lower() in lines_before:
+            line_repetitions += 1
+        lines_before[poem[i]['text'].lower()] = 1
+        if poem[i]['stanza'] != current_stanza_num:
+            lines_before = {}
+        
+        # počítám (mimo jiné) v kolika verších jsou dvě stejná slova po sobě
+        is_repetition = 0
+        previous_word = ""
         for word in poem[i]['words']:
             if 'is_unknown' in word:
                 unknown_counter += 1
             words_counter += 1
             if 'syllables' in word:
                 syllcount += len(word['syllables'])
+            if word['token'].lower() == previous_word:
+                is_repetition = 1
+            previous_word = word['token'].lower()
+        if is_repetition:
+            word_repetitions += 1
+
         num_syllables_count[syllcount] += 1
         if 'rhyme' in poem[i] and poem[i]["rhyme"] != None:
             rhyme_count += 1
@@ -185,9 +223,9 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
     meaning_num = 5
     if numbers:
         meaning_num = int(numbers[0])
-    if meaning_num > 0 and meaning_num <= 10:
-        meaning_num /= 10
-
+    meaning_num /= 10
+    if meaning_num > 1:
+        meaning_num = 1
     
     # syntax
     COMPUTE_SYNTAX = False
@@ -210,6 +248,8 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             'syllable_count_entropy': syllable_count_entropy,
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
             'chatgpt_meaning': meaning_num,
+            'word_repetitions': word_repetitions / len(poem),
+            'line_repetitions': line_repetitions / len(poem),
            }
 
     if COMPUTE_SYNTAX:
@@ -217,13 +257,50 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
 
     return result
 
+def get_measures_fast(text, parameters={}):
+
+    # Pass poem to tokenizer
+    morphodita.tokenizer.setText(text)
+
+    word_counter = 0
+    unknown_counter = 0
+
+    # Analyze words 
+    while morphodita.tokenizer.nextSentence(morphodita.forms, morphodita.tokens):
+        for form in morphodita.forms:
+            result = morphodita.morpho.analyze(form, morphodita.morpho.GUESSER, morphodita.lemmas)
+            if len(form) > 1 or form.isalnum():
+                word_counter += 1
+                if result == morphodita.morpho.GUESSER:
+                    unknown_counter += 1
+
+    # smysluplnost
+    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + text, model="google/gemini-2.5-flash")
+    numbers = re.findall(r'\d+', response)
+    meaning_num = 5
+    if numbers:
+        meaning_num = int(numbers[0])
+    if meaning_num > 0 and meaning_num <= 10:
+        meaning_num /= 10
+
+    result = {'unknown_words': unknown_counter/word_counter,
+              'chatgpt_meaning': meaning_num,
+             }
+
+    return result
+
+
 def get_measures(input_txt, parameters={}):
 
-    #print(time.time(), "KVETA START")
-    data, k = okvetuj(input_txt)
-    #print(time.time(), "KVETA END")
-
-    measures = get_measures_from_analyzed_poem(data[0]["body"], parameters)
+    #print(time.time(), "MEASURES START")
+    if parameters.get('nekvetuj', False):
+        measures = get_measures_fast(input_txt, parameters)
+    else:
+        #print(time.time(), "KVETA START")
+        data, k = okvetuj(input_txt)
+        #print(time.time(), "KVETA END")
+        measures = get_measures_from_analyzed_poem(data[0]["body"], parameters)
+    
     #print(time.time(), "MEASURES END")
 
     return measures
@@ -246,15 +323,18 @@ if __name__=="__main__":
             input_text = file.read()
         
         results = get_measures(input_text, parameters)
+        #results = get_measures_fast(input_text, parameters)
         
         print('Unknown words:', results['unknown_words'])
-        print('Rhyming:', results['rhyming'])
-        print('Rhyming accuracy:', results['rhyme_scheme_accuracy'])
-        print('Rhyming consistency:', results['rhyming_consistency'])
-        print('Metre accuracy:', results['metre_accuracy'])
-        print('Metre consistency:', results['metre_consistency'])
-        print('Syllable count entropy:', results['syllable_count_entropy'])
-        print('ChatGPT meaning:', results['chatgpt_meaning'])
+        #print('Rhyming:', results['rhyming'])
+        #print('Rhyming accuracy:', results['rhyme_scheme_accuracy'])
+        #print('Rhyming consistency:', results['rhyming_consistency'])
+        #print('Metre accuracy:', results['metre_accuracy'])
+        #print('Metre consistency:', results['metre_consistency'])
+        #print('Syllable count entropy:', results['syllable_count_entropy'])
+        print('Gemini meaning:', results['chatgpt_meaning'])
+        print('Word repetitions:', results['word_repetitions'])
+        print('Line repetitions:', results['line_repetitions'])
         #print('ChatGPT syntax:', results['chatgpt_syntax'])
         #print('ChatGPT language:', results['chatgpt_language'])
         #print('ChatGPT rhyming:', results['chatgpt_rhyming'])

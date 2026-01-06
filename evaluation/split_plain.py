@@ -23,15 +23,20 @@ for i, poem in enumerate(poems, start=1):
     # Rozděl na řádky
     lines = poem.strip().splitlines()
 
-    # Vynech první 3 řádky
+    # Rozdel na nazev s autorem (prvni 3 radky) a samotny text
+    header = "\n".join(lines[0:3]).strip()
     content = "\n".join(lines[3:]).strip()
 
     # Ulož do souboru
-    filename = os.path.join(output_folder, f"poem_{i}.txt")
+    filename = os.path.join(output_folder, f"header_{i:03d}.txt")
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(header)
+    
+        filename = os.path.join(output_folder, f"poem_{i:03d}.txt")
     with open(filename, "w", encoding="utf-8") as f:
         f.write(content)
 
-    print(f"Uloženo: {filename} (vynechány první tři řádky)")
+    print(f"Uloženo: {filename}")
 
 print(f"\nHotovo! Zpracováno {len(poems)} básní.")
 

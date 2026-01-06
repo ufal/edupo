@@ -9,7 +9,7 @@ import os
 import show_poem_html
 import sqlite3
 import json
-from collections import defaultdict
+from collections import defaultdict, Counter
 import re
 import random
 from openai_helper import *
@@ -406,7 +406,7 @@ def call_generuj():
             # TODO naměřit jak dlouho to trvá
             # TODO stačí jen meaning a unk, na to nemusim pouštět květu
             app.logger.info("Calling get_measures")
-            measures = get_measures("\n".join(clean_verses))
+            measures = get_measures("\n".join(clean_verses), {'nekvetuj': True})
             app.logger.info(f"Got measures: {measures}")
             if measures['chatgpt_meaning'] >= params['min_meaning'] and measures['unknown_words'] <= params['max_unk']:
                 # break
@@ -494,6 +494,34 @@ def call_generuj_interaktivne():
         html = render_template('interactive_gen_process.html', **data)
         return return_accepted_type(raw_output, data, html)
 
+@app.route("/regen", methods=['GET', 'POST'])
+def call_regenerate_line():
+    poemid = get_post_arg('poemid')
+    badline = get_post_arg('badline')
+    data = get_poem_by_id(poemid)
+    plaintext = poem2text_with_header(data, includeid=False)
+    
+    app.logger.info(f"REGENERATE LINE in poem {poemid}: {badline}")
+
+    system = "You are a Czech professional poet and post-editor. You can improve existing poems by suggesting better lines that fit well the existing poem."
+    prompt = f"I will ask you to improve a Czech poem by replacing the following old line with a new line that is better, makes more sense, and fits well the theme as well as the format of the poem. It should keep the metre and rhyming according to the original poem. This is the old line to be replaced:\n{badline}\n\nHere is the full text of the Czech poem:\n\n{plaintext}\n\nTry to improve the poem by suggesting a better line instead of the following old line:\n{badline}\n\nThe new line should fit nicely the theme and format of the poem. It should keep the metre and rhyming of the old line if the old line rhymes well within the poem. The ending of the new line should thus be similar to how the old line ends, the new line should rhyme with the old line. Write only the new line to use instead of the old line, do not write anything else.\nNew line to use instead of the old line:\n"
+    newline = generate_with_openai_simple(prompt, system)
+
+    app.logger.info(f"REGENERATED LINE: {newline}")
+
+    # copy but replace the badline with newline
+    newdata = {
+            'plaintext': data['plaintext'].replace(badline, newline),
+            'rawtext': data['rawtext'] + "\n\n" + f"REGENERATED LINE '{badline}' INTO '{newline}'",
+            'geninput': data['geninput'],
+            'title': data['title'],
+            'author_name': data['author_name'],
+            }
+    store(newdata)
+    
+    return return_accepted_type_for_poemid(newdata)
+ 
+
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     data = get_poem_by_id(random_if_no_id=True)
@@ -542,6 +570,143 @@ def call_showauthor():
     
     # TODO JSON to nevrací
     return return_accepted_type("\n".join(text), {'author': author, 'books': data}, html)
+
+import math
+RYMY = "ABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUV"
+@app.route("/typfeatures", methods=['GET', 'POST'])
+def call_typfeatures():
+    author = get_post_arg('author', '')
+    if author:
+        authors = [author]
+    else:
+        authors = [
+            'Mácha, Karel Hynek',
+            'Erben, Karel Jaromír',
+            'Neruda, Jan',
+            'Hálek, Vítězslav',
+            'Březina, Otokar',
+            'Karásek ze Lvovic, Jiří',
+            'Hlaváček, Karel',
+            'Gellner, František',
+            'Bezruč, Petr',
+            ]
+
+    # output per author
+    outputs = dict()
+    # count per author
+    words = dict()
+    # total count per author
+    words_total = dict()
+    # 1 per author
+    words_doccounts = Counter()
+        
+    for author in authors:
+        # output
+        text = []
+        
+        data = []
+        with get_db() as db:
+            sql = 'SELECT id, title, book_id, body, motives FROM poems WHERE author=?'
+            poems = db.execute(sql, (author,)).fetchall()
+            for book_id, p in groupby(poems, lambda p: p[2]):
+                book = db.execute('SELECT title, year FROM books WHERE id = ?', (book_id,)).fetchone()
+                data.append({'book': book, 'poems': list(p)})
+
+        metres = Counter()
+        rhymes = Counter()
+        words[author] = Counter()
+        motives = Counter()
+        for book in data:
+            title = book['book']
+            for poem in book['poems']:
+                body = poem['body']
+                metre = list(body[0]["metre"].keys())[0]
+                metres[metre] += 1
+                
+                rhyme = []
+                stanza = 0
+                for verse in body:
+                    if verse["stanza"] != stanza:
+                        rhyming = [x for x in rhyme if x]
+                        m = min(rhyming) if rhyming else 0
+                        n = [RYMY[x-m] if x else 'X' for x in rhyme]
+                        rhymes[''.join(n)] += 1
+                        rhyme = []
+                        stanza = verse["stanza"]
+                    rhyme.append(verse["rhyme"])
+
+                    for word in verse["words"]:
+                        words[author][word['lemma']] += 1
+
+                # motives
+                m = poem['motives']
+                if m:
+                    motives.update(json.loads(m))
+        
+
+        words_total[author] = sum(words[author].values())
+        for word in words[author]:
+            words_doccounts[word] += 1
+
+        text.append(f'==== {author} ====')
+        text.append('')
+        
+        text.append('== Básně a sbírky ==')
+        text.append(f"{len(poems)} básní v {len(data)} sbírkách")
+        text.append('')
+
+        text.append('== Metrum (top 4) ==')
+        total = len(poems)
+        for (metre, count) in metres.most_common(4):
+            text.append(f"{100*count/total:.0f}% {metre} ({count}x)")
+        text.append(f'...celkem {len(metres)} různých')
+        text.append('')
+
+        text.append('== Rýmová schémata (top 10, po stanzách) ==')
+        total = sum(rhymes.values())
+        for (rhyme, count) in rhymes.most_common(10):
+            text.append(f"{100*count/total:.0f}% {rhyme} ({count}x)")
+        text.append(f'...celkem {len(rhymes)} různých')
+        text.append('')
+
+        text.append('== Motivy (top 10) ==')
+        total = len(poems)
+        for (mot, count) in motives.most_common(10):
+            text.append(f"{100*count/total:.0f}% {mot} ({count}x)")
+        text.append(f'...celkem {len(motives)} různých')
+        text.append('')
+
+        #text.append('== Slova (top 50) ==')
+        #total = len(poems)
+        #for (word, count) in words[author].most_common(50):
+        #    text.append(f"{100*count/words_total[author]:.0f}% {word} ({count}x)")
+        #text.append(f'...celkem {len(words[author])} různých')
+        #text.append('')
+
+        text.append('')
+        text.append('')
+
+        outputs[author] = text
+
+    # for all authors
+    idf = dict()
+    for word in words_doccounts:
+        idf[word] = math.log(len(authors) / words_doccounts[word])
+
+    for author in authors:
+        outputs[author].append('== typická slova TF.IDF (top 40) ==')
+        tfidf = Counter()
+        for word in words[author]:
+            tfidf[word] = words[author][word] / words_total[author] * idf[word]
+        for word, score in tfidf.most_common(40):
+            outputs[author].append(f'{word} ({words[author][word]}x) (tf.idf={score*10000:.2f})')
+        outputs[author].append('')
+
+    result = "\n".join(["\n".join(outputs[author]) for author in outputs])
+
+
+    # TODO return_accepted_type -- now only text
+    return Response(result, mimetype='text/plain')
 
 # can be called from input on main page -> no id
 @app.route("/analyze", methods=['GET', 'POST'])
@@ -610,6 +775,7 @@ def call_genmotives():
 def call_processopenai():
     poemid = get_post_arg('poemid')
     data = get_poem_by_id(poemid)
+    model = get_post_arg('modelspec', 'gpt-4o-mini')
     
     if not 'openai' in data:
         data['openai'] = []
@@ -617,7 +783,7 @@ def call_processopenai():
     
     prompt = get_post_arg('openaiprompt')
     output = generate_with_openai_simple(poem2text_with_header(data, False), prompt)
-    data['openai'].append({'prompt': prompt, 'output': output})
+    data['openai'].append({'model': model, 'prompt': prompt, 'output': output})
     store(data)
     
     return return_accepted_type(
