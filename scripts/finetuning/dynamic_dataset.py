@@ -5,6 +5,11 @@ This module provides a PyTorch Dataset that loads poems from the SQLite database
 and generates formatted output on-the-fly during training.
 """
 
+# TODO better format info at the start of the poem (prevent generating of regeneration in first generation)
+# TODO better rhyme-with: rhyme from the last rhyming verse, not the first one
+# TODO add option for old-style rhyme -- reduplicant for each rhyme
+# TODO euroLLM: handle start and end tokens properly
+
 import sqlite3
 import json
 from collections import defaultdict
