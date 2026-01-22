@@ -135,7 +135,7 @@ def generuj(gen, _, params):
                 poem += motive + "\n"
             poem += '</motives>\n'
     if params.get('max_strophes', 0) > 0:
-        poem += f"<stanzas length='{params['max_strophes']}'/>\n"
+        poem += f'<stanzas length="{params['max_strophes']}">\n'
     else:
         poem += '<stanzas>\n'
     
