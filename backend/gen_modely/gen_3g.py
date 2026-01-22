@@ -4,7 +4,7 @@ import torch
 
 from unsloth import FastLanguageModel
 
-MODEL = 'TODO:MODEL_PATH'
+MODEL = '/net/projects/EduPo/data/new_model_5520'
 
 def load_model(modelspec=None, load16bit=True, model_path=MODEL):
 

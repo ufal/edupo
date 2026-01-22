@@ -3,7 +3,7 @@ import random
 import re
 
 import parsy
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 
 import parser
 
@@ -12,15 +12,17 @@ MODEL="jinymusim/gpt-czech-poet"
 
 def load_model(modelspec=None):
 
-    logging.info(f"Loading model {modelspec} {MODEL}")
+    logging.info("Loading model %s %s", modelspec, MODEL)
 
     # load Michal's model
     tokenizer = AutoTokenizer.from_pretrained(MODEL)
-    model = AutoModelForCausalLM.from_pretrained(MODEL)
+    model = AutoModelForCausalLM.from_pretrained(MODEL, generation_config=GenerationConfig())
+    model.config.output_hidden_states = False
+
     with open('prompt_templates/chudoba.txt', 'r') as f:
         template = parser.Template(f.read())
 
-    logging.info("Model loaded: " + modelspec)
+    logging.info("Model loaded: %s", modelspec)
     return model, tokenizer, template
 
 # default parameter values
@@ -200,7 +202,7 @@ def generuj(gen, template, params):
         result = [v['line'] for v in parsed['verses']]
         clean_verses = clean(result)
     except parsy.ParseError as e:
-        logging.warning("WARNING Nepodařený parsing básně: " + str(e))
+        logging.warning("WARNING Nepodařený parsing básně: %s", e)
         header = result[0]
 
         result = result.split('\n')

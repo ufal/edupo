@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 #coding: utf-8
+"""Generate poetry with LLMs using various models and configurations."""
 
 import argparse
 from contextlib import redirect_stdout
@@ -62,7 +63,7 @@ def _generate(model, tokenizer, temperature=1):
     
 def main_server(modelspec, port):
     # zmq mode
-    logging.info(f'Starting zmq with {modelspec} model on port {port}')
+    logging.info('Starting zmq with %s model on port %s', modelspec, port)
 
     import zmq
     context = zmq.Context()
@@ -112,7 +113,7 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
         else:
             print(result)
         i += 1
-        logging.info(f"Generated {i} poem" + "s" * (i > 1))
+        logging.info("Generated %d poem%s", i, "s" * (i > 1))
         if repeat:
             continue
         if repeat_n <= 1:
@@ -134,33 +135,33 @@ def parse_args():
     argparser.add_argument('--clean_json', action='store_true', help='Clean JSON output')
     argparser.add_argument('--checkpoint', type=str, help='Checkpoint to use')
     argparser.add_argument('--temperature', type=float, default=1.0, help='Temperature for text generation')
-    args = argparser.parse_args()
+    parsed_args = argparser.parse_args()
 
-    assert args.model in ['mc', 'tm', 'new']
+    assert parsed_args.model in ['mc', 'tm', 'new']
 
-    if args.checkpoint:
-        MODEL_TM = args.checkpoint
+    if parsed_args.checkpoint:
+        MODEL_TM = parsed_args.checkpoint
 
-    if args.verbose:
+    if parsed_args.verbose:
         VERBOSE_INFO = True
 
-    if vars(args).get('16bit', False):
+    if vars(parsed_args).get('16bit', False):
         LOAD16BIT = True
         logging.info("Loading in 16bit.")
 
-    if args.greedy:
+    if parsed_args.greedy:
         NOSAMPLE = True
     
-    return args
+    return parsed_args
 
 if __name__=="__main__":
     args = parse_args()
 
-    if args.get('modelspec') == 'tm':
+    if args.model == 'tm':
         from gen_modely.gen_tm import load_model, generuj
-    elif args.get('modelspec') == 'mc':
+    elif args.model == 'mc':
         from gen_modely.gen_mc import load_model, generuj
-    elif args.get('modelspec') == 'new':
+    elif args.model == 'new':
         from gen_modely.gen_3g import load_model, generuj
 
     if args.port:
