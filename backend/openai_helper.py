@@ -21,6 +21,11 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500, temperat
     # OPENROUTER model name always has '/' in it
     use_or = '/' in model
 
+    # Gemini 3 Pro uses reasoning
+    extra_body = {}
+    if 'gemini-3-pro' in model:
+        extra_body = {"reasoning": {"enabled": True}}
+
     # OPENAI SETUP
     # path to file with authentication key
     key_path = OR_KEY_PATH if use_or else KEY_PATH
@@ -47,6 +52,7 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500, temperat
             frequency_penalty=0,
             logit_bias={},
             extra_headers={ "X-Title": "EduPo" },
+            extra_body=extra_body,
         )
         logging.debug(response)
         return response.choices[0].message.content
