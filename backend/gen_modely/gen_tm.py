@@ -1,10 +1,11 @@
 import logging
+import random
+import re
+from functools import reduce
 
+import parsy
 import torch
-
-import unsloth
 from unsloth import FastLanguageModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
 import parser
 
@@ -125,7 +126,7 @@ def generuj(gen, template, params_orig):
                     syllcount = params['syllables_count']
                 else:
                     assert isinstance(params['syllables_count'], list)
-                    syllcount = params['syllables_count'][verse_index % len(syllable_counts)]
+                    syllcount = params['syllables_count'][verse_index % len(params['syllables_count'])]
                 poem += f" {syllcount} #"
             else:
                 poem, generated = gen(poem, '#', krok='syllables_count')

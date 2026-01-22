@@ -3,18 +3,12 @@
 
 import argparse
 from contextlib import redirect_stdout
-from functools import reduce
-import random
-import re
+import copy
 import json
-
 import logging
-
-import torch
-import parsy
-
-import parser
 import sys
+
+from gen_modely.utils import _show_tokenization
 
 logging.basicConfig(
     format='%(levelname)s %(asctime)s %(message)s',
@@ -23,11 +17,6 @@ logging.basicConfig(
 
 VERBOSE_INFO=False
 NOSAMPLE=False
-
-RHYME_SCHEMES = {
-    4: ['ABAB', 'XXXX', 'XAXA', 'AAXX', 'AABB', 'ABBA'],
-    6: ['AABBCC', 'XXXXXX', 'ABABXX', 'ABABCC'],
-    }
 
 def _generate(model, tokenizer, temperature=1):
     def g(poet_start, stop_strings=None, krok=None, max_new=256):
@@ -70,29 +59,7 @@ def _generate(model, tokenizer, temperature=1):
 
         return full, generated
     return g
-
-
-
-
-import copy
-def generuj(model, tokenizer, template, params, params_immutable=True):
-    logging.info(f'Generating with params: {params}')
-    """
-    If params_immutable is True, makes a deep copy of params and does not
-    modify params.
-    Otherwise params are modified inside the process.
-    """
-
-    if params_immutable:
-        params = copy.deepcopy(params)
-
-    if params.get('modelspec') == 'tm':
-        return generuj_tm(model, tokenizer, template, params)
-    elif params.get('modelspec') == 'mc':
-        return generuj_mc(model, tokenizer, template, params)
-    elif params.get('modelspec') == 'new':
-        return generuj_new(model, tokenizer, template, params)
-
+    
 def main_server(modelspec, port):
     # zmq mode
     logging.info(f'Starting zmq with {modelspec} model on port {port}')
@@ -102,7 +69,7 @@ def main_server(modelspec, port):
     socket = context.socket(zmq.REP)
     socket.bind(f"tcp://*:{port}")
     model, tokenizer, template = load_model(modelspec)
-    
+
     while True:
         params = json.loads(socket.recv())
         params['modelspec'] = modelspec
@@ -111,7 +78,7 @@ def main_server(modelspec, port):
         socket.send_string(result)
 
 def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_output=False, temperature=1.0):
-    # direct mode
+    """ direct mode """ 
     with redirect_stdout(sys.stderr):
         model, tokenizer, template = load_model(modelname)
     if json_file:
@@ -134,7 +101,8 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
     i = 0
     gen = _generate(model, tokenizer, params.get('temperature'))
     while True:
-        result, clean_res, _, _ = generuj(gen, template, params)
+        use_params = copy.deepcopy(params)
+        result, clean_res, _, _ = generuj(gen, template, use_params)
         if clean_output:
             if clean_output == 'json':
                 print(json.dumps('\n'.join(clean_res), ensure_ascii=False))
@@ -187,6 +155,14 @@ def parse_args():
 
 if __name__=="__main__":
     args = parse_args()
+
+    if args.get('modelspec') == 'tm':
+        from gen_modely.gen_tm import load_model, generuj
+    elif args.get('modelspec') == 'mc':
+        from gen_modely.gen_mc import load_model, generuj
+    elif args.get('modelspec') == 'new':
+        from gen_modely.gen_3g import load_model, generuj
+
     if args.port:
         main_server(args.model, args.port)
     else:

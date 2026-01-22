@@ -1,4 +1,8 @@
 import logging
+import random
+import re
+
+import parsy
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 import parser
@@ -6,7 +10,7 @@ import parser
 
 MODEL="jinymusim/gpt-czech-poet"
 
-def load_models(modelspec=None):
+def load_model(modelspec=None):
 
     logging.info(f"Loading model {modelspec} {MODEL}")
 
@@ -34,6 +38,11 @@ DEFAULT = {
     'author_name': 'Vrchlický, Jaroslav',
     'max_strophes': 2,
     'modelspec': 'tm',
+    }
+
+RHYME_SCHEMES = {
+    4: ['ABAB', 'XXXX', 'XAXA', 'AAXX', 'AABB', 'ABBA'],
+    6: ['AABBCC', 'XXXXXX', 'ABABXX', 'ABABCC'],
     }
 
 def set_default_if_not(params, key):

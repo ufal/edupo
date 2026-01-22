@@ -2,9 +2,7 @@ import logging
 
 import torch
 
-import unsloth
 from unsloth import FastLanguageModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
 MODEL = 'TODO:MODEL_PATH'
 
