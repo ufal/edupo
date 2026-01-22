@@ -158,11 +158,13 @@ if __name__=="__main__":
     args = parse_args()
 
     if args.model == 'tm':
-        from gen_modely.gen_tm import load_model, generuj
+        with redirect_stdout(sys.stderr):
+            from gen_modely.gen_tm import load_model, generuj
     elif args.model == 'mc':
         from gen_modely.gen_mc import load_model, generuj
     elif args.model == 'new':
-        from gen_modely.gen_3g import load_model, generuj
+        with redirect_stdout(sys.stderr):
+            from gen_modely.gen_3g import load_model, generuj
 
     if args.port:
         main_server(args.model, args.port)
