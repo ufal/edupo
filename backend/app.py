@@ -39,6 +39,7 @@ EDUPO_SERVER_PATH = os.getenv('EDUPO_SERVER_PATH', '')
 
 MC_MODEL_PORT = os.getenv('MC_MODEL_PORT', 5010)
 TM_MODEL_PORT = os.getenv('TM_MODEL_PORT', 5011)
+NEW_MODEL_PORT = os.getenv('NEW_MODEL_PORT', 5012)
 
 sqlite3.register_converter("json", json.loads)
 
@@ -330,16 +331,17 @@ def gen_zmq(params):
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
     if params['modelspec'] == 'tm':
-        try:
-            socket.connect(f"tcp://localhost:{TM_MODEL_PORT}")
-        except:
-            socket.connect(f"tcp://localhost:{MC_MODEL_PORT}")
-    else:
+        socket.connect(f"tcp://localhost:{TM_MODEL_PORT}")
+    elif params['modelspec'] == 'mc':
         socket.connect(f"tcp://localhost:{MC_MODEL_PORT}")
+    elif params['modelspec'] == 'new':
+        socket.connect(f"tcp://localhost:{NEW_MODEL_PORT}")
     socket.send_string(json.dumps(params))
     return json.loads(socket.recv())
 
 def set_params_for_form(params):
+    if params['modelspec'] == 'new':
+        return
     if params['form'] == 'sonet' and params['modelspec'] != 'mc':
         params['max_strophes'] = 4
         params['rhyme_scheme'] = 'ABBA CDDC EFG EFG'
@@ -380,6 +382,7 @@ def call_generuj():
     params['author_name'] = get_post_arg('author', 'Anonym')
     params['modelspec'] = get_post_arg('modelspec', 'mc')
     params['form'] = get_post_arg('form', '')
+    params['motives'] = get_post_arg('motiv', '').strip().split(',')
     set_params_for_form(params)
     
     params['min_meaning'] = float(get_post_arg('min_meaning', '0.7'))

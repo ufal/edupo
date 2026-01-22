@@ -11,7 +11,7 @@ import parser
 
 MODEL='/net/projects/EduPo/data/unsloth_llama_lora_002_checkpoint-7500'
 
-def load_model(modelspec=None, load16bit=True):
+def load_model(modelspec=None, load16bit=True, **kwargs):
 
     logging.info(f"Loading model {modelspec} {MODEL}")
 

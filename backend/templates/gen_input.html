@@ -1,42 +1,19 @@
     <script>
-	function toggle_auth() {
-		    var modelSelect = document.getElementById("modelSelect");
-		    var fields = document.querySelectorAll(".authtit");
-		    var fields_basic = document.querySelectorAll(".basiconly");
-            var pversu = document.getElementById("pocetversu");
-		    if (modelSelect.value === "tm") {
-		        fields.forEach(field => {
-			    field.style.display = "block";
-			    });
-		        fields_basic.forEach(field => {
-			    field.style.display = "none";
-			    });
-			    pversu.style.display = "none";
-			} else if (modelSelect.value === "mc") {
-		        fields.forEach(field => {
-			    field.style.display = "none";
-			    });
-		        fields_basic.forEach(field => {
-			    field.style.display = "inline";
-			    });
-			    pversu.style.display = "block";
-			} else {
-		        fields.forEach(field => {
-			    field.style.display = "block";
-			    });
-		        fields_basic.forEach(field => {
-			    field.style.display = "none";
-			    });
-			    pversu.style.display = "block";
-		        }
+	function updateModelVisibility() {
+		var model = document.getElementById("modelSelect").value;
+		document.querySelectorAll("[data-hide-models]").forEach(el => {
+			var hideModels = el.dataset.hideModels.split(",").map(s => s.trim());
+			el.style.display = hideModels.includes(model) ? "none" : "";
+		});
 	}
     </script>
     
     <form method="post" action="gen">
         <p>Model:
-        <select name="modelspec" onchange="toggle_auth()" id="modelSelect">
+        <select name="modelspec" onchange="updateModelVisibility()" id="modelSelect">
             <option value="mc">základní</option>
-            <option value="tm" selected>nový</option>
+            <!-- <option value="tm">nový</option> -->
+            <option value="new" selected>3g</option>
             <option value="gpt-4o-mini">GPT 4o mini</option>
             <option value="gpt-5-mini">GPT 5 mini</option>
         </select>
@@ -46,7 +23,7 @@
         generování mu déle trvá.
         </p>
 
-        <p class="authtit">Autor:
+        <p data-hide-models="mc">Autor:
             <input type="text"
                name="author"
                placeholder="Mácha, Karel Hynek"
@@ -67,10 +44,10 @@
         Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora.
         </p>
 
-        <p class="authtit">Název: <input name="title"></p>
+        <p data-hide-models="mc">Název: <input name="title"></p>
 
 
-        <p>Metrum:
+        <p data-hide-models="new">Metrum:
         <select name="metre">
         <option value="">náhodně</option>
         <option value="T">trochej</option>
@@ -80,7 +57,7 @@
         </select>
         </p>
 
-        <p id="pocetversu">Počet veršů ve sloce:
+        <p id="pocetversu" data-hide-models="tm,new">Počet veršů ve sloce:
         <input name="verses_count" id="verses_count"
             type="text" value="0">
         Typicky 4 nebo 6, ale můžete zadat vlastní hodnotu (0 znamená, že
@@ -89,7 +66,7 @@
         "4 4 3 3").
         </p>
 
-        <p>
+        <p data-hide-models="new">
         Rýmové schéma:
         <input type="text"
                name="rhyme_scheme"
@@ -120,7 +97,7 @@
         pro jednotlivé sloky oddělená mezerou (např. "ABBA CDC").
         </p>
         
-        <p>Počet slabik v prvním verši:
+        <p data-hide-models="new">Počet slabik v prvním verši:
         <select name="syllables_count">
         <option value="0">náhodně</option>
         <option value="4">4</option>
@@ -147,7 +124,7 @@
         jednotlivé rýmy; není to nutně totéž jako počet slabik (m/f/a se liší
         počtem slabik při stejném rozměru)</p>-->
 
-        <p class="authtit">Pevná forma:
+        <p data-hide-models="mc">Pevná forma:
         <select name="form">
         <option value="">ne</option>
         <option value="sonet">italský sonet</option>
@@ -157,12 +134,10 @@
         Pokud je vybrána pevná forma, nastavení v rozporu s vybranou formou se budou ignorovat.
         </p>
 
-        <!--<p>Téma/motiv:
+        <p data-hide-models="mc,tm,gpt-4o-mini,gpt-5-mini">Motivy:
         <input type="text"
                name="motiv"
-               disabled
-        >
-        </p>-->
+        </p>
 
 	<script>
 	    function togglePrvoslova() {
@@ -178,8 +153,8 @@
 		    }
 	</script>
 
-	<button type="button" id="prvoslovaButton" onclick="togglePrvoslova()">➕ První slova veršů</button>
-	<div id="prvoslova">
+	<button type="button" data-hide-models="new" id="prvoslovaButton" onclick="togglePrvoslova()">➕ První slova veršů</button>
+	<div id="prvoslova" data-hide-models="new">
 	<p>Lze vypnit jen první slovo prvního verše, anebo i první slova dalších
         veršů...
         </p>
@@ -189,7 +164,7 @@
                name="first_words"
                placeholder="Muž"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
         <input type="checkbox" name="anaphors" value="0"  disabled="disabled"> anafora
         <input type="checkbox" name="epanastrophes" value="0"  disabled="disabled"> epanastrofa
 	</span>
@@ -200,7 +175,7 @@
                name="first_words"
                placeholder="Žena"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
         <input type="checkbox" name="anaphors" value="1"> anafora
         <input type="checkbox" name="epanastrophes" value="1"> epanastrofa
 	</span>
@@ -211,7 +186,7 @@
                name="first_words"
                placeholder="Banán"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
         <input type="checkbox" name="anaphors" value="2"> anafora
         <input type="checkbox" name="epanastrophes" value="2"> epanastrofa
 	</span>
@@ -222,7 +197,7 @@
                name="first_words"
                placeholder="Mušle"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
         <input type="checkbox" name="anaphors" value="3"> anafora
         <input type="checkbox" name="epanastrophes" value="3"> epanastrofa
 	</span>
@@ -233,7 +208,7 @@
                name="first_words"
                placeholder="Lanýž"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
         <input type="checkbox" name="anaphors" value="4"> anafora
         <input type="checkbox" name="epanastrophes" value="4"> epanastrofa
 	</span>
@@ -244,7 +219,7 @@
                name="first_words"
                placeholder="Hrob"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
         <input type="checkbox" name="anaphors" value="5"> anafora
         <input type="checkbox" name="epanastrophes" value="5"> epanastrofa
 	</span>
@@ -285,7 +260,7 @@
         </select>
         </p>-->
 
-        <p>Temperature: <input type="number" name="temperature" value="0.7" step="0.01" min="0.01" max="10">
+        <p data-hide-models="gpt-5-mini">Temperature: <input type="number" name="temperature" value="0.7" step="0.01" min="0.01" max="10">
         Jak moc konzervativní/divoký bude model.
         Čím vyšší teplota, tím náhodnější jsou výstupy modelu.
         Pro nový model nám dobře fungují hodnoty kolem 0.7,
@@ -293,7 +268,7 @@
         (pro ChatGPT 5 se temperature ignoruje).
         </p>
 
-        <p>Počet slok:
+        <p data-hide-models="new">Počet slok:
         <input type="number" name="max_strophes" value="1" step="1" min="1" max="10">
         Maximální počet slok - model může vygenerovat kratší báseň.
         Delší básně jsou zajímavější, ale jejich generování trvá déle.
@@ -318,4 +293,4 @@
     </form>
 
     <script>togglePrvoslova()</script>
-    <script>toggle_auth()</script>
+    <script>updateModelVisibility()</script>

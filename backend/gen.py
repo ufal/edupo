@@ -75,13 +75,14 @@ def main_server(modelspec, port):
         params = json.loads(socket.recv())
         params['modelspec'] = modelspec
         gen = _generate(model, tokenizer, params.get('temperature'))
-        result = json.dumps(generuj(gen, template, params, False))
+        use_params = copy.deepcopy(params)
+        result = json.dumps(generuj(gen, template, use_params))
         socket.send_string(result)
 
-def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_output=False, temperature=1.0):
+def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None,
+                    clean_output=False, temperature=1.0, model_path=None):
     """ direct mode """ 
-    with redirect_stdout(sys.stderr):
-        model, tokenizer, template = load_model(modelname)
+
     if json_file:
         with open(json_file, 'r') as f:
             params = json.load(f)
@@ -99,6 +100,8 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
             'anaphors': [],
             'epanastrophes': [],
             }
+    with redirect_stdout(sys.stderr):
+        model, tokenizer, template = load_model(modelname, load16bit=LOAD16BIT, model_path=model_path)
     i = 0
     gen = _generate(model, tokenizer, params.get('temperature'))
     while True:
@@ -121,7 +124,7 @@ def main_standalone(modelname, repeat=False, repeat_n=1, json_file=None, clean_o
         repeat_n -= 1
 
 def parse_args():
-    global MODEL_TM, VERBOSE_INFO, LOAD16BIT, NOSAMPLE
+    global VERBOSE_INFO, LOAD16BIT, NOSAMPLE
     argparser = argparse.ArgumentParser(description='Generate poetry with LLMs')
     argparser.add_argument('model', type=str, help='Model to use')
     argparser.add_argument('port', type=int, nargs='?', help='Port to use')
@@ -138,9 +141,6 @@ def parse_args():
     parsed_args = argparser.parse_args()
 
     assert parsed_args.model in ['mc', 'tm', 'new']
-
-    if parsed_args.checkpoint:
-        MODEL_TM = parsed_args.checkpoint
 
     if parsed_args.verbose:
         VERBOSE_INFO = True
@@ -173,4 +173,5 @@ if __name__=="__main__":
                         json_file=args.json,
                         clean_output='json' if args.clean_json else args.clean,
                         temperature=args.temperature,
+                        model_path=args.checkpoint
                         )

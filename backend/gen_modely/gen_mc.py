@@ -10,7 +10,7 @@ import parser
 
 MODEL="jinymusim/gpt-czech-poet"
 
-def load_model(modelspec=None):
+def load_model(modelspec=None, **kwargs):
 
     logging.info("Loading model %s %s", modelspec, MODEL)
 
