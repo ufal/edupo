@@ -110,6 +110,8 @@ def extract_div2_text(xml_file, output_dir="output"):
 
         # 3) z div2 získat text (itertext zachová obsah <foreign> i ostatní texty)
         main_text = ''.join(div2.itertext()).strip()
+        if not main_text:
+            continue
 
         # 4) okvetuj
         output, k = okvetuj(main_text)
