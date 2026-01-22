@@ -579,8 +579,11 @@ class DynamicPoemDataset(Dataset):
         # Add verse_regenerate tag if needed
         if do_verse_regenerate and regenerate_verse_idx is not None:
             output += '<verse_regenerate/>\n'
+        else:
+            output += '<no_verse_regenerate/>\n'
 
         # Add stanzas opening tag with length attribute
+        # TODO randomize whether to include length attribute or not
         output += f'<stanzas length="{len(poem["body"])}">\n'
 
         # Track verse index across all stanzas

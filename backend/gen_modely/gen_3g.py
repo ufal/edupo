@@ -134,7 +134,10 @@ def generuj(gen, _, params):
             for motive in motives:
                 poem += motive + "\n"
             poem += '</motives>\n'
-    poem += '<stanzas>\n'
+    if params.get('max_strophes', 0) > 0:
+        poem += f"<stanzas length='{params['max_strophes']}'/>\n"
+    else:
+        poem += '<stanzas>\n'
     
     _, generated = gen(poem, max_new=2048)
 
