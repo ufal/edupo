@@ -45,6 +45,7 @@ else:
 ids = range(1,160360)
 #ids = range(1,20)
 
+BATCH = 1000
 
 for rowid in ids:
     logging.info(f"ROWID {rowid}")
@@ -52,6 +53,7 @@ for rowid in ids:
     sql = 'SELECT id, title, body, mood FROM poems WHERE rowid=?'
     result = db.execute(sql, (rowid,)).fetchone()
     data = dict(result)
+    data['title'] = str(data['title'])
     logging.debug(data['title'])
 
     if data['mood']:
@@ -65,6 +67,12 @@ for rowid in ids:
         logging.debug(result)
         
         logging.info(f"{data['id']} {data['title']}: {mood}")
+
+    # commit every N rows not to lose changes
+    if rowid % BATCH == 0:
+        logging.info(f'COMMIT after rowid {rowid}')
+        db.commit()
+
 
 logging.info('Commit and close')
 db.commit()
