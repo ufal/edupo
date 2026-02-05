@@ -42,33 +42,29 @@ else:
 
 
 
-ids = range(5,10)
+ids = range(1,160360)
+#ids = range(1,20)
 
 
-for poemid in ids:
-    logging.debug(poemid)
+for rowid in ids:
+    logging.info(f"ROWID {rowid}")
 
-    sql = 'SELECT title, body, mood FROM poems WHERE poems.id=?'
-    result = db.execute(sql, (poemid,)).fetchone()
+    sql = 'SELECT id, title, body, mood FROM poems WHERE rowid=?'
+    result = db.execute(sql, (rowid,)).fetchone()
     data = dict(result)
     logging.debug(data['title'])
 
     if data['mood']:
-        logging.info(f"UŽ JE: {poemid} {data['title']}: {data['mood']}")
+        logging.info(f"UŽ JE: {data['title']}: {data['mood']}")
     else:
         mood = guessmood(data)
         logging.debug(mood)
         # store to DB
-        data['mood'] = mood
-        #sql = 'UPDATE poems SET body=? WHERE poems.id=?'
-        #result = db.execute(sql, (json.dumps(data, ensure_ascii=False),poemid))
-        # sql = "UPDATE poems SET body = json_set(body, '$.mood', ?) WHERE poems.id=?"
-        # result = db.execute(sql, (mood,poemid) )
-        sql = "UPDATE poems SET mood = ? WHERE poems.id=?"
-        result = db.execute(sql, (mood,poemid) )
+        sql = "UPDATE poems SET mood = ? WHERE rowid=?"
+        result = db.execute(sql, (mood,rowid) )
         logging.debug(result)
         
-        logging.info(f"{poemid} {data['title']}: {mood}")
+        logging.info(f"{data['id']} {data['title']}: {mood}")
 
 logging.info('Commit and close')
 db.commit()
