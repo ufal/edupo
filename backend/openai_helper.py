@@ -90,7 +90,7 @@ def generate_with_openai_responses(prompt, system="You are a helpful assistant."
         return None
 
 def generate_with_openai_simple(prompt, system="You are a helpful assistant.", model="gpt-4o-mini", max_tokens=500):
-    logging.info('TEXTGEN Prompt: ' + show_short(prompt))
+    logging.info('TEXTGEN Prompt: ' + show_short(prompt) + ' SYSTEM: ' + show_short(system))
     if 'gpt-5' in model:
         # reasoning models
         # add reasoning tokens

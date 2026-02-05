@@ -169,7 +169,7 @@ def poem2text(data):
     """Convert poem (loaded from JSON) to plaintext."""
 
     # the text itself
-    if data['plaintext']:
+    if 'plaintext' in data and data['plaintext']:
         return data['plaintext']
     else:
         plaintext = list()
@@ -774,6 +774,19 @@ def call_genmotives():
             redirect_for_poemid(poemid)
             )
 
+def guessmood(data):
+    basne = 'básně'
+    if data['title'] and not 'Bez názvu' in data['title']:
+        basne = f"básně {data['title']}"
+    
+    system = f"Jsi literární vědec se zaměřením na poezii. Urči převládající náladu {basne}. Na výběr máš z následujících možností: 'veselá', 'smutná', 'žádná'. Přečti si báseň a odhadni, jakou náladu vyjadřuje, jakou emoci vyvolává ve čtenáři. Zaměř se jak na slova povrchově považovaná za smutná či veselá, tak na celkový obsah a sdělení básně. Pokud se báseň nejeví primárně ani jako smutná, ani jako veselá, odpověz 'žádná'. Na výstup vypiš pouze slovo veselá nebo smutná nebo žádná. Následuje text básně."
+    before = '<poem>\n'
+    after = '\n</poem>\nTo byla báseň. Nyní urči její převládající náladu jakou veselou, smutnou, či není žádná převládající nálada. Odpověď pouze jedním slovem: veselá/smutná/žádná.'
+    
+    mood = generate_with_openai_simple(before+poem2text(data)+after, system)
+    
+    return mood
+
 @app.route("/guessmood", methods=['GET', 'POST'])
 def call_guessmood():
     poemid = get_post_arg('poemid')
@@ -783,14 +796,7 @@ def call_guessmood():
     filename = f'static/mood/{poemid}.txt'
 
     if regenerate or not os.path.exists(filename):
-        basne = 'básně'
-        if data['title'] and not 'Bez názvu' in data['title']:
-            basne = f"básně {data['title']}"
-        system = f"Jsi literární vědec se zaměřením na poezii. Urči převládající náladu {basne}. Na výběr máš z následujících možností: 'veselá', 'smutná', 'žádná'. Přečti si báseň a odhadni, jakou náladu vyjadřuje, jakou emoci vyvolává ve čtenáři. Zaměř se jak na slova povrchově považovaná za smutná či veselá, tak na celkový obsah a sdělení básně. Pokud se báseň nejeví primárně ani jako smutná, ani jako veselá, odpověz 'žádná'. Na výstup vypiš pouze slovo veselá nebo smutná nebo žádná. Následuje text básně."
-        before = '<poem>\n'
-        after = '\n</poem>\nTo byla báseň. Nyní urči její převládající náladu jakou veselou, smutnou, či není žádná převládající nálada. Odpověď pouze jedním slovem: veselá/smutná/žádná.'
-        mood = generate_with_openai_simple(before+poem2text(data)+after, system)
-        
+        mood = guessmood(data)
         with open(filename, 'w') as outfile:
             print(mood, file=outfile)
     else:
