@@ -774,6 +774,34 @@ def call_genmotives():
             redirect_for_poemid(poemid)
             )
 
+@app.route("/guessmood", methods=['GET', 'POST'])
+def call_guessmood():
+    poemid = get_post_arg('poemid')
+    data = get_poem_by_id(poemid)
+    regenerate = get_post_arg('regenerate', default=False, nonempty=True)
+
+    filename = f'static/mood/{poemid}.txt'
+
+    if regenerate or not os.path.exists(filename):
+        basne = 'básně'
+        if data['title'] and not 'Bez názvu' in data['title']:
+            basne = f"básně {data['title']}"
+        system = f"Jsi literární vědec se zaměřením na poezii. Urči převládající náladu {basne}. Na výběr máš z následujících možností: 'veselá', 'smutná', 'žádná'. Přečti si báseň a odhadni, jakou náladu vyjadřuje, jakou emoci vyvolává ve čtenáři. Zaměř se jak na slova povrchově považovaná za smutná či veselá, tak na celkový obsah a sdělení básně. Pokud se báseň nejeví primárně ani jako smutná, ani jako veselá, odpověz 'žádná'. Na výstup vypiš pouze slovo veselá nebo smutná nebo žádná. Následuje text básně."
+        before = '<poem>\n'
+        after = '\n</poem>\nTo byla báseň. Nyní urči její převládající náladu jakou veselou, smutnou, či není žádná převládající nálada. Odpověď pouze jedním slovem: veselá/smutná/žádná.'
+        mood = generate_with_openai_simple(before+poem2text(data)+after, system)
+        
+        with open(filename, 'w') as outfile:
+            print(mood, file=outfile)
+    else:
+        with open(filename, 'r') as infile:
+            mood = infile.read()
+        
+    return return_accepted_type(mood,
+            {'mood': mood},
+            redirect_for_poemid(poemid)
+            )
+
 @app.route("/processopenai", methods=['GET', 'POST'])
 def call_processopenai():
     poemid = get_post_arg('poemid')

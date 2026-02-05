@@ -75,6 +75,10 @@
     <pre class="motives">{{ motives }}</pre>
     {% endif %}
 
+    {% if mood %}
+    <p class="mood">Automaticky určená nálada básně: <em>{{ mood }}</em></p>
+    {% endif %}
+
     <div>
         <button onclick="set_style('plain')">Bez anotace</button>
         <button onclick="set_style('rich')">S anotací</button>
@@ -113,6 +117,14 @@
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="submit" value="Určit motivy"
         onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
+    </form>
+    {% endif %}
+
+    {% if id and not mood %}
+    <form method="post" action="guessmood">
+        <input type="hidden" name="poemid" value="{{ id }}">
+        <input type="submit" value="Určit náladu"
+        onclick="this.value='Analyzuji...'; this.disabled = true; this.form.submit();">
     </form>
     {% endif %}
 

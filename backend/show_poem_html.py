@@ -269,6 +269,8 @@ def show(data):
                 f"static/gentts/{data['id']}.mp3")
         data['motives'] = contents_if_exists(
                 f"static/genmotives/{data['id']}.txt")
+        data['mood'] = contents_if_exists(
+                f"static/mood/{data['id']}.txt")
         ensure_qr_code(data['id'])
 
     if 'body' in data:
