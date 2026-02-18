@@ -234,12 +234,15 @@ Do not output any other content or formatting."""
     prompt_parts.append(f"\n")
     if params['author_name'] and params['author_name'] != 'Anonym':
         prompt_parts.append(f"Báseň by měla být ve stylu známého českého autora, který se jmenoval {params['author_name']}.")
+    if params['collection_style']:
+        prompt_parts.append(f"Báseň by měla stylem odpovídat autorově sbírce {params['collection_style']}.")
     if params['title'] and params['title'] != 'Bez názvu':
         prompt_parts.append(f"Název básně je: {params['title']}.")
     if params['motives']:
         prompt_parts.append(f"V básni se objevují následující motivy:")
         prompt_parts.extend(params['motives'])
 
+    prompt_parts.append(f"\n")
     prompt_parts.append(f"Nyní napiš českou báseň dle tohoto zadání.")
     
     # TODO anaphors, epanastrophes

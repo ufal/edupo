@@ -396,6 +396,7 @@ def call_generuj():
     params['max_strophes'] = int(get_post_arg('max_strophes', '2'))
     params['title'] = get_post_arg('title', 'Bez názvu')
     params['author_name'] = get_post_arg('author', 'Anonym')
+    params['collection_style'] = get_post_arg('collection_style', '')
     params['form'] = get_post_arg('form', '')
     params['mood'] = get_post_arg('mood', 'žádná', True)
     params['motives'] = get_post_arg('motives', '').strip().split('\n')
