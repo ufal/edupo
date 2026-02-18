@@ -342,6 +342,7 @@ def gen_zmq(params):
 def set_params_for_form(params):
     if params['modelspec'] == 'new':
         return
+    # TODO dodělat pro další povolené formy
     if params['form'] == 'sonet' and params['modelspec'] != 'mc':
         params['max_strophes'] = 4
         params['rhyme_scheme'] = 'ABBA CDDC EFG EFG'
@@ -362,13 +363,28 @@ def int_or_intlist(text):
     else:
         return int(text)
 
+verselength2syllcount = {
+    'short': 8,
+    'long': 11,
+        }
+
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     # empty or 'náhodně' means random
     params = dict()
+    params['modelspec'] = get_post_arg('modelspec', 'mc')
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
     params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
-    params['syllables_count'] = int_or_intlist(get_post_arg('syllables_count', '0', True))
+    
+    # can be ''/0 or e.g. 9 or e.g. 9 8 9 10 or short/long
+    params['syllables_count'] = get_post_arg('syllables_count', '0', True)
+    if params['syllables_count'] not in ('short', 'long'):
+        params['syllables_count'] = int_or_intlist(params['syllables_count'])
+    elif params['modelspec'] in ('mc', 'tm'):
+        # TODO prasárna ale do budoucna to nebude pač modely tm ani mc nebudem
+        # používat a novej tm model bude umět i short/long
+        params['syllables_count'] = verselength2syllcount[params['syllables_count']]
+    
     params['metre'] = get_post_arg('metre')
     params['first_words'] = [word.strip() for word in get_post_arg('first_words', isarray=True, default=[])]
     # TODO if all first_words are empty then ignore
@@ -380,9 +396,9 @@ def call_generuj():
     params['max_strophes'] = int(get_post_arg('max_strophes', '2'))
     params['title'] = get_post_arg('title', 'Bez názvu')
     params['author_name'] = get_post_arg('author', 'Anonym')
-    params['modelspec'] = get_post_arg('modelspec', 'mc')
     params['form'] = get_post_arg('form', '')
-    params['motives'] = get_post_arg('motiv', '').strip().split(',')
+    params['mood'] = get_post_arg('mood', 'žádná', True)
+    params['motives'] = get_post_arg('motives', '').strip().split('\n')
     set_params_for_form(params)
     
     params['min_meaning'] = float(get_post_arg('min_meaning', '0.7'))
