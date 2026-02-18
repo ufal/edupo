@@ -784,6 +784,9 @@ def guessmood(data):
     after = '\n</poem>\nTo byla báseň. Nyní urči její převládající náladu jakou veselou, smutnou, či není žádná převládající nálada. Odpověď pouze jedním slovem: veselá/smutná/žádná.'
     
     mood = generate_with_openai_simple(before+poem2text(data)+after, system)
+    if mood not in ['veselá', 'smutná', 'žádná']:
+        app.logger.warning(f'Nepovolená nálada u {basne}: {mood}')
+        mood = 'žádná'
     
     return mood
 
