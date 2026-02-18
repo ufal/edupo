@@ -114,7 +114,20 @@ FORM_EN = {
     'sonet': 'sonnet',
     'haiku': 'haiku',
     'limerik': 'limerick',
+    # TODO check, tohle přeložilo ChatGPT
+    "anglický sonet": "English sonnet",
+    "stance": "stanza",
+    "gazel": "ghazal",
+    "sapfická strofa": "Sapphic stanza",
+    "rondel": "rondeau",
+    "tercína": "terza rima"
+    }
+
+MOOD_EN = {
+    'veselá': 'happy',
+    'smutná': 'sad',
 }
+
 
 def int2th(i):
     result = 'th'
@@ -152,6 +165,9 @@ When generating output, strictly follow this sequence:
 
 Continue with the poem text, one verse per line, and insert a single blank line between stanzas, accurately preserving stanza structure.
 
+Do not explicitly mention the author name, the motives, or any other
+parameters in the text of the poem.
+
 {validation}
 Output must contain only the author name, poem title, and poem text. Do not include any additional commentary or formatting. Do not include any marks such as rhyme scheme or metre in the output, only write out the plain text of the poem.
 
@@ -179,10 +195,10 @@ Do not output any other content or formatting."""
         metre = f"{METRE_EN[params['metre']]} "
     prompt_parts.append(f'Write a {metre}poem in Czech language.')
     if params['rhyme_scheme']:
-        prompt_parts.append(f"Use the {params['rhyme_scheme']} rhyme scheme.")
+        prompt_parts.append(f"Use the {params['rhyme_scheme']} rhyme scheme for the first stanza.")
     if params['verses_count']:
         if isinstance(params['verses_count'], int):
-            prompt_parts.append(f"Each stanza should have {params['verses_count']} lines.")
+            prompt_parts.append(f"The 1st stanza should have {params['verses_count']} lines.")
         else:
             assert isinstance(params['verses_count'], list)
             for i, l in enumerate(params['verses_count']):
@@ -191,6 +207,12 @@ Do not output any other content or formatting."""
     if params['syllables_count']:
         if isinstance(params['syllables_count'], int):
             prompt_parts.append(f"The 1st line should have {params['syllables_count']} syllables.")
+        elif isinstance(params['syllables_count'], str):
+            if params['syllables_count'] == 'short':
+                prompt_parts.append(f"The 1st line should have at most 9 syllables.")
+            else:
+                assert params['syllables_count'] == 'long'
+                prompt_parts.append(f"The 1st line should have at least 10 syllables.")
         else:
             assert isinstance(params['syllables_count'], list)
             for i, s in enumerate(params['syllables_count']):
@@ -204,14 +226,20 @@ Do not output any other content or formatting."""
     if params['max_strophes']:
         s = 's' if params['max_strophes'] > 1 else ''
         prompt_parts.append(f"The poem should have at most {params['max_strophes']} stanza{s}.")
-    if params['form']:
+    if params['form'] and params['form'] in FORM_EN:
         prompt_parts.append(f"The poem should be a {FORM_EN[params['form']]}.")
+    if params['mood'] and params['mood'] in MOOD_EN:
+        prompt_parts.append(f"The poem should be {MOOD_EN[params['mood']]}.")
     # CONTENT: prompting in Czech
     prompt_parts.append(f"\n")
     if params['author_name'] and params['author_name'] != 'Anonym':
         prompt_parts.append(f"Báseň by měla být ve stylu známého českého autora, který se jmenoval {params['author_name']}.")
     if params['title'] and params['title'] != 'Bez názvu':
         prompt_parts.append(f"Název básně je: {params['title']}.")
+    if params['motives']:
+        prompt_parts.append(f"V básni se objevují následující motivy:")
+        prompt_parts.extend(params['motives'])
+
     prompt_parts.append(f"Nyní napiš českou báseň dle tohoto zadání.")
     
     # TODO anaphors, epanastrophes
