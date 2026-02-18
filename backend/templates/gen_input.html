@@ -56,13 +56,16 @@
         <option value="D">daktyl</option>
         <option value="N">volný</option>
         </select>
+        (Platí pro první verš v básni; polymetrická báseň může pro různé
+        verše používat různé metrum.)
         </p>
 
         <p id="pocetversu" data-hide-models="tm,new">Počet veršů ve sloce:
         <input name="verses_count" id="verses_count"
-            type="text" value="0">
-        Typicky 4 nebo 6, ale můžete zadat vlastní hodnotu (0 znamená, že
-        volbu necháte na generujícím modelu). Pokud mají mít jednotlivé sloky
+            type="number" min="0" max="20">
+        Typicky 4 nebo 6, ale můžete zadat vlastní hodnotu.
+        Platí pro první sloku, další sloky mohou mít i jiné počty veršů.
+        Pokud mají mít jednotlivé sloky
         různé počty veršů, můžete zadat více hodnot oddělených mezerami (např.
         "4 4 3 3").
         </p>
@@ -94,31 +97,34 @@
         stejným písmenem, nerýmující se verš se označuje X.
         Můžete si vybrat některé z běžných rýmových schémat, anebo vepsat
         vlastní.
+        Platí pro první sloku, ostatní sloky mohou mít i jiné rýmové schéma.
         Pokud mají mít jednotlivé sloky různá schémata, můžete vepsat schámata
         pro jednotlivé sloky oddělená mezerou (např. "ABBA CDC").
         </p>
         
-        <p data-hide-models="new">Počet slabik v prvním verši:
+        <p data-hide-models="new">Délka prvního verše:
         <select name="syllables_count">
-        <option value="0">náhodně</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-        <option value="13">13</option>
-        <option value="14">14</option>
-        <option value="15">15</option>
-        <option value="16">16</option>
+        <option value="0"></option>
+        <option value="short">krátký verš</option>
+        <option value="long">dlouhý verš</option>
+        <option value="4">4 slabiky</option>
+        <option value="5">5 slabik</option>
+        <option value="6">6 slabik</option>
+        <option value="7">7 slabik</option>
+        <option value="8">8 slabik</option>
+        <option value="9">9 slabik</option>
+        <option value="10">10 slabik</option>
+        <option value="11">11 slabik</option>
+        <option value="12">12 slabik</option>
+        <option value="13">13 slabik</option>
+        <option value="14">14 slabik</option>
+        <option value="15">15 slabik</option>
+        <option value="16">16 slabik</option>
         </select>
-        (respektive ve všech verších které mají definovaný požadavek na první slovo)
+        <!--(respektive ve všech verších které mají definovaný požadavek na první slovo)
         TODO teď to tu nejde zadat ale model umí i různé počty pro různé
         verše, např. "8 7" pokud se mají střídat verše o 8 a 7 slabikách, nebo
-        třeba "8 7 7 8"...
+        třeba "8 7 7 8"...-->
         </p>
 
         <!--<p>TODO rozměr (počet stop) - buď stejný pro celou báseň, nebo pro
@@ -127,17 +133,35 @@
 
         <p data-hide-models="mc">Pevná forma:
         <select name="form">
-        <option value="">ne</option>
+        <option></option>
         <option value="sonet">italský sonet</option>
-        <option value="haiku">haiku</option>
-        <option value="limerik">limerik</option>
+        <option>haiku</option>
+        <option>limerik</option>
+        <option>anglický sonet</option>
+        <option>stance</option>
+        <option>gazel</option>
+        <option>sapfická strofa</option>
+        <option>rondel</option>
+        <option>tercína</option>
         </select>
-        Pokud je vybrána pevná forma, nastavení v rozporu s vybranou formou se budou ignorovat.
+        <!--Pokud je vybrána pevná forma, nastavení v rozporu s vybranou
+            formou se budou ignorovat.-->
         </p>
 
-        <p data-hide-models="mc,tm,gpt-4o-mini,gpt-5-mini">Motivy:
-        <input type="text"
-               name="motiv"
+        <p data-hide-models="mc,tm">Nálada:
+        <select name="mood">
+        <option></option>
+        <option>veselá</option>
+        <option>smutná</option>
+        </select>
+        </p>
+
+        <p data-hide-models="mc,tm">Motivy:
+        <textarea rows=5 type="text"
+               name="motives"
+placeholder="Naděje a touha
+Krása a pomíjivost
+Ztráta a smutek"></textarea>
         </p>
 
 	<script>
