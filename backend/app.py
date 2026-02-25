@@ -400,6 +400,8 @@ def call_generuj():
     params['form'] = get_post_arg('form', '')
     params['mood'] = get_post_arg('mood', 'žádná', True)
     params['motives'] = get_post_arg('motives', '').strip().split('\n')
+    if len(params['motives']) == 1 and not params['motives'][0]:
+        params['motives'] = []
     set_params_for_form(params)
     
     params['min_meaning'] = float(get_post_arg('min_meaning', '0.7'))
