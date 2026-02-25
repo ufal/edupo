@@ -42,8 +42,10 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         </p>
 
         <p data-hide-models="mc,tm">Styl sbírky:
-        <input name="collection_style">
-        TODO nabízet na výběr podle zvoleného autora</p>
+        <select name="collection_style" id="collection_style">
+            <option />
+        </select>
+        </p>
         
         <p data-hide-models="mc">Název: <input name="title"></p>
 
@@ -320,3 +322,5 @@ Ztráta a smutek"></textarea>
 
     <script>togglePrvoslova()</script>
     <script>updateModelVisibility()</script>
+
+    {% include 'select_collection.html' %}

@@ -1,0 +1,57 @@
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  
+  // map of author → allowed collections
+  var collectionsByAuthor = {
+    "Nezval, Vítězslav": [
+      "Žena v množném čísle",
+      "Absolutní hrobař",
+      "Praha s prsty deště"
+    ],
+    "Seifert, Jaroslav": [
+      "Město v slzách",
+      "Samá láska"
+    ]
+    // add more authors here if needed
+  };
+
+  // cache the selects
+  var authorSelect = document.getElementById("author");
+  var collectionSelect = document.getElementById("collection_style");
+
+  function updateCollections() {
+    // get the selected author
+    var selectedAuthor = authorSelect.value;
+    
+    // get the list of collections for that author (or empty)
+    var allowed = collectionsByAuthor[selectedAuthor] || [];
+
+    // clear the current options
+    while (collectionSelect.firstChild) {
+      collectionSelect.removeChild(collectionSelect.firstChild);
+    }
+
+    // add a blank option first
+    var blank = document.createElement("option");
+    blank.value = "";
+    blank.textContent = "";
+    collectionSelect.appendChild(blank);
+
+    // populate only allowed
+    allowed.forEach(function(name) {
+      var opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      collectionSelect.appendChild(opt);
+    });
+  }
+
+  // attach change watcher
+  authorSelect.addEventListener("change", updateCollections);
+
+  // run initially to set correct collections at load
+  updateCollections();
+
+});
+</script>
+
