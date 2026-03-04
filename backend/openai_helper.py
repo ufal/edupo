@@ -128,6 +128,12 @@ MOOD_EN = {
     'smutná': 'sad',
 }
 
+LENGTH_EN = {
+    'short': '2 to 6',
+    'medium': '8 to 14',
+    'long': 'more than 14',
+}
+
 
 def int2th(i):
     result = 'th'
@@ -153,7 +159,7 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
         plan = ""
         validation = ""
 
-    system=f"""You are a renowned 19th-century Czech poet, an expert in the Czech language known for your mastery of rich and poetic vocabulary. Unless otherwise instructed, compose rhymed poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Poems should be of medium length—typically 4 to 20 verses unless specified. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
+    system=f"""You are a renowned Czech poet, an expert in the Czech language known for your mastery of rich and poetic vocabulary. Unless otherwise instructed, compose poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
 Do not rhyme the verses with identical words; use similar-sounding but different words.
 
 {plan}
@@ -194,6 +200,9 @@ Do not output any other content or formatting."""
     if params['metre'] and params['metre'] in METRE_EN:
         metre = f"{METRE_EN[params['metre']]} "
     prompt_parts.append(f'Write a {metre}poem in Czech language.')
+    if params['rhymed']:
+        NOT = 'not' if params['rhymed'] == 'no' else ''
+        prompt_parts.append(f"The poem should {NOT} be rhymed.")
     if params['rhyme_scheme']:
         prompt_parts.append(f"Use the {params['rhyme_scheme']} rhyme scheme for the first stanza.")
     if params['verses_count']:
@@ -226,10 +235,17 @@ Do not output any other content or formatting."""
     if params['max_strophes']:
         s = 's' if params['max_strophes'] > 1 else ''
         prompt_parts.append(f"The poem should have at most {params['max_strophes']} stanza{s}.")
+    if params['poem_length'] and params['poem_length'] in LENGTH_EN:
+        prompt_parts.append(f"The poem should have {LENGTH_EN[params['poem_length']]} verses in total.")
     if params['form'] and params['form'] in FORM_EN:
         prompt_parts.append(f"The poem should be a {FORM_EN[params['form']]}.")
     if params['mood'] and params['mood'] in MOOD_EN:
         prompt_parts.append(f"The poem should be {MOOD_EN[params['mood']]}.")
+    if params['old_style']:
+        if params['old_style'] == 'old':
+            prompt_parts.append(f"The poem should be written in the style of 19th century.")
+        elif params['old_style'] == 'new':
+            prompt_parts.append(f"The poem should be written in current style.")
     # CONTENT: prompting in Czech
     prompt_parts.append(f"\n")
     if params['author_name'] and params['author_name'] != 'Anonym':

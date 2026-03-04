@@ -27,6 +27,14 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         generování mu déle trvá.
         </p>
 
+        <p data-hide-models="mc,tm,new">Současná nebo stará báseň:
+        <select name="old_style">
+        <option value=""></option>
+        <option value="old">stará</option>
+        <option value="new">současná</option>
+        </select>
+        </p>
+        
         <p data-hide-models="mc">Autor:
             <input type="text"
                name="author"
@@ -62,6 +70,15 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         verše používat různé metrum.)
         </p>
 
+        <p data-hide-models="mc,tm,new">Délka básně:
+        <select name="poem_length">
+        <option value=""></option>
+        <option value="short">krátká</option>
+        <option value="medium">středně dlouhá</option>
+        <option value="long">dlouhá</option>
+        </select>
+        </p>
+        
         <p id="pocetversu" data-hide-models="tm,new">Počet veršů ve sloce:
         <input name="verses_count" id="verses_count"
             type="number" min="0" max="20">
@@ -72,6 +89,14 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         "4 4 3 3").
         </p>
 
+        <p data-hide-models="mc,tm,new">Rýmovaná báseň:
+        <select name="rhymed">
+        <option value=""></option>
+        <option value="yes">ano</option>
+        <option value="no">ne</option>
+        </select>
+        </p>
+        
         <p data-hide-models="new">
         Rýmové schéma:
         <input type="text"

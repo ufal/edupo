@@ -30,9 +30,12 @@ motives_freq = Counter()
 sql = 'SELECT motives FROM poems'
 result = db.execute(sql)
 for row in result.fetchall():
-    motives = json.loads(row['motives'])
-    for m in motives:
-        motives_freq[m] += 1 
+    try:
+        motives = json.loads(row['motives'])
+        for m in motives:
+            motives_freq[m] += 1 
+    except:
+        print(row['motives'], file=sys.stderr)
 
 for motiv, pocet in motives_freq.most_common(1000):
     print(f"{pocet}x {motiv}")

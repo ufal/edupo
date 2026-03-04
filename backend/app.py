@@ -404,6 +404,10 @@ def call_generuj():
         params['motives'] = []
     set_params_for_form(params)
     
+    params['rhymed'] = get_post_arg('rhymed', '')
+    params['poem_length'] = get_post_arg('poem_length', '')
+    params['old_style'] = get_post_arg('old_style', '')
+    
     params['min_meaning'] = float(get_post_arg('min_meaning', '0.7'))
     params['max_unk'] = float(get_post_arg('max_unk', '0.05'))
     params['max_tries'] = int(get_post_arg('max_tries', '1'))
