@@ -179,7 +179,7 @@
     {% endif %}
 
     {% if copyrighted %}
-        <p class="plaintext">{{ verses[0]['text'] }}...</p>
+        <p class="plaintext">{{ verses[0]['text'][:20] }}...</p>
         <p class="copyright">Plný text této básně je chráněn autorskými právy.</p>
     {% else %}
         {% if body %}
