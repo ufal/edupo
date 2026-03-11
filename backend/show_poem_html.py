@@ -260,24 +260,23 @@ def ensure_qr_code(poemid):
 def show(data):
     data = defaultdict(str, data)
     
-    if data['id'] != '':
-        data['imgfile'] = filename_if_exists(
-                f"static/genimg/{data['id']}.png")
-        data['imgtitle'] = contents_if_exists(
-                f"static/genimg/{data['id']}.txt")
-        data['ttsfile'] = filename_if_exists(
-                f"static/gentts/{data['id']}.mp3")
-        if data.get('motives', ''):
-            if data['motives'].startswith('['):
-                data['motives'] = '\n'.join(json.loads(data['motives']))
-            # else just display the string
-        else:
-            data['motives'] = contents_if_exists(
-                    f"static/genmotives/{data['id']}.txt")
-        if not data.get('mood', ''):
-            data['mood'] = contents_if_exists(
-                    f"static/mood/{data['id']}.txt")
-        ensure_qr_code(data['id'])
+    data['imgfile'] = filename_if_exists(
+            f"static/genimg/{data['id']}.png")
+    data['imgtitle'] = contents_if_exists(
+            f"static/genimg/{data['id']}.txt")
+    data['ttsfile'] = filename_if_exists(
+            f"static/gentts/{data['id']}.mp3")
+    if data['motives']:
+        if data['motives'].startswith('['):
+            data['motives'] = '\n'.join(json.loads(data['motives']))
+        # else just display the string
+    else:
+        data['motives'] = contents_if_exists(
+                f"static/genmotives/{data['id']}.txt")
+    if not data['mood']:
+        data['mood'] = contents_if_exists(
+                f"static/mood/{data['id']}.txt")
+    ensure_qr_code(data['id'])
 
     if 'body' in data:
         # convert verses into a simpler format for displaying

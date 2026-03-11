@@ -70,9 +70,7 @@
     </p>
     {% endif %}
     
-    {% if id %}
     <p class="id">{{ id }}</p>
-    {% endif %}
 
     {% if motives %}
     <p class="motivescaption">Automaticky určené motivy:</p>
@@ -89,7 +87,7 @@
         
         <!--<button disabled>Generovat novou báseň ve stylu této básně</button>-->
         
-        {% if id and not imgfile %}
+        {% if not imgfile %}
         <form method="post" action="genimage">
             <input type="hidden" name="poemid" value="{{ id }}">
             {% if title %}
@@ -100,7 +98,7 @@
         </form>
         {% endif %}
         
-        {% if id and not ttsfile %}
+        {% if not ttsfile %}
         <form method="post" action="gentts">
             <input type="hidden" name="poemid" value="{{ id }}">
             <input type="submit" value="Přečíst báseň pomocí automatické syntézy řeči"
@@ -116,7 +114,7 @@
     </form>
     {% endif %}
 
-    {% if id and not motives %}
+    {% if not motives %}
     <form method="post" action="genmotives">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="submit" value="Určit motivy"
@@ -124,7 +122,7 @@
     </form>
     {% endif %}
 
-    {% if id and not mood %}
+    {% if not mood %}
     <form method="post" action="guessmood">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="submit" value="Určit náladu"
@@ -254,7 +252,6 @@
             <p class="plaintext">{{ plaintext }}</p>
             {% endif %}
             
-            {% if id %}
             <hr>
             <form method="post" action="processopenai">
                 <select name="modelspec">
@@ -272,7 +269,6 @@
                 <input type="submit" value="Zpracovat text básně pomocí ChatGPT"
                 onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
             </form>
-            {% endif %}
         {% endif %}
 
         {% if openai and not copyrighted %}
