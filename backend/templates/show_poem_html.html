@@ -54,7 +54,11 @@
     endif
     %}{%
     endif
-    %}{% for school in schools %}, {{ school }}{% endfor %}
+    %}{%
+    if schools
+    %}{% for school in schools %}, {{ school }}{% endfor %}{%
+    endif
+    %}
     {% if wiki %}<a href="https://www.wikidata.org/wiki/{{ wiki }}">Wikidata</a>{% endif %}
     </p>
     {% endif %}
@@ -128,7 +132,7 @@
     </form>
     {% endif %}
 
-    {% if not translations or not translations.sk %}
+    {% if not copyrighted and (not translations or not translations.sk) %}
     <form method="post" action="translate">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="hidden" name="language" value="sk">
@@ -137,7 +141,7 @@
     </form>
     {% endif %}
     
-    {% if not translations or not translations.uk %}
+    {% if not copyrighted and (not translations or not translations.uk) %}
     <form method="post" action="translate">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="hidden" name="language" value="uk">
@@ -174,96 +178,101 @@
     <a href="{{ imgfile }}"><img id="genimg" src="{{ imgfile }}" alt="{{ imgtitle }}" title="{{ imgtitle }}"></a>
     {% endif %}
 
-    {% if body %}
-    <div class="body">
-        <table class="stanza" cellspacing="0" cellpadding="0">
-            {% for verse in verses %}
-            
-            {% if verse.stanza and verse.stanza != verses[loop.index0-1].stanza  %}
-            <tr class="stanzabreak"><td><br></td></tr>
-            {% endif %}
-
-            <tr class="verse verse{{ verse.rhymeclass }}">
-                <td class="meter metre{{ verse.metre }}">{{ verse.metrum }}</td>
-                    <td class="rhyme">{{
-                        verse.rhymeletter
-                        }}<sub class="rhymesubscript">{{
-                            verse.rhymesubscript
-                        }}</sub><sup> </sup></td>
-                    {% if verse.syllables %}
-                    <td class="versetext"
-                        >{%
-                        for syllable in verse.syllables
-                        %}{%
-                            if syllable.parts
-                            %}<span class="syllable"
-                                >{%
-                                for part in syllable.parts
-                                %}<span class="{%
-                                    for class in part.classes
-                                    %}{{
-                                        class
-                                    }} {%
-                                    endfor
-                                    %} {{ syllable.classes }}"
-                                    >{{
-                                        part.text
-                                    }}</span
-                                >{%
-                                endfor
-                            %}</span
+    {% if copyrighted %}
+        <p class="plaintext">{{ verses[0]['text'] }}...</p>
+        <p class="copyright">Plný text této básně je chráněn autorskými právy.</p>
+    {% else %}
+        {% if body %}
+        <div class="body">
+            <table class="stanza" cellspacing="0" cellpadding="0">
+                {% for verse in verses %}
+                
+                {% if verse.stanza and verse.stanza != verses[loop.index0-1].stanza  %}
+                <tr class="stanzabreak"><td><br></td></tr>
+                {% endif %}
+    
+                <tr class="verse verse{{ verse.rhymeclass }}">
+                    <td class="meter metre{{ verse.metre }}">{{ verse.metrum }}</td>
+                        <td class="rhyme">{{
+                            verse.rhymeletter
+                            }}<sub class="rhymesubscript">{{
+                                verse.rhymesubscript
+                            }}</sub><sup> </sup></td>
+                        {% if verse.syllables %}
+                        <td class="versetext"
                             >{%
-                            endif
+                            for syllable in verse.syllables
                             %}{%
-                            if syllable.after
-                            %}<span class="after"
-                                    >{{
-                                        syllable.after
-                                    }}</span
-                            >{%
-                            endif
-                        %}{%
-                        endfor
-                    %}</td>
-                    {% else %}
-                    <td class="versetextplain">{{ verse.text }}</td>
-                    {% endif %}
-                    <td class="stressinfo">{{ verse.rythm }} {{ verse.pattern }}</td>
-                    <td class="meterinfo">{{ verse.metrum }}-{{ verse.foot}}-{{ verse.clause }}</td>
-                    <td class="otherinfo">{% if verse.narrators_gender %}Rod lyrického subjektu: {{ verse.narrators_gender }}{% endif %}</td>
-                    <td class="regen">
-                        <form method="post" action="regen">
-                        <input type="hidden" name="poemid" value="{{ id }}">
-                        <input type="hidden" name="badline" value="{{ verse.text }}">
-                        <input type="submit" value="🔁" />
-                        </form>
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-        
-        {% else %}
-        <p class="plaintext">{{ plaintext }}</p>
-        {% endif %}
-        
-        {% if id %}
-        <hr>
-        <form method="post" action="processopenai">
-            <select name="modelspec">
-                <option value="gpt-4o-mini">GPT 4o mini</option>
-                <option value="gpt-5-mini">GPT 5 mini</option>
-                <option value="gpt-4o">GPT 4o</option>
-                <option value="gpt-4.1">GPT 4.1</option>
-                <option value="gpt-5">GPT 5</option>
-            </select>
-            <input type="text" size="100" name="openaiprompt"
-            placeholder="Zadej prompt pro ChatGPT, např.: přelož text následující básně do slovenštiny">
-            (za zadaný prompt se automaticky vloží text básně)
-            <input type="hidden" name="poemid" value="{{ id }}">
-            <br>
-            <input type="submit" value="Zpracovat text básně pomocí ChatGPT"
-            onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
-        </form>
+                                if syllable.parts
+                                %}<span class="syllable"
+                                    >{%
+                                    for part in syllable.parts
+                                    %}<span class="{%
+                                        for class in part.classes
+                                        %}{{
+                                            class
+                                        }} {%
+                                        endfor
+                                        %} {{ syllable.classes }}"
+                                        >{{
+                                            part.text
+                                        }}</span
+                                    >{%
+                                    endfor
+                                %}</span
+                                >{%
+                                endif
+                                %}{%
+                                if syllable.after
+                                %}<span class="after"
+                                        >{{
+                                            syllable.after
+                                        }}</span
+                                >{%
+                                endif
+                            %}{%
+                            endfor
+                        %}</td>
+                        {% else %}
+                        <td class="versetextplain">{{ verse.text }}</td>
+                        {% endif %}
+                        <td class="stressinfo">{{ verse.rythm }} {{ verse.pattern }}</td>
+                        <td class="meterinfo">{{ verse.metrum }}-{{ verse.foot}}-{{ verse.clause }}</td>
+                        <td class="otherinfo">{% if verse.narrators_gender %}Rod lyrického subjektu: {{ verse.narrators_gender }}{% endif %}</td>
+                        <td class="regen">
+                            <form method="post" action="regen">
+                            <input type="hidden" name="poemid" value="{{ id }}">
+                            <input type="hidden" name="badline" value="{{ verse.text }}">
+                            <input type="submit" value="🔁" />
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            
+            {% else %}
+            <p class="plaintext">{{ plaintext }}</p>
+            {% endif %}
+            
+            {% if id %}
+            <hr>
+            <form method="post" action="processopenai">
+                <select name="modelspec">
+                    <option value="gpt-4o-mini">GPT 4o mini</option>
+                    <option value="gpt-5-mini">GPT 5 mini</option>
+                    <option value="gpt-4o">GPT 4o</option>
+                    <option value="gpt-4.1">GPT 4.1</option>
+                    <option value="gpt-5">GPT 5</option>
+                </select>
+                <input type="text" size="100" name="openaiprompt"
+                placeholder="Zadej prompt pro ChatGPT, např.: přelož text následující básně do slovenštiny">
+                (za zadaný prompt se automaticky vloží text básně)
+                <input type="hidden" name="poemid" value="{{ id }}">
+                <br>
+                <input type="submit" value="Zpracovat text básně pomocí ChatGPT"
+                onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
+            </form>
+            {% endif %}
         {% endif %}
 
         {% if openai %}

@@ -252,8 +252,9 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
         if result == None:
             raise ExceptionPoemDoesNotExist("Poem with this id does not exist")
         result = dict(result)
-        # always analyze
-        result['body'] = okvetuj_ccv(result['body'])
+        # always analyze for KCV, never for KSP
+        if result['id'] < 100000:
+            result['body'] = okvetuj_ccv(result['body'])
         # TODO this would be good but get_measures does not work for CCV data
         # result['measures'] = get_measures_from_analyzed_poem(result['body'])
         data = show_poem_html.show(result)
