@@ -275,7 +275,7 @@
             {% endif %}
         {% endif %}
 
-        {% if openai %}
+        {% if openai and not copyrighted %}
         {% for item in openai %}
         <hr>
         <p><kbd>{{item.model}}</kbd> <i>{{ item.prompt }}</i></p>
@@ -283,13 +283,13 @@
         {% endfor %}
         {% endif %}
         
-        {% if translations and translations.sk %}
+        {% if translations and translations.sk and not copyrighted %}
         <hr>
         <p>[Automatický preklad do slovenčiny]</p>
         <p style="white-space: pre-line">{{ translations.sk }}</p>
         {% endif %}
         
-        {% if translations and translations.uk %}
+        {% if translations and translations.uk and not copyrighted %}
         <hr>
         <p>[Автоматичний переклад українською]</p>
         <p style="white-space: pre-line">{{ translations.uk }}</p>

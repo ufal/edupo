@@ -30,6 +30,7 @@ CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
+PWDFILE='/net/projects/EduPo/data/hesla.json'
 
 POEMFILES="static/poemfiles"
 
@@ -45,6 +46,12 @@ sqlite3.register_converter("json", json.loads)
 
 # load generator models
 # load_models()
+
+try:
+    with open(PWDFILE) as infile:
+        HESLA = set(json.load(infile))
+except:
+    HESLA = set()
 
 class ExceptionPoemDoesNotExist(Exception):
     pass
@@ -552,7 +559,10 @@ def call_regenerate_line():
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     data = get_poem_by_id(random_if_no_id=True)
+    password = get_post_arg('password', default='')
     if data:
+        if password in HESLA:
+            data['copyrighted'] = 0
         return return_accepted_type_for_poemid(data, 'show_poem_html.html')
     else:
         return return_error('The requested poem does not exist.', get_post_arg('poemid'), 404)
