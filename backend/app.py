@@ -31,6 +31,7 @@ print(__name__)
 
 DBFILE='/net/projects/EduPo/data/new.db'
 PWDFILE='/net/projects/EduPo/data/hesla.json'
+PWDLOG='logs/pwdaccess.log'
 
 POEMFILES="static/poemfiles"
 
@@ -563,6 +564,10 @@ def call_show():
     if data:
         if password in HESLA:
             data['copyrighted'] = 0
+            logmsg = datetime.now().strftime("%Y-%m-%d %H:%M:%S "
+                    ) + f"{data['id']} {password[0]}{'.'*(len(password)-1)}"
+            with open(PWDLOG, 'a') as outfile:
+                print(logmsg, file=outfile)
         return return_accepted_type_for_poemid(data, 'show_poem_html.html')
     else:
         return return_error('The requested poem does not exist.', get_post_arg('poemid'), 404)
