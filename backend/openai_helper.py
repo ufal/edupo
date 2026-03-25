@@ -23,7 +23,7 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500, temperat
 
     # Gemini 3 Pro uses reasoning
     extra_body = {}
-    if 'gemini-3-pro' in model:
+    if 'gemini-3.1-pro' in model:
         extra_body = {"reasoning": {"enabled": True}}
 
     # OPENAI SETUP
