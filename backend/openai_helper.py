@@ -150,7 +150,7 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
     # set all unknown to ''
     params = defaultdict(str, params)
 
-    REASONING = 'gpt-5' in model
+    REASONING = 'gpt-5' in model or 'gemini-3.1' in model:
 
     if REASONING:
         plan = "Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level. Do not print this checklist to the output, only create the checklist in the reasoning phase.\n"
@@ -276,7 +276,7 @@ Do not output any other content or formatting."""
         strophes = params['max_strophes'] if params['max_strophes'] else 4
         # max 50 per verse + title + author name
         max_tokens = 50 * verses * strophes + 100
-    if 'gpt-5' in model:
+    if REASONING:
         # reasoning models: add reasoning tokens
         max_tokens += 4000
     logging.info(f'TEXTGEN max_tokens: {max_tokens}')
