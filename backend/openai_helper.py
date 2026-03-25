@@ -150,7 +150,7 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
     # set all unknown to ''
     params = defaultdict(str, params)
 
-    REASONING = 'gpt-5' in model or 'gemini-3.1' in model
+    REASONING = 'gpt-5' in model or 'gemini-3' in model
 
     if REASONING:
         plan = "Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level. Do not print this checklist to the output, only create the checklist in the reasoning phase.\n"
