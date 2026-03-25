@@ -23,7 +23,7 @@ def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500, temperat
 
     # Gemini 3 Pro uses reasoning
     extra_body = {}
-    if 'gemini-3-pro' in model:
+    if 'gemini-3' in model:
         extra_body = {"reasoning": {"enabled": True}}
 
     # OPENAI SETUP
@@ -91,7 +91,7 @@ def generate_with_openai_responses(prompt, system="You are a helpful assistant."
 
 def generate_with_openai_simple(prompt, system="You are a helpful assistant.", model="gpt-4o-mini", max_tokens=500):
     logging.info('TEXTGEN Prompt: ' + show_short(prompt) + ' SYSTEM: ' + show_short(system))
-    if 'gpt-5' in model:
+    if 'gpt-5' in model or 'gemini-3' in model:
         # reasoning models
         # add reasoning tokens
         max_tokens += 4000
