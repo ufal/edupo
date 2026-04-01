@@ -113,11 +113,17 @@ def extract_div2_text(xml_file, output_dir="output"):
         if not main_text:
             continue
 
+        # 3a) obsahuje tag <prose>?
+        prose = False
+        if div2.find(".//prose") != None:
+            prose = True
+
         # 4) okvetuj
         output, k = okvetuj(main_text)
         output[0]['b_author'] = b_author
         output[0]['biblio'] = biblio
         output[0]['book_id'] = book_id
+        output[0]['contains_prose'] = prose
         if head_poem_text:
             output[0]['biblio']['p_title'] = head_poem_text
         else:
