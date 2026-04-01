@@ -39,6 +39,11 @@ form {
     margin-bottom: 2em;
 }
 
+.genform label {
+    display: inline-block;
+    width: 15ex;
+}
+
 input[type="text"],
 input[type="number"],
 input[type="submit"],
@@ -47,11 +52,11 @@ textarea,
 button {
     padding: 0.5em;
     margin-top: 0.3em;
-    margin-bottom: 0.8em;
+    margin-bottom: 0.3em;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     font-size: 1em;
-    width: 100%;
+    width: 50%;
     box-sizing: border-box;
     background-color: #f9fafb;
 }
