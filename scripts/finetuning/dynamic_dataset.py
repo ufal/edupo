@@ -33,10 +33,11 @@ from format_config import (
 )
 
 from torch.utils.data import Dataset
+import config
 
 # Add paths for kveta
-sys.path.append(str(Path(__file__).parent / "edupo/kveta"))
-sys.path.append(str(Path(__file__).parent / "edupo/scripts/diphthongs"))
+sys.path.append(str(Path(__file__).parent.parent.parent / "kveta"))
+sys.path.append(str(Path(__file__).parent.parent / "diphthongs"))
 from kveta import Kveta
 
 
@@ -108,7 +109,7 @@ class DynamicPoemDataset(Dataset):
         verse_regenerate_prob: Probability of verse regeneration mode (default: 0.1)
     """
 
-    def __init__(self, db_path="data/new.db", max_poems=None, start_poem=None,
+    def __init__(self, db_path=None, max_poems=None, start_poem=None,
                  format_version=4, shuffle=True, random_seed=None,
                  use_format_variations=True,
                  author_weights: Optional[Dict[AuthorFormat, float]] = None,
@@ -117,7 +118,7 @@ class DynamicPoemDataset(Dataset):
                  motive_weights: Optional[Dict[MotiveFormat, float]] = None,
                  book_weights: Optional[Dict[BookFormat, float]] = None,
                  verse_regenerate_prob: float = 0.1):
-        self.db_path = db_path
+        self.db_path = db_path if db_path is not None else config.DB_PATH
         self.start_poem = start_poem
         self.format_version = format_version
         if format_version == 4:
@@ -325,9 +326,10 @@ class DynamicPoemDataset(Dataset):
 if __name__ == "__main__":
     # Test the dataset
     import argparse
+    import config
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--db-path", type=str, default="data/new.db",
+    parser.add_argument("--db-path", type=str, default=config.DB_PATH,
                         help="Path to SQLite database")
     parser.add_argument("--max-poems", type=int, default=None,
                         help="Maximum number of poems to load (default: 10 for normal mode, all for --dry-run)")

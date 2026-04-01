@@ -19,8 +19,10 @@ import json
 from collections import defaultdict
 
 import sys
-sys.path.append("edupo/kveta")
-sys.path.append("edupo/scripts/diphthongs")
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent.parent / "kveta"))
+sys.path.append(str(Path(__file__).parent.parent / "diphthongs"))
+import config
 import kveta
 from kveta import Kveta
 
@@ -216,7 +218,7 @@ def main(plaintext=False, format_version=2, max_poems=None, no_json=False):
         raise ValueError(f"Unknown format version: {format_version}")
 
     sqlite3.register_converter("json", json.loads)
-    with sqlite3.connect("../../data/db_s_motivama.db", detect_types=sqlite3.PARSE_DECLTYPES) as db:
+    with sqlite3.connect(config.DB_PATH, detect_types=sqlite3.PARSE_DECLTYPES) as db:
         db.row_factory = dict_factory
         # TODO option to include duplicates
         query = "SELECT poems.id, poems.author, poems.title, body, year, poems.schemes FROM poems JOIN books on poems.book_id = books.id WHERE poems.duplicate IS NULL"

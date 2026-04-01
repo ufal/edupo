@@ -7,9 +7,9 @@ from datasets import load_dataset, Dataset
 import wandb
 import argparse
 import sys
+import config
 
 # Import the dynamic dataset
-sys.path.append("data_for_LM")
 from dynamic_dataset import DynamicPoemDataset
 
 argparser = argparse.ArgumentParser(description="Unsloth Llama LoRA Dynamic Dataset Training Script")
@@ -21,7 +21,7 @@ argparser.add_argument("--run_name", type=str, help="Name of the run for WandB")
 argparser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train for")
 argparser.add_argument("--batch", type=int, default=16, help="Batch size per device during training")
 argparser.add_argument("--max_l", type=int, default=2048, help="Maximum sequence length for training")
-argparser.add_argument("--db_path", type=str, default="new.db", help="Path to SQLite database")
+argparser.add_argument("--db_path", type=str, default=config.DB_PATH, help="Path to SQLite database")
 argparser.add_argument("--max_poems", type=int, default=None, help="Maximum number of poems to load (None = all)")
 args = argparser.parse_args()
 
@@ -87,7 +87,7 @@ trainer = SFTTrainer(
         logging_steps = 1,
         optim = "adamw_8bit",
         seed = 42,
-        output_dir = "outputs/" + run_name,
+        output_dir = config.OUTPUT_PREFIX + run_name,
         run_name = run_name,# + "_cont",
         save_strategy = "epoch",
         # TODO weight decay, scheduler, lr?
