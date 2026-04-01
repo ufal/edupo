@@ -15,26 +15,18 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         <p>Model:
         <select name="modelspec" onchange="updateModelVisibility()" id="modelSelect">
             <option value="mc">základní</option>
-            <option value="tm" selected>nový</option>
+            <option value="tm">nový</option>
             <!-- <option value="new" selected>3g</option> -->
             <option value="gpt-4o-mini">GPT 4o mini</option>
             <option value="gpt-5-mini">GPT 5 mini</option>
-            <option value="google/gemini-3.1-pro-preview">Gemini 3.1 Pro</option>
+            <option value="google/gemini-3.1-pro-preview" selected>Gemini 3.1 Pro</option>
         </select>
-        Základní model umí 4verší a 6verší, nový model umí lecjaké délky (ale
+        <!--Základní model umí 4verší a 6verší, nový model umí lecjaké délky (ale
         neumí anafory a epanastrofy).
         Základní model je rychlejší ale horší, nový model je lepší ale
-        generování mu déle trvá.
+        generování mu déle trvá.-->
         </p>
 
-        <p data-hide-models="mc,tm,new">Současná nebo stará báseň:
-        <select name="old_style">
-        <option value=""></option>
-        <option value="old">stará</option>
-        <option value="new">současná</option>
-        </select>
-        </p>
-        
         <p data-hide-models="mc">Autor:
             <input type="text"
                name="author"
@@ -70,15 +62,6 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         verše používat různé metrum.)
         </p>
 
-        <p data-hide-models="mc,tm,new">Délka básně:
-        <select name="poem_length">
-        <option value=""></option>
-        <option value="short">krátká</option>
-        <option value="medium">středně dlouhá</option>
-        <option value="long">dlouhá</option>
-        </select>
-        </p>
-        
         <p id="pocetversu" data-hide-models="tm,new">Počet veršů ve sloce:
         <input name="verses_count" id="verses_count"
             type="number" min="0" max="20">
@@ -89,14 +72,6 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         "4 4 3 3").
         </p>
 
-        <p data-hide-models="mc,tm,new">Rýmovaná báseň:
-        <select name="rhymed">
-        <option value=""></option>
-        <option value="yes">ano</option>
-        <option value="no">ne</option>
-        </select>
-        </p>
-        
         <p data-hide-models="new">
         Rýmové schéma:
         <input type="text"
@@ -129,6 +104,12 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         pro jednotlivé sloky oddělená mezerou (např. "ABBA CDC").
         </p>
         
+        <p>Počet slok:
+        <input type="number" name="max_strophes" value="1" step="1" min="1" max="10">
+        Maximální počet slok - model může vygenerovat kratší báseň.
+        Delší básně jsou zajímavější, ale jejich generování trvá déle.
+        </p>
+
         <p data-hide-models="new">Délka prvního verše:
         <select name="syllables_count">
         <option value="0"></option>
@@ -173,14 +154,6 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         </select>
         <!--Pokud je vybrána pevná forma, nastavení v rozporu s vybranou
             formou se budou ignorovat.-->
-        </p>
-
-        <p data-hide-models="mc,tm">Nálada:
-        <select name="mood">
-        <option></option>
-        <option>veselá</option>
-        <option>smutná</option>
-        </select>
         </p>
 
         <p data-hide-models="mc,tm">Motivy:
@@ -282,37 +255,6 @@ Ztráta a smutek"></textarea>
 	</div>
 	</div>
 
-        <!--<p>Typ lyriky:
-        <select name="lyrika_style" disabled>
-        <option value="">ne</option>
-        <option value="přírodní">přírodní</option>
-        <option value="milostná">milostná</option>
-        </select>
-        </p>
-
-        <p>Lyrický subjekt (rod, stáří, pocit...):
-        <select name="lyrika_subjekt" disabled>
-        <option value="">neurčeno</option>
-        <option value="muž">muž</option>
-        <option value="žena">žena</option>
-        </select>
-        
-        </p>
-
-        <p>Styl autora:
-        <select name="author_style" disabled>
-        <option value="">ne</option>
-        <option value="Mácha">Mácha</option>
-        </select>
-        </p>
-
-        <p>Styl školy:
-        <select name="school_style" disabled>
-        <option value="">ne</option>
-        <option value="ruchovci">ruchovci</option>
-        </select>
-        </p>-->
-
         <p data-hide-models="gpt-5-mini">Temperature: <input type="number" name="temperature" value="0.7" step="0.01" min="0.01" max="10">
         Jak moc konzervativní/divoký bude model.
         Čím vyšší teplota, tím náhodnější jsou výstupy modelu.
@@ -321,15 +263,63 @@ Ztráta a smutek"></textarea>
         (pro ChatGPT 5 se temperature ignoruje).
         </p>
 
-        <p>Počet slok:
-        <input type="number" name="max_strophes" value="1" step="1" min="1" max="10">
-        Maximální počet slok - model může vygenerovat kratší báseň.
-        Delší básně jsou zajímavější, ale jejich generování trvá déle.
-        </p>
-
         <p>Počet pokusů:
         <input type="number" name="max_tries" value="1" step="1" min="1" max="10">
         Maximální počet pokusů o vygenerování dobré básně.
+        </p>
+
+
+	<script>
+	    function toggleMore() {
+		    var section = document.getElementById("more")
+		    var button = document.getElementById("moreButton")
+		    if (section.style.display === "none") {
+			    section.style.display = "block";  // Show the section
+                            button.textContent = "➖ Skrýt další nastavení";
+			} else {
+			    section.style.display = "none";   // Hide the section
+			    button.textContent = "➕ Další nastavení";
+			}
+		    }
+	</script>
+
+	<button type="button" id="moreButton" onclick="toggleMore()">➕ Další nastavení</button>
+	<div id="more">
+
+        <p data-hide-models="mc,tm,new">Rýmovaná báseň:
+        <select name="rhymed">
+        <option value=""></option>
+        <option value="yes">ano</option>
+        <option value="no">ne</option>
+        </select>
+        </p>
+        
+    <p data-hide-models="mc,tm,new">Současná nebo stará báseň:
+        <select name="old_style">
+        <option value=""></option>
+        <option value="old">stará</option>
+        <option value="new">současná</option>
+        </select>
+        </p>
+        
+        <p data-hide-models="mc,tm">Nálada:
+        <select name="mood">
+        <option></option>
+        <option>veselá</option>
+        <option>smutná</option>
+        </select>
+        </p>
+
+        <p data-hide-models="mc,tm,new">Délka básně:
+        <select name="poem_length">
+        <option value=""></option>
+        <option value="short">krátká</option>
+        <option value="medium">středně dlouhá</option>
+        <option value="long">dlouhá</option>
+        </select>
+        </p>
+        
+    <p> 
         Model se opakovaně snaží vygenerovat báseň, která má smyslupnost
         alespoň
         <input type="number" name="min_meaning" value="0.7" step="0.1" min="0" max="1">
@@ -339,7 +329,11 @@ Ztráta a smutek"></textarea>
         vygenerovaných básní dle těchto kritérií.
         Vyšší počet pokusů vede k lepším básním, ale déle trvajícímu
         generování.
+
         </p>
+
+    </div>
+
 
         <input type="submit" value="Generovat" title="Generovat"
         onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
