@@ -143,7 +143,7 @@ def extract_div2_text(xml_file, output_dir="output"):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Použití: python extract_div2.py vstup.xml [output_dir]")
+        print("Použití: python okvetuj_xml.py vstup.xml [output_dir]")
         sys.exit(1)
     xml_file = sys.argv[1]
     out_dir = sys.argv[2] if len(sys.argv) >= 3 else "output"
