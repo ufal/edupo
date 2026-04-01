@@ -106,7 +106,7 @@ def extract_div2_text(xml_file, output_dir="output"):
         head_poem_text = collect_and_remove_headPoems(div2)
 
         # 2) odstranit všechny bordely mimo verše (včetně obsahu)
-        remove_elements(div2, {"pageNum", "pageNumAdd", "graphic", "list", "speaker", "stage", "datelinePoem", "datelinePoemAdd", "datelineChapter", "datelineChapterAdd", "headPoem", "headPoemAdd", "subheadPoem", "subheadPoemAdd", "headPoemIncAdd", "headChapter", "subheadChapter", "headChapterAdd", "subheadChapterAdd", "dedicationPoem", "dedicationChapter", "noteAuthor", "noteOther", "biblCit", "epigraph", "quiteEpi", "biblEpi"})
+        remove_elements(div2, {"pageNum", "pageNumAdd", "graphic", "list", "speaker", "stage", "datelinePoem", "datelinePoemAdd", "datelineChapter", "datelineChapterAdd", "headPoem", "headPoemAdd", "subheadPoem", "subheadPoemAdd", "headPoemIncAdd", "headChapter", "subheadChapter", "headChapterAdd", "subheadChapterAdd", "dedicationPoem", "dedicationChapter", "noteAuthor", "noteOther", "biblCit", "epigraph", "quoteEpi", "biblEpi"})
 
         # 3) z div2 získat text (itertext zachová obsah <foreign> i ostatní texty)
         main_text = ''.join(div2.itertext()).strip()
