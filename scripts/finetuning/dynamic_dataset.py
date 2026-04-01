@@ -117,7 +117,8 @@ class DynamicPoemDataset(Dataset):
                  year_weights: Optional[Dict[YearFormat, float]] = None,
                  motive_weights: Optional[Dict[MotiveFormat, float]] = None,
                  book_weights: Optional[Dict[BookFormat, float]] = None,
-                 verse_regenerate_prob: float = 0.1):
+                 verse_regenerate_prob: float = 0.1,
+                 log_path: Optional[str] = None):
         self.db_path = db_path if db_path is not None else config.DB_PATH
         self.start_poem = start_poem
         self.format_version = format_version
@@ -135,6 +136,8 @@ class DynamicPoemDataset(Dataset):
         self.motive_weights = motive_weights
         self.book_weights = book_weights
         self.verse_regenerate_prob = verse_regenerate_prob
+        self.log_path = log_path
+        self._log_file = open(log_path, "w", encoding="utf-8") if log_path else None
 
         # Load and process poems from database
         self._load_poems(max_poems, start_poem)
@@ -253,6 +256,9 @@ class DynamicPoemDataset(Dataset):
             # Delegate to formatter if it handles full poem formatting (V4+)
             if hasattr(self.formatter, 'format_poem'):
                 output = self.formatter.format_poem(poem, format_config, regenerate_verse_idx)
+                if self._log_file:
+                    self._log_file.write(output + "\n---\n")
+                    self._log_file.flush()
                 return {'text': output}
 
             # V3 formatting: build output from header, stanzas, footer
@@ -316,6 +322,9 @@ class DynamicPoemDataset(Dataset):
 
             output += '</poem>'
 
+            if self._log_file:
+                self._log_file.write(output + "\n---\n")
+                self._log_file.flush()
             return {'text': output}
 
         except Exception as e:

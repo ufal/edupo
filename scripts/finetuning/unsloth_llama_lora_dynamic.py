@@ -23,13 +23,19 @@ argparser.add_argument("--batch", type=int, default=16, help="Batch size per dev
 argparser.add_argument("--max_l", type=int, default=2048, help="Maximum sequence length for training")
 argparser.add_argument("--db_path", type=str, default=config.DB_PATH, help="Path to SQLite database")
 argparser.add_argument("--max_poems", type=int, default=None, help="Maximum number of poems to load (None = all)")
+argparser.add_argument("--debug", action="store_true", help="Debug mode: 10 poems, 5 epochs, log all generated training data")
 args = argparser.parse_args()
+
+if args.debug:
+    args.max_poems = 10
+    args.epochs = 5
 
 # Create dynamic dataset
 # DynamicPoemDataset now has a map() method for SFTTrainer compatibility
 # while maintaining dynamic format generation in __getitem__
 print("Loading dynamic dataset from database...")
-my_dataset = DynamicPoemDataset(db_path=args.db_path, max_poems=args.max_poems)
+debug_log = config.LOG_PATH + "debug_training_data.txt" if args.debug else None
+my_dataset = DynamicPoemDataset(db_path=args.db_path, max_poems=args.max_poems, log_path=debug_log)
 print(f"Dataset loaded: {len(my_dataset)} poems")
 print("Dynamic formatting will be applied during training.")
 
