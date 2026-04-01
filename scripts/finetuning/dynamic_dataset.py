@@ -207,6 +207,12 @@ class DynamicPoemDataset(Dataset):
         """Return number of poems in dataset."""
         return len(self.poems)
 
+    def log_marker(self, text):
+        """Write a marker line to the log file (e.g. epoch boundaries)."""
+        if self._log_file:
+            self._log_file.write(f"=== {text} ===\n")
+            self._log_file.flush()
+
     def map(self, function, *args, **kwargs):
         """
         Compatibility method for HuggingFace Trainer.

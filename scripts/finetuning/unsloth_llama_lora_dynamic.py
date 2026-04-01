@@ -1,7 +1,7 @@
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
 import torch
-from transformers import TrainingArguments
+from transformers import TrainingArguments, TrainerCallback
 from trl import SFTTrainer
 from datasets import load_dataset, Dataset
 import wandb
@@ -105,6 +105,12 @@ trainer = SFTTrainer(
     dataset_text_field = "text",
     packing = True,
 )
+if debug_log:
+    class EpochLogCallback(TrainerCallback):
+        def on_epoch_begin(self, args, state, control, **kwargs):
+            my_dataset.log_marker(f"epoch {int(state.epoch) + 1}")
+    trainer.add_callback(EpochLogCallback())
+
 if args.cont:
     trainer.train(resume_from_checkpoint = True)
 else:
