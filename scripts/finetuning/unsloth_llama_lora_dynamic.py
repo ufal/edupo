@@ -103,7 +103,7 @@ trainer = SFTTrainer(
     tokenizer = tokenizer,
     max_seq_length = max_seq_length,
     dataset_text_field = "text",
-    packing = True,
+    packing = not args.debug,
 )
 if debug_log:
     class EpochLogCallback(TrainerCallback):
