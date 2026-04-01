@@ -121,6 +121,7 @@ def load_model(modelspec=None, load16bit=True, model_path=MODEL):
 def generuj(gen, _, params):
 
     poem = '<poem>\n<format-v-3/>\n'
+    poem += '<rhyme_schemes/>\n'
     if params.get('author_name', None):
         poem += f"<author>{params['author_name']}</author>\n"
     if params.get('title', None):

@@ -10,17 +10,28 @@ and generates formatted output on-the-fly during training.
 # TODO add option for old-style rhyme -- reduplicant for each rhyme
 # TODO euroLLM: handle start and end tokens properly
 
+from format_v3 import FormatV3
+
 import sqlite3
 import json
-from collections import defaultdict
 import sys
 from pathlib import Path
 import random
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
-from enum import Enum
+from typing import Optional, Dict
 
-import torch
+
+
+# Add parent directory for sibling module imports
+# sys.path.append(str(Path(__file__).parent))
+
+from format_v3 import FormatV3
+from format_v4 import FormatV4
+from poem_utils import dict_factory, add_rhyme_annotation, separate_stanzas, select_metre
+from format_config import (
+    AuthorFormat, TitleFormat, YearFormat, MotiveFormat, BookFormat,
+    FormatConfig, poem_header, strophe_header,
+)
+
 from torch.utils.data import Dataset
 
 # Add paths for kveta
@@ -29,357 +40,6 @@ sys.path.append(str(Path(__file__).parent / "edupo/scripts/diphthongs"))
 from kveta import Kveta
 
 
-# Constants
-METRE_PRIORITY = defaultdict(int)
-METRE_PRIORITY['T'] = 5
-METRE_PRIORITY['J'] = 4
-METRE_PRIORITY['D'] = 3
-METRE_PRIORITY['A'] = 2
-METRE_PRIORITY['N'] = -1
-
-
-def dict_factory(cursor, row):
-    """Convert SQLite row to dictionary."""
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
-
-
-def add_rhyme_annotation(poem):
-    """Add rhyme annotation to poem syllables."""
-    for verse in poem:
-        last_word = -1
-        penultimate_word = -2
-        lim = 2
-
-        if len(verse["words"][-1]["syllables"]) == 0:
-            last_word = -2
-            penultimate_word = -3
-            lim = 3
-            print(f"WARNING: No syllables for the last word: {repr(verse['text'])}", file=sys.stderr)
-
-        if len(verse["words"][last_word]["syllables"]) >= 2:  # multi-syllable word
-            verse["words"][last_word]["syllables"][-2]["rhyme_from"] = 'v'
-            verse["words"][last_word]["syllables"][-1]["rhyme_from"] = 'c'
-        elif len(verse["words"]) >= lim and verse["words"][penultimate_word]["vec"] and (verse["words"][penultimate_word]["vec"]["prep"][0] == 1 or verse["words"][last_word]["vec"]["content"][0] == 0):
-            verse["words"][penultimate_word]["syllables"][-1]["rhyme_from"] = 'v'
-            verse["words"][last_word]["syllables"][-1]["rhyme_from"] = 'c'
-        elif verse["words"][last_word]["syllables"][-1]["ph_end_consonants"]:
-            verse["words"][last_word]["syllables"][-1]["rhyme_from"] = 'v'
-        else:
-            if verse["words"][last_word]["syllables"][-1]['ph_consonants']:
-                verse["words"][last_word]["syllables"][-1]["rhyme_from"] = 'c'
-            else:
-                verse["words"][last_word]["syllables"][-1]["rhyme_from"] = 'v'
-
-
-def get_rhyming_part(syllables):
-    """Extract the rhyming part from syllables."""
-    r_end = ""
-    for i, syllable in enumerate(syllables):
-        if syllable['rhyme_from'] == 'c':
-            r_end += (syllable['ort_consonants'][-1] if i == 0 else syllable['ort_consonants']) + syllable['ort_vowels'] + syllable['ort_end_consonants']
-        elif syllable['rhyme_from'] == 'v':
-            r_end += syllable['ort_vowels'] + syllable['ort_end_consonants']
-        elif syllable['rhyme_from'] == 'ec':
-            r_end += syllable['end_consonants'][-1] if i == 0 else syllable['end_consonants']
-        else:
-            raise ValueError(f"Invalid rhyme_from value {syllable['rhyme_from']}")
-    return r_end
-
-
-def select_metre(metres):
-    """Select the dominant metre from a list."""
-    return max(metres, key=lambda m: METRE_PRIORITY[m])
-
-
-def separate_stanzas(poem):
-    """Separate poem into stanzas."""
-    stanzas = []
-    current_stanza = []
-    stanza_num = None
-    for verse in poem:
-        if verse['stanza'] != stanza_num:
-            if current_stanza:
-                stanzas.append(current_stanza)
-            current_stanza = []
-            stanza_num = verse['stanza']
-        current_stanza.append(verse)
-    if current_stanza:
-        stanzas.append(current_stanza)
-    return stanzas
-
-
-# Format Variation System
-class AuthorFormat(Enum):
-    """Author field format variations."""
-    FULL = "full"  # <author>Full Name</author>
-    NAME_SURNAME = "name_surname"  # <author>FirstName LastName</author>
-    OMIT = "omit"  # No author tag
-    GUESS = "guess"  # <guess_author/> in header, <author>...</author> after poem
-
-
-class TitleFormat(Enum):
-    """Title field format variations."""
-    FULL = "full"  # <title>Title Text</title>
-    OMIT = "omit"  # No title tag
-    GUESS = "guess"  # <guess_title/> in header, <title>...</title> after poem
-
-
-class YearFormat(Enum):
-    """Year field format variations."""
-    FULL = "full"  # <year>1836</year>
-    OMIT = "omit"  # No year tag
-    GUESS = "guess"  # <guess_year/> in header, <year>...</year> after poem
-
-
-class MotiveFormat(Enum):
-    """Motive field format variations."""
-    FULL = "full"  # <motives>...</motives>
-    OMIT = "omit"  # No motives tag
-    GUESS = "guess"  # <guess_motives/> in header, <motives>...</motives> after poem
-
-
-class BookFormat(Enum):
-    """Book title field format variations."""
-    FULL = "full"  # <book_title>Title Text</book_title>
-    OMIT = "omit"  # No book_title tag
-    GUESS = "guess"  # <guess_book_title/> in header, <book_title>...</book_title> after poem
-
-
-@dataclass
-class FormatConfig:
-    """Configuration for format variations."""
-    author_format: AuthorFormat = AuthorFormat.FULL
-    title_format: TitleFormat = TitleFormat.FULL
-    year_format: YearFormat = YearFormat.FULL
-    motive_format: MotiveFormat = MotiveFormat.FULL
-    book_format: BookFormat = BookFormat.FULL
-
-    @classmethod
-    def random_config(cls, author_weights: Optional[Dict[AuthorFormat, float]] = None,
-                     title_weights: Optional[Dict[TitleFormat, float]] = None,
-                     year_weights: Optional[Dict[YearFormat, float]] = None,
-                     motive_weights: Optional[Dict[MotiveFormat, float]] = None,
-                     book_weights: Optional[Dict[BookFormat, float]] = None):
-        """Generate a random format configuration.
-
-        Args:
-            author_weights: Dictionary mapping AuthorFormat to probability weights.
-                          If None, uses equal weights for all formats.
-            title_weights: Dictionary mapping TitleFormat to probability weights.
-                          If None, uses equal weights for all formats.
-            year_weights: Dictionary mapping YearFormat to probability weights.
-                          If None, uses equal weights for all formats.
-            motive_weights: Dictionary mapping MotiveFormat to probability weights.
-                          If None, uses equal weights for all formats.
-            book_weights: Dictionary mapping BookFormat to probability weights.
-                          If None, uses equal weights for all formats.
-        """
-        # Select author format
-        if author_weights is None:
-            author_formats = list(AuthorFormat)
-            author_format = random.choice(author_formats)
-        else:
-            author_formats = list(author_weights.keys())
-            weights = list(author_weights.values())
-            author_format = random.choices(author_formats, weights=weights, k=1)[0]
-
-        # Select title format
-        if title_weights is None:
-            title_formats = list(TitleFormat)
-            title_format = random.choice(title_formats)
-        else:
-            title_formats = list(title_weights.keys())
-            weights = list(title_weights.values())
-            title_format = random.choices(title_formats, weights=weights, k=1)[0]
-
-        # Select year format
-        if year_weights is None:
-            year_formats = list(YearFormat)
-            year_format = random.choice(year_formats)
-        else:
-            year_formats = list(year_weights.keys())
-            weights = list(year_weights.values())
-            year_format = random.choices(year_formats, weights=weights, k=1)[0]
-
-        # Select motive format
-        if motive_weights is None:
-            motive_formats = list(MotiveFormat)
-            motive_format = random.choice(motive_formats)
-        else:
-            motive_formats = list(motive_weights.keys())
-            weights = list(motive_weights.values())
-            motive_format = random.choices(motive_formats, weights=weights, k=1)[0]
-
-        # Select book format
-        if book_weights is None:
-            book_formats = list(BookFormat)
-            book_format = random.choice(book_formats)
-        else:
-            book_formats = list(book_weights.keys())
-            weights = list(book_weights.values())
-            book_format = random.choices(book_formats, weights=weights, k=1)[0]
-
-        return cls(author_format=author_format, title_format=title_format,
-                  year_format=year_format, motive_format=motive_format,
-                  book_format=book_format)
-
-
-class FormatV3:
-    """Format V3: Uses <rhyme_with> tags referencing previous verse with same rhyme.
-
-    Features randomized metadata tag order in header and footer.
-    """
-
-    def format_version_tag(self):
-        return "<format-v-3/>"
-
-    def format_verse(self, verse, rhyming, stanza, verse_index):
-        """Format a single verse in V3 format."""
-        metre = select_metre([list(v)[0] for v in verse['metre']])
-        syllables = len(verse['sections'])
-
-        if rhyming and verse['rhyme'] is not None:
-            # Find the reduplicant from the previous verse with matching rhyme number
-            rhyme_with_text = self._get_rhyme_with(stanza, verse_index, verse['rhyme'])
-        else:
-            rhyme_with_text = 'NON'
-
-        return '<metre>' + metre + '</metre><syllables>' + str(syllables) + '</syllables><rhyme_with>' + rhyme_with_text + "</rhyme_with>" + verse['text']
-
-    def _get_rhyme_with(self, stanza, current_index, rhyme_num):
-        """Find reduplicant from previous verse with same rhyme number."""
-        for i in range(current_index):
-            if stanza[i]['rhyme'] == rhyme_num:
-                # Extract reduplicant from this verse
-                syllables_with_rhyme = sum([[s for s in w['syllables'] if 'rhyme_from' in s] for w in stanza[i]['words']], [])
-                return get_rhyming_part(syllables_with_rhyme).lower()
-        # First occurrence of this rhyme - no previous verse to rhyme with
-        return 'NON'
-
-
-def poem_header(poem, formatter, format_config: FormatConfig):
-    """Generate poem header with metadata.
-
-    Args:
-        poem: Poem dictionary with metadata
-        formatter: Format instance (e.g., FormatV3)
-        format_config: FormatConfig instance specifying variations
-
-    Returns:
-        tuple: (header_string, list of footer strings)
-    """
-    header = "<poem>\n"
-    header += formatter.format_version_tag() + "\n"
-
-    # Collect header tags and footer tags
-    header_tags = []
-    footers = []
-
-    # Always include rhyme_schemes
-    header_tags.append("<rhyme_schemes/>\n")
-
-    # Handle author field variations
-    if format_config.author_format == AuthorFormat.FULL:
-        header_tags.append(f"<author>{poem['author']}</author>\n")
-    elif format_config.author_format == AuthorFormat.NAME_SURNAME:
-        # Convert "Surname, Firstname" to "Firstname Surname"
-        if ',' in poem['author']:
-            parts = poem['author'].split(',', 1)
-            surname = parts[0].strip()
-            firstname = parts[1].strip()
-            formatted_author = f"{firstname} {surname}"
-        else:
-            # No comma, use as-is
-            formatted_author = poem['author']
-        header_tags.append(f"<author>{formatted_author}</author>\n")
-    elif format_config.author_format == AuthorFormat.GUESS:
-        header_tags.append("<guess_author/>\n")
-        footers.append(f"<author>{poem['author']}</author>\n")
-    # elif AuthorFormat.OMIT: do nothing
-
-    # Handle title field variations
-    if format_config.title_format == TitleFormat.FULL:
-        header_tags.append(f"<title>{poem['title']}</title>\n")
-    elif format_config.title_format == TitleFormat.GUESS:
-        header_tags.append("<guess_title/>\n")
-        footers.append(f"<title>{poem['title']}</title>\n")
-    # elif TitleFormat.OMIT: do nothing
-
-    # Handle year field variations
-    if format_config.year_format == YearFormat.FULL:
-        header_tags.append(f"<year>{poem['year']}</year>\n")
-    elif format_config.year_format == YearFormat.GUESS:
-        header_tags.append("<guess_year/>\n")
-        footers.append(f"<year>{poem['year']}</year>\n")
-    # elif YearFormat.OMIT: do nothing
-
-    # Handle motive field variations
-    if poem.get('motives') is not None and poem['motives']:
-        # Parse motives if they're in JSON format
-        try:
-            if isinstance(poem['motives'], str):
-                motives_list = json.loads(poem['motives'])
-            else:
-                motives_list = poem['motives']
-
-            if motives_list:
-                motives_text = '\n'.join(motives_list)
-                if format_config.motive_format == MotiveFormat.FULL:
-                    header_tags.append(f"<motives>\n{motives_text}\n</motives>\n")
-                elif format_config.motive_format == MotiveFormat.GUESS:
-                    header_tags.append("<guess_motives/>\n")
-                    footers.append(f"<motives>\n{motives_text}\n</motives>\n")
-                # elif MotiveFormat.OMIT: do nothing
-        except (json.JSONDecodeError, TypeError):
-            # If parsing fails, skip motives
-            pass
-
-    # Handle book title field variations
-    if poem.get('b_title') is not None and poem['b_title']:
-        if format_config.book_format == BookFormat.FULL:
-            header_tags.append(f"<book_title>{poem['b_title']}</book_title>\n")
-        elif format_config.book_format == BookFormat.GUESS:
-            header_tags.append("<guess_book_title/>\n")
-            footers.append(f"<book_title>{poem['b_title']}</book_title>\n")
-        # elif BookFormat.OMIT: do nothing
-
-    # Handle form
-    if poem['schemes']['form'] is not None:
-        header_tags.append(f"<form>{poem['schemes']['form']}</form>\n")
-
-    # Randomize the order of header tags
-    random.shuffle(header_tags)
-
-    # Add randomized header tags to header
-    for tag in header_tags:
-        header += tag
-
-    # Randomize the order of footer tags
-    random.shuffle(footers)
-
-    # Note: stanzas tag with count attribute will be added later
-    return header, footers
-
-
-def strophe_header(strophe):
-    """Generate stanza header with rhyme scheme."""
-    abeceda = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    scheme_numeric = [v['rhyme'] for v in strophe]
-    for n in scheme_numeric:
-        assert n is None or 0 < n, f"Invalid rhyme number {n}"
-    renum = {}
-    scheme = []
-    for n in scheme_numeric:
-        if n is None:
-            scheme.append('x')
-            continue
-        if n not in renum:
-            renum[n] = len(renum)
-        scheme.append(abeceda[renum[n] % len(abeceda)])
-    return '<new_stanza/>\n' + f'<rhyme_scheme length="{len(scheme)}">' + ' '.join(scheme) + "</rhyme_scheme>\n", len(renum) > 0
 
 
 class MappedDynamicDataset(Dataset):
@@ -434,7 +94,7 @@ class DynamicPoemDataset(Dataset):
     PyTorch Dataset that loads poems from SQLite database and formats them dynamically.
 
     Args:
-        db_path: Path to SQLite database (default: ../../data/db_s_motivama.db)
+        db_path: Path to SQLite database (default: data/new.db)
         max_poems: Maximum number of poems to load (None = all)
         format_version: Format version to use (default: 3 for V3)
         shuffle: Whether to randomize poem order after loading (default: True)
@@ -448,8 +108,9 @@ class DynamicPoemDataset(Dataset):
         verse_regenerate_prob: Probability of verse regeneration mode (default: 0.1)
     """
 
-    def __init__(self, db_path="../../data/new.db", max_poems=None, format_version=3,
-                 shuffle=True, random_seed=None, use_format_variations=True,
+    def __init__(self, db_path="data/new.db", max_poems=None, start_poem=None,
+                 format_version=4, shuffle=True, random_seed=None,
+                 use_format_variations=True,
                  author_weights: Optional[Dict[AuthorFormat, float]] = None,
                  title_weights: Optional[Dict[TitleFormat, float]] = None,
                  year_weights: Optional[Dict[YearFormat, float]] = None,
@@ -457,8 +118,12 @@ class DynamicPoemDataset(Dataset):
                  book_weights: Optional[Dict[BookFormat, float]] = None,
                  verse_regenerate_prob: float = 0.1):
         self.db_path = db_path
+        self.start_poem = start_poem
         self.format_version = format_version
-        self.formatter = FormatV3()
+        if format_version == 4:
+            self.formatter = FormatV4()
+        else:
+            self.formatter = FormatV3()
         self.poems = []
         self.shuffle = shuffle
         self.random_seed = random_seed
@@ -471,7 +136,7 @@ class DynamicPoemDataset(Dataset):
         self.verse_regenerate_prob = verse_regenerate_prob
 
         # Load and process poems from database
-        self._load_poems(max_poems)
+        self._load_poems(max_poems, start_poem)
 
         # Shuffle poems if requested
         if self.shuffle:
@@ -480,7 +145,7 @@ class DynamicPoemDataset(Dataset):
             random.shuffle(self.poems)
             print(f"Shuffled {len(self.poems)} poems.", file=sys.stderr)
 
-    def _load_poems(self, max_poems=None):
+    def _load_poems(self, max_poems=None, start_poem=None):
         """Load poems from SQLite database and process them."""
         print(f"Loading poems from {self.db_path}...", file=sys.stderr)
 
@@ -490,6 +155,11 @@ class DynamicPoemDataset(Dataset):
             query = "SELECT poems.id, poems.author, poems.title, body, year, poems.schemes, poems.motives, books.title as b_title FROM poems JOIN books on poems.book_id = books.id WHERE poems.duplicate IS NULL"
             if max_poems is not None:
                 query += f" LIMIT {max_poems}"
+            if start_poem is not None:
+                # OFFSET requires a LIMIT in SQLite; use -1 if no max_poems given
+                if max_poems is None:
+                    query += f" LIMIT -1"
+                query += f" OFFSET {start_poem}"
             query += ";"
             poems = db.execute(query).fetchall()
             print(f"Loaded {len(poems)} poems from database.", file=sys.stderr)
@@ -501,10 +171,16 @@ class DynamicPoemDataset(Dataset):
                 # Process with Kveta
                 kv = Kveta('')
                 kv.read_ccv(p['body'])
-                kv.phoebe2cft()
+                try:
+                    kv.phoebe2cft()
+                except KeyError:
+                    kv.phonetics()
                 kv.syllables()
                 kv.line2vec()
-                add_rhyme_annotation(kv.poem_)
+                poem_warnings = []
+                add_rhyme_annotation(kv.poem_, warnings=poem_warnings)
+                for w in poem_warnings:
+                    print(f"  poem {p['id']}: {w}", file=sys.stderr)
 
                 # Separate into stanzas
                 p['body'] = separate_stanzas(kv.poem_)
@@ -549,91 +225,101 @@ class DynamicPoemDataset(Dataset):
         """
         poem = self.poems[idx]
 
-        # Generate random format configuration for this poem
-        if self.use_format_variations:
-            format_config = FormatConfig.random_config(author_weights=self.author_weights,
-                                                       title_weights=self.title_weights,
-                                                       year_weights=self.year_weights,
-                                                       motive_weights=self.motive_weights,
-                                                       book_weights=self.book_weights)
-        else:
-            # Use default configuration (all FULL formats)
-            format_config = FormatConfig()
+        try:
+            # Generate random format configuration for this poem
+            if self.use_format_variations:
+                format_config = FormatConfig.random_config(author_weights=self.author_weights,
+                                                           title_weights=self.title_weights,
+                                                           year_weights=self.year_weights,
+                                                           motive_weights=self.motive_weights,
+                                                           book_weights=self.book_weights)
+            else:
+                # Use default configuration (all FULL formats)
+                format_config = FormatConfig()
 
-        # Determine if we should do verse regeneration
-        do_verse_regenerate = random.random() < self.verse_regenerate_prob
-        regenerate_verse_idx = None
-        regenerated_text = None
+            # Determine if we should do verse regeneration
+            do_verse_regenerate = random.random() < self.verse_regenerate_prob
+            regenerate_verse_idx = None
+            regenerated_text = None
 
-        if do_verse_regenerate:
-            # Count total verses in the poem
-            total_verses = sum(len(stanza) for stanza in poem['body'])
-            if total_verses > 0:
-                # Select a random verse to regenerate
-                regenerate_verse_idx = random.randint(0, total_verses - 1)
+            if do_verse_regenerate:
+                # Count total verses in the poem
+                total_verses = sum(len(stanza) for stanza in poem['body'])
+                if total_verses > 0:
+                    # Select a random verse to regenerate
+                    regenerate_verse_idx = random.randint(0, total_verses - 1)
 
-        # Generate formatted output with header
-        header, footers = poem_header(poem, self.formatter, format_config)
-        output = header
+            # Delegate to formatter if it handles full poem formatting (V4+)
+            if hasattr(self.formatter, 'format_poem'):
+                output = self.formatter.format_poem(poem, format_config, regenerate_verse_idx)
+                return {'text': output}
 
-        # Add verse_regenerate tag if needed
-        if do_verse_regenerate and regenerate_verse_idx is not None:
-            output += '<verse_regenerate/>\n'
-        else:
-            output += '<no_verse_regenerate/>\n'
+            # V3 formatting: build output from header, stanzas, footer
+            header, footers = poem_header(poem, self.formatter, format_config)
+            output = header
 
-        # Add stanzas opening tag with length attribute
-        # TODO randomize whether to include length attribute or not
-        output += f'<stanzas length="{len(poem["body"])}">\n'
+            # Add verse_regenerate tag if needed
+            if do_verse_regenerate and regenerate_verse_idx is not None:
+                output += '<verse_regenerate/>\n'
+            else:
+                output += '<no_verse_regenerate/>\n'
 
-        # Track verse index across all stanzas
-        global_verse_idx = 0
+            # Add stanzas opening tag with length attribute
+            # TODO randomize whether to include length attribute or not
+            output += f'<stanzas length="{len(poem["body"])}">\n'
 
-        for stanza_idx, stanza in enumerate(poem['body']):
-            if stanza_idx > 0:
-                output += '\n'
-            s_header, rhyming = strophe_header(stanza)
-            output += s_header
+            # Track verse index across all stanzas
+            global_verse_idx = 0
 
-            # Format each verse in the stanza
-            verse_lines = []
-            for verse_idx, verse in enumerate(stanza):
-                if do_verse_regenerate and global_verse_idx == regenerate_verse_idx:
-                    # This is the verse to regenerate - keep metadata but replace text with <regenerate/> tag
-                    metre = select_metre([list(v)[0] for v in verse['metre']])
-                    syllables = len(verse['sections'])
+            for stanza_idx, stanza in enumerate(poem['body']):
+                if stanza_idx > 0:
+                    output += '\n'
+                s_header, rhyming = strophe_header(stanza)
+                output += s_header
 
-                    if rhyming and verse['rhyme'] is not None:
-                        # Find the reduplicant from the previous verse with matching rhyme number
-                        rhyme_with_text = self.formatter._get_rhyme_with(stanza, verse_idx, verse['rhyme'])
+                # Format each verse in the stanza
+                verse_lines = []
+                for verse_idx, verse in enumerate(stanza):
+                    if do_verse_regenerate and global_verse_idx == regenerate_verse_idx:
+                        # This is the verse to regenerate - keep metadata but replace text with <regenerate/> tag
+                        metre = select_metre([list(v)[0] for v in verse['metre']])
+                        syllables = len(verse['sections'])
+
+                        if rhyming and verse['rhyme'] is not None:
+                            # Find the reduplicant from the previous verse with matching rhyme number
+                            rhyme_with_text = self.formatter._get_rhyme_with(stanza, verse_idx, verse['rhyme'])
+                        else:
+                            rhyme_with_text = 'NON'
+
+                        verse_with_metadata = '<metre>' + metre + '</metre><syllables>' + str(syllables) + '</syllables><rhyme_with>' + rhyme_with_text + "</rhyme_with><regenerate/>"
+                        verse_lines.append(verse_with_metadata)
+                        # Save just the verse text (not the metadata tags) for the footer
+                        regenerated_text = verse['text']
                     else:
-                        rhyme_with_text = 'NON'
+                        # Normal verse formatting
+                        verse_lines.append(self.formatter.format_verse(verse, rhyming, stanza, verse_idx))
+                    global_verse_idx += 1
 
-                    verse_with_metadata = '<metre>' + metre + '</metre><syllables>' + str(syllables) + '</syllables><rhyme_with>' + rhyme_with_text + "</rhyme_with><regenerate/>"
-                    verse_lines.append(verse_with_metadata)
-                    # Save just the verse text (not the metadata tags) for the footer
-                    regenerated_text = verse['text']
-                else:
-                    # Normal verse formatting
-                    verse_lines.append(self.formatter.format_verse(verse, rhyming, stanza, verse_idx))
-                global_verse_idx += 1
+                output += '\n'.join(verse_lines)
 
-            output += '\n'.join(verse_lines)
+            # Close stanzas tag
+            output += '\n</stanzas>\n'
 
-        # Close stanzas tag
-        output += '\n</stanzas>\n'
+            # Add regenerated verse text if applicable
+            if do_verse_regenerate and regenerated_text is not None:
+                output += f'<regenerated>{regenerated_text}</regenerated>\n'
 
-        # Add regenerated verse text if applicable
-        if do_verse_regenerate and regenerated_text is not None:
-            output += f'<regenerated>{regenerated_text}</regenerated>\n'
+            # Add footers (already randomized)
+            for footer in footers:
+                output += footer
 
-        # Add footers (already randomized)
-        for footer in footers:
-            output += footer
+            output += '</poem>'
 
-        output += '</poem>'
+            return {'text': output}
 
-        return {'text': output}
+        except Exception as e:
+            print(f"ERROR formatting poem {poem['id']}: {e}", file=sys.stderr)
+            return {'text': ''}
 
 
 if __name__ == "__main__":
@@ -641,37 +327,80 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--db-path", type=str, default="../../data/db_s_motivama.db",
+    parser.add_argument("--db-path", type=str, default="data/new.db",
                         help="Path to SQLite database")
-    parser.add_argument("--max-poems", type=int, default=10,
-                        help="Maximum number of poems to load for testing")
+    parser.add_argument("--max-poems", type=int, default=None,
+                        help="Maximum number of poems to load (default: 10 for normal mode, all for --dry-run)")
+    parser.add_argument("--start-poem", type=int, default=None,
+                        help="Start loading from the Nth poem in the database (0-based offset)")
     parser.add_argument("--show-poem", type=int, default=0,
                         help="Index of poem to display")
     parser.add_argument("--test-variations", action="store_true",
                         help="Test format variations by showing same poem multiple times")
     parser.add_argument("--num-variations", type=int, default=5,
                         help="Number of format variations to show (with --test-variations)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Load and process all poems, listing all warnings and errors "
+                             "(with poem ID) without building a usable dataset")
 
     args = parser.parse_args()
 
-    # Create dataset
-    dataset = DynamicPoemDataset(db_path=args.db_path, max_poems=args.max_poems)
+    if args.dry_run:
+        from poem_utils import get_rhyming_part
 
-    print(f"\nDataset contains {len(dataset)} poems.\n")
+        dataset = DynamicPoemDataset(
+            db_path=args.db_path,
+            max_poems=args.max_poems,
+            start_poem=args.start_poem,
+            shuffle=False,
+        )
 
-    if args.test_variations:
-        # Show the same poem with different format variations
-        print(f"Testing format variations for poem at index {args.show_poem}:")
-        print("=" * 80)
-        for i in range(args.num_variations):
-            print(f"\nVariation {i+1}:")
-            print("-" * 80)
-            print(dataset[args.show_poem]['text'])
-            print("-" * 80)
+        print(f"\nDry run: {len(dataset)} poems loaded successfully.", file=sys.stderr)
+
+        # Try to extract rhyming parts for every verse (catches get_rhyming_part errors)
+        rhyme_errors = 0
+        for poem in dataset.poems:
+            for stanza in poem['body']:
+                for verse in stanza:
+                    try:
+                        syllables_with_rhyme = sum(
+                            [[s for s in w['syllables'] if 'rhyme_from' in s]
+                             for w in verse['words']], []
+                        )
+                        get_rhyming_part(syllables_with_rhyme)
+                    except Exception as e:
+                        print(
+                            f"  poem {poem['id']}: ERROR extracting rhyme "
+                            f"for verse {repr(verse['text'])}: {e}",
+                            file=sys.stderr,
+                        )
+                        rhyme_errors += 1
+
+        print(f"Dry run complete. Rhyme extraction errors: {rhyme_errors}.", file=sys.stderr)
+
     else:
-        # Show a sample poem
-        if args.show_poem < len(dataset):
-            print(f"Sample poem (index {args.show_poem}):")
+        # Normal mode: default to 10 poems when --max-poems not given
+        max_poems = args.max_poems if args.max_poems is not None else 10
+
+        # Create dataset
+        dataset = DynamicPoemDataset(db_path=args.db_path, max_poems=max_poems,
+                                     start_poem=args.start_poem)
+
+        print(f"\nDataset contains {len(dataset)} poems.\n")
+
+        if args.test_variations:
+            # Show the same poem with different format variations
+            print(f"Testing format variations for poem at index {args.show_poem}:")
             print("=" * 80)
-            print(dataset[args.show_poem]['text'])
-            print("=" * 80)
+            for i in range(args.num_variations):
+                print(f"\nVariation {i+1}:")
+                print("-" * 80)
+                print(dataset[args.show_poem]['text'])
+                print("-" * 80)
+        else:
+            # Show a sample poem
+            if args.show_poem < len(dataset):
+                print(f"Sample poem (index {args.show_poem}):")
+                print("=" * 80)
+                print(dataset[args.show_poem]['text'])
+                print("=" * 80)
