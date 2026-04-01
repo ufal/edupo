@@ -1,5 +1,3 @@
-<p>Aplikace nekontroluje rozpory mezi nastavením jednotlivých parametrů,
-některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
 
     <script>
 	function updateModelVisibility() {
@@ -12,7 +10,9 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
     </script>
     
     <form method="post" action="gen">
-        <p>Model:
+        <p><span class="tooltip"
+            title="Komerční modely (GPT, Gemini) podporují všechny parametry, ale nejsou speciálně vyladěné na poezii. Naše modely (základní, nový) jsou speciálně vyladěné na poezii a trénované na korpuse české poezie, ale podporují nastavení jen některých parametrů."
+            >Model</span>:
         <select name="modelspec" onchange="updateModelVisibility()" id="modelSelect">
             <option value="mc">základní</option>
             <option value="tm">nový</option>
@@ -21,13 +21,11 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
             <option value="gpt-5-mini">GPT 5 mini</option>
             <option value="google/gemini-3.1-pro-preview" selected>Gemini 3.1 Pro</option>
         </select>
-        <!--Základní model umí 4verší a 6verší, nový model umí lecjaké délky (ale
-        neumí anafory a epanastrofy).
-        Základní model je rychlejší ale horší, nový model je lepší ale
-        generování mu déle trvá.-->
         </p>
 
-        <p data-hide-models="mc">Autor:
+        <p data-hide-models="mc"><span class="tooltip"
+            title="Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora."
+            >Autor</span>:
             <input type="text"
                name="author"
                placeholder="Mácha, Karel Hynek"
@@ -38,7 +36,7 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         <datalist id="author_datalist0">
         {% include 'selected_authors.html' %}
         </datalist>
-        Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora.
+        
         </p>
 
         <p data-hide-models="mc,tm">Styl sbírky:
@@ -47,10 +45,12 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         </select>
         </p>
         
-        <p data-hide-models="mc">Název: <input name="title"></p>
+        <p data-hide-models="mc">Název: <input name="title" type="text"></p>
 
 
-        <p data-hide-models="new">Metrum:
+        <p data-hide-models="new"><span class="tooltip"
+            title="Platí pro první verš v básni; polymetrická báseň může pro různé verše používat různé metrum."
+            >Metrum</span>:
         <select name="metre">
         <option value=""></option>
         <option value="T">trochej</option>
@@ -58,22 +58,23 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         <option value="D">daktyl</option>
         <option value="N">volný</option>
         </select>
-        (Platí pro první verš v básni; polymetrická báseň může pro různé
-        verše používat různé metrum.)
         </p>
 
-        <p id="pocetversu" data-hide-models="tm,new">Počet veršů ve sloce:
+        <p id="pocetversu" data-hide-models="tm,new"><span class="tooltip"
+            title="Typicky 4 nebo 6, ale můžete zadat vlastní hodnotu.
+Platí pro první sloku, další sloky mohou mít i jiné počty veršů.
+Pokud mají mít jednotlivé sloky různé počty veršů, můžete zadat více hodnot oddělených mezerami (např.  "4 4 3 3")."
+            >Počet veršů ve sloce</span>:
         <input name="verses_count" id="verses_count"
             type="number" min="0" max="20">
-        Typicky 4 nebo 6, ale můžete zadat vlastní hodnotu.
-        Platí pro první sloku, další sloky mohou mít i jiné počty veršů.
-        Pokud mají mít jednotlivé sloky
-        různé počty veršů, můžete zadat více hodnot oddělených mezerami (např.
-        "4 4 3 3").
         </p>
 
-        <p data-hide-models="new">
-        Rýmové schéma:
+        <p data-hide-models="new"><span class="tooltip"
+            title="Rýmující verše se označují stejným písmenem, nerýmující se verš se označuje X.
+Můžete si vybrat některé z běžných rýmových schémat, anebo vepsat vlastní.
+Platí pro první sloku, ostatní sloky mohou mít i jiné rýmové schéma.
+Pokud mají mít jednotlivé sloky různá schémata, můžete vepsat schámata pro jednotlivé sloky oddělená mezerou (např. "ABBA CDC")."
+            >Rýmové schéma</span>:
         <input type="text"
                name="rhyme_scheme"
                placeholder="AABB"
@@ -95,19 +96,14 @@ některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
         <option>ABABXX</option>
         <option>XXXXXX</option>
         </datalist>
-        Rýmující verše se označují
-        stejným písmenem, nerýmující se verš se označuje X.
-        Můžete si vybrat některé z běžných rýmových schémat, anebo vepsat
-        vlastní.
-        Platí pro první sloku, ostatní sloky mohou mít i jiné rýmové schéma.
-        Pokud mají mít jednotlivé sloky různá schémata, můžete vepsat schámata
-        pro jednotlivé sloky oddělená mezerou (např. "ABBA CDC").
         </p>
         
-        <p>Počet slok:
+
+        <p><span class="tooltip"
+            title="Maximální počet slok - model může vygenerovat kratší báseň. Delší básně jsou zajímavější, ale jejich generování trvá déle."
+            >Počet slok</span>:
         <input type="number" name="max_strophes" value="1" step="1" min="1" max="10">
-        Maximální počet slok - model může vygenerovat kratší báseň.
-        Delší básně jsou zajímavější, ale jejich generování trvá déle.
+        
         </p>
 
         <p data-hide-models="new">Délka prvního verše:
@@ -255,17 +251,16 @@ Ztráta a smutek"></textarea>
 	</div>
 	</div>
 
-        <p data-hide-models="gpt-5-mini">Temperature: <input type="number" name="temperature" value="0.7" step="0.01" min="0.01" max="10">
-        Jak moc konzervativní/divoký bude model.
-        Čím vyšší teplota, tím náhodnější jsou výstupy modelu.
-        Pro nový model nám dobře fungují hodnoty kolem 0.7,
-        pro ChatGPT 4 kolem 0.5
-        (pro ChatGPT 5 se temperature ignoruje).
+        <p data-hide-models="gpt-5-mini"><span class="tooltip"
+            title="Teplota (temperature) ovlivňuje, jak moc konzervativní/divoký bude model.  Čím vyšší teplota, tím náhodnější jsou výstupy modelu.
+Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 (pro ChatGPT 5 se temperature ignoruje)."
+            >Temperature</span>: <input type="number" name="temperature" value="0.7" step="0.01" min="0.01" max="10">
         </p>
 
-        <p>Počet pokusů:
+        <p><span class="tooltip"
+            title="Maximální počet pokusů o vygenerování dobré básně."
+            >Počet pokusů</span>:
         <input type="number" name="max_tries" value="1" step="1" min="1" max="10">
-        Maximální počet pokusů o vygenerování dobré básně.
         </p>
 
 
@@ -343,3 +338,8 @@ Ztráta a smutek"></textarea>
     <script>updateModelVisibility()</script>
 
     {% include 'select_collection.html' %}
+
+
+<p>Aplikace nekontroluje rozpory mezi nastavením jednotlivých parametrů,
+některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
+
