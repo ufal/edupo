@@ -51,14 +51,24 @@ Podporuje:
 ### Generování básně
 `/gen`
 - Parametry (nepovinné, náhodné hodnoty pokud nejsou zadány):
-  - `metre` = Např. `T` (trochej), `J` (jamb), `D` (daktyl)
-  - `rhyme_scheme` = Např. `ABBA`
-  - `syllables_count` = Počet slabik na řádek
-  - `author`
-  - `title`
-  - `modelspec`
+  - `modelspec` = identifikátor našeho modelu (starý 'mc', nový 'tm') nebo komerčního modelu (např. 'gpt-4o-mini' nebo 'google/gemini-3.1-pro-preview'); některé modely podporují jen některé options (komerční podporují všechny options)
+  - `title` = např. `V lese`
+  - `author` = např. `Mácha, Karel Hynek`
+  - `collection_style` = např. `Hřbitovní kvítí` (styl sbírky)
+  - `metre` = `T` (trochej), `J` (jamb), `D` (daktyl), `N` (volný)
+  - `rhyme_scheme` = Např. `ABBA` (platí pro první sloku; lze zadat i pro několik slok, např. `ABBA XCXC`)
+  - `syllables_count` = Počet slabik na řádek (platí pro první verš), např. `9`; podporuje i obecnější specifikátory `short` a `long`
+  - `verses_count` = Počet veršů (v první sloce), např. `6` (lze zadat i počty veršů pro několik slok, např. `4 4 3 3`)
+  - `max_strophes` = Maximální počet slok, např. `2`
+  - `poem_length` = `short`/`medium`/`long`
+  - `form` = Pevná forma, např. `sonet`, `haiku` nebo `gazel`
+  - `motives` = Motivy, např. `láska` nebo `ztráta bližního`; může být i víc motivů oddělených konci řádků, např. `láska\nnenávist`
+  - `rhymed` = `yes` / `no`
+  - `old_style` = `old` / `modern` / `contemporary`
+  - `mood` = `veselá` / `smutná`
   - `first_words`
   - `temperature`
+  - `max_tries`
   - a další parametry, viz [vstupní formulář](https://github.com/ufal/edupo/blob/main/backend/templates/gen_input.html)
 - Vrací: **poemid** generované básně a vlastní vygenerovanou báseň.
 - Příklad:  
@@ -91,6 +101,7 @@ Podporuje:
 - Parametry:
   - `poemid` = ID básně
 - Vrací: Text básně.
+- Pokud není zadané `poemid`, vrací náhodnou báseň.
 - Příklad:  
   - [https://quest.ms.mff.cuni.cz/edupo-api/show?poemid=72197\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/show?poemid=72197&accept=txt)   
 
