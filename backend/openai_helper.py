@@ -243,9 +243,12 @@ Do not output any other content or formatting."""
         prompt_parts.append(f"The poem should be {MOOD_EN[params['mood']]}.")
     if params['old_style']:
         if params['old_style'] == 'old':
-            prompt_parts.append(f"The poem should be written in the style of 19th century.")
-        elif params['old_style'] == 'new':
-            prompt_parts.append(f"The poem should be written in current style.")
+            prompt_parts.append(f"The poem should be written in old style (19th century).")
+        elif params['old_style'] == 'modern':
+            prompt_parts.append(f"The poem should be written in 20th century style.")
+        else:
+            # 'contemporary' or 'new':
+            prompt_parts.append(f"The poem should be written in current style (21st century).")
     # CONTENT: prompting in Czech
     prompt_parts.append(f"\n")
     if params['author_name'] and params['author_name'] != 'Anonym':
