@@ -109,6 +109,7 @@ if debug_log:
     class EpochLogCallback(TrainerCallback):
         def on_epoch_begin(self, args, state, control, **kwargs):
             my_dataset.log_marker(f"epoch {int(state.epoch) + 1}")
+            my_dataset.log_epoch_samples()
     trainer.add_callback(EpochLogCallback())
 
 if args.cont:

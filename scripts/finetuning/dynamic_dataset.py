@@ -213,6 +213,15 @@ class DynamicPoemDataset(Dataset):
             self._log_file.write(f"=== {text} ===\n")
             self._log_file.flush()
 
+    def log_epoch_samples(self):
+        """Generate and log one pass through all poems (called from epoch callback)."""
+        if not self._log_file:
+            return
+        for i in range(len(self.poems)):
+            item = self.__getitem__(i)
+            self._log_file.write(item['text'] + "\n---\n")
+        self._log_file.flush()
+
     def map(self, function, *args, **kwargs):
         """
         Compatibility method for HuggingFace Trainer.
@@ -262,9 +271,6 @@ class DynamicPoemDataset(Dataset):
             # Delegate to formatter if it handles full poem formatting (V4+)
             if hasattr(self.formatter, 'format_poem'):
                 output = self.formatter.format_poem(poem, format_config, regenerate_verse_idx)
-                if self._log_file:
-                    self._log_file.write(output + "\n---\n")
-                    self._log_file.flush()
                 return {'text': output}
 
             # V3 formatting: build output from header, stanzas, footer
@@ -328,9 +334,6 @@ class DynamicPoemDataset(Dataset):
 
             output += '</poem>'
 
-            if self._log_file:
-                self._log_file.write(output + "\n---\n")
-                self._log_file.flush()
             return {'text': output}
 
         except Exception as e:
