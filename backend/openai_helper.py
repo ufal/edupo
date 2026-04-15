@@ -189,6 +189,22 @@ Verse 4
 
 ... etc.
 
+Segment the verses into stanzas separated by newlines; so e.g. if the stanzas
+have 4 verses each, then the format is:
+
+Author Name: Poem Title
+Verse 1
+Verse 2
+Verse 3
+Verse 4
+
+Verse 5
+Verse 6
+Verse 7
+Verse 8
+
+... etc.
+
 If a title and/or author is specified, use them exactly as given, inventing any missing part as needed. 
 Between stanzas, use exactly one blank line. 
 Do not output any other content or formatting."""
