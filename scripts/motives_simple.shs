@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#SBATCH -J motives_simple
+#SBATCH -o %x.%j.out
+#SBATCH -e %x.%j.err
+#SBATCH -p cpu-troja
+#SBATCH --mem=1G
+
+# Print each command to STDERR before executing (expanded), prefixed by "+ "
+set -o xtrace
+
+source /home/rosa/work/miniconda3/etc/profile.d/conda.sh
+conda activate edupo
+
+python3 motives_simple.py
+

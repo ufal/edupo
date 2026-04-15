@@ -59,15 +59,32 @@ def simplify(motive):
 
 from collections import Counter
 
-sql = 'SELECT motives FROM poems LIMIT 100'
+poemid=-1
+# sql = 'SELECT id,motives FROM poems LIMIT 10'
+sql = 'SELECT id,motives FROM poems'
 result = db.execute(sql)
 for row in result.fetchall():
-    #try:
+    try:
+        poemid = row['id']
         motives = json.loads(row['motives'])
+        motives_simplified = set()
         for m in motives:
             ms = simplify(m)
-            print(m, '->', ms)
-    #except:
-    #    print(row['motives'], file=sys.stderr)
+            for s in ms:
+                motives_simplified.add(s)
+            #print(m, '->', ms)
+        motives_simplified_json = json.dumps(list(motives_simplified))
+        sql = "UPDATE poems SET simplemotives = ? WHERE poems.id=?"
+        result = db.execute(sql, (motives_simplified_json,poemid) )
+        logging.info(f"{poemid} {motives} -> {motives_simplified}")
+        if poemid % 1000 == 0:
+            logging.info(f"COMMIT")
+            db.commit()
+    except Exception as e:
+        logging.error(f'ERROR with poem {poemid}')
+        logging.error(e)
 
 
+logging.info(f"COMMIT and END")
+db.commit()
+db.close()
