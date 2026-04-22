@@ -6,6 +6,14 @@
 			var hideModels = el.dataset.hideModels.split(",").map(s => s.trim());
 			el.style.display = hideModels.includes(model) ? "none" : "";
 		});
+        // 👉 přepnutí datalistu pro Author
+        var authorInput = document.getElementById("author");
+
+        if (model === "tm") {
+            authorInput.setAttribute("list", "author_datalist1");
+        } else {
+            authorInput.setAttribute("list", "author_datalist0");
+        }                
 	}
     </script>
     
@@ -24,7 +32,7 @@ Naše modely (základní, nový) jsou speciálně vyladěné na poezii a trénov
         </select>
         </p>
 
-        <p data-hide-models="mc,tm"><label class="tooltip"
+        <p data-hide-models="mc"><label class="tooltip"
             title="Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora."
             >Autor</label>
             <input type="text"
@@ -38,28 +46,11 @@ Naše modely (základní, nový) jsou speciálně vyladěné na poezii a trénov
         {% include 'selected_authors.html' %}
         </datalist>
         
-        </p>
-
-        <p data-hide-models="mc,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview"><label class="tooltip"
-            title="Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora."
-            >Autor</label>
-            <input type="text"
-               name="author"
-               placeholder="Mácha, Karel Hynek"
-               list=author_datalist1
-               id="author_old"
-               autofocus
-        >
         <datalist id="author_datalist1">
         {% include 'selected_authors_old.html' %}
         </datalist>
         
         </p>
-
-
-
-	<span data-hide-models="new,">
-
 
         <p data-hide-models="mc,tm"><label class="tooltip"
             title="Po výběru autora se zde nabídnou vybrané sbírky daného autora.
