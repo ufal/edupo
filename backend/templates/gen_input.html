@@ -24,7 +24,7 @@ Naše modely (základní, nový) jsou speciálně vyladěné na poezii a trénov
         </select>
         </p>
 
-        <p data-hide-models="mc"><label class="tooltip"
+        <p data-hide-models="mc,tm"><label class="tooltip"
             title="Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora."
             >Autor</label>
             <input type="text"
@@ -39,6 +39,27 @@ Naše modely (základní, nový) jsou speciálně vyladěné na poezii a trénov
         </datalist>
         
         </p>
+
+        <p data-hide-models="mc,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview"><label class="tooltip"
+            title="Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora."
+            >Autor</label>
+            <input type="text"
+               name="author"
+               placeholder="Mácha, Karel Hynek"
+               list=author_datalist1
+               id="author_old"
+               autofocus
+        >
+        <datalist id="author_datalist1">
+        {% include 'selected_authors_old.html' %}
+        </datalist>
+        
+        </p>
+
+
+
+	<span data-hide-models="new,">
+
 
         <p data-hide-models="mc,tm"><label class="tooltip"
             title="Po výběru autora se zde nabídnou vybrané sbírky daného autora.
@@ -206,7 +227,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Muž"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="0"  disabled="disabled"> anafora
         <input type="checkbox" name="epanastrophes" value="0"  disabled="disabled"> epanastrofa
 	</span>
@@ -217,7 +238,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Žena"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="1"> anafora
         <input type="checkbox" name="epanastrophes" value="1"> epanastrofa
 	</span>
@@ -228,7 +249,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Banán"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="2"> anafora
         <input type="checkbox" name="epanastrophes" value="2"> epanastrofa
 	</span>
@@ -239,7 +260,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Mušle"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="3"> anafora
         <input type="checkbox" name="epanastrophes" value="3"> epanastrofa
 	</span>
@@ -250,7 +271,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Lanýž"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="4"> anafora
         <input type="checkbox" name="epanastrophes" value="4"> epanastrofa
 	</span>
@@ -261,7 +282,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Hrob"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="5"> anafora
         <input type="checkbox" name="epanastrophes" value="5"> epanastrofa
 	</span>
