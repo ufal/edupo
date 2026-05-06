@@ -381,10 +381,47 @@ def store_image(imgdata, filename):
     with open(filename, "wb") as outfile:
         outfile.write(bytestream.getbuffer())
 
+def generate_with_openai_streaming(model="gpt-4o-mini"):
+
+    # OPENAI SETUP
+    # path to file with authentication key
+    key_path = KEY_PATH
+    with open(key_path) as infile:
+        apikey = infile.read().rstrip()
+    try:
+        client = OpenAI(api_key=apikey)
+    except:
+        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
+
+    # https://developers.openai.com/api/docs/guides/streaming-responses
+    try:
+        stream = client.responses.create(
+            model=model,
+            input=[
+                {
+                    "role": "user",
+                    "content": "Napiš báseň o třech slokách na téma ptakopysk a moře.",
+                },
+            ],
+            stream=True,
+        )
+
+
+        for event in stream:
+            if event.type == "response.output_text.delta":
+                print(event.delta, end="", flush=True)
+        print()
+
+    except:
+        logging.exception("EXCEPTION Neúspěšné generování pomocí OpenAI.")
+        return None
+
+
 if __name__=="__main__":
-    GEN_POEM = True
+    GEN_POEM = False
     GEN_TEXT = False
     GEN_IMG = False
+    GEN_STREAM = True
 
     if GEN_POEM:
         title = input("Zadej název básně: ")
@@ -424,4 +461,7 @@ if __name__=="__main__":
         IMGFILE='image.png'
         image_desc = generate_image_with_openai(prompt, IMGFILE)
         print(f'Obrázek: {IMGFILE}. ({image_desc})')
+
+    if GEN_STREAM:
+        generate_with_openai_streaming()
 
