@@ -399,10 +399,10 @@ def call_generuj():
     # TODO if all first_words are empty then ignore
     params['anaphors'] = [int(x) for x in get_post_arg('anaphors', isarray=True, default=[])]
     params['epanastrophes'] = [int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[])]
-    params['temperature'] = float(get_post_arg('temperature', '1'))
+    params['temperature'] = float(get_post_arg('temperature', '1', True))
     if params['temperature'] <= 0:
         params['temperature'] = 0.01
-    params['max_strophes'] = int(get_post_arg('max_strophes', '2', nonempty=True))
+    params['max_strophes'] = int(get_post_arg('max_strophes', '2', True))
     params['title'] = get_post_arg('title', 'Bez názvu')
     params['author_name'] = get_post_arg('author', 'Anonym')
     params['collection_style'] = get_post_arg('collection_style', '')
@@ -417,9 +417,9 @@ def call_generuj():
     params['poem_length'] = get_post_arg('poem_length', '')
     params['old_style'] = get_post_arg('old_style', '')
     
-    params['min_meaning'] = float(get_post_arg('min_meaning', '0.7'))
-    params['max_unk'] = float(get_post_arg('max_unk', '0.05'))
-    params['max_tries'] = int(get_post_arg('max_tries', '1'))
+    params['min_meaning'] = float(get_post_arg('min_meaning', '0.7', True))
+    params['max_unk'] = float(get_post_arg('max_unk', '0.05', True))
+    params['max_tries'] = int(get_post_arg('max_tries', '1', True))
     if params['max_tries'] < 1:
         params['max_tries'] = 1
 
