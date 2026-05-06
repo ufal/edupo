@@ -402,7 +402,7 @@ def call_generuj():
     params['temperature'] = float(get_post_arg('temperature', '1'))
     if params['temperature'] <= 0:
         params['temperature'] = 0.01
-    params['max_strophes'] = int(get_post_arg('max_strophes', '2'))
+    params['max_strophes'] = int(get_post_arg('max_strophes', '2', nonempty=True))
     params['title'] = get_post_arg('title', 'Bez názvu')
     params['author_name'] = get_post_arg('author', 'Anonym')
     params['collection_style'] = get_post_arg('collection_style', '')
