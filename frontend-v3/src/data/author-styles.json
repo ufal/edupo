@@ -1,0 +1,32 @@
+[
+  {
+    "id": "macha",
+    "label": "Karel Hynek Mácha",
+    "description": "Romantická obraznost, krajina, samota, vášeň",
+    "avatarSrc": "/assets/authors/macha.png"
+  },
+  {
+    "id": "erben",
+    "label": "Karel Jaromír Erben",
+    "description": "Baladický tón, osudovost, vina a trest",
+    "avatarSrc": "/assets/authors/erben.png"
+  },
+  {
+    "id": "neruda",
+    "label": "Jan Neruda",
+    "description": "Civilní poezie, ironie, městský a kosmický rozměr",
+    "avatarSrc": "/assets/authors/neruda.png"
+  },
+  {
+    "id": "borovsky",
+    "label": "Karel Havlíček Borovský",
+    "description": "Satira, epigram, ostrost a věcná ironie",
+    "avatarSrc": "/assets/authors/borovsky.png"
+  },
+  {
+    "id": "vrchlicky",
+    "label": "Jaroslav Vrchlický",
+    "description": "Bohatá metaforika, patos, formální elegance",
+    "avatarSrc": "/assets/authors/vrchlicky.png"
+  }
+]
