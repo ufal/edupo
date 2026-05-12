@@ -2,31 +2,41 @@
   {
     "id": "macha",
     "label": "Karel Hynek Mácha",
-    "description": "Romantická obraznost, krajina, samota, vášeň",
     "avatarSrc": "/assets/authors/macha.png"
   },
   {
     "id": "erben",
     "label": "Karel Jaromír Erben",
-    "description": "Baladický tón, osudovost, vina a trest",
-    "avatarSrc": "/assets/authors/erben.png"
+    "avatarSrc": "/assets/author-avatar.svg"
   },
   {
     "id": "neruda",
     "label": "Jan Neruda",
-    "description": "Civilní poezie, ironie, městský a kosmický rozměr",
-    "avatarSrc": "/assets/authors/neruda.png"
+    "avatarSrc": "/assets/author-avatar.svg"
   },
   {
-    "id": "borovsky",
-    "label": "Karel Havlíček Borovský",
-    "description": "Satira, epigram, ostrost a věcná ironie",
-    "avatarSrc": "/assets/authors/borovsky.png"
+    "id": "halek",
+    "label": "Vítězslav Hálek",
+    "avatarSrc": "/assets/author-avatar.svg"
   },
   {
-    "id": "vrchlicky",
-    "label": "Jaroslav Vrchlický",
-    "description": "Bohatá metaforika, patos, formální elegance",
-    "avatarSrc": "/assets/authors/vrchlicky.png"
+    "id": "brezina",
+    "label": "Otakar Březina",
+    "avatarSrc": "/assets/author-avatar.svg"
+  },
+  {
+    "id": "karasek",
+    "label": "František Gellner",
+    "avatarSrc": "/assets/author-avatar.svg"
+  },
+  {
+    "id": "hlavacek",
+    "label": "František Hlaváček",
+    "avatarSrc": "/assets/author-avatar.svg"
+  },
+  {
+    "id": "gellner",
+    "label": "František Gellner",
+    "avatarSrc": "/assets/author-avatar.svg"
   }
 ]
