@@ -23,7 +23,40 @@ headers = {"accept": "application/json"}
 # print(response.text)
 
 
-data = {'rhyme_scheme': 'ABBA', 'metre': 'J'}
+data = {
+        # MODEL
+        'modelspec': 'gpt-4o-mini', 
+        
+
+
+        # MATEJOVY PARAMETRE
+        
+        # old / modern / contemporary / ''
+        'old_style': 'old',
+        
+        # short / long / ''
+        'syllables_count': 'short', 
+        
+        # short / medium / ''
+        'poem_length': 'short',
+        
+        # láska / příroda / město / rodina / čas / []
+        'motives': ['láska'],
+        
+        # veselá / smutná / ''
+        'mood': 'veselá',
+
+        # yes / no / ''
+        'rhymed': 'yes', 
+
+
+
+        # PEVNÉ PARAMETRY, ASI NECHAT TAKTO
+        'temperature': 0.7,
+        'max_strophes': 2, 
+        
+        }
+
 
 logging.info(f"Generate with params: {data}")
 response = requests.post(f"{base_url}/gen", data=data, headers=headers)
@@ -40,10 +73,31 @@ logging.info(f"Meaning: {j['measures']['chatgpt_meaning']}")
 logging.info(f"Unknown words: {j['measures']['unknown_words']}")
 logging.info(f"Rhyming: {j['measures']['rhyming']}")
 logging.info(f"Rhyming consistency: {j['measures']['rhyming_consistency']}")
+# input parameters jsou v j['geninput']
+
+
+JAKEM = {
+    '': 'libovolném',
+    'old': 'starém',
+    'modern': 'novém',
+    'contemporary': 'současném',
+}
+
+RYM = {
+    'yes': 's rýmem',
+    'no': 'bez rýmu',
+    '': '(rýmování neurčeno)',
+}
 
 with open(poemid + '.json', 'w') as outfile:
     json.dump(j, outfile, indent=4, ensure_ascii=False)
-logging.info(f"Stored poem {poemid}.json")
+with open(poemid + '.txt', 'w') as outfile:
+    jakem = JAKEM[data['old_style']]
+    rymovana = RYM[data['rhymed']]
+    zadani = f"Zadání: báseň v {jakem} stylu {rymovana}\n\n"
+    # ostatní parametry asi nemusíme vypisovat pro hodnocení?
+    print(zadani + j['plaintext'], file=outfile)
+logging.info(f"Stored poem {poemid}.json and {poemid}.txt")
 
 
 
