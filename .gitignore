@@ -1,5 +1,6 @@
 apikey.txt
 unsloth_compiled_cache
+scripts/finetuning/config.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

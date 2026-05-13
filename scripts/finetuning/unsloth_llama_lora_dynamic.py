@@ -1,15 +1,15 @@
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
 import torch
-from transformers import TrainingArguments
+from transformers import TrainingArguments, TrainerCallback
 from trl import SFTTrainer
 from datasets import load_dataset, Dataset
 import wandb
 import argparse
 import sys
+import config
 
 # Import the dynamic dataset
-sys.path.append("data_for_LM")
 from dynamic_dataset import DynamicPoemDataset
 
 argparser = argparse.ArgumentParser(description="Unsloth Llama LoRA Dynamic Dataset Training Script")
@@ -21,15 +21,21 @@ argparser.add_argument("--run_name", type=str, help="Name of the run for WandB")
 argparser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train for")
 argparser.add_argument("--batch", type=int, default=16, help="Batch size per device during training")
 argparser.add_argument("--max_l", type=int, default=2048, help="Maximum sequence length for training")
-argparser.add_argument("--db_path", type=str, default="new.db", help="Path to SQLite database")
+argparser.add_argument("--db_path", type=str, default=config.DB_PATH, help="Path to SQLite database")
 argparser.add_argument("--max_poems", type=int, default=None, help="Maximum number of poems to load (None = all)")
+argparser.add_argument("--debug", action="store_true", help="Debug mode: 10 poems, 5 epochs, log all generated training data")
 args = argparser.parse_args()
+
+if args.debug:
+    args.max_poems = 10
+    args.epochs = 5
 
 # Create dynamic dataset
 # DynamicPoemDataset now has a map() method for SFTTrainer compatibility
 # while maintaining dynamic format generation in __getitem__
 print("Loading dynamic dataset from database...")
-my_dataset = DynamicPoemDataset(db_path=args.db_path, max_poems=args.max_poems)
+debug_log = config.LOG_PATH + "debug_training_data.txt" if args.debug else None
+my_dataset = DynamicPoemDataset(db_path=args.db_path, max_poems=args.max_poems, log_path=debug_log)
 print(f"Dataset loaded: {len(my_dataset)} poems")
 print("Dynamic formatting will be applied during training.")
 
@@ -87,7 +93,7 @@ trainer = SFTTrainer(
         logging_steps = 1,
         optim = "adamw_8bit",
         seed = 42,
-        output_dir = "outputs/" + run_name,
+        output_dir = config.OUTPUT_PREFIX + run_name,
         run_name = run_name,# + "_cont",
         save_strategy = "epoch",
         # TODO weight decay, scheduler, lr?
@@ -97,8 +103,15 @@ trainer = SFTTrainer(
     tokenizer = tokenizer,
     max_seq_length = max_seq_length,
     dataset_text_field = "text",
-    packing = True,
+    packing = not args.debug,
 )
+if debug_log:
+    class EpochLogCallback(TrainerCallback):
+        def on_epoch_begin(self, args, state, control, **kwargs):
+            my_dataset.log_marker(f"epoch {int(state.epoch) + 1}")
+            my_dataset.log_epoch_samples()
+    trainer.add_callback(EpochLogCallback())
+
 if args.cont:
     trainer.train(resume_from_checkpoint = True)
 else:

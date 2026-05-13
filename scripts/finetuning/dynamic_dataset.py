@@ -33,10 +33,11 @@ from format_config import (
 )
 
 from torch.utils.data import Dataset
+import config
 
 # Add paths for kveta
-sys.path.append(str(Path(__file__).parent / "edupo/kveta"))
-sys.path.append(str(Path(__file__).parent / "edupo/scripts/diphthongs"))
+sys.path.append(str(Path(__file__).parent.parent.parent / "kveta"))
+sys.path.append(str(Path(__file__).parent.parent / "diphthongs"))
 from kveta import Kveta
 
 
@@ -108,7 +109,7 @@ class DynamicPoemDataset(Dataset):
         verse_regenerate_prob: Probability of verse regeneration mode (default: 0.1)
     """
 
-    def __init__(self, db_path="data/new.db", max_poems=None, start_poem=None,
+    def __init__(self, db_path=None, max_poems=None, start_poem=None,
                  format_version=4, shuffle=True, random_seed=None,
                  use_format_variations=True,
                  author_weights: Optional[Dict[AuthorFormat, float]] = None,
@@ -116,8 +117,9 @@ class DynamicPoemDataset(Dataset):
                  year_weights: Optional[Dict[YearFormat, float]] = None,
                  motive_weights: Optional[Dict[MotiveFormat, float]] = None,
                  book_weights: Optional[Dict[BookFormat, float]] = None,
-                 verse_regenerate_prob: float = 0.1):
-        self.db_path = db_path
+                 verse_regenerate_prob: float = 0.1,
+                 log_path: Optional[str] = None):
+        self.db_path = db_path if db_path is not None else config.DB_PATH
         self.start_poem = start_poem
         self.format_version = format_version
         if format_version == 4:
@@ -134,6 +136,8 @@ class DynamicPoemDataset(Dataset):
         self.motive_weights = motive_weights
         self.book_weights = book_weights
         self.verse_regenerate_prob = verse_regenerate_prob
+        self.log_path = log_path
+        self._log_file = open(log_path, "w", encoding="utf-8") if log_path else None
 
         # Load and process poems from database
         self._load_poems(max_poems, start_poem)
@@ -202,6 +206,21 @@ class DynamicPoemDataset(Dataset):
     def __len__(self):
         """Return number of poems in dataset."""
         return len(self.poems)
+
+    def log_marker(self, text):
+        """Write a marker line to the log file (e.g. epoch boundaries)."""
+        if self._log_file:
+            self._log_file.write(f"=== {text} ===\n")
+            self._log_file.flush()
+
+    def log_epoch_samples(self):
+        """Generate and log one pass through all poems (called from epoch callback)."""
+        if not self._log_file:
+            return
+        for i in range(len(self.poems)):
+            item = self.__getitem__(i)
+            self._log_file.write(item['text'] + "\n---\n")
+        self._log_file.flush()
 
     def map(self, function, *args, **kwargs):
         """
@@ -325,9 +344,10 @@ class DynamicPoemDataset(Dataset):
 if __name__ == "__main__":
     # Test the dataset
     import argparse
+    import config
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--db-path", type=str, default="data/new.db",
+    parser.add_argument("--db-path", type=str, default=config.DB_PATH,
                         help="Path to SQLite database")
     parser.add_argument("--max-poems", type=int, default=None,
                         help="Maximum number of poems to load (default: 10 for normal mode, all for --dry-run)")

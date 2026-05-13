@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response, send_file
+from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response, send_file, has_request_context
 from flask_cors import CORS
 from itertools import groupby, repeat
+import logging
 import os
+import secrets
 # from gen import generuj, load_models
 import show_poem_html
 import sqlite3
@@ -28,6 +30,25 @@ from data_types import GenerationParameters
 app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
+
+class RequestIdFilter(logging.Filter):
+    def filter(self, record):
+        if has_request_context() and getattr(g, 'request_id', None):
+            record.msg = f"[{g.request_id}] {record.msg}"
+        return True
+
+app.logger.addFilter(RequestIdFilter())
+
+@app.before_request
+def assign_request_id():
+    incoming = request.headers.get('X-Request-ID')
+    g.request_id = incoming if incoming else secrets.token_hex(4)
+
+@app.after_request
+def propagate_request_id(response):
+    if getattr(g, 'request_id', None):
+        response.headers['X-Request-ID'] = g.request_id
+    return response
 
 DBFILE='/net/projects/EduPo/data/new.db'
 PWDFILE='/net/projects/EduPo/data/hesla.json'
