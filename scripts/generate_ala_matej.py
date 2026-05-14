@@ -106,38 +106,59 @@ data = {
         
         }
 
-model = 'gpt-4o-mini'
+model = 'google/gemini-3.1-flash-lite' #'gpt-4o-mini'
+model_name = 'gemini-3.1-flash-lite' #'gpt-4o-mini'
 directory = '/net/projects/EduPo/data/DM_generovane'
 
 
 poem_counter = 0
-avg_measures = {'chatgpt_meaning': 0, 'rhyming': 0, 'unknown_words': 0, 'time': 0}
+poem_rhyming_yes_counter = 0
+poem_rhyming_no_counter = 0
+avg_measures = {'chatgpt_meaning': 0, 'rhyming_yes': 0, 'rhyming_no': 0, 'unknown_words': 0, 'time': 0}
 
 for old_style in [ "old", "modern", "contemporary", "" ]:
-    for syllables_count in [ "short", "long", "" ]:
-        for poem_length in [ "short", "medium", "" ]:
-            for motives in [ ["láska"] , ["příroda"], ["město"], ["rodina"], ["čas"], [] ]:
-                for mood in [ "veselá", "smutná", "" ]:
+    #for syllables_count in [ "short", "long", "" ]:
+        #for poem_length in [ "short", "medium", "" ]:
+        #    for motives in [ ["láska"] , ["příroda"], ["město"], ["rodina"], ["čas"], [] ]:
+        #        for mood in [ "veselá", "smutná", "" ]:
                     for rhymed in [ "yes", "no", "" ]:
                         data = {
                             'modelspec': model,
                             'old_style': old_style,
-                            'syllables_count': syllables_count, 
-                            'poem_length': poem_length,
-                            'motives': motives,
-                            'mood': mood,
+                            #'syllables_count': syllables_count, 
+                            #'poem_length': poem_length,
+                            #'motives': motives,
+                            #'mood': mood,
+                            'syllables_count': "",
+                            'poem_length': "",
+                            'motives': [],
+                            'mood': "",
                             'rhymed': rhymed, 
                             'temperature': 0.7,
                             'max_strophes': 2, 
                             }
                         poem_counter += 1
-                        filename = directory + '/' + model + '-' + str(poem_counter)
+                        filename = directory + '/' + model_name + '-' + str(poem_counter).zfill(4)
                         measures = generate_poem(data, filename)
-                        for m in avg_measures.keys():
+                        for m in ['chatgpt_meaning', 'unknown_words', 'time']:
                             avg_measures[m] += measures[m]
+                        if rhymed == 'yes':
+                            avg_measures['rhyming_yes'] += measures['rhyming']
+                            poem_rhyming_yes_counter += 1
+                        elif rhymed == 'no':
+                            avg_measures['rhyming_no'] += measures['rhyming']
+                            poem_rhyming_no_counter += 1
 
-for m in avg_measures.keys():
-    print(m, str(avg_measures[m] / poem_counter))
+print("model name", 'meaning', 'rh_yes', 'rh_no', 'unknown', 'time', sep='\t')
+print(model_name,
+      round(avg_measures['chatgpt_meaning']/poem_counter, 3),
+      round(avg_measures['rhyming_yes']/poem_rhyming_yes_counter, 3),
+      round(avg_measures['rhyming_no']/poem_rhyming_no_counter, 3),
+      round(avg_measures['unknown_words']/poem_counter, 3),
+      round(avg_measures['time']/poem_counter, 3),
+      sep='\t'
+      )
+
                         
 
 
