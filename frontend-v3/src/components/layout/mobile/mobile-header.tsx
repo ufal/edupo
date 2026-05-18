@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/libs/utils";
 import { EdupoLogo } from "../../brand/edupo-logo";
 import { Button } from "../../ui/button";
 import { MobileMenuButton } from "./mobile-header-button";

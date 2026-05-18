@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { AppIcon } from '@/components/icons/app-icon'
-import { cn } from '@/lib/utils'
+import { cn } from '@/libs/utils'
 
 type BottomNavItemVariant = 'default' | 'action'
 
