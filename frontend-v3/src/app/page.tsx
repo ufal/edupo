@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import { WelcomeScreen } from '@/components/features/welcome/welcome-screen'
@@ -8,6 +8,14 @@ import { SplashScreen } from '@/components/overlays/splash-screen'
 import { isPoemMode } from '@/types/poem'
 
 export default function HomePage() {
+  return (
+    <Suspense fallback={null}>
+      <HomePageContent />
+    </Suspense>
+  )
+}
+
+function HomePageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 

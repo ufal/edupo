@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 import { DashboardScreen } from '@/components/features/dashboard/dashboard-screen'
@@ -8,6 +8,14 @@ import { usePoemStore } from '@/stores/poem-store'
 import { isPoemMode } from '@/types/poem'
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardPageContent />
+    </Suspense>
+  )
+}
+
+function DashboardPageContent() {
   const searchParams = useSearchParams()
 
   const poemId = searchParams.get('poemId')
