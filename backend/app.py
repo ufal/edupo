@@ -289,7 +289,7 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
         data = show_poem_html.show(result)
         data['plaintext'] = poem2text(data)
     
-    if 'geninput' not in data:
+    if 'geninput' not in data or data['geninput'] == '':
         data['geninput'] = {}
 
     return data
