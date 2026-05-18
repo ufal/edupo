@@ -1,2 +1,0 @@
-import { PoemEditedBadge, PoemLockedBadge, PoemLinesLockedBadge, PoemLinesLetterBadge } from "./PoemLinesBadges";
-export { PoemEditedBadge, PoemLockedBadge, PoemLinesLockedBadge, PoemLinesLetterBadge };
