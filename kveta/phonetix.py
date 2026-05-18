@@ -450,10 +450,14 @@ class Phonetix:
         for i, l in enumerate(poem):
             text_string = str()
             for j, w in enumerate(l['words']):
+                token = w['token']
+                if re.search(r'[\-\.,]', token):
+                    print("WARNING: Interpunkce v tokenu", token)
+                    token = re.sub('[\-\.,]', '', token)
                 if 'nodip' in w:
                     text_string += w['nodip'] + ' '
                 else:
-                    text_string += w['token'] + ' '
+                    text_string += token + ' '
                 if 'punct' in w and re.search(r'[.;?!,\-\–]', w['punct']):
                        text_string += (' – ')
                      

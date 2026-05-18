@@ -1,52 +1,40 @@
+
     <script>
-	function toggle_auth() {
-		    var modelSelect = document.getElementById("modelSelect");
-		    var fields = document.querySelectorAll(".authtit");
-		    var fields_basic = document.querySelectorAll(".basiconly");
-            var pversu = document.getElementById("pocetversu");
-		    if (modelSelect.value === "tm") {
-		        fields.forEach(field => {
-			    field.style.display = "block";
-			    });
-		        fields_basic.forEach(field => {
-			    field.style.display = "none";
-			    });
-			    pversu.style.display = "none";
-			} else if (modelSelect.value === "mc") {
-		        fields.forEach(field => {
-			    field.style.display = "none";
-			    });
-		        fields_basic.forEach(field => {
-			    field.style.display = "inline";
-			    });
-			    pversu.style.display = "block";
-			} else {
-		        fields.forEach(field => {
-			    field.style.display = "block";
-			    });
-		        fields_basic.forEach(field => {
-			    field.style.display = "none";
-			    });
-			    pversu.style.display = "block";
-		        }
+	function updateModelVisibility() {
+		var model = document.getElementById("modelSelect").value;
+		document.querySelectorAll("[data-hide-models]").forEach(el => {
+			var hideModels = el.dataset.hideModels.split(",").map(s => s.trim());
+			el.style.display = hideModels.includes(model) ? "none" : "";
+		});
+        // 👉 přepnutí datalistu pro Author
+        var authorInput = document.getElementById("author");
+
+        if (model === "tm") {
+            authorInput.setAttribute("list", "author_datalist1");
+        } else {
+            authorInput.setAttribute("list", "author_datalist0");
+        }                
 	}
     </script>
     
-    <form method="post" action="gen">
-        <p>Model:
-        <select name="modelspec" onchange="toggle_auth()" id="modelSelect">
+    <form method="post" action="gen" class="genform">
+        <p><label class="tooltip"
+            title="Komerční modely (GPT, Gemini) podporují všechny parametry, ale nejsou speciálně vyladěné na poezii.
+Naše modely (základní, nový) jsou speciálně vyladěné na poezii a trénované na korpuse české poezie, ale podporují nastavení jen některých parametrů."
+            >Model</label>
+        <select name="modelspec" onchange="updateModelVisibility()" id="modelSelect">
             <option value="mc">základní</option>
-            <option value="tm" selected>nový</option>
+            <option value="tm">nový</option>
+            <!-- <option value="new" selected>3g</option> -->
             <option value="gpt-4o-mini">GPT 4o mini</option>
-            <option value="gpt-5-mini">GPT 5 mini</option>
+            <option value="gpt-5-mini" selected>GPT 5 mini</option>
+            <option value="google/gemini-3.1-pro-preview">Gemini 3.1 Pro</option>
         </select>
-        Základní model umí 4verší a 6verší, nový model umí lecjaké délky (ale
-        neumí anafory a epanastrofy).
-        Základní model je rychlejší ale horší, nový model je lepší ale
-        generování mu déle trvá.
         </p>
 
-        <p class="authtit">Autor:
+        <p data-hide-models="mc"><label class="tooltip"
+            title="Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora."
+            >Autor</label>
             <input type="text"
                name="author"
                placeholder="Mácha, Karel Hynek"
@@ -55,24 +43,32 @@
                autofocus
         >
         <datalist id="author_datalist0">
-        <option>Mácha, Karel Hynek</option>
-        <option>Erben, Karel Jaromír</option>
-        <option>Neruda, Jan</option>
-        <option>Hálek, Vítězslav</option>
-        <option>Březina, Otokar</option>
-        <option>Karásek ze Lvovic, Jiří</option>
-        <option>Hlaváček, Karel</option>
-        <option>Gellner, František</option>
+        {% include 'selected_authors.html' %}
         </datalist>
-        Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora.
+        
+        <datalist id="author_datalist1">
+        {% include 'selected_authors_old.html' %}
+        </datalist>
+        
         </p>
 
-        <p class="authtit">Název: <input name="title"></p>
+        <p data-hide-models="mc,tm"><label class="tooltip"
+            title="Po výběru autora se zde nabídnou vybrané sbírky daného autora.
+Model se pokusí generovat báseň nejen ve stylu vybraného autora, ale dokonce jeho vybrané sbírky."
+            >Styl sbírky</label>
+        <select name="collection_style" id="collection_style">
+            <option />
+        </select>
+        </p>
+        
+        <p data-hide-models="mc"><label>Název</label> <input name="title" type="text"></p>
 
 
-        <p>Metrum:
+        <p data-hide-models="new"><label class="tooltip"
+            title="Platí pro první verš v básni; polymetrická báseň může pro různé verše používat různé metrum."
+            >Metrum</label>
         <select name="metre">
-        <option value="">náhodně</option>
+        <option value=""></option>
         <option value="T">trochej</option>
         <option value="J">jamb</option>
         <option value="D">daktyl</option>
@@ -80,17 +76,22 @@
         </select>
         </p>
 
-        <p id="pocetversu">Počet veršů ve sloce:
+        <p id="pocetversu" data-hide-models="tm,new"><label class="tooltip"
+            title="Počet veršů v jedné sloce.
+Typicky 4 nebo 6, ale můžete zadat vlastní hodnotu.
+Platí pro první sloku, další sloky mohou mít i jiné počty veršů.
+Pokud mají mít jednotlivé sloky různé počty veršů, můžete zadat více hodnot oddělených mezerami (např.  "4 4 3 3")."
+            >Počet veršů</label>
         <input name="verses_count" id="verses_count"
-            type="text" value="0">
-        Typicky 4 nebo 6, ale můžete zadat vlastní hodnotu (0 znamená, že
-        volbu necháte na generujícím modelu). Pokud mají mít jednotlivé sloky
-        různé počty veršů, můžete zadat více hodnot oddělených mezerami (např.
-        "4 4 3 3").
+            type="number" min="1" max="20">
         </p>
 
-        <p>
-        Rýmové schéma:
+        <p data-hide-models="new"><label class="tooltip"
+            title="Rýmující verše se označují stejným písmenem, nerýmující se verš se označuje X.
+Můžete si vybrat některé z běžných rýmových schémat, anebo vepsat vlastní.
+Platí pro první sloku, ostatní sloky mohou mít i jiné rýmové schéma.
+Pokud mají mít jednotlivé sloky různá schémata, můžete vepsat schámata pro jednotlivé sloky oddělená mezerou (např. ABBA CDC)."
+            >Rýmové schéma</label>
         <input type="text"
                name="rhyme_scheme"
                placeholder="AABB"
@@ -112,57 +113,84 @@
         <option>ABABXX</option>
         <option>XXXXXX</option>
         </datalist>
-        Rýmující verše se označují
-        stejným písmenem, nerýmující se verš se označuje X.
-        Můžete si vybrat některé z běžných rýmových schémat, anebo vepsat
-        vlastní.
-        Pokud mají mít jednotlivé sloky různá schémata, můžete vepsat schámata
-        pro jednotlivé sloky oddělená mezerou (např. "ABBA CDC").
         </p>
         
-        <p>Počet slabik v prvním verši:
+
+        <p><label class="tooltip"
+            title="Maximální počet slok - model může vygenerovat kratší báseň. Delší básně jsou zajímavější, ale jejich generování trvá déle."
+            >Počet slok</label>
+        <input type="number" name="max_strophes" value="1" step="1" min="1" max="10">
+        
+        </p>
+
+        <p data-hide-models="new"><label class="tooltip"
+            title="Délka prvního verše."
+            >Délka verše</label>
         <select name="syllables_count">
-        <option value="0">náhodně</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-        <option value="13">13</option>
-        <option value="14">14</option>
-        <option value="15">15</option>
-        <option value="16">16</option>
+        <option value="0"></option>
+        <option value="short">krátký verš</option>
+        <option value="long">dlouhý verš</option>
+        <option value="4">4 slabiky</option>
+        <option value="5">5 slabik</option>
+        <option value="6">6 slabik</option>
+        <option value="7">7 slabik</option>
+        <option value="8">8 slabik</option>
+        <option value="9">9 slabik</option>
+        <option value="10">10 slabik</option>
+        <option value="11">11 slabik</option>
+        <option value="12">12 slabik</option>
+        <option value="13">13 slabik</option>
+        <option value="14">14 slabik</option>
+        <option value="15">15 slabik</option>
+        <option value="16">16 slabik</option>
         </select>
-        (respektive ve všech verších které mají definovaný požadavek na první slovo)
+        <!--(respektive ve všech verších které mají definovaný požadavek na první slovo)
         TODO teď to tu nejde zadat ale model umí i různé počty pro různé
         verše, např. "8 7" pokud se mají střídat verše o 8 a 7 slabikách, nebo
-        třeba "8 7 7 8"...
+        třeba "8 7 7 8"...-->
         </p>
 
         <!--<p>TODO rozměr (počet stop) - buď stejný pro celou báseň, nebo pro
         jednotlivé rýmy; není to nutně totéž jako počet slabik (m/f/a se liší
         počtem slabik při stejném rozměru)</p>-->
 
-        <p class="authtit">Pevná forma:
+        <p data-hide-models="mc"><label>Pevná forma</label>
         <select name="form">
-        <option value="">ne</option>
+        <option></option>
         <option value="sonet">italský sonet</option>
-        <option value="haiku">haiku</option>
-        <option value="limerik">limerik</option>
+        <option>haiku</option>
+        <option>limerik</option>
+        <option>anglický sonet</option>
+        <option>stance</option>
+        <option>gazel</option>
+        <option>sapfická strofa</option>
+        <option>rondel</option>
+        <option>tercína</option>
         </select>
-        Pokud je vybrána pevná forma, nastavení v rozporu s vybranou formou se budou ignorovat.
+        <!--Pokud je vybrána pevná forma, nastavení v rozporu s vybranou
+            formou se budou ignorovat.-->
         </p>
 
-        <!--<p>Téma/motiv:
-        <input type="text"
-               name="motiv"
-               disabled
-        >
-        </p>-->
+        <p data-hide-models="mc,tm"><label style="vertical-align: top">Motivy</label>
+        <textarea rows=5 type="text"
+               name="motives"
+placeholder="Naděje a touha
+Krása a pomíjivost
+Ztráta a smutek"></textarea>
+        </p>
+
+        <p data-hide-models="gpt-5-mini"><label class="tooltip"
+            title="Teplota (temperature) ovlivňuje, jak moc konzervativní/divoký bude model.  Čím vyšší teplota, tím náhodnější jsou výstupy modelu.
+Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 (pro ChatGPT 5 se temperature ignoruje)."
+            >Temperature</label> <input type="number" name="temperature" value="0.7" step="0.01" min="0.01" max="10">
+        </p>
+
+        <p><label class="tooltip"
+            title="Maximální počet pokusů o vygenerování dobré básně."
+            >Počet pokusů</label>
+        <input type="number" name="max_tries" value="1" step="1" min="1" max="10">
+        </p>
+
 
 	<script>
 	    function togglePrvoslova() {
@@ -178,6 +206,7 @@
 		    }
 	</script>
 
+	<div data-hide-models="new">
 	<button type="button" id="prvoslovaButton" onclick="togglePrvoslova()">➕ První slova veršů</button>
 	<div id="prvoslova">
 	<p>Lze vypnit jen první slovo prvního verše, anebo i první slova dalších
@@ -189,7 +218,7 @@
                name="first_words"
                placeholder="Muž"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="0"  disabled="disabled"> anafora
         <input type="checkbox" name="epanastrophes" value="0"  disabled="disabled"> epanastrofa
 	</span>
@@ -200,7 +229,7 @@
                name="first_words"
                placeholder="Žena"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="1"> anafora
         <input type="checkbox" name="epanastrophes" value="1"> epanastrofa
 	</span>
@@ -211,7 +240,7 @@
                name="first_words"
                placeholder="Banán"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="2"> anafora
         <input type="checkbox" name="epanastrophes" value="2"> epanastrofa
 	</span>
@@ -222,7 +251,7 @@
                name="first_words"
                placeholder="Mušle"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="3"> anafora
         <input type="checkbox" name="epanastrophes" value="3"> epanastrofa
 	</span>
@@ -233,7 +262,7 @@
                name="first_words"
                placeholder="Lanýž"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="4"> anafora
         <input type="checkbox" name="epanastrophes" value="4"> epanastrofa
 	</span>
@@ -244,7 +273,7 @@
                name="first_words"
                placeholder="Hrob"
         >
-	<span class="basiconly">
+	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
         <input type="checkbox" name="anaphors" value="5"> anafora
         <input type="checkbox" name="epanastrophes" value="5"> epanastrofa
 	</span>
@@ -252,56 +281,61 @@
         
         </ol>
 	</div>
+	</div>
 
 
-        <!--<p>Typ lyriky:
-        <select name="lyrika_style" disabled>
-        <option value="">ne</option>
-        <option value="přírodní">přírodní</option>
-        <option value="milostná">milostná</option>
+	<script>
+	    function toggleMore() {
+		    var section = document.getElementById("more")
+		    var button = document.getElementById("moreButton")
+		    if (section.style.display === "none") {
+			    section.style.display = "block";  // Show the section
+                            button.textContent = "➖ Skrýt další nastavení";
+			} else {
+			    section.style.display = "none";   // Hide the section
+			    button.textContent = "➕ Další nastavení";
+			}
+		    }
+	</script>
+
+	<button type="button" id="moreButton" onclick="toggleMore()">➕ Další nastavení</button>
+	<div id="more">
+
+        <p data-hide-models="mc,tm,new">Rýmovaná báseň:
+        <select name="rhymed">
+        <option value=""></option>
+        <option value="yes">ano</option>
+        <option value="no">ne</option>
         </select>
         </p>
-
-        <p>Lyrický subjekt (rod, stáří, pocit...):
-        <select name="lyrika_subjekt" disabled>
-        <option value="">neurčeno</option>
-        <option value="muž">muž</option>
-        <option value="žena">žena</option>
-        </select>
         
+    <p data-hide-models="mc,tm,new">Současná nebo stará báseň:
+        <select name="old_style">
+        <option value=""></option>
+        <option value="old">stará</option>
+        <option value="modern">moderní</option>
+        <option value="contemporary">současná</option>
+        </select>
         </p>
-
-        <p>Styl autora:
-        <select name="author_style" disabled>
-        <option value="">ne</option>
-        <option value="Mácha">Mácha</option>
+        
+        <p data-hide-models="mc,tm">Nálada:
+        <select name="mood">
+        <option></option>
+        <option>veselá</option>
+        <option>smutná</option>
         </select>
         </p>
 
-        <p>Styl školy:
-        <select name="school_style" disabled>
-        <option value="">ne</option>
-        <option value="ruchovci">ruchovci</option>
+        <p data-hide-models="mc,tm,new">Délka básně:
+        <select name="poem_length">
+        <option value=""></option>
+        <option value="short">krátká</option>
+        <option value="medium">středně dlouhá</option>
+        <option value="long">dlouhá</option>
         </select>
-        </p>-->
-
-        <p>Temperature: <input type="number" name="temperature" value="0.7" step="0.01" min="0.01" max="10">
-        Jak moc konzervativní/divoký bude model.
-        Čím vyšší teplota, tím náhodnější jsou výstupy modelu.
-        Pro nový model nám dobře fungují hodnoty kolem 0.7,
-        pro ChatGPT 4 kolem 0.5
-        (pro ChatGPT 5 se temperature ignoruje).
         </p>
-
-        <p>Počet slok:
-        <input type="number" name="max_strophes" value="1" step="1" min="1" max="10">
-        Maximální počet slok - model může vygenerovat kratší báseň.
-        Delší básně jsou zajímavější, ale jejich generování trvá déle.
-        </p>
-
-        <p>Počet pokusů:
-        <input type="number" name="max_tries" value="1" step="1" min="1" max="10">
-        Maximální počet pokusů o vygenerování dobré básně.
+        
+    <p> 
         Model se opakovaně snaží vygenerovat báseň, která má smyslupnost
         alespoň
         <input type="number" name="min_meaning" value="0.7" step="0.1" min="0" max="1">
@@ -311,11 +345,24 @@
         vygenerovaných básní dle těchto kritérií.
         Vyšší počet pokusů vede k lepším básním, ale déle trvajícímu
         generování.
+
         </p>
+
+    </div>
+
+    <br>
 
         <input type="submit" value="Generovat" title="Generovat"
         onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
     </form>
 
     <script>togglePrvoslova()</script>
-    <script>toggle_auth()</script>
+    <script>toggleMore()</script>
+    <script>updateModelVisibility()</script>
+
+    {% include 'select_collection.html' %}
+
+
+<p>Aplikace nekontroluje rozpory mezi nastavením jednotlivých parametrů,
+některé nastavitelné kombinace parametrů mohou být nesplnitelné.</p>
+

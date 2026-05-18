@@ -1,0 +1,50 @@
+<div id="epl_app">
+    
+    <div id="epl_header">
+        <h1>Namíchej si báseň</h1>
+    </div>            
+
+    <div id="epl_ingredients">
+        <div id="epl_instructions">
+            <div id="epl_instruction_1">Vlož přísady do kádinky a spusť reakci</div>
+            <div id="epl_instruction_2">Vlož přísady do kádinky a spusť reakci</div>
+        </div>
+        <div id="epl_ingredients_container"></div>    
+    </div>
+
+    <div id="epl_drag_container">
+        <div id="epl_jar_wrapper">
+            <div id="epl_jar">
+                <img id="epl_jar_back" src="assets/jar_back.png" draggable="false">            
+                <img id="epl_jar_front" src="assets/jar_front.png">
+                <div id="epl_jar_dropzone"></div>            
+            </div>
+        </div>
+    </div>                
+
+    <div id="epl_result_modal">
+        <div id="epl_result_panel">
+            <div id="epl_result"></div>        
+            <div id="epl_result_buttons">
+                <div>
+                    <span id="epl_result_copy"><img src="assets/copy.svg" style="height:1em"></span>
+                        &nbsp;&nbsp;
+                    <a href="" id="epl_result_share" target="_blank"><img src="assets/share-black.svg" style="height:1em"></a>
+                </div>             
+                <button id="epl_btn_close" onclick="app.closeResult()">Zavřít</button>   
+            </div>                
+        </div>
+    </div>
+
+    <div id="epl_waiting_modal">
+        <div id="epl_waiting_modal_content">
+            <img id="epl_waiting_progress" src="assets/progress_80.png">
+            <span>Míchám báseň</span>
+        </div>
+        
+    </div>
+
+    <button id="epl_btn_generate" onclick="app.generate()"><img src="assets/stars.svg" style="height:1em; margin-right:0.5em">&nbsp;Spustit&nbsp;reakci!</button>        
+</div>
+
+

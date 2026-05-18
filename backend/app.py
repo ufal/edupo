@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response, send_file
+from flask import Flask, request, render_template, g, redirect, url_for, jsonify, Response, make_response, send_file, has_request_context
 from flask_cors import CORS
 from itertools import groupby, repeat
+import logging
 import os
+import secrets
 # from gen import generuj, load_models
 import show_poem_html
 import sqlite3
@@ -29,7 +31,28 @@ app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
 
+class RequestIdFilter(logging.Filter):
+    def filter(self, record):
+        if has_request_context() and getattr(g, 'request_id', None):
+            record.msg = f"[{g.request_id}] {record.msg}"
+        return True
+
+app.logger.addFilter(RequestIdFilter())
+
+@app.before_request
+def assign_request_id():
+    incoming = request.headers.get('X-Request-ID')
+    g.request_id = incoming if incoming else secrets.token_hex(4)
+
+@app.after_request
+def propagate_request_id(response):
+    if getattr(g, 'request_id', None):
+        response.headers['X-Request-ID'] = g.request_id
+    return response
+
 DBFILE='/net/projects/EduPo/data/new.db'
+PWDFILE='/net/projects/EduPo/data/hesla.json'
+PWDLOG='logs/pwdaccess.log'
 
 POEMFILES="static/poemfiles"
 
@@ -39,11 +62,18 @@ EDUPO_SERVER_PATH = os.getenv('EDUPO_SERVER_PATH', '')
 
 MC_MODEL_PORT = os.getenv('MC_MODEL_PORT', 5010)
 TM_MODEL_PORT = os.getenv('TM_MODEL_PORT', 5011)
+NEW_MODEL_PORT = os.getenv('NEW_MODEL_PORT', 5012)
 
 sqlite3.register_converter("json", json.loads)
 
 # load generator models
 # load_models()
+
+try:
+    with open(PWDFILE) as infile:
+        HESLA = set(json.load(infile))
+except:
+    HESLA = set()
 
 class ExceptionPoemDoesNotExist(Exception):
     pass
@@ -168,7 +198,7 @@ def poem2text(data):
     """Convert poem (loaded from JSON) to plaintext."""
 
     # the text itself
-    if data['plaintext']:
+    if 'plaintext' in data and data['plaintext']:
         return data['plaintext']
     else:
         plaintext = list()
@@ -251,13 +281,17 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
         if result == None:
             raise ExceptionPoemDoesNotExist("Poem with this id does not exist")
         result = dict(result)
-        # always analyze
-        result['body'] = okvetuj_ccv(result['body'])
+        # always analyze for KCV, never for KSP
+        if result['id'] < 100000:
+            result['body'] = okvetuj_ccv(result['body'])
         # TODO this would be good but get_measures does not work for CCV data
         # result['measures'] = get_measures_from_analyzed_poem(result['body'])
         data = show_poem_html.show(result)
         data['plaintext'] = poem2text(data)
     
+    if 'geninput' not in data or data['geninput'] == '':
+        data['geninput'] = {}
+
     return data
 
 def get_data_tta():
@@ -330,16 +364,18 @@ def gen_zmq(params):
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
     if params['modelspec'] == 'tm':
-        try:
-            socket.connect(f"tcp://localhost:{TM_MODEL_PORT}")
-        except:
-            socket.connect(f"tcp://localhost:{MC_MODEL_PORT}")
-    else:
+        socket.connect(f"tcp://localhost:{TM_MODEL_PORT}")
+    elif params['modelspec'] == 'mc':
         socket.connect(f"tcp://localhost:{MC_MODEL_PORT}")
+    elif params['modelspec'] == 'new':
+        socket.connect(f"tcp://localhost:{NEW_MODEL_PORT}")
     socket.send_string(json.dumps(params))
     return json.loads(socket.recv())
 
 def set_params_for_form(params):
+    if params['modelspec'] == 'new':
+        return
+    # TODO dodělat pro další povolené formy
     if params['form'] == 'sonet' and params['modelspec'] != 'mc':
         params['max_strophes'] = 4
         params['rhyme_scheme'] = 'ABBA CDDC EFG EFG'
@@ -360,31 +396,54 @@ def int_or_intlist(text):
     else:
         return int(text)
 
+verselength2syllcount = {
+    'short': 8,
+    'long': 11,
+        }
+
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     # empty or 'náhodně' means random
     params = dict()
+    params['modelspec'] = get_post_arg('modelspec', 'mc')
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
     params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
-    params['syllables_count'] = int_or_intlist(get_post_arg('syllables_count', '0', True))
+    
+    # can be ''/0 or e.g. 9 or e.g. 9 8 9 10 or short/long
+    params['syllables_count'] = get_post_arg('syllables_count', '0', True)
+    if params['syllables_count'] not in ('short', 'long'):
+        params['syllables_count'] = int_or_intlist(params['syllables_count'])
+    elif params['modelspec'] in ('mc', 'tm'):
+        # TODO prasárna ale do budoucna to nebude pač modely tm ani mc nebudem
+        # používat a novej tm model bude umět i short/long
+        params['syllables_count'] = verselength2syllcount[params['syllables_count']]
+    
     params['metre'] = get_post_arg('metre')
     params['first_words'] = [word.strip() for word in get_post_arg('first_words', isarray=True, default=[])]
     # TODO if all first_words are empty then ignore
     params['anaphors'] = [int(x) for x in get_post_arg('anaphors', isarray=True, default=[])]
     params['epanastrophes'] = [int(x) for x in get_post_arg('epanastrophes', isarray=True, default=[])]
-    params['temperature'] = float(get_post_arg('temperature', '1'))
+    params['temperature'] = float(get_post_arg('temperature', '1', True))
     if params['temperature'] <= 0:
         params['temperature'] = 0.01
-    params['max_strophes'] = int(get_post_arg('max_strophes', '2'))
+    params['max_strophes'] = int(get_post_arg('max_strophes', '2', True))
     params['title'] = get_post_arg('title', 'Bez názvu')
     params['author_name'] = get_post_arg('author', 'Anonym')
-    params['modelspec'] = get_post_arg('modelspec', 'mc')
+    params['collection_style'] = get_post_arg('collection_style', '')
     params['form'] = get_post_arg('form', '')
+    params['mood'] = get_post_arg('mood', 'žádná', True)
+    params['motives'] = get_post_arg('motives', '').strip().split('\n')
+    if len(params['motives']) == 1 and not params['motives'][0]:
+        params['motives'] = []
     set_params_for_form(params)
     
-    params['min_meaning'] = float(get_post_arg('min_meaning', '0.7'))
-    params['max_unk'] = float(get_post_arg('max_unk', '0.05'))
-    params['max_tries'] = int(get_post_arg('max_tries', '1'))
+    params['rhymed'] = get_post_arg('rhymed', '')
+    params['poem_length'] = get_post_arg('poem_length', '')
+    params['old_style'] = get_post_arg('old_style', '')
+    
+    params['min_meaning'] = float(get_post_arg('min_meaning', '0.7', True))
+    params['max_unk'] = float(get_post_arg('max_unk', '0.05', True))
+    params['max_tries'] = int(get_post_arg('max_tries', '1', True))
     if params['max_tries'] < 1:
         params['max_tries'] = 1
 
@@ -525,7 +584,14 @@ def call_regenerate_line():
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     data = get_poem_by_id(random_if_no_id=True)
+    password = get_post_arg('password', default='')
     if data:
+        if password in HESLA:
+            data['copyrighted'] = 0
+            logmsg = datetime.now().strftime("%Y-%m-%d %H:%M:%S "
+                    ) + f"{data['id']} {password[0]}{'.'*(len(password)-1)}"
+            with open(PWDLOG, 'a') as outfile:
+                print(logmsg, file=outfile)
         return return_accepted_type_for_poemid(data, 'show_poem_html.html')
     else:
         return return_error('The requested poem does not exist.', get_post_arg('poemid'), 404)
@@ -768,6 +834,43 @@ def call_genmotives():
         
     return return_accepted_type(motives,
             {'motives': motives.split("\n")},
+            redirect_for_poemid(poemid)
+            )
+
+def guessmood(data):
+    basne = 'básně'
+    if data['title'] and not 'Bez názvu' in data['title']:
+        basne = f"básně {data['title']}"
+    
+    system = f"Jsi literární vědec se zaměřením na poezii. Urči převládající náladu {basne}. Na výběr máš z následujících možností: 'veselá', 'smutná', 'žádná'. Přečti si báseň a odhadni, jakou náladu vyjadřuje, jakou emoci vyvolává ve čtenáři. Zaměř se jak na slova povrchově považovaná za smutná či veselá, tak na celkový obsah a sdělení básně. Pokud se báseň nejeví primárně ani jako smutná, ani jako veselá, odpověz 'žádná'. Na výstup vypiš pouze slovo veselá nebo smutná nebo žádná. Následuje text básně."
+    before = '<poem>\n'
+    after = '\n</poem>\nTo byla báseň. Nyní urči její převládající náladu jakou veselou, smutnou, či není žádná převládající nálada. Odpověď pouze jedním slovem: veselá/smutná/žádná.'
+    
+    mood = generate_with_openai_simple(before+poem2text(data)+after, system)
+    if mood not in ['veselá', 'smutná', 'žádná']:
+        app.logger.warning(f'Nepovolená nálada u {basne}: {mood}')
+        mood = 'žádná'
+    
+    return mood
+
+@app.route("/guessmood", methods=['GET', 'POST'])
+def call_guessmood():
+    poemid = get_post_arg('poemid')
+    data = get_poem_by_id(poemid)
+    regenerate = get_post_arg('regenerate', default=False, nonempty=True)
+
+    filename = f'static/mood/{poemid}.txt'
+
+    if regenerate or not os.path.exists(filename):
+        mood = guessmood(data)
+        with open(filename, 'w') as outfile:
+            print(mood, file=outfile)
+    else:
+        with open(filename, 'r') as infile:
+            mood = infile.read()
+        
+    return return_accepted_type(mood,
+            {'mood': mood},
             redirect_for_poemid(poemid)
             )
 
