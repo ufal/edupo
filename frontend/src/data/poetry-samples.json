@@ -1,0 +1,50 @@
+[
+  {
+    "id": "macha-maj",
+    "label": "Máj – Karel Hynek Mácha",
+    "collectionTitle": "Máj",
+    "author": "Karel Hynek Mácha",
+    "poem": {
+      "id": "macha-maj-poem",
+      "title": "Máj",
+      "text": "Byl pozdní večer – první máj –\nvečerní máj – byl lásky čas.\nHrdliččin zval ku lásce hlas,\nkde borový zaváněl háj.",
+      "lines": [
+        { "id": "l1", "text": "Byl pozdní večer – první máj –", "group": "A" },
+        { "id": "l2", "text": "večerní máj – byl lásky čas.", "group": "A" },
+        { "id": "l3", "text": "Hrdliččin zval ku lásce hlas,", "group": "B" },
+        { "id": "l4", "text": "kde borový zaváněl háj.", "group": "B" }
+      ]
+    }
+  },
+  {
+    "id": "erben-polednice",
+    "label": "Kytice – Karel Jaromír Erben",
+    "collectionTitle": "Kytice",
+    "author": "Karel Jaromír Erben",
+    "poem": {
+      "id": "polednice",
+      "title": "Polednice",
+      "text": "U lavice dítě stálo,\nz plna hrdla křičelo.\n„Bodejž jsi jen trochu málo,\nty cikáně, mlčelo!“",
+      "lines": [
+        { "id": "l1", "text": "U lavice dítě stálo,", "group": "A" },
+        { "id": "l2", "text": "z plna hrdla křičelo.", "group": "A" },
+        { "id": "l3", "text": "„Bodejž jsi jen trochu málo,", "group": "B" },
+        { "id": "l4", "text": "ty cikáně, mlčelo!“", "group": "B" }
+      ]
+    }
+  },
+  {
+    "id": "borovsky-epigram",
+    "label": "Epigramy – Karel Havlíček Borovský",
+    "collectionTitle": "Epigramy",
+    "author": "Karel Havlíček Borovský",
+    "poem": {
+      "id": "epigram-1",
+      "title": "Epigram",
+      "text": "Pravda vítězí, ale dá to fušku.",
+      "lines": [
+        { "id": "l1", "text": "Pravda vítězí, ale dá to fušku.", "group": "A" }
+      ]
+    }
+  }
+]
