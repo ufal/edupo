@@ -97,13 +97,13 @@ export async function generatePoemApi(
   params: GeneratePoemParams,
 ): Promise<GeneratePoemResponse> {
 
-  const shouldSendRhymeScheme = !params.form || params.form === 'free' || params.form === 'epigram'
-  const shouldSendVerseCount = !params.form || params.form === 'free' || params.form === 'epigram'
-  const shouldSendFirstVerseLength = params.form !== 'haiku'
+  const shouldSendRhymeScheme = true // !params.form || params.form === 'free' || params.form === 'epigram'
+  const shouldSendVerseCount = true // !params.form || params.form === 'free' || params.form === 'epigram'
+  const shouldSendFirstVerseLength = true // params.form !== 'haiku'
 
   return apiGetJson<GeneratePoemResponse>('gen', {
     accept: 'json',
-    modelspec: 'tm',
+    modelspec: 'google/gemini-3.1-pro-preview',
     
     title: params.title,
     motives: params.motifs?.join('\n'),

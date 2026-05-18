@@ -30,7 +30,7 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
   const verseCount = storedVerseCount ?? DEFAULT_VERSES
 
   const form = usePoemStore((state) => state.params.form)
-  const isEditable = !form || form === 'free' || form === 'epigram'
+  const isEditable = true //!form || form === 'free' || form === 'epigram'
 
   if (!isEditable) {
     return (

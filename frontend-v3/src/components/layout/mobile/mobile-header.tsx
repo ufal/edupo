@@ -18,6 +18,7 @@ export function MobileHeader({ mode='main' }: { mode?: 'logo-only' | 'main' }) {
         <EdupoLogo />
       </Link>
       {
+        /*
         mode === 'main' && (
           <Button
             variant="accent"
@@ -27,6 +28,7 @@ export function MobileHeader({ mode='main' }: { mode?: 'logo-only' | 'main' }) {
             Ukázka poezie
           </Button>
         )
+        */
       }
       {
         mode === 'main' && (

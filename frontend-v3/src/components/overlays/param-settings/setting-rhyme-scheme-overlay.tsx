@@ -73,7 +73,7 @@ export function SettingRhymeSchemeOverlay({
   onClose: () => void
 }) {
   const form = usePoemStore((state) => state.params.form)
-  const isEditable = !form || form === 'free' || form === 'epigram'
+  const isEditable = true // !form || form === 'free' || form === 'epigram'
 
   const verseCount = usePoemStore((state) =>
     Math.min(state.params.verseCount ?? 6, MAX_VERSES),
