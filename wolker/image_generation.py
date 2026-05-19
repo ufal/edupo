@@ -24,10 +24,6 @@ logging.basicConfig(
 
 HASH_WIDTH_BYTES = sys.hash_info.width//8
 
-SDURL = 'http://ufallab.ms.mff.cuni.cz:8457'
-
-SDURL_TXT2IMG = f'{SDURL}/sdapi/v1/txt2img'
-
 # Directory with generated images
 IMGDIR = 'genimgs'
 
@@ -54,20 +50,6 @@ def store_image(imgdata, filename):
     with open(filename, "wb") as outfile:
         outfile.write(bytestream.getbuffer())
 
-# Based on https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API
-def generate_image_sd(prompt, seed, filename):
-    payload = {
-        "prompt": prompt,
-        "steps": 13,
-        "cfg_scale": 10,
-        "seed": seed
-    }
-
-    response = requests.post(SDURL_TXT2IMG, json=payload)
-
-    imgdata = response.json()['images'][0].split(",",1)[0]
-    store_image(imgdata, filename)
-
 
 # https://platform.openai.com/docs/guides/images/usage?context=python
 # https://platform.openai.com/docs/api-reference/images/create
@@ -93,22 +75,13 @@ def generate_image_openai(prompt, filename):
 
     return response.data[0].revised_prompt
 
-def translate(text):
-    url = 'http://lindat.mff.cuni.cz/services/translation/api/v2/models/cs-en'
-    data = {"input_text": text}
-    headers = {"accept": "text/plain"}
-    response = requests.post(url, data = data, headers = headers)
-    return response.text
-
 def generate_image(prompt, seed, filename):
     try:
         return generate_image_openai(prompt, filename)
     except Exception as e:
         # print(e)
         logging.warning('DALLE does not generate: ' + str(e))
-        prompt_en = translate(prompt)
-        generate_image_sd(prompt_en, seed, filename)
-        return prompt
+        raise
 
 def _get_image_for_line(line, seed):
     prompt = line
