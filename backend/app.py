@@ -1131,8 +1131,18 @@ def call_tests():
     elif jmeno: # vyrobíme nový test
         acka = open('testovani_data/' + testy[t][0]).readlines()
         bcka = open('testovani_data/' + testy[t][1]).readlines()
-        a_ids = list(zip(repeat(testy[t][0]), random.sample(range(len(acka)), 10)))
-        b_ids = list(zip(repeat(testy[t][1]), random.sample(range(len(bcka)), 10)))
+        # TODO tohle by asi mělo být konfigurovatelné
+        if len(acka) == len(bcka):
+            # porovnávej spolu básně na stejných pozicích ve fajlech
+            # (nové chování, pro situaci kdy básně na stejných pozicích jsou
+            # vygenerované se stejnými parametry a tedy jsou porovnatelné)
+            ids = random.sample(range(min(len(acka), len(bcka))), 10)
+            a_ids = list(zip(repeat(testy[t][0]), ids))
+            b_ids = list(zip(repeat(testy[t][1]), ids))
+        else:
+            # porovnávej náhodné básně (původní chování)
+            a_ids = list(zip(repeat(testy[t][0]), random.sample(range(len(acka)), 10)))
+            b_ids = list(zip(repeat(testy[t][1]), random.sample(range(len(bcka)), 10)))
         tst=list(zip(a_ids, b_ids))
         for i in range(len(tst)):
             if random.choice([True, False]):
