@@ -359,12 +359,12 @@ def generate_image_with_openai(prompt, filename):
 
     try:
         response = client.images.generate(
-            model="dall-e-3",
+            model="gpt-image-2",
             prompt=sanitized_prompt,
             size="1024x1024",
-            quality="standard",
+            quality="medium",
+            # moderation="low",
             n=1,
-            response_format="b64_json",
         )
     except:
         logging.exception("EXCEPTION Neúspěšné generování obrázku pomocí OpenAI.")
@@ -373,7 +373,8 @@ def generate_image_with_openai(prompt, filename):
     imgdata = response.data[0].b64_json
     store_image(imgdata, filename)
 
-    return response.data[0].revised_prompt
+    return_prompt = sanitized_prompt if response.data[0].revised_prompt == None else response.data[0].revised_prompt
+    return return_prompt
 
 def store_image(imgdata, filename):
     bytestream = io.BytesIO(base64.b64decode(imgdata))
@@ -420,8 +421,8 @@ def generate_with_openai_streaming(model="gpt-4o-mini"):
 if __name__=="__main__":
     GEN_POEM = False
     GEN_TEXT = False
-    GEN_IMG = False
-    GEN_STREAM = True
+    GEN_IMG = True
+    GEN_STREAM = False
 
     if GEN_POEM:
         title = input("Zadej název básně: ")
@@ -458,6 +459,7 @@ if __name__=="__main__":
             print(generate_with_openai_simple(prompt, model=model, max_tokens=5000))
 
     if GEN_IMG:
+        prompt = input("Zadej prompt: ")
         IMGFILE='image.png'
         image_desc = generate_image_with_openai(prompt, IMGFILE)
         print(f'Obrázek: {IMGFILE}. ({image_desc})')

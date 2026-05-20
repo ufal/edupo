@@ -72,7 +72,8 @@ def generate_image_openai(prompt, filename):
     imgdata = response.data[0].b64_json
     store_image(imgdata, filename)
 
-    return response.data[0].revised_prompt
+    return_prompt = prompt if response.data[0].revised_prompt == None else response.data[0].revised_prompt
+    return return_prompt
 
 def generate_image(prompt, seed, filename):
     try:
