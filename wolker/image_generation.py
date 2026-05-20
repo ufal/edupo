@@ -51,8 +51,7 @@ def store_image(imgdata, filename):
         outfile.write(bytestream.getbuffer())
 
 
-# https://platform.openai.com/docs/guides/images/usage?context=python
-# https://platform.openai.com/docs/api-reference/images/create
+# https://developers.openai.com/api/docs/guides/image-generation?api=image
 def generate_image_openai(prompt, filename):
     with open('apikey.txt') as infile:
         apikey = infile.read().strip()
@@ -62,12 +61,12 @@ def generate_image_openai(prompt, filename):
     )
     
     response = client.images.generate(
-        model="dall-e-3",
+        model="gpt-image-2",
         prompt=prompt,
         size="1024x1024",
-        quality="standard",
+        quality="medium",
+        # moderation="low",
         n=1,
-        response_format="b64_json",
     )
 
     imgdata = response.data[0].b64_json
