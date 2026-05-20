@@ -31,13 +31,13 @@ def json2line(filename):
 
         jakem = JAKEM[data['geninput']['old_style']]
         rymovana = RYM[data['geninput']['rhymed']]
-        vystup = f"""Zadání: báseň v {jakem} stylu {rymovana}
+        # {data['author_name']}:
+        vystup = f"""(Zadání: báseň v {jakem} stylu {rymovana})
 
-{data['author_name']}:
 {data['title']}
 
 
-{data['plaintext']}:"""
+{data['plaintext']}"""
 
     return vystup
    
@@ -45,5 +45,5 @@ def json2line(filename):
 if __name__=="__main__":
     filename = sys.argv[1]
     vystup = json2line(filename)
-    print(repr(vystup))
+    print('"' + vystup.replace('\n', '\\n') + '"')
 
