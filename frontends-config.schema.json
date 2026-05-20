@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AppConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["FRONTEND", "palette"],
+  "properties": {
+    "FRONTEND": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["URL"],
+      "properties": {
+        "URL": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["poemRead", "poemAnalyze", "poemEdit", "poemVisualize"],
+          "properties": {
+            "poemRead": {
+              "type": "string",
+              "pattern": "^/.*poemId=\\{0\\}.*$",
+              "description": "Začíná '/', obsahuje poemId={0}. Typicky: /edupo/?viewMode=reading&poemId={0}"
+            },
+            "poemAnalyze": {
+              "type": "string",
+              "pattern": "^/.*poemId=\\{0\\}.*$",
+              "description": "Začíná '/', obsahuje poemId={0}. Typicky: /edupo/?viewMode=analysing&poemId={0}"
+            },
+            "poemEdit": {
+              "type": "string",
+              "pattern": "^/.*poemId=\\{0\\}.*$",
+              "description": "Začíná '/', obsahuje poemId={0}. Typicky: /edupo/?viewMode=editing&poemId={0}"
+            },
+            "poemVisualize": {
+              "type": "string",
+              "pattern": "^/.*poemId=\\{0\\}.*$",
+              "description": "Začíná '/', obsahuje poemId={0}. Typicky: /edupo/?genMode=image&poemId={0}"
+            }
+          }
+        }
+      }
+    },
+    "palette": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["red", "blue"],
+      "properties": {
+        "red":  { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "blue": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>EduPo</title>
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+</head>
+<body>
+
+<h1>EduPo</h1>
+
+<h2>Zobrazit vygenerovanou báseň</h2>
+
+<ul>
+{% for poemid in poemids %}
+    <li>
+        <a href="show?poemid={{ poemid }}">{{ poemid }}</a>
+    </li>
+{% endfor %}
+</ul>
+
+</body>
+</html>
+

@@ -1,0 +1,15 @@
+    <form method="post" action="analyze">
+        Autor: <input name="author"><br>
+        Název: <input name="title"><br>
+        
+        <textarea
+               name="text"
+               placeholder="Zemřela matka a do hrobu dána,&#10;siroty po ní zůstaly."
+               title="Text básně k analýze"
+               required
+        ></textarea>
+        <br>
+        <input type="submit" title="Analyzovat" value="Analyzovat"
+        onclick="this.value='Analyzuji...'; this.disabled = true; this.form.submit();">
+    </form>
+

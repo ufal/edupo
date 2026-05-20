@@ -1,0 +1,16 @@
+transformers
+torch
+flask
+ufal.morphodita
+sqlite-regex
+openai
+requests
+gunicorn
+gTTS
+flask-cors
+qrcode
+Pillow
+unsloth[cu124-torch260]
+parsy
+zmq
+pydantic

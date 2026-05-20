@@ -1,0 +1,470 @@
+#!/usr/bin/env python3
+#coding: utf-8
+
+import sys
+import os
+import logging
+logging.basicConfig(
+    format='%(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO)
+
+import json
+import string
+from collections import defaultdict
+
+from flask import render_template
+
+# TODO rewrite using Jinja probably?
+# from flask import render_template
+
+METRUM = {
+    'J': "jamb",
+    'T': "trochej",
+    'D': "daktyl",
+    'A': "amfibrach",
+    'N': "neurčeno",
+    'alex': "alexandrín (jamb)",
+}
+
+# non breaking space
+NBSP = ' '
+
+def get_metrum(metre):
+    if metre in METRUM:
+        return METRUM[metre]
+    else:
+        return f"metrum {metre}"
+
+# pokud je pro jeden verš anotováno víc meter,
+# zobrazit jen to nejnormálnější metrum
+
+METRE_PRIORITY = defaultdict(int)
+METRE_PRIORITY['T'] = 5
+METRE_PRIORITY['J'] = 4
+METRE_PRIORITY['D'] = 3
+METRE_PRIORITY['A'] = 2
+METRE_PRIORITY['N'] = -1
+
+STRESS_NORM = {
+    'R1': '10',
+    'RM': '1m',
+    'R0': '10',
+    'R': '0',
+    'nm': '10',
+    'n': '0',
+    'm': '0',
+    'M': '1',
+    'N': '1',
+}
+
+def get_metre(verse):
+    # TODO switch eventually to new format, where metre is a dict
+    # (now it is a list of dicts)
+    metre = 'N'
+    if "metre" in verse:
+        for metre_candidate in verse["metre"]:
+            if METRE_PRIORITY[metre_candidate] >= METRE_PRIORITY[metre]:
+                metre = metre_candidate
+    else:
+        logging.warning(f"Missing metre in data.")
+    return metre
+
+def get_rhyme(verse):
+    try:
+        rhyme = 0 if verse["rhyme"] == None else verse["rhyme"]
+        return int(rhyme)
+    except:
+        logging.warning(f"Missing valid rhyme in data.")
+        return 0
+
+RHYMING_ALPHABET = string.ascii_uppercase[:22]
+RHYMING_MODULO = len(RHYMING_ALPHABET)
+
+# rhyme is 1-based
+# nonrhyming = None, converts to 0
+def get_rhyme_letter(rhyme, nonrhyming='X'):
+    if rhyme == 0:
+        return nonrhyming
+    else:
+        index = (rhyme-1) % RHYMING_MODULO
+        return RHYMING_ALPHABET[index]
+
+def get_rhyme_subscript(rhyme):
+    if rhyme <= RHYMING_MODULO:
+        return ''
+    else:
+        return (rhyme-1) // RHYMING_MODULO + 1
+
+def get_rhyme_class(rhyme):
+    if rhyme == 0:
+        return 0
+    else:
+        # modulo 12, 1-based
+        return (rhyme-1)%12+1
+
+def get_reduplicant_type(words):
+    # TODO format conversion, remove later
+    syllables = []
+    for word in words:
+        for syllable in word["syllables"]:
+            syllables.append(syllable)
+    if len(syllables) == 0 or not syllables[-1].get("rhyme_from", ""):
+        # No syllable, no rhyme
+        return '0'
+    elif len(syllables) >= 2 and syllables[-2].get("rhyme_from", ""):
+        # Penultimate (and necessarily ultimate)  syllable rhymes
+        return '2'
+    else:
+        rhyme_from = syllables[-1]["rhyme_from"]
+        if rhyme_from == 'c':
+            return '1o'
+        else:
+            assert rhyme_from == 'v'
+            return '1c'
+
+def construct_syllable_parts(syllable, previous_syllable, prev_punct=' '):
+    result = []
+    # consonants before
+    if syllable["ort_consonants"]:
+        part = {}
+        # když to je přilepená předložka, u ní jsou prázdný syllables ale může
+        # mít punct a tu sem dávám namísto '_'
+        prev_punct_html = prev_punct.replace(' ', NBSP)
+        part['text'] = syllable["ort_consonants"].replace('_', prev_punct_html)
+        part['classes'] = []
+        part['classes'].append('syllpart')
+        part['classes'].append('ort_consonants')
+        # position and stress
+        if syllable["ort_vowels"]:
+            # vowels follow so mark in standard way
+            part['classes'].append('beforeposition' +
+                    syllable["position"])
+            part['classes'].append('beforestress' +
+                    syllable["stress"])
+            # TODO maybe mark prev stress only if
+            # there is no afterstresws or something
+            # like that
+            prev_position = 'W'
+            prev_stress = '0'
+            if not previous_syllable["after"]:
+                prev_position = previous_syllable["position"]
+                prev_stress = previous_syllable["stress"]
+            part['classes'].append('afterposition' +
+                prev_position)
+            part['classes'].append('afterstress' +
+                prev_stress)
+        else:
+            # no vowels, so we need to mark stress on
+            # the consonants already
+            part['classes'].append('position' +
+                    syllable["position"])
+            part['classes'].append('stress' +
+                    syllable["stress"])
+        result.append(part)
+    # vowel
+    if syllable["ort_vowels"]:
+        part = {}
+        part['text'] = syllable["ort_vowels"]
+        part['classes'] = []
+        part['classes'].append('syllpart')
+        part['classes'].append('ort_vowels')
+        # position and stress
+        part['classes'].append('position' +
+                syllable["position"])
+        part['classes'].append('stress' +
+                syllable["stress"])
+        result.append(part)
+    # consonants after (= end of verse)
+    if syllable["ort_end_consonants"]:
+        part = {}
+        part['text'] = syllable["ort_end_consonants"]
+        part['classes'] = []
+        part['classes'].append('syllpart')
+        part['classes'].append('ort_end_consonants')
+        # position and stress
+        part['classes'].append('afterposition' +
+                syllable["position"])
+        part['classes'].append('afterstress' +
+                syllable["stress"])
+        result.append(part)
+    return result
+
+def mark_rhyming(parts, span):
+    """
+    parts = list of parts, part = dict of text and classes
+    span = a (all), v (from vowel), c (from last consonant preceding vowel)
+    """
+    part0 = None
+    part1 = None
+    for part in parts:
+        if "ort_consonants" in part["classes"]:
+            # initial consonant cluster
+            if span == 'a':
+                # everything is rhyming
+                part['classes'].append('rhyming')
+            elif span == 'c':
+                # only last consonant is rhyming
+                # need to split the part into two
+                part0 = {'classes': []}
+                part1 = {'classes': []}
+                # text
+                if part['text'].endswith('ch'):
+                    part0['text'] = part['text'][:-2]
+                    part1['text'] = part['text'][-2:]
+                else:
+                    part0['text'] = part['text'][:-1]
+                    part1['text'] = part['text'][-1:]
+                # mark classes
+                for classname in part['classes']:
+                    if classname in ['syllpart', 'ort_consonants']:
+                        part0['classes'].append(classname)
+                        part1['classes'].append(classname)
+                    elif classname.startswith('after'):
+                        part0['classes'].append(classname)
+                    else:
+                        # before, position, stress
+                        part1['classes'].append(classname)
+                part1['classes'].append('rhyming')
+            # else 'v': initial consonant cluster does not rhyme
+        else:
+            # vowels and end consonants are always rhyming
+            part['classes'].append('rhyming')
+    if part0 and part1:
+        parts.insert(0, part0)
+        parts[1] = part1
+    
+
+def filename_if_exists(filename):
+    if os.path.isfile(filename):
+        return filename
+    else:
+        return None
+
+def contents_if_exists(filename):
+    if os.path.isfile(filename):
+        with open(filename) as infile:
+            return infile.read()
+    else:
+        return None
+
+def ensure_qr_code(poemid):
+    filename = f'static/qrcodes/{poemid}.png'
+    if not os.path.isfile(filename):
+        import qrcode
+        base_url = 'https://quest.ms.mff.cuni.cz/edupo-api/show?poemid='
+        url = f'{base_url}{poemid}'
+        img = qrcode.make(url)
+        img.save(filename)
+
+def show(data):
+    data = defaultdict(str, data)
+    
+    data['imgfile'] = filename_if_exists(
+            f"static/genimg/{data['id']}.png")
+    data['imgtitle'] = contents_if_exists(
+            f"static/genimg/{data['id']}.txt")
+    data['ttsfile'] = filename_if_exists(
+            f"static/gentts/{data['id']}.mp3")
+    if data['motives']:
+        if data['motives'].startswith('['):
+            data['motives'] = '\n'.join(json.loads(data['motives']))
+        # else just display the string
+    else:
+        data['motives'] = contents_if_exists(
+                f"static/genmotives/{data['id']}.txt")
+    if not data['mood']:
+        data['mood'] = contents_if_exists(
+                f"static/mood/{data['id']}.txt")
+    ensure_qr_code(data['id'])
+
+    if 'body' in data:
+        # convert verses into a simpler format for displaying
+        data['verses'] = []
+        data['present_metres'] = set()
+        prev_stanza_id = 0
+        # list of lines (empty = empty line)
+        plaintext = list()
+        
+        # TODO this should not happen but does happen, at least for Ostrava
+        # if body is list of lists, flatten
+        if data['body'] and isinstance(data['body'][0], list):
+            logging.warning(f"Poem body is a list of lists of dicts, should be list of dicts!!! {data['id']}")
+            newbody = []
+            for stanza in data['body']:
+                for verse in stanza:
+                    newbody.append(verse)
+            data['body'] = newbody
+        
+        for verse in data['body']:
+            rhyme = get_rhyme(verse)
+            metre = get_metre(verse)
+            data['present_metres'].add(metre)
+            syllables = []
+            # Reduplicant
+            if "reduplicant_type" in verse:
+                reduplicant_type = verse["reduplicant_type"]
+            else:
+                # TODO remove this once the format is refactored
+                reduplicant_type = get_reduplicant_type(verse["words"])
+                # TODO default:
+                # reduplicant_type = '0'
+            
+            # stress and metre
+            swv = verse["metre"][metre]["pattern"]
+            stress = verse["sections"]
+            pointer = 0
+            syllable_count = sum((len(word["syllables"]) for word in verse["words"]))
+            #assert len(swv) == len(stress)
+            # TODO svw občas obsahuje '-', která by se měla ignorovat při výpočtu, ale zobrazit
+            if syllable_count != len(swv):
+                logging.warning(
+                    f'Syllable count mismatch: {len(swv)} annotated, {syllable_count} found in poem {data["id"]} verse {verse["text"]}')
+                swv = ' ' * syllable_count
+                stress = ' ' * syllable_count
+            for key, value in STRESS_NORM.items():
+                stress = stress.replace(key, value)
+            swv = swv.replace('V', 'W')
+
+            # initialize with empty initial syllable so that we can easily
+            # check against prev syllable and also so that we can add "after"
+            # to it
+            syllables = [{
+                "parts": [],
+                "position": "W",
+                "stress": "0",
+                "after": ""}]
+            prev_punct = ' '
+            for word in verse["words"]:
+                if "punct_before" in word:
+                    syllables[-1]["after"] += word["punct_before"].replace(' ', NBSP)
+                classes = ""
+                if word.get("is_unknown", False):
+                    classes = "unknown"
+                if word["syllables"]:
+
+                    # add all syllables
+                    for syllable in word["syllables"]:
+                        if 'stress' not in syllable:
+                            syllable['position'] = swv[pointer]
+                            syllable['stress'] = stress[pointer]
+                        parts = construct_syllable_parts(
+                                syllable, syllables[-1], prev_punct)
+                        syllables.append({
+                            "parts": parts,
+                            "position": syllable['position'],
+                            "stress": syllable['stress'],
+                            "after": "",
+                            "classes": classes})
+                        pointer += 1
+                    # mark end of word
+                    if "punct" in word:
+                        syllables[-1]["after"] += word["punct"].replace(' ', NBSP)
+                    prev_punct = ' '
+                else:
+                    # tady předpokládám že cokoliv nemá syllables a má
+                    # punctuation tak je neslabičná předložka a ta její
+                    # punctuation se pak nacpe tam kam má skrz replace na '_'
+                    prev_punct = word["punct"]
+    
+            if reduplicant_type == '2':
+                mark_rhyming(syllables[-2]['parts'], 'v')
+                mark_rhyming(syllables[-1]['parts'], 'a')
+            elif reduplicant_type == '1c':
+                mark_rhyming(syllables[-1]['parts'], 'v')
+            elif reduplicant_type == '1o':
+                mark_rhyming(syllables[-1]['parts'], 'c')
+
+            # construct plaintext
+            if prev_stanza_id != verse.get("stanza", 0):
+                plaintext.append('')
+                prev_stanza_id = verse.get("stanza", 0)
+            plaintext.append(verse["text"])
+            
+            # construct verse
+            data['verses'].append({
+                'text': verse["text"],
+                'stanza': verse.get("stanza", 0),
+                'syllables': syllables,
+                # NOTE: classes verseNone and verse1..verse12 harwired in CSS
+                'rhymeclass': get_rhyme_class(rhyme),
+                'rhymeletter': get_rhyme_letter(rhyme),
+                'rhymesubscript': get_rhyme_subscript(rhyme),
+                'metre': metre,
+                'metrum': get_metrum(metre),
+                'rythm': verse["sections"],
+                'pattern': verse["metre"][metre]['pattern'],
+                'foot': verse["metre"][metre]['foot'],
+                'clause': verse["metre"][metre]['clause'],
+                'narrators_gender': verse.get('narrators_gender', ''),
+                })
+                
+            # TODO možná restartovat číslování rýmu po každé sloce
+            # (ale někdy jde rýmování napříč slokama)
+            
+        # listify set because JSON cannot serialize sets
+        data['present_metres'] = list(data['present_metres'])
+        
+        data['plaintext'] = '\n'.join(plaintext)
+    
+    return data
+
+# Reads in file
+def show_file(poemid = '78468', path='static/poemfiles'):
+
+    if poemid.endswith('.json'):
+        filename = poemid
+    else:
+        filename = poemid + '.json'
+
+    with open(f'{path}/{filename}') as infile:
+        j = json.load(infile)
+
+    if type(j) == dict:
+        # new format
+        data = j
+        if not 'id' in data:
+            data['id'] = poemid
+        return show(data)
+    
+    elif type(j) == list:
+        # old format
+
+        def get_j0_key(j, key1, default=''):
+            try:
+                return j[0][key1]
+            except:
+                logging.warning(f"Missing {key1} in data.")
+                return default
+
+        def get_j0_key_key(j, key1, key2, default=''):
+            try:
+                return j[0][key1][key2]
+            except:
+                logging.warning(f"Missing {key1} {key2} in data.")
+                return default
+
+
+        data = {}
+
+        data['title'] = get_j0_key_key(j, "biblio", "p_title")
+        data['author'] = get_j0_key_key(j, "p_author", "name")
+        data['schools'] = ', '.join(get_j0_key(j, "p_schools", []))
+        data['born'] = get_j0_key_key(j, "p_author", "born")
+        data['died'] = get_j0_key_key(j, "p_author", "died")
+        data['b_title'] = get_j0_key_key(j, "biblio", "b_title")
+        data['year'] = get_j0_key_key(j, "biblio", "year")
+        data['id'] = filename
+        data['body'] = j[0]["body"]
+
+        return show(data)
+    
+    else:
+        assert False, f"Invalid type of root JSON element: {type(j)}"
+
+if __name__=="__main__":
+    filename = sys.argv[1]
+    data = show_file(filename, path='.')
+    html = render_template('show_poem_html.html', **data)
+    print(html)
+     

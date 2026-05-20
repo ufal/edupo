@@ -1,0 +1,42 @@
+name: SSH and Git Pull
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: SSH and Git Pull
+        env:
+          FIRST_SERVER_HOST: ${{ secrets.SSH_FIRST_HOST }}
+          FIRST_SERVER_USER: ${{ secrets.SSH_USER }}
+          SECOND_SERVER_HOST: ${{ secrets.SSH_SECOND_HOST }}
+          SECOND_SERVER_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIV_KEY }}
+          SUDO_PASSWORD: ${{ secrets.SSH_PASS }}
+          TARGET_DIRECTORY: /root/www/edupo-frontend
+
+        run: |
+          # Install SSH client (if not already installed)
+          sudo apt-get update
+          sudo apt-get install -y openssh-client
+          sudo apt-get install -y sshpass
+
+          # Execute commands over SSH using sshpass
+          sshpass -p "${SUDO_PASSWORD}" ssh -o StrictHostKeyChecking=no ${FIRST_SERVER_USER}@${FIRST_SERVER_HOST} "
+            echo \"sshing into edupo\"
+            ssh dosoudil@edupo '
+              source .bashrc
+              cd www/edupo/frontend
+              git pull
+              npm run build
+              pm2 restart ecosystem.config.cjs
+            '
+          "

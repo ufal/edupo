@@ -1,0 +1,26 @@
+def _show_tokenization(tokenizer, tokens):
+    return ('|' + '|'.join(tokenizer.convert_ids_to_tokens(tokens)
+                   ).replace('Ġ', ' '
+                            ).replace('Ċ', '↲\n'
+                            ).replace('Ã½', 'ý'
+                            ).replace('ÃŃ', 'í'
+                            ).replace('ÄĽ', 'ě'
+                            ).replace('Ã¡', 'á'
+                            ).replace('Å¡', 'š'
+                            ).replace('Äį', 'č'
+                            ).replace('Ãģ', 'Á'
+                            ).replace('ÅĪ', 'ň'
+                            ).replace('âĢĻ', '’'
+                            ).replace('ÅĻ', 'ř'
+                            ).replace('Å¾', 'ž'
+                            ).replace('Ãº', 'ú'
+                            ).replace('Ã©', 'é'
+                            ).replace('Å¥', 'ť'
+                            ).replace('Ãį', 'Í'
+                            ).replace('Å¯', 'ů'
+                            ).replace('Åĺ', 'Ř'
+                            ).replace('ÄĮ', 'Č'
+                            ).replace('Åł', 'Š'
+                            ).replace('âĢĵ', '–'
+                            )
+            + '|')

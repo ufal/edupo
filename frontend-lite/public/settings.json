@@ -1,0 +1,55 @@
+{
+    "version" : "1.0",
+    "api_url" : "https://quest.ms.mff.cuni.cz/edupo-api/",
+    "share_url" : "https://quest.ms.mff.cuni.cz/edupo/?viewMode=reading&controls=poem&poemId={0}",
+
+    "api_default_params" : 
+    {
+        "modelspec" : "gpt-4o-mini",
+        "temperature" : 0.7
+    },
+    "animation_speed" : 100,
+    "ingredients" : 
+    [
+        {    "x": 0.3,  "y": 0.125,   "parameter" : "old_style",           "label" : "Starý<br/>styl",    "value" : "old" },
+        {    "x": 0.5,  "y": 0.125,   "parameter" : "old_style",           "label" : "Nový<br/>styl",     "value" : "modern"  },
+        {    "x": 0.7,  "y": 0.125,   "parameter" : "old_style",           "label" : "Současný<br/>styl", "value" : "contemporary" },
+
+        {    "x": 0.2,  "y": 0.375,   "parameter" : "syllables_count",    "label" : "Krátké verše",   "value" : "short"  },
+        {    "x": 0.4,  "y": 0.375,   "parameter" : "syllables_count",    "label" : "Dlouhé verše",   "value" : "long" },
+        {    "x": 0.6,  "y": 0.375,   "parameter" : "poem_length",        "label" : "Krátká báseň",   "value" : "short"  },
+        {    "x": 0.8,  "y": 0.375,   "parameter" : "poem_length",        "label" : "Dlouhá báseň",   "value" : "medium" },
+
+        {    "x": 0.1,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>lásce",    "value" : "láska"  },
+        {    "x": 0.3,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>přírodě",  "value" : "příroda" },
+        {    "x": 0.5,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>městě",    "value" : "město"  },
+        {    "x": 0.7,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>rodině",   "value" : "rodina" },
+        {    "x": 0.9,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>čase",     "value" : "čas"  },
+
+        {    "x": 0.2,  "y": 0.875,   "parameter" : "mood",               "label" : "Veselá",         "value" : "veselá" },
+        {    "x": 0.4,  "y": 0.875,   "parameter" : "mood",               "label" : "Smutná",         "value" : "smutná" },        
+        {    "x": 0.6,  "y": 0.875,   "parameter" : "rhymed",             "label" : "S rýmem",        "value" : "yes" },
+        {    "x": 0.8,  "y": 0.875,   "parameter" : "rhymed",             "label" : "Bez rýmu",       "value" : "no" }
+    ],
+    "colors" :
+    {
+        "old_style"         : "#008769",
+        "syllables_count"   : "#247a9a",
+        "rhymed"            : "#6F491B",
+        "poem_length"       : "#C9A831",
+        "mood"              : "#CE3636",
+        "motives"           : "#7949a3"
+    },
+    "position_shuffle" : false,
+    "position_jitter_x" : 0, 
+    "position_jitter_y" : 0,
+    "target_points" :
+    [
+        { "x" : 0.3    , "y" : 0.5  },
+        { "x" : 0.5    , "y" : 0.55 },
+        { "x" : 0.75   , "y" : 0.52 },
+        { "x" : 0.3    , "y" : 0.7  },
+        { "x" : 0.5    , "y" : 0.75 },
+        { "x" : 0.75   , "y" : 0.75 }
+    ]
+}

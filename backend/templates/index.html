@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>EduPo</title>
+    <script src="static/randomnoun.js" defer></script>
+    <script src="static/reactivate_fields.js" defer></script>
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<h1>EduPo</h1>
+
+<h2>i<i class="fas fa-random"></i> Náhodná báseň</h2>
+<a href="show?poemid=RANDOMGEN">Zobrazit náhodnou vygenerovanou báseň</a>
+
+<h2><i class="fas fa-pen-nib"></i> Generovat báseň</h2>
+{% include 'gen_input.html' %}
+
+<h2><i class="fas fa-comments"></i> Interaktivně generovat báseň</h2>
+{% include 'interactive_gen_input.html' %}
+
+<h2><i class="fas fa-chart-bar"></i> Analyzovat báseň</h2>
+{% include 'ana_input.html' %}
+
+<h2><i class="fas fa-book-open"></i> Zobrazit báseň</h2>
+<!--TODO nějaké vybrané ukázky? A/nebo náhodně nějakou báseň z korpusu?
+    Vybrané autory?-->
+<ul>
+<li><a href="show">(náhodná báseň)</a></li>
+<li><a href="show?poemid=78467">Rokyta: Buben</a></li>
+<li><a href="show?poemid=7088">Erben: Kytice</a></li>
+<li><a href="show?poemid=33745">Mácha: Máj (1.)</a></li>
+<li><a href="show?poemid=72192">Bezruč: Maryčka Magdónova</a></li>
+<li><a href="show?poemid=72197">Bezruč: Ostrava</a></li>
+<li><a href="show?poemid=63470">Gellner: Všichni mi lhali</a></li>
+<li><a href="show?poemid=8903">Borovský: Král Lávra</a></li>
+<li><a href="show?poemid=55456">Vrchlický: Za trochu lásky</a></li>
+<li><a href="show?poemid=46212">Sova: Kdo vám tak zcuchal tmavé vlasy</a></li>
+<li><a href="showlist">více básní...</a></li>
+<li><a href="showlistgen">vygenerované básně...</a></li>
+</ul>
+
+<h2><i class="fas fa-search"></i> Najít báseň</h2>
+Najít báseň podle části textu (může to trvat dlouho)
+
+{% include 'search_input.html' %}
+
+<h2><i class="fas fa-user-pen"></i> Chat s básníkem</h2>
+<!-- Chceme tohle taky? -->
+<ul>
+    <li><a href="https://chatgpt.com/g/g-nK2NG9nHG-jiri-wolker-2-0">Chat s Jiřím Wolkerem</a></li>
+</ul>
+
+<!--<h2>Dozvědět se více</h2>
+TODO Tady nějaké vzdělávací materiály které připraví ÚČL a ÚFAL ve spolupráci
+s DID.
+<ul>
+    <li>O poezii</li>
+    <li>O generování textu</li>
+</ul>
+
+<h2>Pro učitele</h2>
+TODO
+<ul>
+    <li>Metodika</li>
+    <li>Pracovni lísty</li>
+</ul>-->
+
+<h2><i class="fas fa-info-circle"></i> Tiráž</h2>
+
+<p>Aplikace byla vytvořena v rámci projektu <a
+    href="https://ufal.mff.cuni.cz/grants/edupo">EduPo</a>, na kterém se
+podílí <a href="https://ufal.mff.cuni.cz/">ÚFAL MFF UK</a>,
+<a href="https://ucl.cas.cz/">ÚČL AV ČR</a>,
+<a href="https://www.vsvu.sk/sk/katedry/digitalne-umenia/">Digitálne umenia VŠVU</a>
+a <a href="https://didaktikon.cz/">Didaktikon UK</a>.
+</p>
+
+<a href="https://www.tacr.cz/"><img src="static/LOGOLINK_SIGMA_RED.png" class="logo"
+    alt="Tento projekt je spolufinancován se státní podporou Technologické agentury ČR v rámci Programu SIGMA DC3."
+    title="Tento projekt je spolufinancován se státní podporou Technologické agentury ČR v rámci Programu SIGMA DC3."
+    ></a>
+
+<!--<p>TODO logo ÚFAL, DIDAKTIKON, AVČR, VŠVU.</p>-->
+
+<p>The work described herein has also been using data, tools and services provided by the LINDAT/CLARIAH-CZ Research Infrastructure (https://lindat.cz), supported by the Ministry of Education, Youth and Sports of the Czech Republic (Project No. LM2023062).</p>
+
+<p>Software je zveřejněný <a href="https://github.com/ufal/edupo">na <i class="fab fa-github"></i> GitHubu</a> pod <a href="https://wiki.pirati.cz/kci/mit_licence">MIT licencí</a>.</p>
+
+<p><a href="https://github.com/ufal/edupo/blob/main/docs/api_doc.md">Dokumentace REST API </a></p>
+
+</body>
+</html>
+
+

@@ -1,0 +1,467 @@
+#!/usr/bin/env python
+
+from openai import OpenAI
+import base64
+import io
+
+import logging
+logging.basicConfig(
+    format='%(levelname)s %(asctime)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO)
+
+# OpenAI key
+KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
+
+# OpenRouter key
+OR_KEY_PATH = '/net/projects/EduPo/data/apikey_or.txt'
+
+def generate_with_openai(messages, model="gpt-4o-mini", max_tokens=500, temperature=0):
+    # OPENAI or OPENROUTER?
+    # OPENROUTER model name always has '/' in it
+    use_or = '/' in model
+
+    # Gemini 3 Pro uses reasoning
+    extra_body = {}
+    if 'gemini-3' in model:
+        extra_body = {"reasoning": {"enabled": True}}
+
+    # OPENAI SETUP
+    # path to file with authentication key
+    key_path = OR_KEY_PATH if use_or else KEY_PATH
+    with open(key_path) as infile:
+        apikey = infile.read().rstrip()
+    try:
+        if use_or:
+            client = OpenAI(api_key=apikey, base_url="https://openrouter.ai/api/v1")
+        else:
+            client = OpenAI(api_key=apikey)
+    except:
+        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
+
+    # https://platform.openai.com/docs/guides/chat/introduction
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=1,
+            stop=[],  # can be e.g. stop = ['\n']
+            presence_penalty=0,
+            frequency_penalty=0,
+            logit_bias={},
+            extra_headers={ "X-Title": "EduPo" },
+            extra_body=extra_body,
+        )
+        logging.debug(response)
+        return response.choices[0].message.content
+
+    except:
+        logging.exception("EXCEPTION Neúspěšné generování pomocí OpenAI.")
+        return None
+
+def generate_with_openai_responses(prompt, system="You are a helpful assistant.", model="gpt-5-mini", max_tokens=5000):
+    # OPENAI SETUP
+    # path to file with authentication key
+    with open(KEY_PATH) as infile:
+        apikey = infile.read().rstrip()
+    try:
+        client = OpenAI(api_key=apikey)
+    except:
+        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
+
+    try:
+        response = client.responses.create(
+            model=model,
+            instructions=system,
+            input=prompt,
+            reasoning={"effort": "low"},
+            # reasoning={"effort": "low", "summary": "auto"}, TODO should return reasoning summary but does not
+            text={"verbosity": "low"},
+            max_output_tokens=max_tokens,
+            extra_headers={ "X-Title": "EduPo" },
+        )
+        logging.debug(response)
+        return response.output_text
+
+    except:
+        logging.exception("EXCEPTION Neúspěšné generování pomocí OpenAI.")
+        return None
+
+def generate_with_openai_simple(prompt, system="You are a helpful assistant.", model="gpt-4o-mini", max_tokens=500):
+    logging.info('TEXTGEN Prompt: ' + show_short(prompt) + ' SYSTEM: ' + show_short(system))
+    if 'gpt-5' in model or 'gemini-3' in model:
+        # reasoning models
+        # add reasoning tokens
+        max_tokens += 4000
+        # use responses API
+        return generate_with_openai_responses(prompt, system, model, max_tokens)
+    else:
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
+        ]
+        return generate_with_openai(messages, model, max_tokens)
+
+METRE_EN = {
+    'J': 'iambic',
+    'T': 'trochaic',
+    'D': 'dactylic',
+}
+
+FORM_EN = {
+    'sonet': 'sonnet',
+    'haiku': 'haiku',
+    'limerik': 'limerick',
+    # TODO check, tohle přeložilo ChatGPT
+    "anglický sonet": "English sonnet",
+    "stance": "stanza",
+    "gazel": "ghazal",
+    "sapfická strofa": "Sapphic stanza",
+    "rondel": "rondeau",
+    "tercína": "terza rima"
+    }
+
+MOOD_EN = {
+    'veselá': 'happy',
+    'smutná': 'sad',
+}
+
+LENGTH_EN = {
+    'short': '2 to 6',
+    'medium': '8 to 14',
+    'long': 'more than 14',
+}
+
+
+def int2th(i):
+    result = 'th'
+    if i%10 == 1:
+        result = 'st'
+    elif i%10 == 2:
+        result = 'nd'
+    elif i%10 == 3:
+        result = 'rd'
+    return result
+
+from collections import defaultdict
+def generate_poem_with_openai(params, model="gpt-4o-mini"):
+    # set all unknown to ''
+    params = defaultdict(str, params)
+
+    REASONING = 'gpt-5' in model or 'gemini-3' in model
+
+    if REASONING:
+        plan = "Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level. Do not print this checklist to the output, only create the checklist in the reasoning phase.\n"
+        validation = "After generating the poem, validate in 1-2 lines that all output requirements are met (correct header, stanza and line formatting, no extra content), and proceed or self-correct if not. Do not write the validation top the output, only do it in the reasoning phase.\n"
+    else:
+        plan = ""
+        validation = ""
+
+    system=f"""You are a renowned Czech poet, an expert in the Czech language known for your mastery of rich and poetic vocabulary. Unless otherwise instructed, compose poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
+Do not rhyme the verses with identical words; use similar-sounding but different words.
+
+{plan}
+When generating output, strictly follow this sequence:
+- The first line must be formatted as 'Author Name: Poem Title'.
+- If both author and title are provided, use them exactly as given.
+- If only an author or only a title is provided, use the specified name and invent the missing detail.
+- If neither is provided, invent both the author and the title.
+
+Continue with the poem text, one verse per line, and insert a single blank line between stanzas, accurately preserving stanza structure.
+
+Do not explicitly mention the author name, the motives, or any other
+parameters in the text of the poem.
+
+{validation}
+Output must contain only the author name, poem title, and poem text. Do not include any additional commentary or formatting. Do not include any marks such as rhyme scheme or metre in the output, only write out the plain text of the poem.
+
+## Output Format
+Strictly use this structure:
+
+Author Name: Poem Title
+Verse 1
+Verse 2
+
+Verse 3
+Verse 4
+
+... etc.
+
+Segment the verses into stanzas separated by newlines; so e.g. if the stanzas
+have 4 verses each, then the format is:
+
+Author Name: Poem Title
+Verse 1
+Verse 2
+Verse 3
+Verse 4
+
+Verse 5
+Verse 6
+Verse 7
+Verse 8
+
+... etc.
+
+If a title and/or author is specified, use them exactly as given, inventing any missing part as needed. 
+Between stanzas, use exactly one blank line. 
+Do not output any other content or formatting."""
+
+    prompt_parts = list()
+    
+    # FORM: prompting in English
+    metre = ''
+    if params['metre'] and params['metre'] in METRE_EN:
+        metre = f"{METRE_EN[params['metre']]} "
+    prompt_parts.append(f'Write a {metre}poem in Czech language.')
+    if params['rhymed']:
+        NOT = 'not' if params['rhymed'] == 'no' else ''
+        prompt_parts.append(f"The poem should {NOT} be rhymed.")
+    if params['rhyme_scheme']:
+        prompt_parts.append(f"Use the {params['rhyme_scheme']} rhyme scheme for the first stanza.")
+    if params['verses_count']:
+        if isinstance(params['verses_count'], int):
+            prompt_parts.append(f"The 1st stanza should have {params['verses_count']} lines.")
+        else:
+            assert isinstance(params['verses_count'], list)
+            for i, l in enumerate(params['verses_count']):
+                th = int2th(i+1)
+                prompt_parts.append(f"The {i+1}{th} stanza should have {l} lines.")
+    if params['syllables_count']:
+        if isinstance(params['syllables_count'], int):
+            prompt_parts.append(f"The 1st line should have {params['syllables_count']} syllables.")
+        elif isinstance(params['syllables_count'], str):
+            if params['syllables_count'] == 'short':
+                prompt_parts.append(f"The 1st line should have at most 9 syllables.")
+            else:
+                assert params['syllables_count'] == 'long'
+                prompt_parts.append(f"The 1st line should have at least 10 syllables.")
+        else:
+            assert isinstance(params['syllables_count'], list)
+            for i, s in enumerate(params['syllables_count']):
+                th = int2th(i+1)
+                prompt_parts.append(f"The {i+1}{th} line should have {s} syllables.")
+    if params['first_words']:
+        for i, w in enumerate(params['first_words']):
+            th = int2th(i+1)
+            if w:
+                prompt_parts.append(f"The {i+1}{th} line should start with the word '{w}'.")
+    if params['max_strophes']:
+        s = 's' if params['max_strophes'] > 1 else ''
+        prompt_parts.append(f"The poem should have at most {params['max_strophes']} stanza{s}.")
+    if params['poem_length'] and params['poem_length'] in LENGTH_EN:
+        prompt_parts.append(f"The poem should have {LENGTH_EN[params['poem_length']]} verses in total.")
+    if params['form'] and params['form'] in FORM_EN:
+        prompt_parts.append(f"The poem should be a {FORM_EN[params['form']]}.")
+    if params['mood'] and params['mood'] in MOOD_EN:
+        prompt_parts.append(f"The poem should be {MOOD_EN[params['mood']]}.")
+    if params['old_style']:
+        if params['old_style'] == 'old':
+            prompt_parts.append(f"The poem should be written in old style (19th century).")
+        elif params['old_style'] == 'modern':
+            prompt_parts.append(f"The poem should be written in 20th century style.")
+        else:
+            # 'contemporary' or 'new':
+            prompt_parts.append(f"The poem should be written in current style (21st century).")
+    # CONTENT: prompting in Czech
+    prompt_parts.append(f"\n")
+    if params['author_name'] and params['author_name'] != 'Anonym':
+        prompt_parts.append(f"Báseň by měla být ve stylu známého českého autora, který se jmenoval {params['author_name']}.")
+    if params['collection_style']:
+        prompt_parts.append(f"Báseň by měla stylem odpovídat autorově sbírce {params['collection_style']}.")
+    if params['title'] and params['title'] != 'Bez názvu':
+        prompt_parts.append(f"Název básně je: {params['title']}.")
+    if params['motives']:
+        prompt_parts.append(f"V básni se objevují následující motivy:")
+        prompt_parts.extend(params['motives'])
+
+    prompt_parts.append(f"\n")
+    prompt_parts.append(f"Nyní napiš českou báseň dle tohoto zadání.")
+    
+    # TODO anaphors, epanastrophes
+    prompt = ' '.join(prompt_parts)
+    logging.info('TEXTGEN Prompt: ' + show_short(prompt))
+    
+    max_tokens = 500
+    if params['verses_count'] or params['max_strophes']:
+        verses = 4
+        if params['verses_count']:
+            if isinstance(params['verses_count'], int):
+                verses = params['verses_count']
+            else:
+                verses = max(params['verses_count'])
+        strophes = params['max_strophes'] if params['max_strophes'] else 4
+        # max 50 per verse + title + author name
+        max_tokens = 50 * verses * strophes + 100
+    if REASONING:
+        # reasoning models: add reasoning tokens
+        max_tokens += 4000
+    logging.info(f'TEXTGEN max_tokens: {max_tokens}')
+
+    if model.startswith('gpt-5'):
+        # use responses API
+        output = generate_with_openai_responses(prompt, system, model, max_tokens)
+    else:
+        # use completion API
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
+        ]
+        if params['temperature']:
+            temperature = params['temperature']
+        else:
+            temperature = 0.5
+        output = generate_with_openai(messages, model, max_tokens, temperature)
+        
+    lines = output.split('\n')
+    if ':' in lines[0]:
+        author_name, title = lines[0].split(':', 1)
+    else:
+        author_name = 'Gustav Petr Tichý'
+        title = lines[0]
+    
+    start = 1
+    while start < len(lines) and lines[start] == '':
+        start += 1
+    if start < len(lines):
+        clean_verses = lines[start:]
+    else:
+        clean_verses = []
+    
+    raw_output = f"System prompt: {system}\n\nUser prompt: {prompt}\n\nGenerated output:\n\n{output}"
+
+    return raw_output, clean_verses, author_name, title.strip()
+
+def sanitize_prompt(prompt):
+    return generate_with_openai_simple(f"Uprav prompt od uživatele pro generování obrázku tak, aby byl v souladu se všemi zásadami. Na výstup vydej pouze upravený prompt. Prompt: {prompt}")
+
+def show_short(text, maxlen=100):
+    if len(text) < maxlen:
+        return repr(text)
+    else:
+        return repr(text[:maxlen-20] + '...' + text[-20:])
+
+# https://platform.openai.com/docs/guides/images/usage?context=python
+# https://platform.openai.com/docs/api-reference/images/create
+def generate_image_with_openai(prompt, filename):
+    with open(KEY_PATH) as infile:
+        apikey = infile.read().rstrip()
+    try:
+        client = OpenAI(api_key=apikey)
+    except:
+        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
+    
+    logging.info('IMGGEN Prompt: ' + show_short(prompt))
+    sanitized_prompt = sanitize_prompt(prompt)
+    logging.info('IMGGEN Sanitized: ' + show_short(sanitized_prompt))
+
+    try:
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=sanitized_prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+            response_format="b64_json",
+        )
+    except:
+        logging.exception("EXCEPTION Neúspěšné generování obrázku pomocí OpenAI.")
+        return None
+
+    imgdata = response.data[0].b64_json
+    store_image(imgdata, filename)
+
+    return response.data[0].revised_prompt
+
+def store_image(imgdata, filename):
+    bytestream = io.BytesIO(base64.b64decode(imgdata))
+    
+    with open(filename, "wb") as outfile:
+        outfile.write(bytestream.getbuffer())
+
+def generate_with_openai_streaming(model="gpt-4o-mini"):
+
+    # OPENAI SETUP
+    # path to file with authentication key
+    key_path = KEY_PATH
+    with open(key_path) as infile:
+        apikey = infile.read().rstrip()
+    try:
+        client = OpenAI(api_key=apikey)
+    except:
+        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
+
+    # https://developers.openai.com/api/docs/guides/streaming-responses
+    try:
+        stream = client.responses.create(
+            model=model,
+            input=[
+                {
+                    "role": "user",
+                    "content": "Napiš báseň o třech slokách na téma ptakopysk a moře.",
+                },
+            ],
+            stream=True,
+        )
+
+
+        for event in stream:
+            if event.type == "response.output_text.delta":
+                print(event.delta, end="", flush=True)
+        print()
+
+    except:
+        logging.exception("EXCEPTION Neúspěšné generování pomocí OpenAI.")
+        return None
+
+
+if __name__=="__main__":
+    GEN_POEM = False
+    GEN_TEXT = False
+    GEN_IMG = False
+    GEN_STREAM = True
+
+    if GEN_POEM:
+        title = input("Zadej název básně: ")
+        author_name = input("Zadej jméno autora: ")
+        
+        for model in [
+            #"gpt-4o-mini",
+            "gpt-5-mini",
+            # "openai/gpt-4o-mini",
+            # "openai/gpt-5-mini",
+            # "anthropic/claude-sonnet-4.5",
+            # "google/gemini-2.5-flash",
+            ]:
+            print(f"USING {model}")
+            _, text, _, _ = generate_poem_with_openai(
+                    params={'title': title, 'author_name': author_name},
+                    model=model)
+            print(*text, sep="\n")
+    
+    if GEN_TEXT:
+        prompt = input("Zadej prompt: ")
+        
+        model="gpt-4o-mini"
+        print(f"USING OPENAI {model}")
+        print(generate_with_openai_simple(prompt, model=model))
+
+        for model in [
+            "openai/gpt-4o-mini",
+            "openai/gpt-5-mini",
+            # "anthropic/claude-sonnet-4.5",
+            # "google/gemini-2.5-flash",
+            ]:
+            print(f"USING OPENROUTER {model}")
+            print(generate_with_openai_simple(prompt, model=model, max_tokens=5000))
+
+    if GEN_IMG:
+        IMGFILE='image.png'
+        image_desc = generate_image_with_openai(prompt, IMGFILE)
+        print(f'Obrázek: {IMGFILE}. ({image_desc})')
+
+    if GEN_STREAM:
+        generate_with_openai_streaming()
+
