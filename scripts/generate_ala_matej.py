@@ -113,8 +113,8 @@ data = {
         
         }
 
-model = 'gpt-5.4-mini' # google/gemini-2.5-flash' #'anthropic/claude-sonnet-4.6'#'gpt-5.5' #'gpt-4o-mini' #'google/gemini-3.1-pro-preview' #'gpt-4o-mini'
-model_name = 'gpt-5.4-mini' #'gemini-2.5-flash' #claude-sonnet-4.6'#'gpt-5.5' #'gpt-4o-mini' #'gemini-3.1-pro-preview' #'gpt-4o-mini'
+model = 'anthropic/claude-opus-4.7' #'google/gemini-3.5-flash' #'gpt-5.4-nano' # google/gemini-2.5-flash' #'anthropic/claude-sonnet-4.6'#'gpt-5.5' #'gpt-4o-mini' #'google/gemini-3.1-pro-preview' #'gpt-4o-mini'
+model_name = 'claude-opus-4.7' #'gemini-3.5-flash' #'gpt-5.4-nano' #'gemini-2.5-flash' #claude-sonnet-4.6'#'gpt-5.5' #'gpt-4o-mini' #'gemini-3.1-pro-preview' #'gpt-4o-mini'
 directory = '/net/projects/EduPo/data/DM_generovane'
 
 
