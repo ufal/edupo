@@ -105,7 +105,7 @@ class Syllables:
                         ph_consonants += fonetic[f_pos]
                     f_pos += 1
                 has_merged_non_syllabic = False
-                print(non_syllabic_word)
+                #print(non_syllabic_word)
                 if syllables:
                     syllables[-1]["ph_end_consonants"] = ph_consonants
                     syllables[-1]["ort_end_consonants"] = ortographic[o_pos:]
