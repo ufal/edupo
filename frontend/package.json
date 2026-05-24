@@ -12,7 +12,7 @@
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
-    "start": "env-cmd -f .env.production cross-env NODE_OPTIONS=--no-deprecation next start -p 8000"
+    "start": "env-cmd -f .env.production cross-env NODE_OPTIONS=--no-deprecation next start -p 8001"
   },
   "keywords": [],
   "author": "",
