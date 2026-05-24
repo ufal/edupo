@@ -36,6 +36,7 @@ jobs:
               source .bashrc
               cd www/edupo/frontend
               git pull
+              npm i
               npm run build
               pm2 restart ecosystem.config.cjs
             '
