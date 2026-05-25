@@ -19,7 +19,7 @@ export function DashboardHero() {
     <section className="flex items-center gap-5 rounded-3xl bg-white px-4 py-4">
       <div className="shrink-0">
         <Avatar
-          src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + selectedAuthor?.avatarSrc}
+          src={selectedAuthor?.avatarSrc}
           alt={selectedAuthor?.label ?? 'Author'}
           size={120}
         />
