@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import { toast } from 'sonner'
 import { MAX_POEM_LINES, usePoemStore } from '@/stores/poem-store'
 import { AppIcon } from '@/components/icons/app-icon'
 import { getPoemLines, PoemCardActions, PoemEmptyState } from './poem-view-utils'
@@ -48,6 +49,10 @@ export function PoemEditingView() {
     if (newLineId) {
       setActiveLineId(newLineId)
     }
+  }
+
+  function displayInProgress() {
+    toast.error('Funkce zatím není dostupná')
   }
 
   return (
@@ -121,6 +126,7 @@ export function PoemEditingView() {
               <button
                 type="button"
                 aria-label="Navrhnout úpravu verše"
+                onClick={() => displayInProgress()}
                 className="grid size-8 place-items-center rounded-xl bg-teal-700 text-white"
               >
                 <AppIcon name="starsBold" size={18} />
