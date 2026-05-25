@@ -150,7 +150,7 @@ export function PoemCardActions() {
         }}
       >
         {img(
-          isLiked ? '/assets/icons/heart-full.svg' : '/assets/icons/heart.svg',
+          (process.env.NEXT_PUBLIC_LINK_BASE || "/") + (isLiked ? "assets/icons/heart-full.svg" : "assets/icons/heart.svg"),
           isLiked ? 'animate-[heart-pop_220ms_ease-out]' : undefined,
         )}
       </button>
@@ -161,7 +161,7 @@ export function PoemCardActions() {
         className="grid size-8 place-items-center"
         onClick={() => openOverlay('share')}
       >
-        {img('/assets/icons/share.svg')}
+        {img((process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/icons/share.svg")}
       </button>
 
       <button
@@ -186,7 +186,7 @@ export function PoemCardActions() {
             <span className="block h-3.5 w-[3px] rounded-full bg-grey-900" />
           </div>
         ) : (
-          img('/assets/icons/loudspeaker.svg')
+          img((process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/icons/loudspeaker.svg")
         )}
       </button>
     </div>

@@ -2,41 +2,41 @@
   {
     "id": "macha",
     "label": "Karel Hynek Mácha",
-    "avatarSrc": "/assets/authors/macha.png"
+    "avatarSrc": "assets/authors/macha.png"
   },
   {
     "id": "erben",
     "label": "Karel Jaromír Erben",
-    "avatarSrc": "/assets/author-avatar.svg"
+    "avatarSrc": "assets/author-avatar.svg"
   },
   {
     "id": "neruda",
     "label": "Jan Neruda",
-    "avatarSrc": "/assets/author-avatar.svg"
+    "avatarSrc": "assets/author-avatar.svg"
   },
   {
     "id": "halek",
     "label": "Vítězslav Hálek",
-    "avatarSrc": "/assets/author-avatar.svg"
+    "avatarSrc": "assets/author-avatar.svg"
   },
   {
     "id": "brezina",
     "label": "Otakar Březina",
-    "avatarSrc": "/assets/author-avatar.svg"
+    "avatarSrc": "assets/author-avatar.svg"
   },
   {
     "id": "karasek",
     "label": "František Gellner",
-    "avatarSrc": "/assets/author-avatar.svg"
+    "avatarSrc": "assets/author-avatar.svg"
   },
   {
     "id": "hlavacek",
     "label": "František Hlaváček",
-    "avatarSrc": "/assets/author-avatar.svg"
+    "avatarSrc": "assets/author-avatar.svg"
   },
   {
     "id": "gellner",
     "label": "František Gellner",
-    "avatarSrc": "/assets/author-avatar.svg"
+    "avatarSrc": "assets/author-avatar.svg"
   }
 ]
