@@ -15,13 +15,13 @@ export function WelcomeScreen() {
     const alreadySeen = window.localStorage.getItem(WELCOME_SEEN_KEY)
 
     if (alreadySeen === 'true') {
-      router.replace('/dashboard')
+      router.replace((process.env.NEXT_PUBLIC_LINK_BASE || "/") + "dashboard")
     }
   }, [router])
 
   function handleContinue() {
     window.localStorage.setItem(WELCOME_SEEN_KEY, 'true')
-    router.push('/dashboard')
+    router.push((process.env.NEXT_PUBLIC_LINK_BASE || "/") + "dashboard")
   }
 
   return (

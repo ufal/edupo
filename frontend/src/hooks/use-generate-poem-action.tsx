@@ -39,7 +39,7 @@ export function useGeneratePoemAction() {
         return
       }
 
-      router.push(`/dashboard?poemId=${encodeURIComponent(poem.id)}`)
+      router.push(`${(process.env.NEXT_PUBLIC_LINK_BASE || "/")}dashboard?poemId=${encodeURIComponent(poem.id)}`)
       closeOverlay()
     } catch (error) {
       console.error(error)

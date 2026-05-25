@@ -83,7 +83,7 @@ export function PoetrySampleOverlay({ onClose }: PoetrySampleOverlayProps) {
                           await loadPoetrySample(sample.id)
 
                           closeOverlay()
-                          router.push('/dashboard')
+                          router.push((process.env.NEXT_PUBLIC_LINK_BASE || "/") + "dashboard")
                         }}
                         className={[
                           'block w-full rounded-md px-2 py-2 text-left text-base leading-6 text-zinc-700',

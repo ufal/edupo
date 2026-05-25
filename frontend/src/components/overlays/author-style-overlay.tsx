@@ -79,7 +79,7 @@ export function AuthorStyleOverlay({ onClose }: AuthorStyleOverlayProps) {
                   onClick={() => {
                     setSelectedAuthorStyleId(author.id)
                     onClose()
-                    router.push('/dashboard')
+                    router.push((process.env.NEXT_PUBLIC_LINK_BASE || "/") + "dashboard")
                   }}
                   className={[
                     'block w-full rounded-md px-2 py-2 text-left leading-6 text-zinc-700',
