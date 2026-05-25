@@ -3,7 +3,7 @@ import Image from 'next/image'
 export function EdupoLogo() {
   return (
     <Image
-      src="/assets/logos/logo-edupo.svg"
+      src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/logos/logo-edupo.svg"}
       alt="Edupo"
       width={91}
       height={22}

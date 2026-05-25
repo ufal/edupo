@@ -138,7 +138,7 @@ export function PoemEditingView() {
             onClick={handleAddLine}
             className="mx-auto mt-5 grid size-7 place-items-center rounded-xl bg-teal-700"
           >
-            <Image src="/assets/icons/plus.svg" alt="" width={15} height={15} />
+            <Image src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/icons/plus.svg"} alt="" width={15} height={15} />
           </button>
         )
       }

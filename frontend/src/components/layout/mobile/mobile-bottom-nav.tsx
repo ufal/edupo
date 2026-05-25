@@ -16,14 +16,14 @@ export function MobileBottomNav() {
         <BottomNavItem
           icon="home"
           label="Dashboard"
-          href="/dashboard"
+          href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "dashboard"}
           active={pathname === '/dashboard'}
         />
         <MobileGenerateButton />
         <BottomNavItem
           icon="settings"
           label="Nastavení"
-          href="/settings"
+          href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "settings"}
           active={pathname === '/settings'}
         />
       </div>

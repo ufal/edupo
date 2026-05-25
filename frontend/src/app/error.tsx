@@ -27,7 +27,7 @@ export default function ErrorPage({ error }: ErrorPageProps) {
         </p>
 
         <Image
-          src="/assets/girl-puzzled.svg"
+          src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/girl-puzzled.svg"}
           alt=""
           width={260}
           height={260}
@@ -39,7 +39,7 @@ export default function ErrorPage({ error }: ErrorPageProps) {
       <div className="mx-auto flex flex-col gap-3">
 
         <Button asChild variant="accent" size="sm" className="px-6">
-          <Link href="/dashboard">
+          <Link href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "dashboard"}>
             Zpět se na hlavní stranu
           </Link>
         </Button>

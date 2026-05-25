@@ -14,7 +14,7 @@ export function MobileHeader({ mode='main' }: { mode?: 'logo-only' | 'main' }) {
   return (
     <header className={cn("bg-primary text-primary-foreground px-5 pt-10 pb-5 flex items-center justify-end gap-2 h-[45px] box-content ", mode === 'main' && 'border-b')}>
       
-      <Link href="/dashboard" className="mr-auto" onClick={() => closeOverlay()}>
+      <Link href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "dashboard"} className="mr-auto" onClick={() => closeOverlay()}>
         <EdupoLogo />
       </Link>
       {

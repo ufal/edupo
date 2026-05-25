@@ -42,7 +42,7 @@ export function MissingParamsOverlay({ onClose }: MissingParamsOverlayProps) {
             size="sm"
             className="min-w-[190px]"
           >
-            <Link href="/settings" onClick={onClose}>
+            <Link href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "settings"} onClick={onClose}>
               Nastavení parametrů
             </Link>
           </Button>

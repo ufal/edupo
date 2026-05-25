@@ -12,7 +12,7 @@ export function MobileMenuOverlay({ onClose }: MobileMenuOverlayProps) {
       <X className="absolute right-7 top-7 cursor-pointer text-white" onClick={onClose} />
       <nav className="flex h-full flex-col items-center pt-24 text-center text-white">
         <Link
-          href="/about"
+          href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "about"}
           onClick={onClose}
           className="typo-h4 mb-12"
         >
@@ -20,7 +20,7 @@ export function MobileMenuOverlay({ onClose }: MobileMenuOverlayProps) {
         </Link>
 
         <Link
-          href="/materials"
+          href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "materials"}
           onClick={onClose}
           className="typo-h4 mb-12"
         >
@@ -28,7 +28,7 @@ export function MobileMenuOverlay({ onClose }: MobileMenuOverlayProps) {
         </Link>
 
         <Link
-          href="/methodology"
+          href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "methodology"}
           onClick={onClose}
           className="typo-h4 mb-12"
         >
@@ -36,7 +36,7 @@ export function MobileMenuOverlay({ onClose }: MobileMenuOverlayProps) {
         </Link>
 
         <Link
-          href="/contact"
+          href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "contact"}
           onClick={onClose}
           className="typo-h4"
         >

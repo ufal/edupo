@@ -15,7 +15,7 @@ export default function NotFound() {
         </p>
 
         <Image
-          src="/assets/girl-puzzled.svg"
+          src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/girl-puzzled.svg"}
           alt=""
           width={260}
           height={260}
@@ -24,7 +24,7 @@ export default function NotFound() {
       </section>
 
       <Button asChild variant="accent" size="sm" className="mx-auto px-6">
-        <Link href="/dashboard">
+        <Link href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "dashboard"}>
           Vrátit se na hlavní stranu
         </Link>
       </Button>

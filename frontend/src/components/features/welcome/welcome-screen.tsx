@@ -31,7 +31,7 @@ export function WelcomeScreen() {
           Vytvořte si svou jedinečnou báseň
         </p>
         <Image
-          src="/assets/girl-with-computer.svg"
+          src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/girl-with-computer.svg"}
           alt=""
           width={280}
           height={240}
