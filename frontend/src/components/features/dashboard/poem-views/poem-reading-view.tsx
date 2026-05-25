@@ -1,6 +1,7 @@
 'use client'
 
 import { usePoemStore } from '@/stores/poem-store'
+import { SmartWrappedVerseText } from '@/components/ui/smart-wrapped-verse-text'
 import { getPoemLines, PoemCardActions, PoemEmptyState } from './poem-view-utils'
 
 export function PoemReadingView() {
@@ -15,12 +16,12 @@ export function PoemReadingView() {
 
       <div className="flex flex-col grow mt-5 space-y-2">
         {lines.map((line) => (
-          <p
+          <div
             key={line.id}
             className="rounded-xl bg-grey-50 px-3 py-2 typo-detail text-grey-700"
           >
-            {line.text}
-          </p>
+            <SmartWrappedVerseText text={line.text} />
+          </div>
         ))}
       </div>
 

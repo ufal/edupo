@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { MAX_POEM_LINES, usePoemStore } from '@/stores/poem-store'
 import { AppIcon } from '@/components/icons/app-icon'
 import { getPoemLines, PoemCardActions, PoemEmptyState } from './poem-view-utils'
+import { SmartWrappedVerseText } from '@/components/ui/smart-wrapped-verse-text'
 
 export function PoemEditingView() {
   const poem = usePoemStore((state) => state.poem)
@@ -97,31 +98,40 @@ export function PoemEditingView() {
                 </button>
               </div>
 
-              <textarea
-                ref={(element) => {
-                  textareaRefs.current[line.id] = element
-                }}
-                value={line.text}
-                onFocus={() => setActiveLineId(line.id)}
-                onChange={(event) => {
-                  updatePoemLine(line.id, event.target.value)
-                }}
-                onBlur={(event) => {
-                  commitLine(line.id, event.target.value)
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && !event.shiftKey) {
-                    event.preventDefault()
-                    commitLine(line.id, event.currentTarget.value)
-                  }
-                }}
-                rows={isActive ? 3 : 2}
-                className={`w-full resize-none rounded-xl px-2 py-1 typo-detail text-zinc-700 outline-none ${
-                  isActive
-                    ? 'border border-zinc-100 bg-white'
-                    : 'border border-transparent bg-zinc-100'
-                }`}
-              />
+              {isActive ? (
+                <textarea
+                  ref={(element) => {
+                    textareaRefs.current[line.id] = element
+                  }}
+                  value={line.text}
+                  onFocus={() => setActiveLineId(line.id)}
+                  onChange={(event) => {
+                    updatePoemLine(line.id, event.target.value)
+                  }}
+                  onBlur={(event) => {
+                    commitLine(line.id, event.target.value)
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                      event.preventDefault()
+                      commitLine(line.id, event.currentTarget.value)
+                    }
+                  }}
+                  rows={3}
+                  className="w-full resize-none rounded-xl border border-zinc-100 bg-white px-2 py-1 typo-detail text-zinc-700 outline-none"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setActiveLineId(line.id)}
+                  className="min-h-[64px] w-full rounded-xl border border-transparent bg-zinc-100 px-2 py-1 text-left typo-detail text-zinc-700 flex items-start"
+                >
+                  <SmartWrappedVerseText
+                    text={line.text}
+                    className="w-full"
+                  />
+                </button>
+              )}
 
               <button
                 type="button"

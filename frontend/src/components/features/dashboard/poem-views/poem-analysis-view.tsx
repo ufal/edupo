@@ -3,6 +3,7 @@
 import { usePoemStore } from '@/stores/poem-store'
 import type { PoemLineGroup } from '@/types/poem'
 import { getPoemLines, PoemCardActions, PoemEmptyState } from './poem-view-utils'
+import { SmartWrappedVerseText } from '@/components/ui/smart-wrapped-verse-text'
 
 const groupClasses: Record<PoemLineGroup, { badge: string; line: string }> = {
   A: {
@@ -83,9 +84,9 @@ export function PoemAnalysisView() {
                 {group ?? '?'}
               </span>
 
-              <p className={`min-h-9 flex-1 rounded-xl px-3 py-2 typo-detail ${classes.line}`}>
-                {line.text}
-              </p>
+              <div className={`min-h-9 flex-1 rounded-xl px-3 py-2 typo-detail ${classes.line}`}>
+                <SmartWrappedVerseText text={line.text} />
+              </div>
             </div>
           )
         })}
