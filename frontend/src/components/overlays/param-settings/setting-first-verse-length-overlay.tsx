@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ShellOverlay } from '../shell-overlay'
 import { ShellControlPanel } from '../shell-control-panel'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,14 @@ const MAX_LENGTH = 20
 const STEP = 1
 const DEFAULT_LENGTH = 16
 
+function isValidFirstVerseLength(value: number) {
+  return (
+    Number.isInteger(value) &&
+    value >= MIN_LENGTH &&
+    value <= MAX_LENGTH
+  )
+}
+
 export function SettingFirstVerseLengthOverlay({ onClose }: { onClose: () => void }) {
   const form = usePoemStore((state) => state.params.form)
   const storedFirstVerseLength = usePoemStore((state) => state.params.firstVerseLength)
@@ -29,6 +37,11 @@ export function SettingFirstVerseLengthOverlay({ onClose }: { onClose: () => voi
   }, [storedFirstVerseLength, updateParams])
 
   const firstVerseLength = storedFirstVerseLength ?? DEFAULT_LENGTH
+  const [inputValue, setInputValue] = useState(String(firstVerseLength))
+
+  useEffect(() => {
+    setInputValue(String(firstVerseLength))
+  }, [firstVerseLength])
 
   if (form === 'haiku') {
     return (
@@ -63,9 +76,25 @@ export function SettingFirstVerseLengthOverlay({ onClose }: { onClose: () => voi
           </label>
 
           <Input
-            readOnly
-            value={String(firstVerseLength)}
+            type="number"
+            min={MIN_LENGTH}
+            max={MAX_LENGTH}
+            step={STEP}
+            value={inputValue}
             className="flex-1"
+            onChange={(event) => {
+              const nextInputValue = event.target.value
+              setInputValue(nextInputValue)
+
+              const nextValue = Number(nextInputValue)
+
+              if (!isValidFirstVerseLength(nextValue)) return
+
+              updateParams({ firstVerseLength: nextValue })
+            }}
+            onBlur={() => {
+              setInputValue(String(firstVerseLength))
+            }}
           />
         </div>
 
@@ -88,7 +117,10 @@ export function SettingFirstVerseLengthOverlay({ onClose }: { onClose: () => voi
           size="md"
           className="mt-7 px-10"
           onClick={() => {
-            const random = Math.floor(Math.random() * (MAX_LENGTH - MIN_LENGTH + 1)) + MIN_LENGTH
+            const random =
+              Math.floor(Math.random() * (MAX_LENGTH - MIN_LENGTH + 1)) +
+              MIN_LENGTH
+
             updateParams({ firstVerseLength: random })
           }}
         >

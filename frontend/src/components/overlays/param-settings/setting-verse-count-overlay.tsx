@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ShellOverlay } from '../shell-overlay'
 import { ShellControlPanel } from '../shell-control-panel'
 import { LockedParamOverlay } from './locked-param-overlay'
@@ -17,6 +17,24 @@ const MAX_VERSES = 10
 const STEP = 2
 const DEFAULT_VERSES = 6
 
+function isValidVerseCount(value: number) {
+  return (
+    Number.isInteger(value) &&
+    value >= MIN_VERSES &&
+    value <= MAX_VERSES &&
+    (value - MIN_VERSES) % STEP === 0
+  )
+}
+
+function getRandomVerseCount() {
+  const allowedValues = Array.from(
+    { length: Math.floor((MAX_VERSES - MIN_VERSES) / STEP) + 1 },
+    (_, index) => MIN_VERSES + index * STEP,
+  )
+
+  return allowedValues[Math.floor(Math.random() * allowedValues.length)]
+}
+
 export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
   const storedVerseCount = usePoemStore((state) => state.params.verseCount)
   const updateParams = usePoemStore((state) => state.updateParams)
@@ -28,6 +46,11 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
   }, [storedVerseCount, updateParams])
 
   const verseCount = storedVerseCount ?? DEFAULT_VERSES
+  const [inputValue, setInputValue] = useState(String(verseCount))
+
+  useEffect(() => {
+    setInputValue(String(verseCount))
+  }, [verseCount])
 
   const form = usePoemStore((state) => state.params.form)
   const isEditable = true //!form || form === 'free' || form === 'epigram'
@@ -64,11 +87,27 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
             Počet veršů
           </label>
 
-          <Input
-            readOnly
-            value={String(verseCount)}
-            className="flex-1"
-          />
+        <Input
+          type="number"
+          min={MIN_VERSES}
+          max={MAX_VERSES}
+          step={STEP}
+          value={inputValue}
+          className="flex-1"
+          onChange={(event) => {
+            const nextInputValue = event.target.value
+            setInputValue(nextInputValue)
+
+            const nextValue = Number(nextInputValue)
+
+            if (!isValidVerseCount(nextValue)) return
+
+            updateParams({ verseCount: nextValue })
+          }}
+          onBlur={() => {
+            setInputValue(String(verseCount))
+          }}
+        />
         </div>
 
         <Slider
@@ -90,8 +129,7 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
           size="md"
           className="mt-7 px-10"
           onClick={() => {
-            const random = Math.floor(Math.random() * (MAX_VERSES - MIN_VERSES + 1)) + MIN_VERSES
-            updateParams({ verseCount: random })
+            updateParams({ verseCount: getRandomVerseCount() })
           }}
         >
           Nastavit náhodně
