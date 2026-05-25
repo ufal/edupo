@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 
-const FALLBACK_AVATAR_SRC = '/assets/author-avatar.svg'
+const FALLBACK_AVATAR_SRC = (process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/author-avatar.svg"
 
 type AvatarProps = {
   src?: string | null
