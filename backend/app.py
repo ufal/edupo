@@ -27,6 +27,8 @@ from get_measures import get_measures, get_measures_from_analyzed_poem
 # TODO use this instead of a plain dict
 from data_types import GenerationParameters
 
+import poem_cache
+
 app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
@@ -55,6 +57,18 @@ PWDFILE='/net/projects/EduPo/data/hesla.json'
 PWDLOG='logs/pwdaccess.log'
 
 POEMFILES="static/poemfiles"
+
+# Frontends with a limited, predetermined set of generation parameters whose poems are
+# served from poem_cache (instant + background refresh). Identified by the `frontend`
+# request parameter on /gen.
+CACHED_FRONTENDS = {'lite'}
+
+# Per-frontend default modelspec, applied only when the request does not set one.
+# OpenRouter model ids must contain '/' so generation routes through OpenRouter (and
+# 'gemini-3' enables reasoning in openai_helper) rather than the local ZMQ models.
+FRONTEND_DEFAULT_MODELSPEC = {'lite': 'google/gemini-3.5-flash'}
+
+poem_cache.init_cache_db()
 
 # I have not been able to persuade Flask that it is under / locally but under
 # /edupo/ externally so this is a work-around
@@ -306,19 +320,22 @@ def get_data_tta():
     
     return data
 
-def store(data):
+def store(data, write_file=True):
+    # write_file=False assigns the id but skips the static/poemfiles/{id}.json write
+    # (used for cached poems, whose share link is not exposed for now)
     if 'plaintext' not in data:
         raise ExceptionPoemInvalid("Text must not be empty!")
-    
+
     if 'id' in data:
         poemid = data['id']
     else:
         poemid = text2id(data['plaintext'])
         data['id'] = poemid
-    
-    with open(f'static/poemfiles/{poemid}.json', 'w') as outfile:
-        json.dump(data, outfile, ensure_ascii=False, indent=4)
-    
+
+    if write_file:
+        with open(f'static/poemfiles/{poemid}.json', 'w') as outfile:
+            json.dump(data, outfile, ensure_ascii=False, indent=4)
+
     return poemid
 
 
@@ -401,11 +418,78 @@ verselength2syllcount = {
     'long': 11,
         }
 
+def generuj_poem(params):
+    """Synchronously generate one poem from already-parsed params and assign its id.
+    For non-cached requests store() also writes static/poemfiles/{id}.json; for cached
+    frontends the poemfile write is skipped (the share link is not exposed for now).
+    Request-independent, so it is safe to call from a background thread (poem_cache
+    regeneration). Returns the data dict."""
+    try_no = 1
+    results = []
+    found = False
+    while try_no <= params['max_tries'] and not found:
+        geninput = (f"Generate poem (try {try_no}) with parameters: {params}")
+        app.logger.info(geninput)
+        if 'gpt' in params['modelspec'] or '/' in params['modelspec']:
+            # a GPT model or an OpenRouter model
+            raw_output, clean_verses, author_name, title = generate_poem_with_openai(params, model=params['modelspec'])
+        else:
+            raw_output, clean_verses, author_name, title = gen_zmq(params)
+        app.logger.info(f"Generated poem {clean_verses}")
+
+        # get_measures (MorphoDiTa unk-ratio + a Gemini meaning call) only drives the
+        # retry loop; with a single try it cannot change the output, so skip it. This
+        # also spares cached frontends an extra OpenRouter dependency per generation.
+        if params['max_tries'] > 1:
+            app.logger.info("Calling get_measures")
+            measures = get_measures("\n".join(clean_verses), {'nekvetuj': True})
+            app.logger.info(f"Got measures: {measures}")
+            if measures['chatgpt_meaning'] >= params['min_meaning'] and measures['unknown_words'] <= params['max_unk']:
+                app.logger.info(f"GOOD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
+                found = True
+            else:
+                app.logger.info(f"BAD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
+                results.append([measures, raw_output, clean_verses, author_name, title])
+                try_no += 1
+        else:
+            found = True
+
+    if not found:
+        # choose best from results, primarily by meaning, secondarily by unk
+        best = max(
+            results,
+            key=lambda x: (x[0]["chatgpt_meaning"], -x[0]["unknown_words"])
+        )
+        _, raw_output, clean_verses, author_name, title = best
+        app.logger.info(f"Choosing poem {clean_verses}")
+
+    # sets must be lists now
+    params['anaphors'] = list(params['anaphors'])
+    params['epanastrophes'] = list(params['epanastrophes'])
+
+    data = {
+            'geninput': params,
+            'plaintext': "\n".join(clean_verses),
+            'rawtext': raw_output,
+            'title': title,
+            'author_name': f"{author_name} [vygenerováno]",
+            }
+    # cached frontends don't need a poemfile (share link hidden); still assign the id
+    store(data, write_file=params.get('frontend') not in CACHED_FRONTENDS)
+
+    return data
+
+
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     # empty or 'náhodně' means random
     params = dict()
-    params['modelspec'] = get_post_arg('modelspec', 'mc')
+    # identifies a limited, predetermined frontend whose poems are cached (CACHED_FRONTENDS)
+    params['frontend'] = get_post_arg('frontend', '')
+    # a cached frontend may define its own default model (used only when the request does
+    # not specify modelspec) -- e.g. lite defaults to Gemini via OpenRouter
+    params['modelspec'] = get_post_arg(
+        'modelspec', FRONTEND_DEFAULT_MODELSPEC.get(params['frontend'], 'mc'))
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
     params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
     
@@ -440,63 +524,18 @@ def call_generuj():
     params['rhymed'] = get_post_arg('rhymed', '')
     params['poem_length'] = get_post_arg('poem_length', '')
     params['old_style'] = get_post_arg('old_style', '')
-    
+
     params['min_meaning'] = float(get_post_arg('min_meaning', '0.7', True))
     params['max_unk'] = float(get_post_arg('max_unk', '0.05', True))
     params['max_tries'] = int(get_post_arg('max_tries', '1', True))
     if params['max_tries'] < 1:
         params['max_tries'] = 1
 
-    try_no = 1
-    results = []
-    found = False
-    while try_no <= params['max_tries'] and not found:
-        geninput = (f"Generate poem (try {try_no}) with parameters: {params}")
-        app.logger.info(geninput)
-        if 'gpt' in params['modelspec'] or '/' in params['modelspec']:
-            # a GPT model or an OpenRouter model
-            raw_output, clean_verses, author_name, title = generate_poem_with_openai(params, model=params['modelspec'])
-        else:
-            raw_output, clean_verses, author_name, title = gen_zmq(params)
-        app.logger.info(f"Generated poem {clean_verses}")
-    
-        if True:
-            # TODO sometimes we can skip this
-            # TODO naměřit jak dlouho to trvá
-            # TODO stačí jen meaning a unk, na to nemusim pouštět květu
-            app.logger.info("Calling get_measures")
-            measures = get_measures("\n".join(clean_verses), {'nekvetuj': True})
-            app.logger.info(f"Got measures: {measures}")
-            if measures['chatgpt_meaning'] >= params['min_meaning'] and measures['unknown_words'] <= params['max_unk']:
-                # break
-                app.logger.info(f"GOOD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
-                found = True
-            else:
-                app.logger.info(f"BAD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
-                results.append([measures, raw_output, clean_verses, author_name, title])
-                try_no += 1
-    
-    if not found:
-        # choose best from results, primarily by meaning, secondarily by unk
-        best = max(
-            results,
-            key=lambda x: (x[0]["chatgpt_meaning"], -x[0]["unknown_words"])
-        )
-        _, raw_output, clean_verses, author_name, title = best
-        app.logger.info(f"Choosing poem {clean_verses}")
-
-    # sets must be lists now
-    params['anaphors'] = list(params['anaphors'])
-    params['epanastrophes'] = list(params['epanastrophes'])
-
-    data = {
-            'geninput': params,
-            'plaintext': "\n".join(clean_verses),
-            'rawtext': raw_output,
-            'title': title,
-            'author_name': f"{author_name} [vygenerováno]",
-            }
-    store(data)
+    if params['frontend'] in CACHED_FRONTENDS:
+        # serve a cached poem instantly and regenerate a fresh one in the background
+        data = poem_cache.serve_from_cache(params, generuj_poem)
+    else:
+        data = generuj_poem(params)
     
     return return_accepted_type_for_poemid(data)
 
