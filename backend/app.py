@@ -489,7 +489,8 @@ def call_generuj():
     # a cached frontend may define its own default model (used only when the request does
     # not specify modelspec) -- e.g. lite defaults to Gemini via OpenRouter
     params['modelspec'] = get_post_arg(
-        'modelspec', FRONTEND_DEFAULT_MODELSPEC.get(params['frontend'], 'mc'))
+        'modelspec', FRONTEND_DEFAULT_MODELSPEC.get(params['frontend'], 'mc'),
+        nonempty=True)
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
     params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
     

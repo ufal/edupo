@@ -6,7 +6,7 @@ import { Deserializable, Deserialize } from "../../fria/serialization";
 export class EdupoGenRequest extends Deserializable
 {
     @Deserialize()
-    public modelspec:string = "tm";
+    public modelspec:string = "";
 
     @Deserialize()
     public poem_length:string = "";
@@ -34,6 +34,9 @@ export class EdupoGenRequest extends Deserializable
 
     @Deserialize()
     public temperature:number = 0.7;
+
+    @Deserialize()
+    public frontend:string = "";
 
     // @Deserialize()
     // public metre: string = "";
