@@ -16,8 +16,8 @@ and opens its own short-lived connections.
 
 Serving algorithm (per parameter combination, identified by a canonical cache key):
   * each key has an ordered list of poems (cache_poems) and a next_index (cache_state)
-  * a request serves poems[next_index % n], advances next_index, and -- if no
-    regeneration is already in flight for that key -- spawns one background regen
+  * a request serves poems[next_index % n], advances next_index, and -- if fewer than
+    MAX_REGEN_IN_FLIGHT background regens are running for that key -- spawns another
   * when requests outrun generation the index wraps ("restarts"), cycling through the
     cached poems; worst case the same poems repeat, but the user always gets one instantly
   * we keep ALL generated poems (no eviction)
@@ -38,18 +38,18 @@ logger = logging.getLogger(__name__)
 
 CACHE_DBFILE = os.getenv('EDUPO_CACHE_DB', '/net/projects/EduPo/data/cache.db')
 
-# A regeneration slot is considered stale (and may be reclaimed) after this many
-# seconds. Must be comfortably above gunicorn's --timeout (180s) so a worker that was
-# killed/recycled mid-generation does not strand the flag forever.
+# An in-flight regen row is considered stale (and ignored for cap accounting) after
+# this many seconds. Must be comfortably above gunicorn's --timeout (180s) so a worker
+# that was killed/recycled mid-generation does not strand a row forever.
 GENERATING_STALE_SECONDS = 300
 
-# Cap on concurrent background regenerations per cache key.
+# Cap on concurrent background regenerations per cache key. The decision is made under
+# BEGIN IMMEDIATE in serve_from_cache by counting cache_in_flight rows for the key, so
+# the cap is honored exactly for any non-negative integer.
 #   1 (default): at most one regen per key at a time. Cheap, safe under bursts, but the
-#                cache fills slowly when traffic is heavy (most requests find a regen
-#                already in flight and skip spawning).
-#   0         : unlimited -- every cache hit spawns its own regen. Cache fills faster, at
-#                the cost of N parallel OpenRouter calls per traffic burst (rate-limit
-#                risk, N-times cost).
+#                cache fills slowly when traffic is heavy.
+#   N > 1     : up to N regens per key at once. Cache fills faster; cost grows linearly.
+#   0         : unlimited -- every cache hit spawns its own regen (rate-limit risk).
 # Override via EDUPO_CACHE_MAX_REGEN_IN_FLIGHT.
 MAX_REGEN_IN_FLIGHT = int(os.getenv('EDUPO_CACHE_MAX_REGEN_IN_FLIGHT', '1'))
 
@@ -142,16 +142,6 @@ def cache_key_for(params):
     return hashlib.sha256(key_json.encode('utf-8')).hexdigest()
 
 
-def _is_stale(generating_since_iso, now):
-    if not generating_since_iso:
-        return True
-    try:
-        since = datetime.fromisoformat(generating_since_iso)
-    except (TypeError, ValueError):
-        return True
-    return (now - since).total_seconds() > GENERATING_STALE_SECONDS
-
-
 def _store_generated(key, params, data, set_next_index_to=None):
     """Insert a freshly generated poem into cache_poems. If set_next_index_to is not
     None, also upsert cache_state with the given next_index AND last_accessed=now (this
@@ -180,29 +170,6 @@ def _store_generated(key, params, data, set_next_index_to=None):
         conn.close()
 
 
-def _clear_generating(key):
-    conn = _connect()
-    try:
-        conn.execute(
-            "UPDATE cache_state SET generating=0, generating_since=NULL WHERE cache_key=?",
-            (key,))
-    finally:
-        conn.close()
-
-
-def _begin_flight(key):
-    """Record a now-starting background regen. Returns the row id used by _end_flight.
-    Purely observational -- the single-flight gate is still driven by cache_state.generating."""
-    conn = _connect()
-    try:
-        cur = conn.execute(
-            "INSERT INTO cache_in_flight(cache_key, started_at, pid) VALUES (?,?,?)",
-            (key, datetime.utcnow().isoformat(), os.getpid()))
-        return cur.lastrowid
-    finally:
-        conn.close()
-
-
 def _end_flight(flight_id):
     conn = _connect()
     try:
@@ -211,11 +178,10 @@ def _end_flight(flight_id):
         conn.close()
 
 
-def _bg_regen(key, params, generate_fn):
+def _bg_regen(key, params, generate_fn, flight_id):
     """Background daemon-thread body: generate a fresh poem and append it to the pool.
-    Always clears the `generating` flag and the in-flight row, even on failure (e.g.
-    OpenRouter down), so the key is not stranded."""
-    flight_id = _begin_flight(key)
+    The cache_in_flight row was inserted by the calling transaction in serve_from_cache;
+    this body removes it on completion (success or failure)."""
     try:
         data = generate_fn(params)  # generates + assigns id (no poemfile for cached frontends)
         _store_generated(key, params, data)
@@ -224,12 +190,11 @@ def _bg_regen(key, params, generate_fn):
         logger.exception("Background poem regen failed for cache_key=%s", key)
     finally:
         _end_flight(flight_id)
-        _clear_generating(key)
 
 
-def _spawn_regen(key, params, generate_fn):
+def _spawn_regen(key, params, generate_fn, flight_id):
     threading.Thread(
-        target=_bg_regen, args=(key, params, generate_fn), daemon=True).start()
+        target=_bg_regen, args=(key, params, generate_fn, flight_id), daemon=True).start()
 
 
 def serve_from_cache(params, generate_fn):
@@ -258,13 +223,13 @@ def serve_from_cache(params, generate_fn):
             _store_generated(key, params, data, set_next_index_to=1)
             return data
 
-        # Cache hit: pick poems[next_index % n], advance the index, claim the regen slot.
+        # Cache hit: pick poems[next_index % n], advance the index, decide whether to
+        # spawn a regen subject to MAX_REGEN_IN_FLIGHT. Counting cache_in_flight inside
+        # this BEGIN IMMEDIATE transaction (and inserting the new row in the same tx)
+        # makes the cap exact across workers -- BEGIN IMMEDIATE serializes writers.
         row = conn.execute(
-            "SELECT next_index, generating, generating_since FROM cache_state WHERE cache_key=?",
-            (key,)).fetchone()
+            "SELECT next_index FROM cache_state WHERE cache_key=?", (key,)).fetchone()
         next_index = row[0] if row else 0
-        generating = row[1] if row else 0
-        gsince = row[2] if row else None
 
         idx = next_index % n
         poem_json = conn.execute(
@@ -272,27 +237,35 @@ def serve_from_cache(params, generate_fn):
             (key, idx)).fetchone()[0]
         data = json.loads(poem_json)
 
-        # MAX_REGEN_IN_FLIGHT==0 disables the single-flight gate: every hit spawns a regen.
+        now_iso = now.isoformat()
         if MAX_REGEN_IN_FLIGHT == 0:
             claim = True
         else:
-            claim = (not generating) or _is_stale(gsince, now)
-        new_next = idx + 1
-        new_generating = 1 if claim else generating
-        new_since = now.isoformat() if claim else gsince
+            cutoff_iso = (now - timedelta(seconds=GENERATING_STALE_SECONDS)).isoformat()
+            in_flight = conn.execute(
+                "SELECT COUNT(*) FROM cache_in_flight WHERE cache_key=? AND started_at > ?",
+                (key, cutoff_iso)).fetchone()[0]
+            claim = in_flight < MAX_REGEN_IN_FLIGHT
 
-        now_iso = now.isoformat()
+        flight_id = None
+        if claim:
+            cur = conn.execute(
+                "INSERT INTO cache_in_flight(cache_key, started_at, pid) VALUES (?,?,?)",
+                (key, now_iso, os.getpid()))
+            flight_id = cur.lastrowid
+
+        new_next = idx + 1
         if row:
             conn.execute(
-                "UPDATE cache_state SET next_index=?, generating=?, generating_since=?, last_accessed=? WHERE cache_key=?",
-                (new_next, new_generating, new_since, now_iso, key))
+                "UPDATE cache_state SET next_index=?, last_accessed=? WHERE cache_key=?",
+                (new_next, now_iso, key))
         else:
             # Poems exist but no state row yet (e.g. warm-up import only populated
             # cache_poems): create the state row using the current request's params.
             conn.execute(
-                "INSERT INTO cache_state(cache_key, gen_params_json, next_index, generating, generating_since, last_accessed) "
-                "VALUES (?,?,?,?,?,?)",
-                (key, json.dumps(params, ensure_ascii=False), new_next, new_generating, new_since, now_iso))
+                "INSERT INTO cache_state(cache_key, gen_params_json, next_index, last_accessed) "
+                "VALUES (?,?,?,?)",
+                (key, json.dumps(params, ensure_ascii=False), new_next, now_iso))
         conn.execute("COMMIT")
     except Exception:
         if conn is not None:
@@ -306,7 +279,7 @@ def serve_from_cache(params, generate_fn):
             conn.close()
 
     if claim:
-        _spawn_regen(key, params, generate_fn)
+        _spawn_regen(key, params, generate_fn, flight_id)
     return data
 
 

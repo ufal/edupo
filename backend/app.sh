@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Cap on concurrent background poem-cache regenerations per cache key.
+# 1 = single-flight, 0 = unlimited; see poem_cache.py.
+export EDUPO_CACHE_MAX_REGEN_IN_FLIGHT=3
+
 f=$(date "+%Y-%m-%d-%H-%M-%S")
 l=logs/app.$f.log
 
