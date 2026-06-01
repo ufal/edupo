@@ -1072,6 +1072,35 @@ def call_logs():
 
     return return_accepted_type(text, result, html)
 
+
+@app.route("/cache_stats", methods=['GET', 'POST'])
+def call_cache_stats():
+    s = poem_cache.stats()
+    lines = [
+        "Cache statistics",
+        "================",
+        f"DB             : {s['db_path']}  ({s['db_size_mb']:.1f} MB)",
+        f"Max in flight  : {s['max_in_flight']} (0 = unlimited)",
+        f"Running now    : {s['running']}",
+        f"Total poems    : {s['total_poems']}",
+        f"Distinct combos: {s['distinct_combos']}  (with only 1 poem: {s['starved']})",
+        f"Oldest poem    : {s['oldest']}",
+        f"Newest poem    : {s['newest']}",
+        "",
+        "Last 10 requested combinations (most recent first):",
+    ]
+    if not s['recent']:
+        lines.append("  (none yet)")
+    for i, (params_json, ts) in enumerate(s['recent'], 1):
+        lines.append(f"  {i:>2}. [{ts}] {poem_cache.short_params(params_json)}")
+    lines += ["", "Top 10 combinations by pool size:"]
+    if not s['top']:
+        lines.append("  (none yet)")
+    for i, (_k, n, params_json) in enumerate(s['top'], 1):
+        lines.append(f"  {i:>2}. N={n:<4} {poem_cache.short_params(params_json or '{}')}")
+    return Response("\n".join(lines) + "\n", mimetype='text/plain; charset=utf-8')
+
+
 @app.route("/testovani", methods=['GET', 'POST'])
 def call_tests():
     def get_question(filename, line):

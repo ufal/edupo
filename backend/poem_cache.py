@@ -32,7 +32,7 @@ import logging
 import os
 import sqlite3
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,16 @@ CACHE_DBFILE = os.getenv('EDUPO_CACHE_DB', '/net/projects/EduPo/data/cache.db')
 # seconds. Must be comfortably above gunicorn's --timeout (180s) so a worker that was
 # killed/recycled mid-generation does not strand the flag forever.
 GENERATING_STALE_SECONDS = 300
+
+# Cap on concurrent background regenerations per cache key.
+#   1 (default): at most one regen per key at a time. Cheap, safe under bursts, but the
+#                cache fills slowly when traffic is heavy (most requests find a regen
+#                already in flight and skip spawning).
+#   0         : unlimited -- every cache hit spawns its own regen. Cache fills faster, at
+#                the cost of N parallel OpenRouter calls per traffic burst (rate-limit
+#                risk, N-times cost).
+# Override via EDUPO_CACHE_MAX_REGEN_IN_FLIGHT.
+MAX_REGEN_IN_FLIGHT = int(os.getenv('EDUPO_CACHE_MAX_REGEN_IN_FLIGHT', '1'))
 
 # FROZEN: the generation-relevant fields that define a cache key. The warm-up import
 # script must use the exact same list and normalization (see cache_key_for).
@@ -56,7 +66,8 @@ CREATE TABLE IF NOT EXISTS cache_state (
     gen_params_json  TEXT,
     next_index       INTEGER NOT NULL DEFAULT 0,
     generating       INTEGER NOT NULL DEFAULT 0,
-    generating_since TEXT
+    generating_since TEXT,
+    last_accessed    TEXT
 );
 CREATE TABLE IF NOT EXISTS cache_poems (
     seq        INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,6 +77,14 @@ CREATE TABLE IF NOT EXISTS cache_poems (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_cache_poems_key ON cache_poems(cache_key, seq);
+-- one row per currently-running background regeneration (observability for /cache_stats)
+CREATE TABLE IF NOT EXISTS cache_in_flight (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    cache_key  TEXT NOT NULL,
+    started_at TEXT NOT NULL,
+    pid        INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_cache_in_flight_started ON cache_in_flight(started_at);
 """
 
 
@@ -85,6 +104,11 @@ def init_cache_db():
     try:
         conn.execute("PRAGMA journal_mode=WAL")
         conn.executescript(_SCHEMA_SQL)
+        # Additive migration: cache_state.last_accessed was added after the initial
+        # release; add the column on pre-existing DBs.
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(cache_state)")}
+        if 'last_accessed' not in cols:
+            conn.execute("ALTER TABLE cache_state ADD COLUMN last_accessed TEXT")
     finally:
         conn.close()
 
@@ -130,9 +154,10 @@ def _is_stale(generating_since_iso, now):
 
 def _store_generated(key, params, data, set_next_index_to=None):
     """Insert a freshly generated poem into cache_poems. If set_next_index_to is not
-    None, also upsert cache_state with the given next_index (used on a cache miss to
-    initialize the state). gen_params_json holds the FULL params dict so the background
-    regen has everything it needs (modelspec, max_tries, min_meaning, max_unk, ...)."""
+    None, also upsert cache_state with the given next_index AND last_accessed=now (this
+    code path runs on a cache miss, which is itself a request, so it counts as an access).
+    gen_params_json holds the FULL params dict so the background regen has everything it
+    needs (modelspec, max_tries, min_meaning, max_unk, ...)."""
     poem_json = json.dumps(data, ensure_ascii=False)
     poemid = data.get('id', '')
     conn = _connect()
@@ -142,12 +167,14 @@ def _store_generated(key, params, data, set_next_index_to=None):
             "INSERT INTO cache_poems(cache_key, poemid, poem_json) VALUES (?,?,?)",
             (key, poemid, poem_json))
         if set_next_index_to is not None:
+            now_iso = datetime.utcnow().isoformat()
             conn.execute(
-                "INSERT INTO cache_state(cache_key, gen_params_json, next_index, generating, generating_since) "
-                "VALUES (?,?,?,0,NULL) "
+                "INSERT INTO cache_state(cache_key, gen_params_json, next_index, generating, generating_since, last_accessed) "
+                "VALUES (?,?,?,0,NULL,?) "
                 "ON CONFLICT(cache_key) DO UPDATE SET "
-                "  gen_params_json=excluded.gen_params_json, next_index=excluded.next_index",
-                (key, json.dumps(params, ensure_ascii=False), set_next_index_to))
+                "  gen_params_json=excluded.gen_params_json, next_index=excluded.next_index, "
+                "  last_accessed=excluded.last_accessed",
+                (key, json.dumps(params, ensure_ascii=False), set_next_index_to, now_iso))
         conn.execute("COMMIT")
     finally:
         conn.close()
@@ -163,10 +190,32 @@ def _clear_generating(key):
         conn.close()
 
 
+def _begin_flight(key):
+    """Record a now-starting background regen. Returns the row id used by _end_flight.
+    Purely observational -- the single-flight gate is still driven by cache_state.generating."""
+    conn = _connect()
+    try:
+        cur = conn.execute(
+            "INSERT INTO cache_in_flight(cache_key, started_at, pid) VALUES (?,?,?)",
+            (key, datetime.utcnow().isoformat(), os.getpid()))
+        return cur.lastrowid
+    finally:
+        conn.close()
+
+
+def _end_flight(flight_id):
+    conn = _connect()
+    try:
+        conn.execute("DELETE FROM cache_in_flight WHERE id=?", (flight_id,))
+    finally:
+        conn.close()
+
+
 def _bg_regen(key, params, generate_fn):
     """Background daemon-thread body: generate a fresh poem and append it to the pool.
-    Always clears the `generating` flag, even on failure (e.g. OpenRouter down), so the
-    key is not stranded."""
+    Always clears the `generating` flag and the in-flight row, even on failure (e.g.
+    OpenRouter down), so the key is not stranded."""
+    flight_id = _begin_flight(key)
     try:
         data = generate_fn(params)  # generates + assigns id (no poemfile for cached frontends)
         _store_generated(key, params, data)
@@ -174,6 +223,7 @@ def _bg_regen(key, params, generate_fn):
     except Exception:
         logger.exception("Background poem regen failed for cache_key=%s", key)
     finally:
+        _end_flight(flight_id)
         _clear_generating(key)
 
 
@@ -222,22 +272,27 @@ def serve_from_cache(params, generate_fn):
             (key, idx)).fetchone()[0]
         data = json.loads(poem_json)
 
-        claim = (not generating) or _is_stale(gsince, now)
+        # MAX_REGEN_IN_FLIGHT==0 disables the single-flight gate: every hit spawns a regen.
+        if MAX_REGEN_IN_FLIGHT == 0:
+            claim = True
+        else:
+            claim = (not generating) or _is_stale(gsince, now)
         new_next = idx + 1
         new_generating = 1 if claim else generating
         new_since = now.isoformat() if claim else gsince
 
+        now_iso = now.isoformat()
         if row:
             conn.execute(
-                "UPDATE cache_state SET next_index=?, generating=?, generating_since=? WHERE cache_key=?",
-                (new_next, new_generating, new_since, key))
+                "UPDATE cache_state SET next_index=?, generating=?, generating_since=?, last_accessed=? WHERE cache_key=?",
+                (new_next, new_generating, new_since, now_iso, key))
         else:
             # Poems exist but no state row yet (e.g. warm-up import only populated
             # cache_poems): create the state row using the current request's params.
             conn.execute(
-                "INSERT INTO cache_state(cache_key, gen_params_json, next_index, generating, generating_since) "
-                "VALUES (?,?,?,?,?)",
-                (key, json.dumps(params, ensure_ascii=False), new_next, new_generating, new_since))
+                "INSERT INTO cache_state(cache_key, gen_params_json, next_index, generating, generating_since, last_accessed) "
+                "VALUES (?,?,?,?,?,?)",
+                (key, json.dumps(params, ensure_ascii=False), new_next, new_generating, new_since, now_iso))
         conn.execute("COMMIT")
     except Exception:
         if conn is not None:
@@ -253,3 +308,79 @@ def serve_from_cache(params, generate_fn):
     if claim:
         _spawn_regen(key, params, generate_fn)
     return data
+
+
+# ---------------------------------------------------------------------------
+# Stats (for the /cache_stats endpoint)
+# ---------------------------------------------------------------------------
+
+# Fields rendered by short_params(), in display order. Anything else in the params blob
+# (max_tries, min_meaning, ...) is omitted to keep the line compact.
+_SHORT_PARAM_FIELDS = (
+    'modelspec', 'temperature', 'old_style', 'syllables_count', 'poem_length',
+    'verses_count', 'rhyme_scheme', 'rhymed', 'mood', 'motives',
+)
+
+
+def short_params(params_json):
+    """Compact one-line summary of a gen_params_json blob: drops empty/zero values and
+    renders each remaining field as `key=value`. Used by /cache_stats."""
+    if not params_json:
+        return ""
+    try:
+        p = json.loads(params_json)
+    except (TypeError, ValueError):
+        return params_json
+    parts = []
+    for k in _SHORT_PARAM_FIELDS:
+        v = p.get(k)
+        if v in (None, '', 0, [], {}):
+            continue
+        if isinstance(v, (list, tuple)):
+            v = '+'.join(str(x) for x in v)
+        parts.append(f"{k}={v}")
+    return " ".join(parts)
+
+
+def stats():
+    """Snapshot of cache contents and activity for /cache_stats. Single short-lived
+    connection; only reads except for opportunistic stranded-row filtering via WHERE."""
+    cutoff = (datetime.utcnow() - timedelta(seconds=GENERATING_STALE_SECONDS)).isoformat()
+    conn = _connect()
+    try:
+        running = conn.execute(
+            "SELECT COUNT(*) FROM cache_in_flight WHERE started_at > ?", (cutoff,)
+        ).fetchone()[0]
+        total_poems = conn.execute("SELECT COUNT(*) FROM cache_poems").fetchone()[0]
+        distinct_combos = conn.execute(
+            "SELECT COUNT(DISTINCT cache_key) FROM cache_poems").fetchone()[0]
+        starved = conn.execute(
+            "SELECT COUNT(*) FROM (SELECT cache_key FROM cache_poems "
+            "GROUP BY cache_key HAVING COUNT(*) = 1)").fetchone()[0]
+        oldest, newest = conn.execute(
+            "SELECT MIN(created_at), MAX(created_at) FROM cache_poems").fetchone()
+        recent = conn.execute(
+            "SELECT gen_params_json, last_accessed FROM cache_state "
+            "WHERE last_accessed IS NOT NULL ORDER BY last_accessed DESC LIMIT 10"
+        ).fetchall()
+        top = conn.execute(
+            "SELECT cp.cache_key, COUNT(*) AS n, cs.gen_params_json "
+            "FROM cache_poems cp LEFT JOIN cache_state cs USING(cache_key) "
+            "GROUP BY cp.cache_key ORDER BY n DESC, cp.cache_key LIMIT 10"
+        ).fetchall()
+    finally:
+        conn.close()
+    db_size = os.path.getsize(CACHE_DBFILE) if os.path.exists(CACHE_DBFILE) else 0
+    return {
+        'db_path': CACHE_DBFILE,
+        'db_size_mb': db_size / (1024 * 1024),
+        'max_in_flight': MAX_REGEN_IN_FLIGHT,
+        'running': running,
+        'total_poems': total_poems,
+        'distinct_combos': distinct_combos,
+        'starved': starved,
+        'oldest': oldest or '-',
+        'newest': newest or '-',
+        'recent': recent,
+        'top': top,
+    }
