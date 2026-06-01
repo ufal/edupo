@@ -260,6 +260,7 @@ Do not output any other content or formatting."""
     if params['old_style']:
         if params['old_style'] == 'old':
             prompt_parts.append(f"The poem should be written in old style (19th century).")
+            prompt_parts.append(f"Every sentence, clause, quotation, exclamation, question, and list MUST be punctuated according to standard literary conventions of the target period.  DO NOT omit punctuation for stylistic, modernist, minimalist, or free-verse reasons.")
         elif params['old_style'] == 'modern':
             prompt_parts.append(f"The poem should be written in 20th century style.")
         else:
