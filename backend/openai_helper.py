@@ -94,7 +94,7 @@ def generate_with_openai_simple(prompt, system="You are a helpful assistant.", m
     if 'gpt-5' in model or 'gemini-3' in model:
         # reasoning models
         # add reasoning tokens
-        max_tokens += 4500
+        max_tokens += 7000
         # use responses API
         return generate_with_openai_responses(prompt, system, model, max_tokens)
     else:
