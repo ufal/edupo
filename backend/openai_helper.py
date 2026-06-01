@@ -94,7 +94,7 @@ def generate_with_openai_simple(prompt, system="You are a helpful assistant.", m
     if 'gpt-5' in model or 'gemini-3' in model:
         # reasoning models
         # add reasoning tokens
-        max_tokens += 7000
+        max_tokens += 70000
         # use responses API
         return generate_with_openai_responses(prompt, system, model, max_tokens)
     else:
@@ -298,7 +298,7 @@ Do not output any other content or formatting."""
         max_tokens = 50 * verses * strophes + 100
     if REASONING:
         # reasoning models: add reasoning tokens
-        max_tokens += 7000
+        max_tokens += 70000
     logging.info(f'TEXTGEN max_tokens: {max_tokens}')
 
     if model.startswith('gpt-5'):
