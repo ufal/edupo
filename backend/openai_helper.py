@@ -298,7 +298,7 @@ Do not output any other content or formatting."""
         max_tokens = 50 * verses * strophes + 100
     if REASONING:
         # reasoning models: add reasoning tokens
-        max_tokens += 4000
+        max_tokens += 7000
     logging.info(f'TEXTGEN max_tokens: {max_tokens}')
 
     if model.startswith('gpt-5'):
