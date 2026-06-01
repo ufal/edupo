@@ -170,27 +170,82 @@ export class App implements Updatable
     {
         const call:EdupoAPI = new EdupoAPI(Settings.Instance.api_url);
         const request:EdupoGenRequest = this.ingredientManager.generateRequest();
+        const startTime = Date.now();
 
         call.gen(request)
-        .then( 
-            (response:EdupoGenResponse) => {
+        .then(async (response:EdupoGenResponse) => {
+                const elapsedMs = Date.now() - startTime;
 
                 const res = document.getElementById("epl_result");
-                if (res) res.innerHTML = `<h2>${response.title}<br/></h2>${response.lines().join("<br/>")}`;
-
                 const modal = document.getElementById("epl_result_modal");
+                const buttons = document.getElementById("epl_result_buttons");
+                // Hide Zavřít BEFORE making the modal visible so it never flashes
+                // ahead of the poem (especially on the streaming path).
+                if (buttons) buttons.style.visibility = "hidden";
                 if (modal) modal.style.visibility = "visible";
 
                 const share:HTMLAnchorElement = document.getElementById("epl_result_share") as any as HTMLAnchorElement;
-                if (share) 
+                if (share)
                     {
                         share.href = Settings.Instance.share_url.replace('{0}', response.id);
                     }
-                
+
+                if (res)
+                {
+                    // Fast responses (typically cache hits) feel jarring when the whole
+                    // poem appears at once -- reveal it word-by-word to give a sense
+                    // that it's being "written".
+                    if (elapsedMs < 3000)
+                    {
+                        await this.streamPoem(res, response.title, response.lines(), 100);
+                    }
+                    else
+                    {
+                        res.innerHTML = `<h2>${response.title}<br/></h2>${response.lines().join("<br/>")}`;
+                    }
+                }
+                if (buttons) buttons.style.visibility = "visible";
             })
         .catch( (err:any) => {
             console.error(err)
-        });        
+        });
+    }
+
+    /**
+     * Reveals a poem word by word into `container`, with `wordDelayMs` between words.
+     * Uses textContent (not innerHTML) so the stream path doesn't render markup in
+     * the title -- matches expected behaviour for plain-text poems.
+     */
+    async streamPoem(container:HTMLElement, title:string, lines:string[], wordDelayMs:number)
+    {
+        container.innerHTML = "";
+        const sleep = (ms:number) => new Promise(r => setTimeout(r, ms));
+
+        if (title)
+        {
+            const h2 = document.createElement("h2");
+            container.appendChild(h2);
+            const titleParts = title.split(/(\s+)/);
+            for (const part of titleParts)
+            {
+                h2.appendChild(document.createTextNode(part));
+                if (part.trim().length > 0) await sleep(wordDelayMs);
+            }
+            container.appendChild(document.createElement("br"));
+        }
+
+        for (let i = 0; i < lines.length; i++)
+        {
+            if (i > 0) container.appendChild(document.createElement("br"));
+            const lineSpan = document.createElement("span");
+            container.appendChild(lineSpan);
+            const parts = lines[i].split(/(\s+)/);
+            for (const part of parts)
+            {
+                lineSpan.appendChild(document.createTextNode(part));
+                if (part.trim().length > 0) await sleep(wordDelayMs);
+            }
+        }
     }
 
     closeResult()
@@ -200,6 +255,11 @@ export class App implements Updatable
         {
             modal.style.visibility = "hidden";
         }
+        // Clear the inline visibility:visible set on the buttons row after streaming --
+        // without this, it survives the parent modal going hidden (visibility doesn't
+        // inherit across an explicit `visible` child) and Zavřít stays painted.
+        const buttons = document.getElementById("epl_result_buttons");
+        if (buttons) buttons.style.visibility = "";
     }
 
     updateState()

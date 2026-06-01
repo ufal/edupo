@@ -262,14 +262,10 @@ LAYOUT ELEMENTS
   {
     display:flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     font-size:2vh;
     margin-top:4em;
-  }
-  span#epl_result_copy
-  {
-    cursor:pointer;
   }
 
   #epl_instruction_2
