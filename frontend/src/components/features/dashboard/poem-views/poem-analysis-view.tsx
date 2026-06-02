@@ -19,24 +19,24 @@ const groupClasses: Record<PoemLineGroup, { badge: string; line: string }> = {
     line: 'bg-teal-100 text-grey-700',
   },
   D: {
-    badge: 'bg-yellow-100 text-yellow-700',
-    line: 'bg-yellow-100 text-grey-700',
+    badge: 'bg-orange-100 text-orange-800',
+    line: 'bg-orange-100 text-grey-700',
   },
   E: {
-    badge: 'bg-purple-200 text-purple-800',
-    line: 'bg-purple-200 text-grey-700',
+    badge: 'bg-indigo-200 text-indigo-800',
+    line: 'bg-indigo-200 text-grey-700',
   },
   F: {
-    badge: 'bg-cyan-100 text-cyan-700',
-    line: 'bg-cyan-100 text-grey-700',
+    badge: 'bg-pink-200 text-pink-800',
+    line: 'bg-pink-200 text-grey-700',
   },
   G: {
-    badge: 'bg-teal-200 text-teal-800',
-    line: 'bg-teal-200 text-grey-700',
+    badge: 'bg-lime-100 text-teal-800',
+    line: 'bg-lime-100 text-grey-700',
   },
   X: {
-    badge: 'bg-grey-200 text-grey-700',
-    line: 'bg-grey-100 text-grey-700',
+    badge: 'bg-yellow-200 text-yellow-700',
+    line: 'bg-yellow-100 text-grey-700',
   },
 }
 
