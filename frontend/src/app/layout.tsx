@@ -11,6 +11,12 @@ const inriaSans = Inria_Sans({
   variable: '--font-inria-sans',
 })
 
+export const metadata = {
+  icons: {
+    icon: '/favicon.png?v=2',
+  },
+}
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="cs">

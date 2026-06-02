@@ -25,7 +25,6 @@ export type IconName = 'hamburger'
   | 'stars'
   | 'starsBold'
   | 'pencil'
-  | 'X'
   | 'arrowLeft'
   | 'alertCircle'
   | 'book'
@@ -37,6 +36,7 @@ export type IconName = 'hamburger'
   | 'thermometer'
   | 'qr'
   | 'fb'
+  | 'x'
   | 'linkedIn'
 
 type AppIconProps = {
@@ -52,7 +52,6 @@ const icons = {
   stars: StarsIcon,
   starsBold: StarsBoldIcon,
   pencil: PencilIcon,
-  X: XIcon,
   arrowLeft: ArrowLeftIcon,
   alertCircle: AlertCircleIcon,
   book: BookIcon,
@@ -64,6 +63,7 @@ const icons = {
   thermometer: ThermometerIcon,
   qr: QRIcon,
   fb: FBIcon,
+  x: XIcon,
   linkedIn: LinkedInIcon,
 }
 

@@ -169,25 +169,23 @@ export function PoemCardActions() {
         aria-label={
           ttsStatus === 'playing'
             ? 'Pozastavit přehrávání'
-            : 'Přehrát báseň'
+            : ttsStatus === 'paused'
+              ? 'Pokračovat v přehrávání'
+              : 'Přehrát báseň'
         }
         disabled={!poem || ttsStatus === 'loading'}
         className={[
           'ml-auto grid size-8 place-items-center rounded-full transition-transform active:scale-95',
           ttsStatus === 'loading' ? 'animate-pulse opacity-70' : '',
-          ttsStatus === 'playing' ? 'bg-grey-200 text-grey-900' : '',
           !poem ? 'opacity-50' : '',
         ].join(' ')}
         onClick={handleToggleTTS}
       >
-        {ttsStatus === 'playing' ? (
-          <div className="flex items-center gap-[3px]">
-            <span className="block h-3.5 w-[3px] rounded-full bg-grey-900" />
-            <span className="block h-3.5 w-[3px] rounded-full bg-grey-900" />
-          </div>
-        ) : (
-          img((process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/icons/loudspeaker.svg")
-        )}
+        {ttsStatus === 'playing'
+          ? img((process.env.NEXT_PUBLIC_LINK_BASE || '/') + 'assets/icons/stop.svg')
+          : ttsStatus === 'paused'
+            ? img((process.env.NEXT_PUBLIC_LINK_BASE || '/') + 'assets/icons/play.svg')
+            : img((process.env.NEXT_PUBLIC_LINK_BASE || '/') + 'assets/icons/loudspeaker.svg')}
       </button>
     </div>
   )

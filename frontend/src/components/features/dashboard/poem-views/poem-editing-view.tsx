@@ -7,6 +7,7 @@ import { MAX_POEM_LINES, usePoemStore } from '@/stores/poem-store'
 import { AppIcon } from '@/components/icons/app-icon'
 import { getPoemLines, PoemCardActions, PoemEmptyState } from './poem-view-utils'
 import { SmartWrappedVerseText } from '@/components/ui/smart-wrapped-verse-text'
+import { X } from 'lucide-react'
 
 export function PoemEditingView() {
   const poem = usePoemStore((state) => state.poem)
@@ -94,7 +95,7 @@ export function PoemEditingView() {
                     isActive ? 'bg-yellow-300' : 'bg-grey-50'
                   }`}
                 >
-                  <AppIcon name="X" size={16} />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 

@@ -31,6 +31,16 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
     )
   }
 
+  const shareX = () => {
+    if (!url) return
+
+    window.open(
+      `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`,
+      '_blank',
+      'noopener,noreferrer',
+    )
+  }
+
   const shareLinkedIn = () => {
     if (!url) return
 
@@ -81,6 +91,17 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
                 <AppIcon name="fb" size={22} className="text-white" />
               </span>
               <span className="text-xs">Facebook</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={shareX}
+              className="flex flex-col items-center gap-2 text-zinc-500"
+            >
+              <span className="grid size-10 place-items-center rounded-2xl bg-teal-700 text-white">
+                <AppIcon name="x" size={16} className="text-white" />
+              </span>
+              <span className="text-xs">X</span>
             </button>
 
             <button
