@@ -205,9 +205,9 @@ export class App implements Updatable
                     // Fast responses (typically cache hits) feel jarring when the whole
                     // poem appears at once -- reveal it word-by-word to give a sense
                     // that it's being "written".
-                    if (elapsedMs < 3000)
+                    if (elapsedMs < 5000)
                     {
-                        await this.streamPoem(res, response.title, response.lines(), 100);
+                        await this.streamPoem(res, response.title, response.lines(), 150);
                     }
                     else
                     {
