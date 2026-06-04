@@ -36,9 +36,13 @@ export class App implements Updatable
     public ingredientManager!:IngredientManager;
     
     public submitButton!:HTMLButtonElement;
+    public resetButton!:HTMLButtonElement;
 
     /** Internal state of the application, 0 =  no ingredients in jar, 1 = ingredients in jar */
     private state:number = 0; /** TODO: REPLACE BY ENUM */
+
+    private lastInteractionTime:number = Date.now();
+    private readonly inactivityTimeoutMs:number = 60_000;
 
     /** Asynchronous connection to EduPo API  */
     public generator!:Generator;
@@ -106,6 +110,10 @@ export class App implements Updatable
 
         // Create and initialize poem generator
         this.generator = new Generator(new EdupoAPI(Settings.Instance.api_url));
+
+        // Reset inactivity timer on any pointer interaction
+        this.element.addEventListener("pointerdown", () => { this.lastInteractionTime = Date.now(); });
+        this.element.addEventListener("pointermove", () => { this.lastInteractionTime = Date.now(); });
     }
 
     public resize()
@@ -114,9 +122,10 @@ export class App implements Updatable
     }   
 
     public update()
-    {        
-        this.updateState();        
-    }    
+    {
+        this.updateState();
+        this.checkInactivity();
+    }
 
     /** Creates necessary HTML elements inside app container, binds existing elements, attaches event handlers to DOM */
     private createHTML()
@@ -144,6 +153,7 @@ export class App implements Updatable
        
         this.submitButton = document.getElementById("epl_btn_generate") as HTMLButtonElement;
         this.submitButton.style.visibility = "hidden";
+        this.resetButton = document.getElementById("epl_btn_reset") as HTMLButtonElement;
 
         let cb = document.getElementById("epl_result_copy");
         cb?.addEventListener("click", async () => { this.copy();} );       
@@ -262,6 +272,25 @@ export class App implements Updatable
         if (buttons) buttons.style.visibility = "";
     }
 
+    public resetAll()
+    {
+        this.ingredientManager.returnAll();
+        this.lastInteractionTime = Date.now();
+    }
+
+    private checkInactivity()
+    {
+        const modal = document.getElementById("epl_result_modal");
+        const poemVisible = modal?.style.visibility === "visible";
+        if (!poemVisible &&
+            this.ingredientManager?.activeIngredients.length > 0 &&
+            Date.now() - this.lastInteractionTime > this.inactivityTimeoutMs)
+        {
+            this.ingredientManager.returnAll();
+            this.lastInteractionTime = Date.now();
+        }
+    }
+
     updateState()
     {
         let info1 = document.getElementById("epl_instruction_1");
@@ -277,6 +306,7 @@ export class App implements Updatable
                     info1.style.display = "none";
                     info2.style.display = "block";
                     this.submitButton.style.visibility = "visible";
+                    this.resetButton.style.visibility = "visible";
                 }
             }
             else if (this.state == 1)
@@ -287,6 +317,7 @@ export class App implements Updatable
                     info1.style.display = "block";
                     info2.style.display = "none";
                     this.submitButton.style.visibility = "hidden";
+                    this.resetButton.style.visibility = "hidden";
                 }
             }
         }

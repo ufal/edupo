@@ -306,6 +306,19 @@ export class IngredientManager
      * @param ing Dragged ingredient
      * @returns Promise resolved after the snapping animation finishes.
      */
+    /**
+     * Returns all active ingredients back to their initial positions.
+     * Called after a period of user inactivity.
+     */
+    public returnAll(): void
+    {
+        [...this.activeIngredients].forEach(ing => {
+            this.clearFromTarget(ing);
+            this.deactivate(ing);
+            ing.animatePosition(new Point(ing.x, ing.y), ing.initialPosition);
+        });
+    }
+
     animatedSnap(ing:Ingredient):Promise<void>
     {
         // Find nearest vacant position

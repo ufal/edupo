@@ -198,6 +198,24 @@ LAYOUT ELEMENTS
   flex-direction: row;
 }
 
+#epl_btn_reset
+{
+  position:fixed;
+  bottom:2vh;
+  left:2vh;
+  width:4vh;
+  height:4vh;
+  min-width:2rem;
+  min-height:2rem;
+  border-radius:50%;
+  font-size:1.4rem;
+  line-height:1;
+  padding:0;
+  z-index:200;
+  visibility:hidden;
+  opacity:0.65;
+}
+
 
 #epl_jar img
 {
