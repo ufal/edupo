@@ -291,6 +291,37 @@ LAYOUT ELEMENTS
     display:none;
   }
 
+#epl_timeout_modal
+{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
+  visibility:hidden;
+  z-index: 1100; /* above the result modal */
+  background-color: var(--modalbg);
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+  #epl_timeout_panel
+  {
+    background-color:var(--popupbg);
+    padding:2em;
+    border-radius: var(--radius);
+    color:var(--slate);
+    max-width:95%;
+    font-size:2vh;
+    text-align: center;
+  }
+  #epl_btn_stay
+  {
+    margin-top:1.5em;
+    font-size:1em;
+  }
+
 
 /** INGREDIENTS **/
 

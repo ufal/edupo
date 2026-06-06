@@ -44,6 +44,12 @@ export class App implements Updatable
     private lastInteractionTime:number = Date.now();
     private readonly inactivityTimeoutMs:number = 60_000;
 
+    /** Restart countdown shown when the poem stays open for too long */
+    private readonly poemTimeoutMs:number = 60_000;
+    private readonly restartCountdownMs:number = 10_000;
+    private countdownActive:boolean = false;
+    private countdownEndTime:number = 0;
+
     /** Asynchronous connection to EduPo API  */
     public generator!:Generator;
 
@@ -126,6 +132,7 @@ export class App implements Updatable
     {
         this.updateState();
         this.checkInactivity();
+        this.checkPoemTimeout();
     }
 
     /** Creates necessary HTML elements inside app container, binds existing elements, attaches event handlers to DOM */
@@ -282,6 +289,62 @@ export class App implements Updatable
     public resetAll()
     {
         this.ingredientManager.returnAll();
+        this.lastInteractionTime = Date.now();
+    }
+
+    /**
+     * When the poem stays open with no interaction for poemTimeoutMs, shows an overlay
+     * with a 10 s countdown. Unless the user cancels it (Ještě čtu!), the UI restarts:
+     * the poem is closed and all ingredients return to their initial positions.
+     */
+    private checkPoemTimeout()
+    {
+        const overlay = document.getElementById("epl_timeout_modal");
+        if (!overlay) return;
+
+        const modal = document.getElementById("epl_result_modal");
+        const poemVisible = modal?.style.visibility === "visible";
+
+        if (!poemVisible)
+        {
+            // Poem was closed by other means while counting down
+            if (this.countdownActive) this.cancelRestart();
+            return;
+        }
+
+        if (!this.countdownActive)
+        {
+            if (Date.now() - this.lastInteractionTime > this.poemTimeoutMs)
+            {
+                this.countdownActive = true;
+                this.countdownEndTime = Date.now() + this.restartCountdownMs;
+                overlay.style.visibility = "visible";
+            }
+        }
+        else
+        {
+            const remaining = Math.ceil((this.countdownEndTime - Date.now()) / 1000);
+            const count = document.getElementById("epl_timeout_count");
+            if (count) count.textContent = Math.max(0, remaining).toString();
+
+            if (remaining <= 0)
+            {
+                this.cancelRestart();
+                this.closeResult();
+                this.resetAll();
+            }
+        }
+    }
+
+    /**
+     * Hides the restart countdown overlay and postpones the restart.
+     * Called from the overlay's button (onclick="app.cancelRestart()").
+     */
+    public cancelRestart()
+    {
+        this.countdownActive = false;
+        const overlay = document.getElementById("epl_timeout_modal");
+        if (overlay) overlay.style.visibility = "hidden";
         this.lastInteractionTime = Date.now();
     }
 
