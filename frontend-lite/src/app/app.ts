@@ -103,6 +103,7 @@ export class App implements Updatable
             {
                 b.events.addEventListener("dragend", this.onDragEnd.bind(this));
                 b.events.addEventListener("dragstart", this.onDragStart.bind(this));
+                b.events.addEventListener("click", this.onIngredientClick.bind(this));
                 UpdateDispatcher.Add(b);
             }
         });
@@ -174,6 +175,12 @@ export class App implements Updatable
     {
         let b:Ingredient = args[0];
         this.ingredientManager.drop(b);
+    }
+
+    onIngredientClick(args:any[])
+    {
+        let b:Ingredient = args[0];
+        this.ingredientManager.click(b);
     }
     
     generate()

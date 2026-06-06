@@ -51,6 +51,12 @@ export class IngredientManager
      */
     public targetPositions:JarTargetPosition[] = [];
 
+    /**
+     * Whether the currently dragged ingredient was active (in the jar) when the drag started.
+     * Needed by click() to toggle, because drag() deactivates the ingredient immediately.
+     */
+    private wasActive:boolean = false;
+
     constructor(dragContainer:HTMLElement, sourceContainer:HTMLElement, targetContainer:HTMLElement, dropZone:HTMLElement)
     {
         this.dragContainer = dragContainer;
@@ -111,6 +117,9 @@ export class IngredientManager
      */
     public drag(b:Ingredient)
     {
+        // Remember whether the ingredient starts the drag in the jar (used by click())
+        this.wasActive = b.active;
+
         // If ingredient was in the jar, unassign it from jar target position
         this.clearFromTarget(b);
 
@@ -149,10 +158,39 @@ export class IngredientManager
         {
             this.deactivate(b);
             b.animatePosition(new Point(b.x, b.y), b.initialPosition);
-        }        
-        
-        // Restore visual elements z order and restore pointer events
-        this.ingredients.forEach( (ing:Ingredient) => {                        
+        }
+
+        this.restoreZOrder();
+    }
+
+    /**
+     * Handle a plain click (press and release without dragging). Toggles the ingredient:
+     * if it was in the jar, it returns to its initial position; otherwise it moves into the jar.
+     * Note that drag() has already run on pointer down, so the ingredient is deactivated by now
+     * and the pre-drag state is kept in wasActive.
+     */
+    public click(b:Ingredient)
+    {
+        if (this.wasActive)
+        {
+            b.animatePosition(new Point(b.x, b.y), b.initialPosition);
+        }
+        else
+        {
+            this.animatedSnap(b).then(() => {
+                this.activate(b);
+            });
+        }
+
+        this.restoreZOrder();
+    }
+
+    /**
+     * Restores visual elements z order and pointer events after a drag or click ends.
+     */
+    private restoreZOrder()
+    {
+        this.ingredients.forEach( (ing:Ingredient) => {
                 ing.element.style.pointerEvents = 'auto';
                 ing.element.style.zIndex = '0';
         });

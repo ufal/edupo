@@ -20,8 +20,11 @@ export class Ingredient extends VisualElement implements Updatable
     public settings!:IngredientSettings;
 
     private template:string = "";
-       
+
     private isDragged:boolean = false;
+
+    // Maximum pointer travel (px) for a press to still count as a click instead of a drag
+    private static readonly CLICK_THRESHOLD = 5;
 
     // Distance while dragging between position of drag start and current position    
     private pointerDelta:Point = Point.Zero;
@@ -146,7 +149,16 @@ export class Ingredient extends VisualElement implements Updatable
 
         if (this.isDragged)
         {
-            this.events.dispatchEvent("dragend", this);
+            // A press without (significant) movement is a click -- let the manager toggle
+            // the ingredient in/out of the jar instead of treating it as a drop.
+            if (this.pointerDelta.len() < Ingredient.CLICK_THRESHOLD)
+            {
+                this.events.dispatchEvent("click", this);
+            }
+            else
+            {
+                this.events.dispatchEvent("dragend", this);
+            }
             this.basePosition = new Point(this.x, this.y);
             this.animationOffset = Time.time;
         }
