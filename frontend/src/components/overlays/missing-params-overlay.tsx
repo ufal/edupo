@@ -15,7 +15,15 @@ export function MissingParamsOverlay({ onClose }: MissingParamsOverlayProps) {
   const { runGeneratePoemAction } = useGeneratePoemAction()
 
   return (
-    <ShellOverlay onClose={onClose} panelClassName="mt-5">
+    <ShellOverlay
+      onClose={onClose}
+      panelClassName="
+        mt-5
+        desktop:mt-0
+        desktop:w-[508px]
+        desktop:px-10 desktop:py-11
+      "
+    >
       <div className="space-y-7">
         <div className="space-y-6">
           <h2 className="typo-large">Jak vytvořit báseň?</h2>
@@ -25,7 +33,7 @@ export function MissingParamsOverlay({ onClose }: MissingParamsOverlayProps) {
           </p>
         </div>
 
-        <div className="flex flex-col items-center gap-5">
+        <div className="flex flex-col items-center gap-5 desktop:flex-row desktop:flex-wrap desktop:justify-center desktop:gap-4">
           <Button
             type="button"
             variant="primary"
@@ -42,8 +50,11 @@ export function MissingParamsOverlay({ onClose }: MissingParamsOverlayProps) {
             size="sm"
             className="min-w-[190px]"
           >
-            <Link href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "settings"} onClick={onClose}>
-              Nastavení parametrů
+            <Link
+              href={(process.env.NEXT_PUBLIC_LINK_BASE || '/') + 'settings'}
+              onClick={onClose}
+            >
+              Nastavení
             </Link>
           </Button>
 

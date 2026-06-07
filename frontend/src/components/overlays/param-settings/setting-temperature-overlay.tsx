@@ -7,9 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
 import { usePoemStore } from '@/stores/poem-store'
-
-const title = 'Temperature'
-const infoText = 'Teplota - říká AI, jak moc má být kreativní: nízká teplota sází na jistotu, vysoká zkouší divoké nápady.'
+import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
 
 const MIN_TEMPERATURE = 0.1
 const MAX_TEMPERATURE = 1
@@ -49,9 +47,9 @@ export function SettingTemperatureOverlay({ onClose }: { onClose: () => void }) 
     <ShellOverlay variant="menu" className="bg-yellow-50">
       <ShellControlPanel
         iconName="thermometer"
-        title={title}
+        title={poemParamInfoTexts.temperature.title}
         onClose={onClose}
-        infoText={infoText}
+        infoText={poemParamInfoTexts.temperature.text}
       />
 
       <div className="px-5 pt-8">
@@ -94,6 +92,7 @@ export function SettingTemperatureOverlay({ onClose }: { onClose: () => void }) 
         </div>
 
         <Slider
+          colorTheme="green"
           className="mt-7"
           min={MIN_TEMPERATURE}
           max={MAX_TEMPERATURE}

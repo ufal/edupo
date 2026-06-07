@@ -75,13 +75,9 @@
   --color-border: var(--color-grey-200);
 }
 
-:root {
-  --font-sans: var(--font-inria-sans);
-}
-
 @layer utilities {  
   .typo-h1 {
-    font-family: var(--font-sans), sans-serif;
+    font-family: var(--font-inria-sans), sans-serif;
     font-size: 48px;
     line-height: 48px;
     font-weight: 700;
@@ -89,7 +85,7 @@
   }
 
   .typo-h2 {
-    font-family: var(--font-sans), sans-serif;
+    font-family: var(--font-inria-sans), sans-serif;
     font-size: 30px;
     line-height: 36px;
     font-weight: 500;
@@ -97,7 +93,7 @@
   }
 
   .typo-h3 {
-    font-family: var(--font-sans), sans-serif;
+    font-family: var(--font-inria-sans), sans-serif;
     font-size: 24px;
     line-height: 32px;
     font-weight: 500;
@@ -105,7 +101,7 @@
   }
 
   .typo-h4 {
-    font-family: var(--font-sans), sans-serif;
+    font-family: var(--font-inria-sans), sans-serif;
     font-size: 18px;
     line-height: 28px;
     font-weight: 500;
@@ -113,7 +109,7 @@
   }
 
   .typo-large {
-    font-family: var(--font-sans), sans-serif;
+    font-family: var(--font-inria-sans), sans-serif;
     font-size: 18px;
     line-height: 28px;
     font-weight: 400;
@@ -121,7 +117,7 @@
   }
 
   .typo-body {
-    font-family: var(--font-sans), sans-serif;
+    font-family: var(--font-inria-sans), sans-serif;
     font-size: 16px;
     line-height: 22px;
     font-weight: 400;
@@ -129,7 +125,7 @@
   }
 
   .typo-small {
-    font-family: var(--font-sans), sans-serif;
+    font-family: var(--font-inria-sans), sans-serif;
     font-size: 14px;
     line-height: 20px;
     font-weight: 400;
@@ -137,7 +133,7 @@
   }
 
   .typo-detail {
-    font-family: var(--font-sans), sans-serif;
+    font-family: var(--font-inria-sans), sans-serif;
     font-size: 12px;
     line-height: 15px;
     font-weight: 400;
@@ -146,6 +142,10 @@
 
     .font-medium {
       font-weight: 500;
+    }
+
+    .font-bold {
+      font-weight: 700;
     }
 }
 

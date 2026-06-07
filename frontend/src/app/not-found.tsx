@@ -1,33 +1,16 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { FullscreenBrandScreen } from '@/components/layout/mobile/fullscreen-brand-screen'
-import { Button } from '@/components/ui/button'
+import { DesktopNotFoundScreen } from '@/components/features/not-found/desktop-not-found-screen'
+import { MobileNotFoundScreen } from '@/components/features/not-found/mobile-not-found-screen'
 
 export default function NotFound() {
   return (
-    <FullscreenBrandScreen>
-      <section className="flex grow flex-col items-center justify-evenly text-center">
+    <>
+      <div className="block desktop:hidden">
+        <MobileNotFoundScreen />
+      </div>
 
-        <h1 className="typo-h1">ERROR 404</h1>
-
-        <p className="typo-h3">
-          Stránka nebyla nalezena
-        </p>
-
-        <Image
-          src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/girl-puzzled.svg"}
-          alt=""
-          width={260}
-          height={260}
-          priority
-        />
-      </section>
-
-      <Button asChild variant="accent" size="sm" className="mx-auto px-6">
-        <Link href={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "dashboard"}>
-          Vrátit se na hlavní stranu
-        </Link>
-      </Button>
-    </FullscreenBrandScreen>
+      <div className="hidden desktop:block">
+        <DesktopNotFoundScreen />
+      </div>
+    </>
   )
 }

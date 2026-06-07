@@ -5,20 +5,8 @@ import { ShellControlPanel } from '../shell-control-panel'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { usePoemStore } from '@/stores/poem-store'
 import { useEffect } from 'react'
-
-const title = 'Metrum'
-const infoText = 'Chcete, aby báseň měla nějakou pevnou formu, např. sonet?'
-
-type MetrumOption = 'trochej' | 'jamb' | 'daktyl' | 'volný'
-
-const DEFAULT_METRUM: MetrumOption = 'trochej'
-
-const options: { value: MetrumOption; label: string }[] = [
-  { value: 'trochej', label: 'Trochej' },
-  { value: 'jamb', label: 'Jamb' },
-  { value: 'daktyl', label: 'Daktyl' },
-  { value: 'volný', label: 'Volný' },
-]
+import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
+import { MetrumOption, options, DEFAULT_METRUM } from '@/config/poem-param-metrum'
 
 export function SettingMetrumOverlay({ onClose }: { onClose: () => void }) {
 
@@ -39,9 +27,9 @@ export function SettingMetrumOverlay({ onClose }: { onClose: () => void }) {
     <ShellOverlay variant="menu" className="bg-yellow-50">
       <ShellControlPanel
         iconName="metrum"
-        title={title}
+        title={poemParamInfoTexts.metrum.title}
         onClose={onClose}
-        infoText={infoText}
+        infoText={poemParamInfoTexts.metrum.text}
       />
 
       <div className="px-5 pt-8">

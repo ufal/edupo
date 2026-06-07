@@ -9,6 +9,7 @@ import { RhymeSlotSelect, RhymeValue } from '@/components/ui/rhyme-slot-select'
 import { PlainSelect } from '@/components/ui/plain-select'
 import { usePoemStore } from '@/stores/poem-store'
 import { LockedParamOverlay } from './locked-param-overlay'
+import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
 
 const MAX_VERSES = 10
 
@@ -24,10 +25,6 @@ const FAVORITE_SCHEMES = [
   'ABABXX',
   'XXXXXX',
 ]
-
-const title = 'Rýmové schéma'
-const infoText =
-  'Rýmové schéma určuje, které verše se mají rýmovat. Stejná písmena označují verše se stejným rýmem, X označuje verš bez rýmu.'
 
 function normalizeScheme(scheme: string | undefined, verseCount: number) {
   const chars = (scheme ?? '')
@@ -122,8 +119,8 @@ export function SettingRhymeSchemeOverlay({
     return (
       <LockedParamOverlay
         iconName="verseGroups"
-        title={title}
-        infoText={infoText}
+        title={poemParamInfoTexts.rhymeScheme.title}
+        infoText={poemParamInfoTexts.rhymeScheme.text}
         onClose={onClose}
         messageTitle="Rýmové schéma je určeno zvolenou formou"
         messageBody="U sonetu, limeriku a haiku nastavuje rýmové schéma automaticky generátor."
@@ -135,9 +132,9 @@ export function SettingRhymeSchemeOverlay({
     <ShellOverlay variant="menu" className="bg-yellow-50">
       <ShellControlPanel
         iconName="verseGroups"
-        title={title}
+        title={poemParamInfoTexts.rhymeScheme.title}
         onClose={onClose}
-        infoText={infoText}
+        infoText={poemParamInfoTexts.rhymeScheme.text}
       />
 
       <div className="px-5 pt-8">

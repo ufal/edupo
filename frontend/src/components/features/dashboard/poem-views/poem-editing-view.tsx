@@ -58,46 +58,42 @@ export function PoemEditingView() {
   }
 
   return (
-    <div className="w-full flex flex-col">
-      <h2 className="typo-large text-zinc-700">
-        {poem.title ?? 'Úprava textu'}
-      </h2>
+    <div className="flex w-full grow flex-col">
+      <h2 className="typo-large text-zinc-700 pl-[10px]">{poem.title ?? 'Úprava textu'}</h2>
 
-      <div className="mt-5 space-y-2">
+      <div className="mt-5 space-y-2 desktop:mt-7 desktop:space-y-[10px]">
         {lines.map((line) => {
           const isActive = activeLineId === line.id
-          const buttonCls = 'grid size-6 place-items-center rounded-lg'
+          const buttonCls = "grid size-8 desktop:size-8 place-items-center rounded-xl cursor-pointer"
 
           return (
             <div
               key={line.id}
-              className="grid grid-cols-[24px_1fr_32px] gap-2"
+              className="grid grid-cols-[32px_32px_minmax(0,1fr)_32px] items-start gap-2"
             >
-              <div className="space-y-1 pt-1">
-                <button
-                  type="button"
-                  aria-label="Upravit verš"
-                  onClick={() => setActiveLineId(line.id)}
-                  className={`${buttonCls} ${
-                    isActive
-                      ? 'bg-teal-100 text-teal-700'
-                      : 'bg-grey-50 text-zinc-700'
-                  }`}
-                >
-                  <AppIcon name="pencil" size={16} />
-                </button>
+              <button
+                type="button"
+                aria-label="Smazat verš"
+                onClick={() => removePoemLine(line.id)}
+                className={`${buttonCls} text-zinc-700 ${
+                  isActive ? 'bg-yellow-300' : 'bg-grey-50'
+                }`}
+              >
+                <X className="h-4 w-4" />
+              </button>
 
-                <button
-                  type="button"
-                  aria-label="Smazat verš"
-                  onClick={() => removePoemLine(line.id)}
-                  className={`${buttonCls} text-zinc-700 ${
-                    isActive ? 'bg-yellow-300' : 'bg-grey-50'
-                  }`}
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
+              <button
+                type="button"
+                aria-label="Upravit verš"
+                onClick={() => setActiveLineId(line.id)}
+                className={`${buttonCls} ${
+                  isActive
+                    ? 'bg-teal-100 text-teal-700'
+                    : 'bg-grey-50 text-zinc-700'
+                }`}
+              >
+                <AppIcon name="pencil" size={16} />
+              </button>
 
               {isActive ? (
                 <textarea
@@ -118,19 +114,16 @@ export function PoemEditingView() {
                       commitLine(line.id, event.currentTarget.value)
                     }
                   }}
-                  rows={3}
-                  className="w-full resize-none rounded-xl border border-zinc-100 bg-white px-2 py-1 typo-detail text-zinc-700 outline-none"
+                  rows={1}
+                  className="min-h-8 w-full resize-none rounded-xl border border-zinc-100 bg-white px-3 py-2 typo-detail text-zinc-700 outline-none"
                 />
               ) : (
                 <button
                   type="button"
                   onClick={() => setActiveLineId(line.id)}
-                  className="min-h-[64px] w-full rounded-xl border border-transparent bg-zinc-100 px-2 py-1 text-left typo-detail text-zinc-700 flex items-start"
+                  className="flex min-h-8 w-full items-start rounded-xl border border-transparent bg-zinc-100 px-3 py-2 text-left typo-detail text-zinc-700"
                 >
-                  <SmartWrappedVerseText
-                    text={line.text}
-                    className="w-full"
-                  />
+                  <SmartWrappedVerseText text={line.text} className="w-full" />
                 </button>
               )}
 
@@ -138,7 +131,7 @@ export function PoemEditingView() {
                 type="button"
                 aria-label="Navrhnout úpravu verše"
                 onClick={() => displayInProgress()}
-                className="grid size-8 place-items-center rounded-xl bg-teal-700 text-white"
+                className="grid size-8 place-items-center rounded-xl bg-teal-700 text-white cursor-pointer"
               >
                 <AppIcon name="starsBold" size={18} />
               </button>
@@ -147,18 +140,21 @@ export function PoemEditingView() {
         })}
       </div>
 
-      {
-        lines.length < MAX_POEM_LINES && (
-          <button
-            type="button"
-            aria-label="Přidat verš"
-            onClick={handleAddLine}
-            className="mx-auto mt-5 grid size-7 place-items-center rounded-xl bg-teal-700"
-          >
-            <Image src={(process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/icons/plus.svg"} alt="" width={15} height={15} />
-          </button>
-        )
-      }
+      {lines.length < MAX_POEM_LINES && (
+        <button
+          type="button"
+          aria-label="Přidat verš"
+          onClick={handleAddLine}
+          className="mx-auto mt-5 grid size-8 place-items-center rounded-xl bg-teal-700"
+        >
+          <Image
+            src={(process.env.NEXT_PUBLIC_LINK_BASE || '/') + 'assets/icons/plus.svg'}
+            alt=""
+            width={15}
+            height={15}
+          />
+        </button>
+      )}
 
       <PoemCardActions />
     </div>

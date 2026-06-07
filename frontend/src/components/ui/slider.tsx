@@ -3,10 +3,13 @@
 import * as SliderPrimitive from '@radix-ui/react-slider'
 import { cn } from '@/libs/utils'
 
+type SliderColorTheme = 'green' | 'yellow'
+
 function Slider({
+  colorTheme = 'green',
   className,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: React.ComponentProps<typeof SliderPrimitive.Root> & { colorTheme?: SliderColorTheme }) {
   return (
     <SliderPrimitive.Root
       data-slot="slider"
@@ -16,8 +19,8 @@ function Slider({
       )}
       {...props}
     >
-      <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-grey-300">
-        <SliderPrimitive.Range className="absolute h-full bg-teal-700" />
+      <SliderPrimitive.Track className={cn("relative h-1.5 w-full grow overflow-hidden rounded-full", colorTheme === 'green' ? "bg-grey-300" : "bg-white")}>
+        <SliderPrimitive.Range className={cn("absolute h-full", colorTheme === 'green' ? "bg-teal-700" : "bg-yellow-400")} />
       </SliderPrimitive.Track>
 
       <SliderPrimitive.Thumb

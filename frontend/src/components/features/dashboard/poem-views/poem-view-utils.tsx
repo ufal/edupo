@@ -23,17 +23,17 @@ export function getPoemLines(poem: Poem | null): PoemLine[] {
 
 export function PoemEmptyState() {
   return (
-    <div className="flex flex-col">
-      <h2 className="typo-large text-zinc-700">
+    <div className="flex flex-col text-zinc-700">
+      <h2 className="text-zinc-700 typo-large desktop:!text-[20px] desktop:!font-[700]">
         Vytvořte si svou jedinečnou báseň
       </h2>
 
-      <div className="mt-5 typo-detail leading-6 text-zinc-700">
+      <div className="mt-5 leading-6 typo-detail desktop:!text-[18px] desktop:!leading-6">
         <p>
           Krok za krokem si nastavíte všechny detaily a AI vytvoří báseň podle vašich představ.
         </p>
 
-        <p className="mt-4">
+        <p className="mt-4 desktop:mt-6">
           Začněte výběrem stylu autora a pokračujte nastavením v dolním menu.
         </p>
       </div>
@@ -73,6 +73,9 @@ export function PoemCardActions() {
       style={{ width: 'auto', height: 'auto' }}
     />
   )
+
+  const actionButtonClass =
+    'cursor-pointer grid size-8 place-items-center rounded-full transition-transform duration-200 hover:scale-110 active:scale-95'
 
   const getAudioUrl = (url: string) => {
     if (url.startsWith('http')) return url
@@ -139,6 +142,7 @@ export function PoemCardActions() {
         aria-label={isLiked ? 'Báseň se mi líbí' : 'Líbí se mi'}
         disabled={isLikeDisabled}
         className={[
+          actionButtonClass,
           'grid size-8 place-items-center rounded-full transition-transform duration-200',
           isLiked ? 'scale-110 cursor-default' : 'hover:scale-110 active:scale-95',
           isLiking ? 'animate-pulse' : '',
@@ -158,7 +162,7 @@ export function PoemCardActions() {
       <button
         type="button"
         aria-label="Sdílet"
-        className="grid size-8 place-items-center"
+        className={actionButtonClass}
         onClick={() => openOverlay('share')}
       >
         {img((process.env.NEXT_PUBLIC_LINK_BASE || "/") + "assets/icons/share.svg")}
@@ -175,13 +179,14 @@ export function PoemCardActions() {
         }
         disabled={!poem || ttsStatus === 'loading'}
         className={[
-          'ml-auto grid size-8 place-items-center rounded-full transition-transform active:scale-95',
+          actionButtonClass,
+          'ml-auto grid size-8 place-items-center rounded-full transition-transform active:scale-95 cursor-pointer',
           ttsStatus === 'loading' ? 'animate-pulse opacity-70' : '',
           !poem ? 'opacity-50' : '',
         ].join(' ')}
         onClick={handleToggleTTS}
       >
-        {ttsStatus === 'playing'
+        {ttsStatus === 'playing' || ttsStatus === 'loading'
           ? img((process.env.NEXT_PUBLIC_LINK_BASE || '/') + 'assets/icons/stop.svg')
           : ttsStatus === 'paused'
             ? img((process.env.NEXT_PUBLIC_LINK_BASE || '/') + 'assets/icons/play.svg')

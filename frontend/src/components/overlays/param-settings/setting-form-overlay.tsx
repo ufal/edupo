@@ -7,9 +7,7 @@ import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { usePoemStore } from '@/stores/poem-store'
 import { PoemForm } from '@/types/poem'
-
-const title = 'Forma'
-const infoText = 'Chcete, aby báseň měla nějakou pevnou formu, např. sonet?'
+import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
 
 const DEFAULT_FORM: FormOption = 'free'
 
@@ -40,9 +38,9 @@ export function SettingFormOverlay({ onClose }: { onClose: () => void }) {
     <ShellOverlay variant="menu" className="bg-yellow-50">
       <ShellControlPanel
         iconName="geometry"
-        title={title}
+        title={poemParamInfoTexts.form.title}
         onClose={onClose}
-        infoText={infoText}
+        infoText={poemParamInfoTexts.form.text}
       />
 
       <div className="px-5 pt-8">

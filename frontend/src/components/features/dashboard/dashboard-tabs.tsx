@@ -6,11 +6,11 @@ type DashboardTabsProps = {
 }
 
 const selectedClass = 'underline text-purple-500'
-const defaultClass = 'text-foreground'
+const defaultClass = 'text-foreground cursor-pointer'
 
 export function DashboardTabs({ value, onChange }: DashboardTabsProps) {
   return (
-    <div className="flex gap-8 rounded-2xl bg-white p-4 typo-large">
+    <div className="flex gap-8 rounded-2xl bg-white p-4 typo-large desktop:px-[36px] desktop:py-[28px]">
       <button
         type="button"
         onClick={() => onChange('reading')}

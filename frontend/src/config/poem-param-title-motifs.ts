@@ -1,0 +1,1 @@
+export const MAX_MOTIFS = 5

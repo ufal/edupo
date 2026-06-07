@@ -18,11 +18,11 @@ export default function ErrorPage({ error }: ErrorPageProps) {
   return (
     <FullscreenBrandScreen>
       <section className="flex grow flex-col items-center justify-center">
-        <h1 className="text-4xl font-bold tracking-wide">
+        <h1 className="text-4xl font-medium tracking-wide">
           CHYBA
         </h1>
 
-        <p className="mt-4 text-2xl font-bold">
+        <p className="mt-4 text-2xl font-medium">
           Něco se nepovedlo
         </p>
 

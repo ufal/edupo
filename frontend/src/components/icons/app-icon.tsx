@@ -7,7 +7,6 @@ import StarsBoldIcon from '@/assets/icons/star-bold.svg'
 import PencilIcon from '@/assets/icons/pencil.svg'
 import XIcon from '@/assets/icons/x.svg'
 import ArrowLeftIcon from '@/assets/icons/arrow-left.svg'
-import AlertCircleIcon from '@/assets/icons/alert-circle.svg'
 import BookIcon from '@/assets/icons/book.svg'
 import GeometryIcon from '@/assets/icons/geometry.svg'
 import MetrumIcon from '@/assets/icons/metrum.svg'
@@ -26,7 +25,6 @@ export type IconName = 'hamburger'
   | 'starsBold'
   | 'pencil'
   | 'arrowLeft'
-  | 'alertCircle'
   | 'book'
   | 'geometry'
   | 'metrum'
@@ -53,7 +51,6 @@ const icons = {
   starsBold: StarsBoldIcon,
   pencil: PencilIcon,
   arrowLeft: ArrowLeftIcon,
-  alertCircle: AlertCircleIcon,
   book: BookIcon,
   geometry: GeometryIcon,
   metrum: MetrumIcon,

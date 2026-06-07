@@ -8,9 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
 import { usePoemStore } from '@/stores/poem-store'
-
-const title = 'Počet veršů'
-const infoText = 'Kolik má mít báseň veršů?'
+import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
 
 const MIN_VERSES = 2
 const MAX_VERSES = 10
@@ -59,8 +57,8 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
     return (
       <LockedParamOverlay
         iconName="verseList"
-        title={title}
-        infoText={infoText}
+        title={poemParamInfoTexts.verseCount.title}
+        infoText={poemParamInfoTexts.verseCount.text}
         onClose={onClose}
         messageTitle="Počet veršů je určen zvolenou formou"
         messageBody="U sonetu, limeriku a haiku nastavuje počet veršů automaticky generátor."
@@ -72,9 +70,9 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
     <ShellOverlay variant="menu" className="bg-yellow-50">
       <ShellControlPanel
         iconName="verseList"
-        title={title}
+        title={poemParamInfoTexts.verseCount.title}
         onClose={onClose}
-        infoText={infoText}
+        infoText={poemParamInfoTexts.verseCount.text}
       />
 
       <div className="px-5 pt-8">
@@ -111,6 +109,7 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
         </div>
 
         <Slider
+          colorTheme="green"
           className="mt-7"
           min={MIN_VERSES}
           max={MAX_VERSES}

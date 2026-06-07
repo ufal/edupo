@@ -56,8 +56,8 @@ export function PoemAnalysisView() {
   const hasMissingGroups = lines.some((line) => !line.group)
 
   return (
-    <div className="w-full flex flex-col">
-      <h2 className="typo-large text-grey-700">{poem.title ?? 'Analýza básně'}</h2>
+    <div className="flex w-full grow flex-col">
+      <h2 className="typo-large text-grey-700 pl-[10px]">{poem.title ?? 'Analýza básně'}</h2>
 
       {analysisStatus === 'loading' && hasMissingGroups && (
         <p className="mt-3 typo-detail text-grey-600">
@@ -71,20 +71,25 @@ export function PoemAnalysisView() {
         </p>
       )}
 
-      <div className="mt-5 space-y-2">
+      <div className="mt-5 space-y-2 desktop:mt-7 desktop:space-y-[10px]">
         {lines.map((line) => {
           const group = line.group
           const classes = group ? groupClasses[group] : pendingClasses
 
           return (
-            <div key={line.id} className="flex items-start gap-2">
+            <div
+              key={line.id}
+              className="grid grid-cols-[32px_minmax(0,1fr)] items-start gap-2"
+            >
               <span
-                className={`grid size-7 shrink-0 place-items-center rounded-xl font-bold leading-none ${classes.badge}`}
+                className={`grid size-8 shrink-0 place-items-center rounded-xl font-medium leading-none ${classes.badge}`}
               >
                 {group ?? '?'}
               </span>
 
-              <div className={`min-h-9 flex-1 rounded-xl px-3 py-2 typo-detail ${classes.line}`}>
+              <div
+                className={`flex min-h-8 items-center rounded-xl px-3 py-2 typo-detail ${classes.line}`}
+              >
                 <SmartWrappedVerseText text={line.text} />
               </div>
             </div>

@@ -11,14 +11,16 @@ export function PoemReadingView() {
   if (!poem) return <PoemEmptyState />
 
   return (
-    <div className="flex flex-col grow">
-      <h2 className="typo-large text-grey-700">{poem.title ?? 'Vygenerovaná báseň'}</h2>
+    <div className="flex grow flex-col">
+      <h2 className="typo-large text-grey-700 pl-[10px]">
+        {poem.title ?? 'Vygenerovaná báseň'}
+      </h2>
 
-      <div className="flex flex-col grow mt-5 space-y-2">
+      <div className="mt-5 flex grow flex-col space-y-2 desktop:mt-7 desktop:space-y-[10px]">
         {lines.map((line) => (
           <div
             key={line.id}
-            className="rounded-xl bg-grey-50 px-3 py-2 typo-detail text-grey-700"
+            className="rounded-xl bg-grey-50 px-3 py-2 typo-detail text-grey-700 desktop:min-h-8"
           >
             <SmartWrappedVerseText text={line.text} />
           </div>

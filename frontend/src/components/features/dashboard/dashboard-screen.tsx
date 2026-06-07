@@ -10,15 +10,10 @@ export function DashboardScreen() {
   const setMode = usePoemStore((state) => state.setMode)
 
   return (
-    <div className="flex flex-col grow space-y-4 px-5 py-5">
+    <div className="flex grow flex-col space-y-4 px-5 py-5 desktop:px-0 desktop:py-0 desktop:mx-auto desktop:w-full desktop:max-w-[752px]">
       <DashboardHero />
-      <DashboardTabs
-        value={mode}
-        onChange={setMode}
-      />
-      <DashboardCard
-        mode={mode}
-      />
+      <DashboardTabs value={mode} onChange={setMode} />
+      <DashboardCard mode={mode} />
     </div>
   )
 }

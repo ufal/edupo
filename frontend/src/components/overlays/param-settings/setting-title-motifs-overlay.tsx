@@ -6,12 +6,10 @@ import { ShellOverlay } from '../shell-overlay'
 import { ShellControlPanel } from '../shell-control-panel'
 import { Input } from '@/components/ui/input'
 import { usePoemStore } from '@/stores/poem-store'
+import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
+import { MAX_MOTIFS } from '@/config/poem-param-title-motifs'
 
-const MAX_MOTIFS = 5
 const EMPTY_MOTIFS: string[] = []
-
-const titleLabel = 'Název a motiv'
-const infoText = 'Názvem a volbou až pěti motivů můžete ovlivnit téma generované básně.'
 
 export function SettingTitleMotifsOverlay({
   onClose,
@@ -54,9 +52,9 @@ export function SettingTitleMotifsOverlay({
     <ShellOverlay variant="menu" className="bg-yellow-50">
       <ShellControlPanel
         iconName="book"
-        title={titleLabel}
+        title={poemParamInfoTexts.titleMotifs.title}
         onClose={onClose}
-        infoText={infoText}
+        infoText={poemParamInfoTexts.titleMotifs.text}
       />
 
       <div className="px-5 pt-8">

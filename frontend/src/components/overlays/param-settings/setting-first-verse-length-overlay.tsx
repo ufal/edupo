@@ -8,9 +8,7 @@ import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
 import { usePoemStore } from '@/stores/poem-store'
 import { LockedParamOverlay } from './locked-param-overlay'
-
-const title = 'Délka prvního verše'
-const infoText = 'Kolik slabik má mít první verš?'
+import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
 
 const MIN_LENGTH = 1
 const MAX_LENGTH = 20
@@ -47,8 +45,8 @@ export function SettingFirstVerseLengthOverlay({ onClose }: { onClose: () => voi
     return (
       <LockedParamOverlay
         iconName="ruler"
-        title={title}
-        infoText={infoText}
+        title={poemParamInfoTexts.firstVerseLength.title}
+        infoText={poemParamInfoTexts.firstVerseLength.text}
         onClose={onClose}
         messageTitle="Délka veršů je určena zvolenou formou"
         messageBody="U haiku nastavuje délku jednotlivých veršů automaticky generátor podle schématu 5–7–5 slabik."
@@ -60,9 +58,9 @@ export function SettingFirstVerseLengthOverlay({ onClose }: { onClose: () => voi
     <ShellOverlay variant="menu" className="bg-yellow-50">
       <ShellControlPanel
         iconName="ruler"
-        title={title}
+        title={poemParamInfoTexts.firstVerseLength.title}
         onClose={onClose}
-        infoText={infoText}
+        infoText={poemParamInfoTexts.firstVerseLength.text}
       />
 
       <div className="px-5 pt-8">
@@ -99,6 +97,7 @@ export function SettingFirstVerseLengthOverlay({ onClose }: { onClose: () => voi
         </div>
 
         <Slider
+          colorTheme="green"
           className="mt-7"
           min={MIN_LENGTH}
           max={MAX_LENGTH}

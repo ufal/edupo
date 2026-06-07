@@ -30,27 +30,42 @@ export function ShellOverlay({
     <div
       className={cn(
         'absolute inset-0 z-40 bg-primary px-5 pt-28',
+        'desktop:bg-yellow-50 desktop:px-0 desktop:pt-0',
         className,
       )}
     >
-      {onClose && (
-        <button
-          type="button"
-          aria-label="Zavřít"
-          onClick={onClose}
-          className="absolute right-8 top-10 flex h-8 w-8 items-center justify-center text-white"
-        >
-          <X size={26} strokeWidth={2.2} />
-        </button>
-      )}
-
       <div
         className={cn(
-          'mx-auto rounded-3xl bg-white px-6 py-11 text-center text-foreground',
-          panelClassName,
+          'relative mx-auto',
+          'desktop:absolute desktop:left-1/2 desktop:top-[290px] desktop:-translate-x-1/2',
         )}
       >
-        {children}
+        {onClose && (
+          <button
+            type="button"
+            aria-label="Zavřít"
+            onClick={onClose}
+            className="
+              absolute z-10
+              right-0 top-0
+              translate-x-[42px] -translate-y-[42px]
+              flex h-8 w-8 items-center justify-center
+              text-white desktop:text-foreground
+              cursor-pointer
+            "
+          >
+            <X size={26} strokeWidth={2.2} />
+          </button>
+        )}
+
+        <div
+          className={cn(
+            'rounded-3xl bg-white px-6 py-11 text-center text-foreground',
+            panelClassName,
+          )}
+        >
+          {children}
+        </div>
       </div>
     </div>
   )
