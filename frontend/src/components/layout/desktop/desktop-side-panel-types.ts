@@ -3,6 +3,7 @@ export type DesktopSidePanel =
   | 'form'
   | 'metrum'
   | 'verse-count'
+  | 'rhyme-scheme'
   | 'first-verse-length'
   | 'temperature'
   | null

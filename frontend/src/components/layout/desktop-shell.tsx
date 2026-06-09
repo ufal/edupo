@@ -12,6 +12,7 @@ import { DesktopMetrePanel } from './desktop/side-panels/desktop-metre-panel'
 import { DesktopTemperaturePanel } from './desktop/side-panels/desktop-temperature-panel'
 import { DesktopVerseCountPanel } from './desktop/side-panels/desktop-verse-count-panel'
 import { DesktopFirstVerseLengthPanel } from './desktop/side-panels/desktop-first-verse-length-panel'
+import { DesktopRhymeSchemePanel } from './desktop/side-panels/desktop-rhyme-panel-scheme'
 
 type DesktopShellProps = {
   children: ReactNode
@@ -53,6 +54,10 @@ export function DesktopShell({ children }: DesktopShellProps) {
 
       {activePanel === 'verse-count' && (
         <DesktopVerseCountPanel onClose={() => setActivePanel(null)} />
+      )}
+
+      {activePanel === 'rhyme-scheme' && (
+        <DesktopRhymeSchemePanel onClose={() => setActivePanel(null)} />
       )}
 
       {activePanel === 'first-verse-length' && (

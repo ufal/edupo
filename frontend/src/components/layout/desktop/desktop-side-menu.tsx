@@ -18,6 +18,7 @@ const menuItems: DesktopMenuItem[] = [
   { id: 'title-motifs', icon: 'book', label: 'Název a motiv' },
   { id: 'form', icon: 'geometry', label: 'Forma' },
   { id: 'verse-count', icon: 'verseList', label: 'Počet veršů' },
+  { id: 'rhyme-scheme', icon: 'verseGroups', label: 'Rýmové schéma' },
   { id: 'first-verse-length', icon: 'ruler', label: 'Délka prvního verše' },
   { id: 'metrum', icon: 'metrum', label: 'Metrum' },
   { id: 'temperature', icon: 'thermometer', label: 'Temperature' },
