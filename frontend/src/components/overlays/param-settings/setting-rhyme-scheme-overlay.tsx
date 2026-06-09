@@ -10,59 +10,15 @@ import { PlainSelect } from '@/components/ui/plain-select'
 import { usePoemStore } from '@/stores/poem-store'
 import { LockedParamOverlay } from './locked-param-overlay'
 import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
-
-const MAX_VERSES = 10
-
-const FAVORITE_SCHEMES = [
-  'AABB',
-  'ABAB',
-  'ABBA',
-  'XAXA',
-  'AAXX',
-  'XXXX',
-  'AABBCC',
-  'ABABCC',
-  'ABABXX',
-  'XXXXXX',
-]
-
-function normalizeScheme(scheme: string | undefined, verseCount: number) {
-  const chars = (scheme ?? '')
-    .toUpperCase()
-    .split('')
-    .filter((char): char is RhymeValue =>
-      ['A', 'B', 'C', 'X'].includes(char),
-    )
-
-  return Array.from({ length: MAX_VERSES }, (_, index) => {
-    if (index >= verseCount) return 'X'
-    return chars[index] ?? 'X'
-  })
-}
-
-function schemeToString(values: RhymeValue[], verseCount: number) {
-  return values.slice(0, verseCount).join('')
-}
-
-function getDefaultScheme(verseCount: number) {
-  return 'X'.repeat(verseCount)
-}
-
-function getRandomScheme(verseCount: number) {
-  const matching = FAVORITE_SCHEMES.filter(
-    (scheme) => scheme.length === verseCount,
-  )
-
-  if (matching.length > 0) {
-    return matching[Math.floor(Math.random() * matching.length)]
-  }
-
-  const randomValues: RhymeValue[] = ['A', 'B', 'C', 'X']
-
-  return Array.from({ length: verseCount }, () => {
-    return randomValues[Math.floor(Math.random() * randomValues.length)]
-  }).join('')
-}
+import {
+  MAX_RHYME_SCHEME_VERSES,
+  normalizeRhymeScheme,
+  rhymeSchemeToString,
+  getDefaultRhymeScheme,
+  getFavoriteRhymeSchemes,
+  getRandomRhymeScheme,
+  getRhymeSchemeOptions,
+} from '@/config/poem-param-rhyme-scheme'
 
 export function SettingRhymeSchemeOverlay({
   onClose,
@@ -73,12 +29,12 @@ export function SettingRhymeSchemeOverlay({
   const isEditable = true // !form || form === 'free' || form === 'epigram'
 
   const verseCount = usePoemStore((state) =>
-    Math.min(state.params.verseCount ?? 6, MAX_VERSES),
+    Math.min(state.params.verseCount ?? 6, MAX_RHYME_SCHEME_VERSES),
   )
   const rhymeScheme = usePoemStore((state) => state.params.rhymeScheme)
   const updateParams = usePoemStore((state) => state.updateParams)
 
-  const defaultScheme = getDefaultScheme(verseCount)
+  const defaultScheme = getDefaultRhymeScheme(verseCount)
 
   useEffect(() => {
     if (!isEditable || rhymeScheme) return
@@ -91,27 +47,20 @@ export function SettingRhymeSchemeOverlay({
   const [openSlotIndex, setOpenSlotIndex] = useState<number | null>(null)
 
   const values = useMemo(
-    () => normalizeScheme(rhymeScheme ?? defaultScheme, verseCount),
+    () => normalizeRhymeScheme(rhymeScheme ?? defaultScheme, verseCount),
     [rhymeScheme, defaultScheme, verseCount],
   )
 
-  const currentScheme = schemeToString(values, verseCount)
-
-  const favoriteSchemes = FAVORITE_SCHEMES.filter(
-    (scheme) => scheme.length === verseCount,
-  )
-
-  const favoriteOptions = favoriteSchemes.map((scheme) => ({
-    value: scheme,
-    label: scheme,
-  }))
+  const currentScheme = rhymeSchemeToString(values, verseCount)
+  const favoriteSchemes = getFavoriteRhymeSchemes(verseCount)
+  const favoriteOptions = getRhymeSchemeOptions(verseCount)
 
   const updateSlot = (index: number, value: RhymeValue) => {
     const nextValues = [...values]
     nextValues[index] = value
 
     updateParams({
-      rhymeScheme: schemeToString(nextValues, verseCount),
+      rhymeScheme: rhymeSchemeToString(nextValues, verseCount)
     })
   }
 
@@ -176,7 +125,7 @@ export function SettingRhymeSchemeOverlay({
           className="mt-7 px-10"
           onClick={() => {
             updateParams({
-              rhymeScheme: getRandomScheme(verseCount),
+              rhymeScheme: getRandomRhymeScheme(verseCount)
             })
           }}
         >
