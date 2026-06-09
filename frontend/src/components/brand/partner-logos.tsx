@@ -40,7 +40,7 @@ export function PartnerLogos({
   const layoutClassName =
     variant === 'horizontal'
       ? 'flex flex-row gap-10' + (set === 'full' ? ' items-center' : ' items-end')
-      : 'flex flex-col items-center gap-16' 
+      : 'flex flex-col items-center gap-16 justify-between' 
 
   return (
     <div className={[layoutClassName, className].join(' ')}>
