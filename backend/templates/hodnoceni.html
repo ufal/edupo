@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="utf-8">
+    <title>EduPo hodnocení</title>
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+<h1>EduPo hodnocení</h1>
+
+{% if set %}
+<a href="hodnoceni">Rozcestník</a>
+<h2>Sada {{ set }}{% if res %} – výsledky{% endif %}{% if progress %} <span class="progress">{{ progress }}</span>{% endif %}</h2>
+
+    {% if hotovo %}
+    <p>Děkujeme za vyplnění.</p>
+
+    {% elif res %}
+    <table>
+        <thead>
+            <tr><th>Souhrn</th><th>Hodnota</th></tr>
+        </thead>
+        <tbody>
+        {% for key, value in res_summary.items() %}
+            <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if res_rows %}
+    <table>
+        <thead>
+            <tr>
+                <th>Anotátor</th>
+                <th>Báseň</th>
+                <th>Smysluplnost</th>
+                <th>Versologie</th>
+                <th>Autorský styl</th>
+                <th>Poznámky</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in res_rows %}
+            <tr>
+                <td>{{ row.jmeno }}</td>
+                <td>{{ row.poem }}</td>
+                <td>{{ row.semantic }}</td>
+                <td>{{ row.versologie }}</td>
+                <td>{{ row.author_style }}</td>
+                <td>{{ row.notes }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% elif poem %}
+    <div class="hodnoceni-grid">
+        <div class="poem hodnoceni-poem">
+            {% if poem.title %}<h3>{{ poem.title }}</h3>{% endif %}
+            {% if poem.author %}<p class="hodnoceni-author"><em>{{ poem.author }}</em></p>{% endif %}
+            {% for stanza in poem.stanzas %}
+            <div class="hodnoceni-stanza">
+                {% if stanza.rhyme_scheme %}<p class="hodnoceni-rhyme">rým: {{ stanza.rhyme_scheme }}</p>{% endif %}
+                {% for verse in stanza.verses %}
+                <div class="hodnoceni-verse">
+                    {% if verse.metre or verse.syllables is not none %}<span class="hodnoceni-meta">{% if verse.metre %}{{ verse.metre }}{% endif %}{% if verse.syllables is not none %} {{ verse.syllables }}{% endif %}</span>{% endif %}
+                    <span class="hodnoceni-text">{{ verse.text }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="post" action="hodnoceni" class="hodnoceni-form">
+            <input type="hidden" name="tst" value="{{ tst }}">
+
+            <fieldset>
+                <legend>Sémantika / smysluplnost</legend>
+                {% for n in [1, 2, 3, 4, 5] %}
+                <label><input type="radio" name="semantic" value="{{ n }}" required> {{ n }}</label>
+                {% endfor %}
+            </fieldset>
+
+            <label class="hodnoceni-field">Versologie:
+                <textarea name="versologie" rows="3"></textarea>
+            </label>
+
+            {% if poem.author %}
+            <fieldset>
+                <legend>Odpovídá autorskému stylu ({{ poem.author }})?</legend>
+                <label><input type="radio" name="author_style" value="yes"> ano</label>
+                <label><input type="radio" name="author_style" value="no"> ne</label>
+            </fieldset>
+            {% endif %}
+
+            <label class="hodnoceni-field">Poznámky:
+                <textarea name="notes" rows="3"></textarea>
+            </label>
+
+            <button type="submit">Další</button>
+        </form>
+    </div>
+
+    {% else %}
+    <form>
+        <input type="hidden" name="set" value="{{ set }}">
+        Libovolný identifikátor, třeba jméno, iniciály, přezdívka: <input type="text" name="jmeno" placeholder="Jméno" required>
+        <input type="submit" value="Začít">
+    </form>
+    {% endif %}
+{% endif %}
+
+{% if sets is defined and not set %}
+<h2>Sady k hodnocení</h2>
+{% if sets %}
+<ul>
+    {% for s in sets %}
+        <li>
+            {{ s }} <a href="?set={{ s }}">Vyplnit</a> <a href="?set={{ s }}&res=1">Výsledky</a> (vyplněno {{ pocty[s] }} krát)
+        </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>Zatím nejsou k dispozici žádné sady.</p>
+{% endif %}
+{% endif %}
+
+</body>
+</html>

@@ -1233,6 +1233,140 @@ def call_tests():
     else: # formulář na zadání jména
         return render_template('testovani.html', t=t)
 
+HODNOCENI_DATA = 'hodnoceni_data'
+
+@app.route("/hodnoceni", methods=['GET', 'POST'])
+def call_hodnoceni():
+    def set_path(set_name):
+        # only allow a bare set name, no path traversal
+        return os.path.join(HODNOCENI_DATA, os.path.basename(set_name) + '.jsonl')
+    def list_sets():
+        if not os.path.isdir(HODNOCENI_DATA):
+            return []
+        return sorted(f[:-len('.jsonl')] for f in os.listdir(HODNOCENI_DATA)
+                      if f.endswith('.jsonl'))
+    def set_len(set_name):
+        with open(set_path(set_name)) as f:
+            return sum(1 for line in f if line.strip())
+    def get_poem(set_name, index):
+        with open(set_path(set_name)) as f:
+            lines = [line for line in f if line.strip()]
+        if index < 0 or index >= len(lines):
+            return None
+        raw = json.loads(lines[index])
+        author = raw.get('author')
+        if not (isinstance(author, str) and author.strip()):
+            author = None
+        else:
+            author = author.strip()
+        stanzas = []
+        for st in raw.get('stanzas', []):
+            verses = [{'text': v.get('text', ''),
+                       'metre': v.get('metre'),
+                       'syllables': v.get('syllables')}
+                      for v in st.get('verses', [])]
+            stanzas.append({'rhyme_scheme': st.get('rhyme_scheme'),
+                            'verses': verses})
+        return {'title': raw.get('title') or raw.get('title_answer'),
+                'author': author,
+                'year': raw.get('year'),
+                'form': raw.get('form'),
+                'stanzas': stanzas}
+    def counts():
+        result = defaultdict(int)
+        results_dir = os.path.join(HODNOCENI_DATA, 'results')
+        if os.path.isdir(results_dir):
+            for filename in os.listdir(results_dir):
+                if not filename.endswith('.json'):
+                    continue
+                with open(os.path.join(results_dir, filename)) as f:
+                    result[json.load(f)['set']] += 1
+        return result
+    def aggregate(set_name):
+        results = []
+        results_dir = os.path.join(HODNOCENI_DATA, 'results')
+        if os.path.isdir(results_dir):
+            for filename in os.listdir(results_dir):
+                if not filename.endswith('.json'):
+                    continue
+                with open(os.path.join(results_dir, filename)) as f:
+                    data = json.load(f)
+                    if data['set'] == set_name:
+                        results.append(data)
+        semantic_vals = []
+        author_yes = author_no = 0
+        rows = []
+        for data in results:
+            for i, a in enumerate(data['odpovedi']):
+                try:
+                    semantic_vals.append(int(a['semantic']))
+                except (ValueError, TypeError, KeyError):
+                    pass
+                if a.get('author_style') == 'yes':
+                    author_yes += 1
+                elif a.get('author_style') == 'no':
+                    author_no += 1
+                rows.append({'jmeno': data['jmeno'],
+                             'poem': i + 1,
+                             'semantic': a.get('semantic'),
+                             'versologie': a.get('versologie'),
+                             'author_style': a.get('author_style'),
+                             'notes': a.get('notes')})
+        summary = {
+            'Počet odevzdání': len(results),
+            'Průměrná smysluplnost': (round(sum(semantic_vals) / len(semantic_vals), 2)
+                                      if semantic_vals else '–'),
+            'Autorský styl – ano': author_yes,
+            'Autorský styl – ne': author_no,
+        }
+        return summary, rows
+
+    # probíhá hodnocení
+    tst = get_post_arg('tst')
+    if tst:
+        tst = json.loads(tst)
+        tst['odpovedi'].append({
+            'semantic': get_post_arg('semantic'),
+            'versologie': get_post_arg('versologie'),
+            'author_style': get_post_arg('author_style'),
+            'notes': get_post_arg('notes'),
+        })
+        total = set_len(tst['set'])
+        if len(tst['odpovedi']) >= total:
+            # hodnocení skončilo
+            results_dir = os.path.join(HODNOCENI_DATA, 'results')
+            os.makedirs(results_dir, exist_ok=True)
+            filename = text2id(tst['jmeno'])
+            with open(os.path.join(results_dir, filename + '.json'), 'w') as f:
+                json.dump(tst, f, ensure_ascii=False, indent=4)
+            return render_template('hodnoceni.html', set=tst['set'], hotovo=filename)
+        i = len(tst['odpovedi'])
+        return render_template('hodnoceni.html',
+                               set=tst['set'],
+                               poem=get_poem(tst['set'], i),
+                               tst=json.dumps(tst),
+                               progress=str(i + 1) + '/' + str(total))
+
+    set_name = get_post_arg('set')
+    # neznáme sadu, zobrazíme rozcestník
+    if not set_name:
+        return render_template('hodnoceni.html', sets=list_sets(), pocty=counts())
+    res = get_post_arg('res')
+    jmeno = get_post_arg('jmeno')
+    if res: # výsledky
+        summary, rows = aggregate(set_name)
+        return render_template('hodnoceni.html', set=set_name, res=True,
+                               res_summary=summary, res_rows=rows)
+    elif jmeno: # nové hodnocení
+        tst = {'set': set_name, 'jmeno': jmeno, 'odpovedi': []}
+        return render_template('hodnoceni.html',
+                               set=set_name,
+                               poem=get_poem(set_name, 0),
+                               tst=json.dumps(tst),
+                               progress='1/' + str(set_len(set_name)))
+    else: # formulář na zadání jména
+        return render_template('hodnoceni.html', set=set_name)
+
 def get_like_count(poemid):
     filename = f'static/likes/{poemid}.txt'
     if os.path.isfile(filename):
