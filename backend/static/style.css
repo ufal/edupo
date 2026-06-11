@@ -269,6 +269,17 @@ tr:hover {
     margin-right: 1rem;
 }
 
+.hodnoceni-scale-ends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.25rem;
+}
+
+.hodnoceni-scale-end {
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
 .hodnoceni-field {
     display: flex;
     flex-direction: column;
@@ -296,6 +307,10 @@ tr:hover {
 
 .hodnoceni-form button:hover {
     background-color: #005fa3;
+}
+
+.hodnoceni-multiline {
+    white-space: pre-wrap;
 }
 
 .tooltip {cursor: help;}

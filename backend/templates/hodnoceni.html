@@ -47,9 +47,9 @@
                 <td>{{ row.jmeno }}</td>
                 <td>{{ row.poem }}</td>
                 <td>{{ row.semantic }}</td>
-                <td>{{ row.versologie }}</td>
+                <td class="hodnoceni-multiline">{{ row.versologie }}</td>
                 <td>{{ row.author_style }}</td>
-                <td>{{ row.notes }}</td>
+                <td class="hodnoceni-multiline">{{ row.notes }}</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -79,9 +79,15 @@
 
             <fieldset>
                 <legend>Sémantika / smysluplnost</legend>
-                {% for n in [1, 2, 3, 4, 5] %}
-                <label><input type="radio" name="semantic" value="{{ n }}" required> {{ n }}</label>
-                {% endfor %}
+                <div class="hodnoceni-scale">
+                    {% for n in [1, 2, 3, 4, 5] %}
+                    <label><input type="radio" name="semantic" value="{{ n }}" required> {{ n }}</label>
+                    {% endfor %}
+                </div>
+                <div class="hodnoceni-scale-ends">
+                    <span class="hodnoceni-scale-end">1 = nesmyslné</span>
+                    <span class="hodnoceni-scale-end">5 = smysluplné</span>
+                </div>
             </fieldset>
 
             <label class="hodnoceni-field">Versologie:
@@ -90,7 +96,7 @@
 
             {% if poem.author %}
             <fieldset>
-                <legend>Odpovídá autorskému stylu ({{ poem.author }})?</legend>
+                <legend>Odpovídá autorskému stylu?<br>{{ poem.author }}</legend>
                 <label><input type="radio" name="author_style" value="yes"> ano</label>
                 <label><input type="radio" name="author_style" value="no"> ne</label>
             </fieldset>
