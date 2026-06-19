@@ -1,11 +1,11 @@
 {
     "version" : "1.0",
-    "api_url" : "https://quest.ms.mff.cuni.cz/edupo-api/",
+    "api_url" : "https://edupo.cz/api/",
     "share_url" : "https://quest.ms.mff.cuni.cz/edupo/?viewMode=reading&controls=poem&poemId={0}",
 
     "api_default_params" : 
     {
-        "modelspec" : "gpt-4o-mini",
+        "frontend" : "lite",
         "temperature" : 0.7
     },
     "animation_speed" : 100,
