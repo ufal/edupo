@@ -1,26 +1,28 @@
 #!/bin/bash
 
+# U=https://quest.ms.mff.cuni.cz/edupo-api
+U=https://edupo.cz/api
 
-curl --header "Accept: text/plain" https://quest.ms.mff.cuni.cz/edupo-api/prdel
+curl --header "Accept: text/plain" $U/prdel
 
-curl -X POST --header "Accept: text/plain" https://quest.ms.mff.cuni.cz/edupo-api/prdel
+curl -X POST --header "Accept: text/plain" $U/prdel
 
 
 # text/plain, text/html, application/json
-curl --header "Accept: text/plain" https://quest.ms.mff.cuni.cz/edupo-api/gen
+curl --header "Accept: text/plain" $U/gen
 
 echo
 echo
 
-curl --data "poemid=78467" --header "Accept: text/plain" https://quest.ms.mff.cuni.cz/edupo-api/show
+curl --data "poemid=78467" --header "Accept: text/plain" $U/show
 
 echo
 echo
 
-curl --data "poemid=78467&accept=txt" https://quest.ms.mff.cuni.cz/edupo-api/genmotives
+curl --data "poemid=78467&accept=txt" $U/genmotives
 
 echo
 echo
 
-curl -X POST --data "rhyme_scheme=ABBA" --data "metre=J" --header "Accept: application/json" https://quest.ms.mff.cuni.cz/edupo-api/gen \
+curl -X POST --data "rhyme_scheme=ABBA" --data "metre=J" --header "Accept: application/json" $U/gen \
     | python3 -m json.tool --no-ensure-ascii
