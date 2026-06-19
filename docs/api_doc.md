@@ -3,7 +3,7 @@
 ## Obecné informace
 
 REST API nyní běží na endpointu:  
-**[https://quest.ms.mff.cuni.cz/edupo-api/](https://quest.ms.mff.cuni.cz/edupo-api/)**
+**[https://edupo.cz/api/](https://edupo.cz/api/)**
 
 Podporuje:
 - Metody **GET** a **POST**
@@ -34,9 +34,9 @@ Podporuje:
 `/prdel`
 - Vrací testovací odpověď.
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/prdel](https://quest.ms.mff.cuni.cz/edupo-api/prdel)  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/prdel?accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/prdel?accept=txt)  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/prdel?accept=json](https://quest.ms.mff.cuni.cz/edupo-api/prdel?accept=json)
+  - [https://edupo.cz/api/prdel](https://edupo.cz/api/prdel)  
+  - [https://edupo.cz/api/prdel?accept=txt](https://edupo.cz/api/prdel?accept=txt)  
+  - [https://edupo.cz/api/prdel?accept=json](https://edupo.cz/api/prdel?accept=json)
 
 ### Vložení nové básně
 `/input`
@@ -46,13 +46,13 @@ Podporuje:
   - `text` = Text básně (povinné)
 - Vrací: **poemid** nové básně.
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/input?text=Kdo%20si%20tady%20hraje%0aten%20si%20tady%20hraje\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/input?text=Kdo%20si%20tady%20hraje%0aten%20si%20tady%20hraje&accept=txt)   
+  - [https://edupo.cz/api/input?text=Kdo%20si%20tady%20hraje%0aten%20si%20tady%20hraje\&accept=txt](https://edupo.cz/api/input?text=Kdo%20si%20tady%20hraje%0aten%20si%20tady%20hraje&accept=txt)   
 
 ### Úplná specifikace parametrů pro generování
 `/get_generation_parameters_specification`
 - Vrací: JSON schéma třídy `GenerationParameters` (viz [`backend/data_types.py`](https://github.com/ufal/edupo/blob/main/backend/data_types.py)) popisující všechny parametry generování a jejich typy/výchozí hodnoty.
 - Příklad:
-  - [https://quest.ms.mff.cuni.cz/edupo-api/get_generation_parameters_specification?accept=json](https://quest.ms.mff.cuni.cz/edupo-api/get_generation_parameters_specification?accept=json)
+  - [https://edupo.cz/api/get_generation_parameters_specification?accept=json](https://edupo.cz/api/get_generation_parameters_specification?accept=json)
 
 ### Generování básně
 `/gen`
@@ -78,7 +78,7 @@ Podporuje:
   - a další parametry, viz [vstupní formulář](https://github.com/ufal/edupo/blob/main/backend/templates/gen_input.html)
 - Vrací: **poemid** generované básně a vlastní vygenerovanou báseň.
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/gen?metre=D\&rhyme\_scheme=ABBA\&syllables\_count=9\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/gen?metre=D&rhyme_scheme=ABBA&syllables_count=9&accept=txt)   
+  - [https://edupo.cz/api/gen?metre=D\&rhyme\_scheme=ABBA\&syllables\_count=9\&accept=txt](https://edupo.cz/api/gen?metre=D&rhyme_scheme=ABBA&syllables_count=9&accept=txt)   
 
 ### Interaktivní generování básně
 `/geninter`
@@ -109,25 +109,25 @@ Podporuje:
   - `use_regex` = `true` / `''` (volitelné, pokud má být použit regulární výraz)
 - Vrací: Seznam odpovídajících básní.
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/search?query=Ostrava\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/search?query=Ostrava&accept=txt)   
+  - [https://edupo.cz/api/search?query=Ostrava\&accept=txt](https://edupo.cz/api/search?query=Ostrava&accept=txt)   
 
 ### Zobrazení seznamu autorů
 `/showlist`
 - Vrací: Seznam autorů dostupných v databázi.
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/showlist?accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/showlist?accept=txt)   
+  - [https://edupo.cz/api/showlist?accept=txt](https://edupo.cz/api/showlist?accept=txt)   
 
 `/showlistgen`
 - Vrací: seznam ID vygenerovaných básní (uložených jako JSON ve `static/poemfiles`), seřazený sestupně.
 - Příklad:
-  - [https://quest.ms.mff.cuni.cz/edupo-api/showlistgen?accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/showlistgen?accept=txt)
+  - [https://edupo.cz/api/showlistgen?accept=txt](https://edupo.cz/api/showlistgen?accept=txt)
 
 `/showauthor`
 - Parametry:
   - `author` = Jméno autora (tak jak je ve výstupu `showlist`)
 - Vrací: Seznam sbírek a básní autora.
 - Příklad:  
-    - [https://quest.ms.mff.cuni.cz/edupo-api/showauthor?author=Bezru%C4%8D,%20Petr\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/showauthor?author=Bezru%C4%8D,%20Petr&accept=txt) 
+    - [https://edupo.cz/api/showauthor?author=Bezru%C4%8D,%20Petr\&accept=txt](https://edupo.cz/api/showauthor?author=Bezru%C4%8D,%20Petr&accept=txt) 
 
 ### Typologické rysy autora
 `/typfeatures`
@@ -135,7 +135,7 @@ Podporuje:
   - `author` = jméno autora (pokud není zadáno, použije se výchozí seznam autorů: Mácha, Erben, Neruda, Hálek, Březina, Karásek ze Lvovic, Hlaváček, Gellner, Bezruč)
 - Vrací: textový přehled typologických rysů autora/autorů (počty básní a sbírek, top metra, top rýmová schémata, top motivy, typická slova podle TF-IDF). Aktuálně vrací jen plain text.
 - Příklad:
-  - [https://quest.ms.mff.cuni.cz/edupo-api/typfeatures?author=Bezru%C4%8D,%20Petr](https://quest.ms.mff.cuni.cz/edupo-api/typfeatures?author=Bezru%C4%8D,%20Petr)
+  - [https://edupo.cz/api/typfeatures?author=Bezru%C4%8D,%20Petr](https://edupo.cz/api/typfeatures?author=Bezru%C4%8D,%20Petr)
 
 ### Zobrazení básně
 `/show`
@@ -144,7 +144,7 @@ Podporuje:
 - Vrací: Text básně.
 - Pokud není zadané `poemid`, vrací náhodnou báseň.
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/show?poemid=72197\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/show?poemid=72197&accept=txt)   
+  - [https://edupo.cz/api/show?poemid=72197\&accept=txt](https://edupo.cz/api/show?poemid=72197&accept=txt)   
 
 ### Generování motivů básně
 `/genmotives`
@@ -152,7 +152,7 @@ Podporuje:
   - `poemid` = ID básně
 - Vrací: Seznam automaticky odhadnutých motivů básně.
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/genmotives?poemid=72197\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/genmotives?poemid=72197&accept=txt)   
+  - [https://edupo.cz/api/genmotives?poemid=72197\&accept=txt](https://edupo.cz/api/genmotives?poemid=72197&accept=txt)   
 
 ### Odhad nálady básně
 `/guessmood`
@@ -168,7 +168,7 @@ Podporuje:
   - `poemid` = ID básně
 - Vrací: URL obrázku (relativní vůči serveru)
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/genimage?poemid=72197\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/genimage?poemid=72197&accept=txt)   
+  - [https://edupo.cz/api/genimage?poemid=72197\&accept=txt](https://edupo.cz/api/genimage?poemid=72197&accept=txt)   
 
 ### Generování zvukového výstupu (TTS)
 `/gentts`
@@ -176,7 +176,7 @@ Podporuje:
   - `poemid` = ID básně
 - Vrací: URL MP3 souboru s přednesem básně (relativní vůči serveru).
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/gentts?poemid=72197\&accept=txt](https://quest.ms.mff.cuni.cz/edupo-api/gentts?poemid=72197&accept=txt)   
+  - [https://edupo.cz/api/gentts?poemid=72197\&accept=txt](https://edupo.cz/api/gentts?poemid=72197&accept=txt)   
 
 ### Překlad básně
 `/translate`
@@ -218,8 +218,8 @@ Podporuje:
   - anebo `text` = text básně (a případně další parametry jako u `input`) pro báseň co dosud nemá poemid
 - Vrací: Versologickou analýzu básně.
 - Příklad:  
-  - [https://quest.ms.mff.cuni.cz/edupo-api/analyze?poemid=72197\&accept=json](https://quest.ms.mff.cuni.cz/edupo-api/analyze?poemid=72197&accept=json)   
-  - [https://quest.ms.mff.cuni.cz/edupo-api/analyze?text=Sedí losos na jabloni. Má své oči na mamoni.](https://quest.ms.mff.cuni.cz/edupo-api/analyze?text=Sed%C3%AD%20losos%20na%20jabloni.%0AM%C3%A1%20sv%C3%A9%20o%C4%8Di%20na%20mamoni.)
+  - [https://edupo.cz/api/analyze?poemid=72197\&accept=json](https://edupo.cz/api/analyze?poemid=72197&accept=json)   
+  - [https://edupo.cz/api/analyze?text=Sedí losos na jabloni. Má své oči na mamoni.](https://edupo.cz/api/analyze?text=Sed%C3%AD%20losos%20na%20jabloni.%0AM%C3%A1%20sv%C3%A9%20o%C4%8Di%20na%20mamoni.)
 
 ---
 
@@ -229,3 +229,4 @@ Podporuje:
 2. **Aktualizovány URL ve všech příkladech**.
 3. **Přidány nové endpointy** podle aktuální verze API v aplikaci.
 4. **Upřesněny popisy parametrů a návratových hodnot**.
+5. **Hlavní endpoint přesunut** na `https://edupo.cz/api/`. Dřívější adresa `https://quest.ms.mff.cuni.cz/edupo-api/` zůstává funkční (tatáž instance je dostupná pod oběma adresami).
