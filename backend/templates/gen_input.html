@@ -17,7 +17,7 @@
 	}
     </script>
     
-    <form method="post" action="gen" class="genform">
+    <form method="post" action="{{ url_for('call_generuj') }}" class="genform">
         <p><label class="tooltip"
             title="Komerční modely (GPT, Gemini) podporují všechny parametry, ale nejsou speciálně vyladěné na poezii.
 Naše modely (základní, nový) jsou speciálně vyladěné na poezii a trénované na korpuse české poezie, ale podporují nastavení jen některých parametrů."

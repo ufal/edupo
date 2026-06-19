@@ -9,21 +9,21 @@
     {% else %}
     <title>Bez názvu</title>
     {% endif %}
-    <link rel="stylesheet" href="static/style_chat.css" />
-    <link rel="stylesheet" href="static/show_poem_base.css" />
-    <link rel="stylesheet" id="style" href="static/show_poem_rich.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_chat.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='show_poem_base.css') }}" />
+    <link rel="stylesheet" id="style" href="{{ url_for('static', filename='show_poem_rich.css') }}" />
     <script>
         function set_style(style) {
-            document.getElementById('style').href='static/show_poem_'+style+'.css';
+            document.getElementById('style').href='{{ url_for('static', filename='show_poem_') }}'+style+'.css';
         }
     </script>
 </head>
 <body>
     
     <div id="qrimg">
-    <a href="static/qrcodes/{{ id }}.png"><img src="static/qrcodes/{{ id }}.png" alt="QR kód" title="QR kód"></a>
-    <br> 
-    <button onclick="navigator.clipboard.writeText('https://quest.ms.mff.cuni.cz/edupo-api/show?poemid={{ id }}');">Zkopírovat odkaz</button>
+    <a href="{{ url_for('static', filename='qrcodes/' ~ id ~ '.png') }}"><img src="{{ url_for('static', filename='qrcodes/' ~ id ~ '.png') }}" alt="QR kód" title="QR kód"></a>
+    <br>
+    <button onclick="navigator.clipboard.writeText('{{ url_for('call_show', poemid=id, _external=True) }}');">Zkopírovat odkaz</button>
     </div>
 
     {% if title %}
@@ -88,7 +88,7 @@
         <!--<button disabled>Generovat novou báseň ve stylu této básně</button>-->
         
         {% if not imgfile %}
-        <form method="post" action="genimage">
+        <form method="post" action="{{ url_for('call_genimage') }}">
             <input type="hidden" name="poemid" value="{{ id }}">
             {% if title %}
             <input type="hidden" name="title" value="{{ title }}">
@@ -99,7 +99,7 @@
         {% endif %}
         
         {% if not ttsfile %}
-        <form method="post" action="gentts">
+        <form method="post" action="{{ url_for('call_gentts') }}">
             <input type="hidden" name="poemid" value="{{ id }}">
             <input type="submit" value="Přečíst báseň pomocí automatické syntézy řeči"
             onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
@@ -107,7 +107,7 @@
         {% endif %}
 
     {% if not body %}
-    <form method="post" action="analyze">
+    <form method="post" action="{{ url_for('call_analyze') }}">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="submit" value="Analyzovat"
         onclick="this.value='Analyzuji...'; this.disabled = true; this.form.submit();">
@@ -115,7 +115,7 @@
     {% endif %}
 
     {% if not motives %}
-    <form method="post" action="genmotives">
+    <form method="post" action="{{ url_for('call_genmotives') }}">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="submit" value="Určit motivy"
         onclick="this.value='Generuji...'; this.disabled = true; this.form.submit();">
@@ -123,7 +123,7 @@
     {% endif %}
 
     {% if not mood %}
-    <form method="post" action="guessmood">
+    <form method="post" action="{{ url_for('call_guessmood') }}">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="submit" value="Určit náladu"
         onclick="this.value='Analyzuji...'; this.disabled = true; this.form.submit();">
@@ -131,7 +131,7 @@
     {% endif %}
 
     {% if not copyrighted and (not translations or not translations.sk) %}
-    <form method="post" action="translate">
+    <form method="post" action="{{ url_for('call_translate') }}">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="hidden" name="language" value="sk">
         <input type="submit" value="Preložiť do slovenčiny"
@@ -140,7 +140,7 @@
     {% endif %}
     
     {% if not copyrighted and (not translations or not translations.uk) %}
-    <form method="post" action="translate">
+    <form method="post" action="{{ url_for('call_translate') }}">
         <input type="hidden" name="poemid" value="{{ id }}">
         <input type="hidden" name="language" value="uk">
         <input type="submit" value="Перекласти українською"
@@ -168,12 +168,12 @@
 
     {% if ttsfile %}
     <audio autoplay controls>
-        <source src="{{ ttsfile }}" type="audio/mpeg">
+        <source src="{{ url_for('static', filename='gentts/' ~ id ~ '.mp3') }}" type="audio/mpeg">
     </audio>
     {% endif %}
 
     {% if imgfile %}
-    <a href="{{ imgfile }}"><img id="genimg" src="{{ imgfile }}" alt="{{ imgtitle }}" title="{{ imgtitle }}"></a>
+    <a href="{{ url_for('static', filename='genimg/' ~ id ~ '.png') }}"><img id="genimg" src="{{ url_for('static', filename='genimg/' ~ id ~ '.png') }}" alt="{{ imgtitle }}" title="{{ imgtitle }}"></a>
     {% endif %}
 
     {% if copyrighted %}
@@ -238,7 +238,7 @@
                         <td class="meterinfo">{{ verse.metrum }}-{{ verse.foot}}-{{ verse.clause }}</td>
                         <td class="otherinfo">{% if verse.narrators_gender %}Rod lyrického subjektu: {{ verse.narrators_gender }}{% endif %}</td>
                         <td class="regen">
-                            <form method="post" action="regen">
+                            <form method="post" action="{{ url_for('call_regenerate_line') }}">
                             <input type="hidden" name="poemid" value="{{ id }}">
                             <input type="hidden" name="badline" value="{{ verse.text }}">
                             <input type="submit" value="🔁" />
@@ -253,7 +253,7 @@
             {% endif %}
             
             <hr>
-            <form method="post" action="processopenai">
+            <form method="post" action="{{ url_for('call_processopenai') }}">
                 <select name="modelspec">
                     <option value="gpt-4o-mini">GPT 4o mini</option>
                     <option value="gpt-5-mini">GPT 5 mini</option>
@@ -334,7 +334,7 @@
     </div>
 
    <hr>
-   <p><a href="index">Zpět na hlavní stránku</a></p>
+   <p><a href="{{ url_for('hello_world') }}">Zpět na hlavní stránku</a></p>
 
 </body>
 </html>

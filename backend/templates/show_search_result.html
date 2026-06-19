@@ -16,7 +16,7 @@
 {% for result in results %}
     <li>
         {{ result.id }}
-        <a href="show?poemid={{ result.id }}">{{ result.author }}:
+        <a href="{{ url_for('call_show', poemid=result.id) }}">{{ result.author }}:
     {% if result.title %}
         {{ result.title }}
     {% else %}

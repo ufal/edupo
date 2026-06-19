@@ -70,9 +70,40 @@ FRONTEND_DEFAULT_MODELSPEC = {'lite': 'google/gemini-3.5-flash'}
 
 poem_cache.init_cache_db()
 
-# I have not been able to persuade Flask that it is under / locally but under
-# /edupo/ externally so this is a work-around
+# The app's routes are defined at the root, but the app is served under a path
+# prefix that differs per public address (edupo.cz/api/, quest.../edupo-api/).
+# Instead of baking one prefix in at startup, we derive it per request from the
+# Host header and expose it via the standard WSGI SCRIPT_NAME, so url_for() (links,
+# static assets, redirects) emits the correct prefix for whichever address the
+# request arrived on. This lets a single instance serve all addresses.
+# EDUPO_SERVER_PATH remains the fallback for hosts not in the map (e.g. local dev,
+# where it defaults to '' and the app is served at the root).
 EDUPO_SERVER_PATH = os.getenv('EDUPO_SERVER_PATH', '')
+
+HOST_PREFIXES = {
+    'edupo.cz': '/api',
+    'www.edupo.cz': '/api',
+    'quest.ms.mff.cuni.cz': '/edupo-api',
+}
+
+class PrefixFromHostMiddleware:
+    """Set SCRIPT_NAME from the request Host so url_for() includes the right prefix.
+    Works whether or not the upstream proxy already stripped the prefix from the
+    path: if PATH_INFO still carries it, move it into SCRIPT_NAME."""
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        host = environ.get('HTTP_HOST', '').split(':')[0]
+        prefix = HOST_PREFIXES.get(host, EDUPO_SERVER_PATH)
+        if prefix:
+            environ['SCRIPT_NAME'] = prefix
+            path = environ.get('PATH_INFO', '')
+            if path.startswith(prefix):
+                environ['PATH_INFO'] = path[len(prefix):] or '/'
+        return self.wsgi_app(environ, start_response)
+
+app.wsgi_app = PrefixFromHostMiddleware(app.wsgi_app)
 
 MC_MODEL_PORT = os.getenv('MC_MODEL_PORT', 5010)
 TM_MODEL_PORT = os.getenv('TM_MODEL_PORT', 5011)
@@ -183,7 +214,9 @@ def return_accepted_type(text, json, html, status=200):
         return Response(text, mimetype='text/plain', status=status)
 
 def redirect_for_poemid(poemid):
-    return redirect(EDUPO_SERVER_PATH + url_for('call_show', poemid=poemid))
+    # url_for already includes the per-request prefix via SCRIPT_NAME
+    # (see PrefixFromHostMiddleware), so no manual prefixing here.
+    return redirect(url_for('call_show', poemid=poemid))
 
 def return_accepted_type_for_poemid(data, html_template=None):
     """redirect for html unless html_template, poem2text_with_header for text"""

@@ -252,8 +252,11 @@ def ensure_qr_code(poemid):
     filename = f'static/qrcodes/{poemid}.png'
     if not os.path.isfile(filename):
         import qrcode
-        base_url = 'https://quest.ms.mff.cuni.cz/edupo-api/show?poemid='
-        url = f'{base_url}{poemid}'
+        from flask import url_for
+        # _external builds host + prefix from the current request, so the QR points
+        # at whichever public address served it. NOTE: the PNG is cached on disk, so
+        # for a poem first rendered under one host the QR keeps that host's URL.
+        url = url_for('call_show', poemid=poemid, _external=True)
         img = qrcode.make(url)
         img.save(filename)
 

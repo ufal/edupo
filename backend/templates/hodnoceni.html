@@ -3,16 +3,16 @@
 <head>
     <meta charset="utf-8">
     <title>EduPo hodnocení</title>
-    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
 <h1>EduPo hodnocení</h1>
 
 {% if set %}
-<a href="hodnoceni">Rozcestník</a>
+<a href="{{ url_for('call_hodnoceni') }}">Rozcestník</a>
 <h2>Sada {{ set }}{% if res %} – výsledky{% endif %}{% if progress %} <span class="progress">{{ progress }}</span>{% endif %}</h2>
 
     {% if hotovo %}
@@ -74,7 +74,7 @@
             {% endfor %}
         </div>
 
-        <form method="post" action="hodnoceni" class="hodnoceni-form">
+        <form method="post" action="{{ url_for('call_hodnoceni') }}" class="hodnoceni-form">
             <input type="hidden" name="tst" value="{{ tst }}">
 
             <fieldset>

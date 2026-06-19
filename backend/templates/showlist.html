@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>EduPo</title>
-    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
 
@@ -14,10 +14,10 @@
 <ul>
 {% for row in rows %}
     <li>
-        <a href="showauthor?author={{ row.author }}"
+        <a href="{{ url_for('call_showauthor', author=row.author) }}"
             >{{ row.author }}
             (počet básní: {{ row.count }})</a>
-        [<a href="typfeatures?author={{ row.author }}"
+        [<a href="{{ url_for('call_typfeatures', author=row.author) }}"
             >analyzovat typické rysy</a>]
     </li>
 {% endfor %}

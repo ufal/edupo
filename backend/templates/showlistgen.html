@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>EduPo</title>
-    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
 
@@ -14,7 +14,7 @@
 <ul>
 {% for poemid in poemids %}
     <li>
-        <a href="show?poemid={{ poemid }}">{{ poemid }}</a>
+        <a href="{{ url_for('call_show', poemid=poemid) }}">{{ poemid }}</a>
     </li>
 {% endfor %}
 </ul>
