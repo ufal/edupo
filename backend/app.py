@@ -259,11 +259,13 @@ def poem2text(data):
             plaintext.append(verse["text"])
         return '\n'.join(plaintext)
 
-def poem2text_with_header(data, includeid=True):
+def poem2text_with_header(data, includeid=True, includeauthor=True):
     prefix = ''
     if includeid:
         prefix = f"{data['id']}\n\n"
-    author = data['author_name'] if data['author_name'] else 'Anonym'
+    author = ''
+    if includeauthor:
+        author = data['author_name'] if data['author_name'] else 'Anonym'
     title = data['title'] if data['title'] else 'Bez názvu'
     text = poem2text(data)
     if not text.endswith("\n"):
@@ -1030,7 +1032,7 @@ def call_gentts():
     poemid = get_post_arg('poemid')
     data = get_poem_by_id(poemid)
     filename = f'static/gentts/{poemid}.mp3'
-    text = poem2text_with_header(data, includeid=False)
+    text = poem2text_with_header(data, includeid=False, includeauthor=False)
     tts = gTTS(text, lang='cs', tld='cz', slow=True)
     tts.save(filename)
     

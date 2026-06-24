@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# U=https://quest.ms.mff.cuni.cz/edupo-api
-U=https://edupo.cz/api
+U=https://quest.ms.mff.cuni.cz/edupo-api
+# U=https://edupo.cz/api
 
 curl --header "Accept: text/plain" $U/prdel
 
