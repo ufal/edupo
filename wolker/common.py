@@ -22,13 +22,6 @@ OUTPUTDIRP = 'genoutsp'
 LIKEDIR = 'likes'
 DEFAULTPAGE = 'intro'
 
-typ2asst = {
-        'chat': 'asst_kZPGslLLlaNpwKPj6HOmoCAH',
-        'cowrite': 'asst_ZeRapbBHiUvH07rFbpleUItR',
-        'essay': 'asst_87p5hReXdE0VoYwhgnKeoW01',
-        'poem': 'asst_jK6u91feyP2NscO6pEAoAeBN',
-        }
-
 # only for backup
 typ2sysmsg = {
         'chat': 'Chatuj s uživatelem. Používej spisovný jazyk.',
@@ -36,9 +29,6 @@ typ2sysmsg = {
         'essay': 'Napiš úvahu či esej na téma zvolené uživatelem. Esej by měla být stručnější, asi tak 5-10 vět. Piš jen text eseje, nic jiného na výstup nepiš. Esej napiš na následující téma:',
         'poem': 'Vytvoř báseň na téma zvolené uživatelem. Báseň by měla být spíš kratší, ideálně na 2 sloky. Piš jen text básně, nic jiného na výstup nepiš. Báseň je na následující téma:',
         }
-
-def get_asst_id(typ='chat'):
-    return typ2asst[typ]
 
 def get_filename():
     return datetime.now().strftime("%Y%m%d%H%M%S")
@@ -343,7 +333,6 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
     typ = chat/cowrite/essay/poem
     title = 'Báseň na téma ...'
     """
-    assistant_id = get_asst_id(typ)
     
     if not title:
         title = f'{typ2text[typ]} {text}'
@@ -351,7 +340,7 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
     # invoke the chatbot
     try:
         messages, roles, thread_id = wolker_interactive.talk_threaded(
-            text, assistant_id, thread_id)
+            text, typ, thread_id)
         reply = ''
     except Exception as e:
         # backup

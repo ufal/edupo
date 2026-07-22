@@ -1,136 +1,111 @@
 #!/usr/bin/env python3
-#coding: utf-8
-
-with open('apikey.txt') as infile:
-    apikey = infile.read().strip()
-
-from openai import OpenAI
-import time
-import multiprocessing
+# coding: utf-8
 
 import logging
+
+from openai import OpenAI
+from wolker_prompts import get_prompt
+
+
+with open("apikey.txt") as infile:
+    apikey = infile.read().strip()
+
+
 logging.basicConfig(
-    format='%(asctime)s %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.INFO)
-
-MAXTIME=100
-SLEEPTIME=10
-
-client = OpenAI(
-    api_key=apikey
+    format="%(asctime)s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    level=logging.INFO,
 )
-ASSISTANT_ID = 'asst_kZPGslLLlaNpwKPj6HOmoCAH'
 
-def get_thread_messages(thread_id):
-    # extract response text
-    messages = client.beta.threads.messages.list(
-        thread_id=thread_id
+client = OpenAI(api_key=apikey)
+
+MODEL = "gpt-5.6-sol"
+DEFAULT_INSTRUCTIONS = "Jsi básník Jiří Wolker."
+VECTOR_STORE_ID = 'vs_6a61231f72348191a9aeb53931c0ee4f'
+
+
+def get_thread_messages(conversation_id):
+    """Return text messages and roles in chronological order."""
+    items = client.conversations.items.list(
+        conversation_id=conversation_id,
+        order="asc",
+        limit=100,
     )
 
     result = []
     roles = []
-    for part in messages.data:
-        result.append(part.content[0].text.value)
-        roles.append(part.role)
-    
-    result.reverse()
-    roles.reverse()
+    for item in items.data:
+        if item.type != "message":
+            continue
+        if item.role not in ("user", "assistant"):
+            continue
+
+        text_parts = [
+            content.text
+            for content in item.content
+            if content.type in ("input_text", "output_text")
+        ]
+        if text_parts:
+            result.append("".join(text_parts))
+            roles.append(item.role)
 
     return result, roles
 
-def talk(message="Napište báseň o přírodě ve městě."):
-    result, _, _ = talk_threaded(message)
-    return result[-1]
+REQUEST_BASE = {
+    "model": MODEL,
+    "tools": [
+        {
+            "type": "file_search",
+            "vector_store_ids": [VECTOR_STORE_ID],
+        }
+    ],
+    "tool_choice": {"type": "file_search"},
+}
 
-def _talk_threaded(d,
-        message="Napište báseň o přírodě ve městě.",
-        assistant_id=ASSISTANT_ID,
-        thread_id=None):
+def talk_threaded(
+    message="Napište báseň o přírodě ve městě.",
+    typ="chat",
+    conversation_id=None,
+):
+    if not conversation_id:
+        conversation = client.conversations.create(
+            items=[
+                {
+                    "type": "message",
+                    "role": "developer",
+                    "content": get_prompt(typ)
+                }
+            ])
+        conversation_id = conversation.id
 
-    starttime = time.time()
-    
-    if not thread_id:
-        thread = client.beta.threads.create()
-        thread_id = thread.id
-    d['thread_id'] = thread_id
+    request = {
+        **REQUEST_BASE,
+        "conversation": conversation_id,
+        "input": message,
+    }
 
-    # add message to thread
-    msg = client.beta.threads.messages.create(
-        thread_id=thread_id,
-        role="user",
-        content=message
+    response = client.responses.create(**request)
+
+    result, roles = get_thread_messages(conversation_id)
+    return result, roles, conversation_id
+
+
+def talk_simple(prompt, system_message=DEFAULT_INSTRUCTIONS):
+    response = client.responses.create(
+        model=MODEL,
+        instructions=system_message,
+        input=prompt,
+        reasoning={"effort": "low"},
+        max_output_tokens=5000,
     )
-
-    # run the assistant
-    run = client.beta.threads.runs.create(
-        thread_id=thread_id,
-        assistant_id=assistant_id,
-    )
-
-    # wait for answer
-    while not run.status == "completed":
-        time.sleep(SLEEPTIME)
-        spenttime = time.time() - starttime 
-        logging.info(f'Time spent waiting so far: {spenttime}')
-        if spenttime > MAXTIME:
-            raise Exception('Max time reached')
-        run = client.beta.threads.runs.retrieve(
-            thread_id=thread_id,
-            run_id=run.id
-        )
+    return response.output_text
 
 
-def talk_threaded(message="Napište báseň o přírodě ve městě.",
-        assistant_id=ASSISTANT_ID,
-        thread_id=None):
-
-    manager = multiprocessing.Manager()
-    d = manager.dict()
-
-    p = multiprocessing.Process(target=_talk_threaded,
-            args=(d, message, assistant_id, thread_id))
-    p.start()
-    p.join(MAXTIME)
-    if p.is_alive():
-        p.terminate()
-        raise Exception('Max time reached')
-    else:
-        thread_id = d['thread_id']
-        result, roles = get_thread_messages(thread_id)
-
-    return result, roles, thread_id
-
-def talk_simple(prompt, system_message="Jsi básník Jiří Wolker."):
-    messages = [
-        {"role": "system", "content": system_message},
-        {"role": "user", "content": prompt},
-    ]
-    
-    # This is the limit of the model
-    model_max_tokens = 2048
-
-    # How many tokens to generate max
-    max_tokens = 500
-
-    # Model identifier
-    model = "gpt-3.5-turbo"
-    
-    response = client.chat.completions.create(
-        model = model,
-        messages = messages,
-        max_tokens = max_tokens,
-        )
-    result = response.choices[0].message.content
-    
-    return result
-
-
-if __name__=="__main__":
+if __name__ == "__main__":
     while True:
         message = input()
-        print('SIMPLE:')
+        print("SIMPLE:")
         print(talk_simple(message))
-        print('FULL:')
-        print(talk(message))
-
+        print("FULL:")
+        result, _, _ = talk_threaded(message)
+        print(result[-1])

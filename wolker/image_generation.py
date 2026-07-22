@@ -64,6 +64,7 @@ def generate_image_openai(prompt, filename):
         model="gpt-image-2",
         prompt=prompt,
         size="1024x1024",
+        # size="816x816",
         quality="medium",
         # moderation="low",
         n=1,
