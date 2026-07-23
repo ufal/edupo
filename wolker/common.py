@@ -135,9 +135,11 @@ def post(key):
     else:
         body = f"Nelze zobrazit soubor se zadaným klíčem '{key}'"
 
+    aifooter = return_file('footer_aigen.html')
+
     footer = return_file('footer_public.html')
 
-    return header, body, footer
+    return header, body, aifooter, footer
 
 # slideshow
 def getctime(item):
@@ -174,6 +176,7 @@ def slideshow():
     files.append(replace_and_return_file(
             'header_refresh.html', replacements))
     files.append(candidate)
+    files.append(return_file('footer_aigen.html'))
     files.append(return_file('footer.html'))
     return files
 
@@ -221,6 +224,7 @@ def gallery(typ='', delete='', like='', delike=''):
                         'LIKE': prev,
                         }))
         prev = filename
+    files.append(return_file('footer_aigen.html'))
     files.append(return_file('footer.html'))
     
     return files
@@ -303,6 +307,7 @@ def wolker_image(title, prefix, text, replacements):
     files.append(replace_and_return_file(
         'result_image.html', replacements).replace(
             'CONVERSATION', '\n'.join(conversation)))
+    files.append(return_file('footer_aigen.html'))
     if replacements['PREVFULL']:
         files.append(replace_and_return_file(
             'result_image_backfulllink.html', replacements))
@@ -372,6 +377,7 @@ def wolker_chat(text='', typ='poem', title='', thread_id=None):
         files.append(replace_and_return_file(
             f'wolker_chat_message_{role}.html',
             {'CONTENT': remove_refs(nl2BR(message))}))
+    files.append(return_file('footer_aigen.html'))
     files.append(return_file('wolker_chat_footer.html'))
     if thread_id and typ in ('chat', 'cowrite'):
         # not thread_id = running on backup, no chatting
@@ -403,6 +409,7 @@ def wolker_chat_illustrate(form, replacements):
         files.append(replace_and_return_file(
             f'wolker_chat_message_{role}.html',
             {'CONTENT': remove_refs(nl2BR(message))}))
+    files.append(return_file('footer_aigen.html'))
     files.append(return_file('wolker_chat_footer.html'))
     files.append(replace_and_return_file(
         'wolker_chat_share.html', replacements))
