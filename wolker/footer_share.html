@@ -1,1 +1,21 @@
-<p id="post-share">Share - TODO</p>
+<p id="post-share">
+
+    <script>
+        async function shareImage() {
+        try {
+            await navigator.share({
+            title: "Můj obrázek z výstavy #JIRIWOLKER",
+            text: "Podívejte se na můj vygenerovaný obrázek.",
+            url: window.location.href
+            });
+        } catch (e) {
+            console.log("Sdílení zrušeno nebo nepodporováno");
+        }
+        }
+    </script>
+
+    <button class="small" onclick="shareImage()">
+        <img class="fa-icon blue" src="./fa-symbols/regular/paper-plane.svg">
+        Sdílet
+    </button>
+</p>
