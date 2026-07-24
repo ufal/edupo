@@ -200,3 +200,6 @@ hr {
 
 .aigenerated {color: #ccc}
 
+#post-share {
+    display: none;
+}
