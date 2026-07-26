@@ -4,18 +4,25 @@
         async function shareImage() {
         try {
             await navigator.share({
-            title: "Můj obrázek z výstavy #JIRIWOLKER",
-            text: "Podívejte se na můj vygenerovaný obrázek.",
+            title: "Moje tvorba z výstavy #JiriWolkerMGP",
+            text: "Podívejte se, co mi vygenerovala AI s Jiřím Wolkerem na výstavě #JiriWolkerMGP",
             url: window.location.href
             });
         } catch (e) {
-            console.log("Sdílení zrušeno nebo nepodporováno");
+            console.log("Sdílení zrušeno nebo není podporováno.");
         }
         }
     </script>
 
-    <button class="small" onclick="shareImage()">
-        <img class="fa-icon blue" src="./fa-symbols/regular/paper-plane.svg">
-        Sdílet
-    </button>
+    <p>
+        Děkujeme! Tvoje tvorba je nyní součástí výstavy #JiriWolkerMGP. Můžeš ji také sdílet pod svým účtem na sociálních sítích nebo poslat odkaz kamarádům.
+    </p>
+
+    <form onsubmit="event.preventDefault(); shareImage()" class="standard">
+      <button class="small" type="submit">
+        <img class="fa-icon blue" src="./fa-symbols/solid/share-nodes.svg">
+        Sdílet pod svým účtem
+      </button>
+    </form>
+
 </p>
