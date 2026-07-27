@@ -1,0 +1,56 @@
+{
+    "version" : "1.0",
+    "api_url" : "https://edupo.cz/api/",
+    "share_url" : "https://quest.ms.mff.cuni.cz/edupo/?viewMode=reading&controls=poem&poemId={0}",
+
+    "api_default_params" : 
+    {
+        "frontend" : "lite",
+        "temperature" : 0.7,
+        "language" : "Serbian"
+    },
+    "animation_speed" : 100,
+    "ingredients" : 
+    [
+        {    "x": 0.3,  "y": 0.125,   "parameter" : "old_style",           "label" : "Stari<br/>stil",      "value" : "old" },
+        {    "x": 0.5,  "y": 0.125,   "parameter" : "old_style",           "label" : "Novi<br/>stil",       "value" : "modern"  },
+        {    "x": 0.7,  "y": 0.125,   "parameter" : "old_style",           "label" : "Savremeni<br/>stil",  "value" : "contemporary" },
+
+        {    "x": 0.2,  "y": 0.375,   "parameter" : "syllables_count",    "label" : "Kratki stihovi",  "value" : "short"  },
+        {    "x": 0.4,  "y": 0.375,   "parameter" : "syllables_count",    "label" : "Dugi stihovi",    "value" : "long" },
+        {    "x": 0.6,  "y": 0.375,   "parameter" : "poem_length",        "label" : "Kratka pesma",     "value" : "short"  },
+        {    "x": 0.8,  "y": 0.375,   "parameter" : "poem_length",        "label" : "Duga pesma",       "value" : "medium" },
+
+        {    "x": 0.1,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>ljubavi",  "value" : "ljubav"  },
+        {    "x": 0.3,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>prirodi",  "value" : "priroda" },
+        {    "x": 0.5,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>gradu",    "value" : "grad"  },
+        {    "x": 0.7,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>porodici", "value" : "porodica" },
+        {    "x": 0.9,  "y": 0.625,   "parameter" : "motives",            "label" : "O<br/>vremenu",  "value" : "vreme"  },
+
+        {    "x": 0.2,  "y": 0.875,   "parameter" : "mood",               "label" : "Vesela",         "value" : "vesela" },
+        {    "x": 0.4,  "y": 0.875,   "parameter" : "mood",               "label" : "Tužna",          "value" : "tužna" },        
+        {    "x": 0.6,  "y": 0.875,   "parameter" : "rhymed",             "label" : "Sa rimom",       "value" : "yes" },
+        {    "x": 0.8,  "y": 0.875,   "parameter" : "rhymed",             "label" : "Bez rime",       "value" : "no" }
+    ],
+    "colors" :
+    {
+        "old_style"         : "#008769",
+        "syllables_count"   : "#247a9a",
+        "rhymed"            : "#6F491B",
+        "poem_length"       : "#C9A831",
+        "mood"              : "#CE3636",
+        "motives"           : "#7949a3"
+    },
+    "position_shuffle" : false,
+    "position_jitter_x" : 0, 
+    "position_jitter_y" : 0,
+    "target_points" :
+    [
+        { "x" : 0.3    , "y" : 0.5  },
+        { "x" : 0.5    , "y" : 0.55 },
+        { "x" : 0.75   , "y" : 0.52 },
+        { "x" : 0.3    , "y" : 0.7  },
+        { "x" : 0.5    , "y" : 0.75 },
+        { "x" : 0.75   , "y" : 0.75 }
+    ]
+}

@@ -1,0 +1,52 @@
+<div id="epl_app">
+    
+    <div id="epl_header">
+        <h1>Sastavi svoju pesmu</h1>
+    </div>            
+
+    <div id="epl_ingredients">
+        <div id="epl_instructions">
+            <div id="epl_instruction_1">Stavi sastojke u čašu i pokreni reakciju</div>
+            <div id="epl_instruction_2">Stavi sastojke u čašu i pokreni reakciju</div>
+        </div>
+        <div id="epl_ingredients_container"></div>    
+    </div>
+
+    <div id="epl_drag_container">
+        <div id="epl_jar_wrapper">
+            <div id="epl_jar">
+                <img id="epl_jar_back" src="assets/jar_back.png" draggable="false">            
+                <img id="epl_jar_front" src="assets/jar_front.png">
+                <div id="epl_jar_dropzone"></div>            
+            </div>
+        </div>
+    </div>                
+
+    <div id="epl_result_modal">
+        <div id="epl_result_panel">
+            <div id="epl_result"></div>        
+            <div id="epl_result_buttons">
+                <button id="epl_btn_close" onclick="app.closeResult()">Zatvori</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="epl_timeout_modal">
+        <div id="epl_timeout_panel">
+            <div>Još si tu? Aplikacija će se ponovo pokrenuti za&nbsp;<span id="epl_timeout_count">10</span>&nbsp;s</div>
+            <button id="epl_btn_stay" onclick="app.cancelRestart()">Još čitam!</button>
+        </div>
+    </div>
+
+    <div id="epl_waiting_modal">
+        <div id="epl_waiting_modal_content">
+            <img id="epl_waiting_progress" src="assets/progress_80.png">
+            <span>Mešam pesmu</span>
+        </div>
+        
+    </div>
+
+    <button id="epl_btn_generate" onclick="app.generate()"><img src="assets/stars.svg" style="height:1em; margin-right:0.5em">&nbsp;Pokreni&nbsp;reakciju!</button>
+    <button id="epl_btn_reset" onclick="app.resetAll()" title="Vrati sastojke">↺</button>
+</div>
+
