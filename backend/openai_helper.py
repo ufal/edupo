@@ -149,6 +149,8 @@ from collections import defaultdict
 def generate_poem_with_openai(params, model="gpt-4o-mini"):
     # set all unknown to ''
     params = defaultdict(str, params)
+    if not 'language' in params:
+        params['language'] = 'Czech'
 
     REASONING = 'gpt-5' in model or 'gemini-3' in model
 
@@ -159,7 +161,7 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
         plan = ""
         validation = ""
 
-    system=f"""You are a renowned Czech poet, an expert in the Czech language known for your mastery of rich and poetic vocabulary. Unless otherwise instructed, compose poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
+    system=f"""You are a renowned {params["language"]} poet, an expert in the {params["language"]} language known for your mastery of rich and poetic vocabulary. Unless otherwise instructed, compose poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
 Do not rhyme the verses with identical words; use similar-sounding but different words.
 
 {plan}
@@ -215,7 +217,7 @@ Do not output any other content or formatting."""
     metre = ''
     if params['metre'] and params['metre'] in METRE_EN:
         metre = f"{METRE_EN[params['metre']]} "
-    prompt_parts.append(f'Write a {metre}poem in Czech language.')
+    prompt_parts.append(f'Write a {metre}poem in {params["language"]} language.')
     if params['rhymed']:
         NOT = 'not' if params['rhymed'] == 'no' else ''
         prompt_parts.append(f"The poem should {NOT} be rhymed.")
@@ -268,19 +270,31 @@ Do not output any other content or formatting."""
             prompt_parts.append(f"The poem should be written in current style (21st century).")
     # CONTENT: prompting in Czech
     prompt_parts.append(f"\n")
-    if params['author_name'] and params['author_name'] != 'Anonym':
-        prompt_parts.append(f"Báseň by měla být ve stylu známého českého autora, který se jmenoval {params['author_name']}.")
-    if params['collection_style']:
-        prompt_parts.append(f"Báseň by měla stylem odpovídat autorově sbírce {params['collection_style']}.")
-    if params['title'] and params['title'] != 'Bez názvu':
-        prompt_parts.append(f"Název básně je: {params['title']}.")
-    if params['motives']:
-        prompt_parts.append(f"V básni se objevují následující motivy:")
-        prompt_parts.extend(params['motives'])
+    if params['language'] == 'Czech':
+        if params['author_name'] and params['author_name'] != 'Anonym':
+            prompt_parts.append(f"Báseň by měla být ve stylu známého českého autora, který se jmenoval {params['author_name']}.")
+        if params['collection_style']:
+            prompt_parts.append(f"Báseň by měla stylem odpovídat autorově sbírce {params['collection_style']}.")
+        if params['title'] and params['title'] != 'Bez názvu':
+            prompt_parts.append(f"Název básně je: {params['title']}.")
+        if params['motives']:
+            prompt_parts.append(f"V básni se objevují následující motivy:")
+            prompt_parts.extend(params['motives'])
+        prompt_parts.append(f"\n")
+        prompt_parts.append(f"Nyní napiš českou báseň dle tohoto zadání.")
+    elif params['language'] == 'Serbian':
+        if params['author_name'] and params['author_name'] != 'Anonim':
+            prompt_parts.append(f"Pesma treba da bude u stilu poznatog češkog autora po imenu {params['author_name']}.")
+        if params['collection_style']:
+            prompt_parts.append(f"Stil pesme treba da odgovara autorovoj zbirci {params['collection_style']}.")
+        if params['title'] and params['title'] != 'Bez naslova':
+            prompt_parts.append(f"Naslov pesme je: {params['title']}.")
+        if params['motives']:
+            prompt_parts.append(f"U pesmi se pojavljuju sledeći motivi:")
+            prompt_parts.extend(params['motives'])
+        prompt_parts.append(f"\n")
+        prompt_parts.append(f"Sada napiši pesmu na srpskom prema ovom zadatku.")    
 
-    prompt_parts.append(f"\n")
-    prompt_parts.append(f"Nyní napiš českou báseň dle tohoto zadání.")
-    
     # TODO anaphors, epanastrophes
     prompt = ' '.join(prompt_parts)
     logging.info('TEXTGEN Prompt: ' + show_short(prompt))

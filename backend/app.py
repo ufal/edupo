@@ -529,6 +529,10 @@ def call_generuj():
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
     params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
     
+    language = get_post_arg('language')
+    if language:
+        params['language'] = language
+    
     # can be ''/0 or e.g. 9 or e.g. 9 8 9 10 or short/long
     params['syllables_count'] = get_post_arg('syllables_count', '0', True)
     if params['syllables_count'] not in ('short', 'long'):
