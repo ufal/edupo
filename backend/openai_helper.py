@@ -284,7 +284,7 @@ Do not output any other content or formatting."""
         prompt_parts.append(f"Nyní napiš českou báseň dle tohoto zadání.")
     elif params['language'] == 'Serbian':
         if params['author_name'] and params['author_name'] != 'Anonim':
-            prompt_parts.append(f"Pesma treba da bude u stilu poznatog češkog autora po imenu {params['author_name']}.")
+            prompt_parts.append(f"Pesma treba da bude u stilu poznatog autora po imenu {params['author_name']}.")
         if params['collection_style']:
             prompt_parts.append(f"Stil pesme treba da odgovara autorovoj zbirci {params['collection_style']}.")
         if params['title'] and params['title'] != 'Bez naslova':

@@ -167,6 +167,14 @@ def get_post_arg(key, default=None, nonempty=False, isarray=False):
         result = default
     return result
 
+def set_param_if_exists(params, key, targetkey=None):
+    value = get_post_arg(key)
+    if value:
+        if targetkey:
+            params[targetkey] = value
+        else:
+            params[key] = value
+
 # our defined order of priorities:
 # 1. HTML (because of web browsers)
 # 2. JSON (for APIs)
@@ -529,9 +537,9 @@ def call_generuj():
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
     params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
     
-    language = get_post_arg('language')
-    if language:
-        params['language'] = language
+    set_param_if_exists(params, 'language')
+    set_param_if_exists(params, 'title')
+    set_param_if_exists(params, 'author', 'author_name')
     
     # can be ''/0 or e.g. 9 or e.g. 9 8 9 10 or short/long
     params['syllables_count'] = get_post_arg('syllables_count', '0', True)
@@ -551,8 +559,6 @@ def call_generuj():
     if params['temperature'] <= 0:
         params['temperature'] = 0.01
     params['max_strophes'] = int(get_post_arg('max_strophes', '2', True))
-    params['title'] = get_post_arg('title', 'Bez názvu')
-    params['author_name'] = get_post_arg('author', 'Anonym')
     params['collection_style'] = get_post_arg('collection_style', '')
     params['form'] = get_post_arg('form', '')
     params['mood'] = get_post_arg('mood', 'žádná', True)
