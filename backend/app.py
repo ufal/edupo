@@ -1091,6 +1091,91 @@ def call_generate_openai():
     result = generate_with_openai_simple(prompt)
     return render_template('openaigenerate.html', prompt=prompt, result=result)
 
+CONTINUATION_DEFAULT_MODELSPEC = 'google/gemini-3.5-flash'
+CONTINUATION_MAX_N = 10
+
+CONTINUATION_SYSTEM = "Jsi zkušený český básník. Pomáháš autorovi psát báseň: navrhuješ slova, kterými by rozepsaný text mohl bezprostředně pokračovat."
+
+def continuation_prompt(prefix, syllables_count, rhyme_scheme, n, exclude):
+    parts = []
+    if prefix.strip():
+        parts.append("Toto je začátek básně; končí přesně tam, kde autor přestal psát:\n<basen>\n"
+                + prefix + "</basen>")
+        parts.append("Navrhni slovo, které by v básni mohlo následovat jako bezprostředně další slovo. Pokud text končí uprostřed verše, navržené slovo pokračuje v tomto verši; pokud text končí koncem řádku, navržené slovo začíná nový verš.")
+    else:
+        parts.append("Autor začíná psát novou báseň. Navrhni slovo, kterým by báseň mohla začínat.")
+    if rhyme_scheme:
+        parts.append(f"Báseň má mít rýmové schéma {rhyme_scheme} (schéma se opakuje v každé další sloce). Navrhuj slova tak, aby bylo možné verše dokončit v souladu se schématem; slovo, které uzavírá verš, se musí správně rýmovat.")
+    if syllables_count:
+        if isinstance(syllables_count, list):
+            parts.append("Verše mají mít postupně tyto počty slabik (dále se opakují): "
+                    + ' '.join(str(s) for s in syllables_count) + ".")
+        else:
+            parts.append(f"Každý verš má mít {syllables_count} slabik.")
+        parts.append("Navrhuj slova, která se vejdou do zbývajících slabik verše a po kterých půjde verš dokončit s předepsaným počtem slabik.")
+    if exclude:
+        parts.append("Nenavrhuj tato slova: " + ', '.join(exclude) + ".")
+    slova = ("vhodné slovo" if n == 1
+            else f"{n} různá vhodná slova" if n < 5
+            else f"{n} různých vhodných slov")
+    parts.append(f"Navrhni {slova}. Odpověz pouze JSON polem řetězců, bez jakéhokoli dalšího textu, takto:\n[\"slunce\", \"měsíc\", \"hvězdy\"]")
+    return "\n\n".join(parts)
+
+def parse_continuation_words(output):
+    if not output:
+        return []
+    match = re.search(r'\[.*?\]', output, re.DOTALL)
+    if not match:
+        return []
+    try:
+        items = json.loads(match.group(0))
+    except (json.JSONDecodeError, ValueError):
+        return []
+    if not isinstance(items, list):
+        return []
+    return [item.strip() for item in items
+            if isinstance(item, str) and item.strip()]
+
+def generate_continuations(prefix, syllables_count, rhyme_scheme, n, modelspec):
+    words = []
+    # one retry to top up if the first call yields fewer than n usable words
+    for attempt in range(2):
+        if len(words) >= n:
+            break
+        prompt = continuation_prompt(
+                prefix, syllables_count, rhyme_scheme, n - len(words), words)
+        output = generate_with_openai(
+                [{"role": "system", "content": CONTINUATION_SYSTEM},
+                 {"role": "user", "content": prompt}],
+                model=modelspec, max_tokens=4000, temperature=1)
+        for word in parse_continuation_words(output):
+            if word not in words:
+                words.append(word)
+    return words[:n]
+
+@app.route("/continuation", methods=['GET', 'POST'])
+def call_continuation():
+    prefix = get_post_arg('prefix', '')
+    rhyme_scheme = get_post_arg('rhyme_scheme', '')
+    # accept both space- and comma-separated lists, e.g. "8 6 8 6" or "8,6,8,6"
+    syllables_count = int_or_intlist(re.sub(
+            r'[,\s]+', ' ', get_post_arg('syllables_count', '0', True)).strip())
+    n = int(get_post_arg('n', '3', True))
+    n = max(1, min(n, CONTINUATION_MAX_N))
+    modelspec = get_post_arg('modelspec', CONTINUATION_DEFAULT_MODELSPEC,
+            nonempty=True)
+
+    words = generate_continuations(
+            prefix, syllables_count, rhyme_scheme, n, modelspec)
+    if not words:
+        return return_error("Nepodařilo se vygenerovat návrhy pokračování.",
+                "model nevrátil žádná použitelná slova", status=502)
+
+    return return_accepted_type(
+            "\n".join(words),
+            {'continuations': words},
+            "<br>\n".join(words))
+
 @app.route("/get_generation_parameters_specification", methods=['GET', 'POST'])
 def call_get_generation_parameters_specification():
     schema = GenerationParameters.schema_json(indent=2)

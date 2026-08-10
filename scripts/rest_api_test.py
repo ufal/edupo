@@ -114,3 +114,14 @@ if False:
     print('TTS', base_url+url)
 
 
+if False:
+    headers = {"accept": "application/json"}
+    data = {
+        'prefix': 'Sedí losos na jabloni,\nmá své oči na',
+        'syllables_count': '8',
+        'rhyme_scheme': 'AABB',
+        'n': '3',
+    }
+    response = requests.post(f"{base_url}/continuation", data=data, headers=headers)
+    words = response.json()['continuations']
+    print('CONTINUATIONS', *words, sep="\n")

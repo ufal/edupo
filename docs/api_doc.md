@@ -200,6 +200,17 @@ Podporuje:
   - `prompt` = prompt pro model (výchozí `Máte rádi ptakopysky?`)
 - Vrací: HTML stránku s výstupem modelu (jednoduché rozhraní, vrací vždy HTML).
 
+### Návrh dalšího slova básně
+`/continuation`
+- Navrhne slova, kterými by rozepsaná báseň mohla bezprostředně pokračovat (pomocí LLM přes OpenAI / OpenRouter).
+- Parametry:
+  - `prefix` = dosavadní text básně; může být i prázdný (návrh prvního slova). Končí-li text koncem řádku, navrhuje se první slovo nového verše, jinak další slovo rozepsaného verše.
+  - `syllables_count` = počet slabik na verš: jedno číslo, nebo seznam oddělený mezerami či čárkami (např. `8 6 8 6`); seznam se opakuje (nepovinné)
+  - `rhyme_scheme` = rýmové schéma, např. `ABAB`; sloky lze oddělit mezerami, schéma se opakuje po slokách (nepovinné)
+  - `n` = počet navržených slov (výchozí 3, maximálně 10)
+  - `modelspec` = identifikátor modelu (výchozí `google/gemini-3.5-flash`); pouze API modely, lokální modely nejsou podporovány
+- Vrací: JSON `{"continuations": ["slovo1", "slovo2", ...]}` (pro `accept=txt` jedno slovo na řádek). Může vrátit i méně než `n` slov; při selhání modelu chybu se stavem 502.
+
 ### Lajkování
 `/like_count`
 - Parametry:
