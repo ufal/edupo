@@ -3,6 +3,7 @@
 from openai import OpenAI
 import base64
 import io
+import json
 
 import logging
 logging.basicConfig(
@@ -433,11 +434,137 @@ def generate_with_openai_streaming(model="gpt-4o-mini"):
         return None
 
 
+from pathlib import Path
+PROMPTS_DIR = Path(__file__).parent / "prompts"
+TEXT_PROMPT_FILE = PROMPTS_DIR / "patron.txt"
+IMAGE_PROMPT_FILE = PROMPTS_DIR / "patron_img.txt"
+LOGO_FILE = PROMPTS_DIR / "wifi_eye.png"
+
+def generate_patron(answers_json):
+    """
+    Generate a patron name, protection text and image.
+
+    Parameters
+    ----------
+    answers : str
+        JSON-encoded user answers.
+
+    Returns
+    -------
+    dict
+        {
+            "name": "...",
+            "protection": "...",
+            "image": "data:image/png;base64,..."
+        }
+    """
+
+    with open(KEY_PATH) as infile:
+        apikey = infile.read().rstrip()
+    try:
+        client = OpenAI(api_key=apikey)
+    except:
+        logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
+
+
+    logging.info('Gen patron for input: ' + show_short(answers_json))
+    
+    # 1. Prepare answers for the text prompt
+
+    text_prompt = TEXT_PROMPT_FILE.read_text(
+        encoding="utf-8"
+    )
+
+    text_prompt = text_prompt.replace(
+        "{ODPOVEDI_UZIVATELE}",
+        answers_json
+    )
+
+    # 2. Generate patron name + protection
+
+    text_response = client.responses.create(
+        model="gpt-5",
+        input=text_prompt
+    )
+
+    generated_text = text_response.output_text.strip()
+    logging.info('Gen patron output: ' + show_short(generated_text))
+
+    # Expected format:
+    #
+    # Eukratés
+    #
+    # Chrání tvou odvahu tvořit...
+    #
+    # We deliberately do not require JSON from the model,
+    # because the prompt is designed to produce exactly two
+    # textual fields.
+
+    lines = [
+        line.strip()
+        for line in generated_text.splitlines()
+        if line.strip()
+    ]
+
+    if len(lines) < 2:
+        raise ValueError(
+            f"Unexpected patron response:\n{generated_text}"
+        )
+
+    name = lines[0]
+
+    protection = " ".join(lines[1:])
+
+    # 3. Prepare image prompt
+
+    image_prompt = IMAGE_PROMPT_FILE.read_text(
+        encoding="utf-8"
+    )
+
+    image_prompt = image_prompt.replace(
+        "{JMENO_PATRONA}",
+        name
+    )
+
+    image_prompt = image_prompt.replace(
+        "{OCHRANA_PATRONA}",
+        protection
+    )
+
+    # 4. Generate patron image
+    #
+    # The logo is supplied as an input image so that the
+    # generator can actually incorporate the specific logo.
+
+    with open(LOGO_FILE, "rb") as logo_file:
+        image_response = client.images.edit(
+            model="gpt-image-1",
+            image=logo_file,
+            prompt=image_prompt,
+            size="1024x1536",
+            quality="high",
+            output_format="png",
+            input_fidelity="high"
+        )
+
+    image_b64 = image_response.data[0].b64_json
+    logging.info('Gen patron generated image')
+
+    # 5. Package everything for Flask / JavaScript
+
+    return {
+        "name": name,
+        "protection": protection,
+        "image": f"data:image/png;base64,{image_b64}"
+    }
+
+
 if __name__=="__main__":
     GEN_POEM = False
     GEN_TEXT = False
-    GEN_IMG = True
+    GEN_IMG = False
     GEN_STREAM = False
+    GEN_PATRON = True
 
     if GEN_POEM:
         title = input("Zadej název básně: ")
@@ -481,4 +608,9 @@ if __name__=="__main__":
 
     if GEN_STREAM:
         generate_with_openai_streaming()
+
+    if GEN_PATRON:
+        responses = json.dumps({'Dílo': 'Je to naše dílo.', 'Rozhodnutí': 'Rozhodnu se potichu, sám.'})
+        result = generate_patron(responses)
+        print(result['name'], result['protection'])
 

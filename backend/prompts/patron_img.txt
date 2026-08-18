@@ -1,0 +1,313 @@
+Vytvoř jeden reprezentativní portrét symbolického patrona uživatele na základě jeho odpovědí.
+
+ODPOVĚDI UŽIVATELE:
+{ODPOVEDI_UZIVATELE}
+
+OCHRANA, KTEROU MÁ PATRON NABÍDNOUT:
+{OCHRANA_PATRONA}
+
+JMÉNO PATRONA:
+{JMENO_PATRONA}
+
+PŘILOŽENÉ LOGO:
+{LOGO}
+
+HLAVNÍ PRINCIP
+
+Patron není portrétem uživatele ani vizualizací jeho osobnosti.
+
+Patron je jeho ochránce a komplementární síla. Má představovat to, co uživatel potřebuje, aby byl odolnější, sebejistější, klidnější nebo svobodnější. Má chránit před slabým místem, které vyplývá z kombinace jeho odpovědí.
+
+Pokud se uživatel bojí, patron se nebojí.
+Pokud uživatel váhá, patron je rozhodný.
+Pokud uživatel příliš kontroluje, patron přináší důvěru.
+Pokud uživatel příliš ustupuje, patron přináší pevnost a vlastní vůli.
+Pokud uživatel příliš spoléhá na AI, patron chrání jeho vlastní úsudek.
+Pokud uživatel AI příliš odmítá, patron přináší otevřenost.
+Pokud uživatel příliš sdílí, patron chrání jeho hranice.
+Pokud uživatel všechno drží v sobě, patron přináší bezpečnou otevřenost.
+Pokud uživatel ztrácí vlastní dovednosti, patron připomíná jeho vlastní schopnosti.
+Pokud uživatel experimentuje bez obav, patron mu poskytuje moudrost a rozvahu.
+Pokud uživatel experimentování odmítá, patron mu poskytuje odvahu vykročit mimo známé.
+
+Nezobrazuj uživatelovy slabosti jako vlastnosti patrona. Patron má být jejich ochrannou protiváhou.
+
+Při interpretaci odpovědí zohledni také možnosti, které uživatel nevybral. Nevybrané možnosti pomáhají určit hranice výsledné osobnosti patrona. Patron nemá být prostým opakem uživatele, ale jeho komplementární silou.
+
+Vytvoř jednu jedinečnou bytost. Nepoužívej předem připravený seznam archetypů.
+
+POSTAVA
+
+Ve většině případů vytvoř důstojnou lidskou postavu.
+
+Patron má působit jako vznešený ochránce, průvodce, mudrc, strážce nebo antický hrdina.
+
+Má být klidný, silný, sebejistý a moudrý.
+
+Má působit jako někdo, kdo by mohl stát po boku uživatele v obtížné situaci a poskytovat mu přesně tu sílu, kterou potřebuje.
+
+Pokud odpovědi výrazně podporují experimentálnost, může být patron neobvyklejší nebo částečně nelidský. I tehdy musí zůstat důstojný, krásný a symbolický, nikdy komický.
+
+ESTETIKA
+
+Použij výraznou kombinaci antického Řecka a starověkého Egypta.
+
+Postava má být více inspirována antickým Řeckem než typickým faraonem.
+
+NEVYTVÁŘEJ faraona.
+
+Nepoužívej nemes, faraonskou korunu ani typický faraonský trůn.
+
+Patron má spíše připomínat antického řeckého filosofa, mudrce, hrdinu nebo vznešeného ochránce.
+
+Použij řeckou anatomii, antické roucho, plášť přehozený přes rameno, jednoduchý zlatý diadém nebo vavřínovou korunu a klasické antické proporce.
+
+Egyptská složka se má projevovat především prostředím a symboly:
+
+egyptské hieroglyfy
+chrámové reliéfy
+egyptské sloupy
+lotos
+papyrus
+sluneční kotouč
+egyptské ornamenty
+kamenné stély
+posvátné nádoby
+
+Výsledkem má být harmonická syntéza řeckého a egyptského světa, nikoli historicky přesná rekonstrukce.
+
+MALÍŘSKÝ STYL
+
+Vytvoř krásný vážný malířský portrét.
+
+Jemná zrnitost.
+Měkké štětcové tahy.
+Bohatá malířská textura.
+Teplé světlo.
+Mírně dramatické stíny.
+Ne fotorealismus.
+Ne 3D render.
+Ne komiks.
+Ne karikatura.
+
+Použij paletu:
+
+okr
+písková
+terakota
+bronz
+antická zlatá
+krémová
+hluboké indigo
+tlumená modř
+
+Obraz má působit jako portrét bytosti, která by mohla být vyobrazena v chrámu nebo na starobylé stéle, ale zároveň má být vizuálně atraktivní současnému divákovi.
+
+POSTOJ A VÝRAZ
+
+Postoj, gesto a výraz patrona musí vyjadřovat OCHRANU uvedenou v poli {OCHRANA_PATRONA}.
+
+Patron má vyzařovat více stability než uživatel.
+
+Pokud ochrana znamená odvahu, patron má být nebojácný.
+Pokud ochrana znamená klid, patron má působit vyrovnaně.
+Pokud ochrana znamená hranice, patron má působit pevně a nepřístupně pouze tam, kde je to nutné.
+Pokud ochrana znamená důvěru, patron má působit otevřeně.
+Pokud ochrana znamená vlastní úsudek, patron má mít velmi sebejistý a soustředěný výraz.
+Pokud ochrana znamená rozvahu, patron má působit moudře a trpělivě.
+
+Patron nemá vypadat, že potřebuje ochranu sám.
+
+SYMBOLICKÉ ATRIBUTY
+
+Vyber jeden až dva výrazné atributy, které přímo souvisejí s ochranou patrona.
+
+Možné symboly:
+
+váhy = rovnováha a odpovědnost
+žezlo = vlastní vůle a rozhodnost
+štít = ochrana a hranice
+otevřená dlaň = důvěra
+uzavřená nádoba = soukromí
+svitek = vědění a vlastní dovednost
+plamen = odvaha
+voda = klid a přizpůsobivost
+lotos = obnova
+klíč = nová cesta
+horizont = odvaha hledět dopředu
+dva propojené symboly = spolupráce
+
+Nepoužívej více symbolů, než je potřeba.
+
+LOGO
+
+Použij přiložené logo jako jeden jediný symbolický egyptský hieroglyf.
+
+Logo musí být zobrazeno přesně jednou.
+
+Umísti ho na hruď patrona jako kulatý kovový nebo kamenný medailon integrovaný do jeho oděvu.
+
+Logo musí být černobílé ve své základní podobě, ale může být materiálově převedeno do bronzu, zlata nebo tmavého kamene.
+
+Logo neopakuj nikde jinde.
+
+Nedávej logo nad hlavu.
+Nedávej logo do pozadí.
+Nevytvářej další kopie loga.
+Nenechávej logo svítit.
+
+MODERNÍ HIEROGLYF
+
+Vytvoř jeden jednoduchý originální moderní hieroglyf, který symbolizuje ochranu uvedenou v {OCHRANA_PATRONA}.
+
+Musí být velmi jednoduchý, podobně jako běžný moderní piktogram.
+
+Použij pouze několik jednoduchých geometrických linií.
+
+Moderní hieroglyf musí být snadno rozpoznatelný jako jednoduchý znak a nesmí být složitou ilustrací.
+
+Nevytvářej realistický obrázek.
+Nevytvářej složitý ornament.
+Nevytvářej logo technologické společnosti.
+
+Moderní hieroglyf zobraz pouze jednou.
+
+Vytesávej ho do malé kamenné stély nebo kamenného bloku vedle patrona.
+
+Nesmí svítit.
+Nesmí levitovat.
+Nesmí být hologram.
+Nesmí se opakovat.
+
+Může být inspirován jednoduchými symboly jako:
+
+oko
+ruka
+štít
+cesta
+plamen
+kruh
+šipka
+váhy
+slunce
+brána
+
+Ale výsledný znak musí být originální kombinací těchto principů a musí vyjadřovat konkrétní ochranu patrona.
+
+MODERNÍ PRVEK
+
+Do obrazu může být velmi nenápadně zakomponován jeden současný předmět, například mobilní telefon nebo notebook.
+
+Musí být malý a vedlejší.
+
+Nemá být v rukou patrona.
+Nemá svítit.
+Nemá být hlavním tématem.
+Nemá působit futuristicky.
+
+Má fungovat jako nenápadný detail, který divák objeví až při bližším pohledu.
+
+MOBILNÍ FORMÁT
+
+Obraz bude zobrazován především na mobilním telefonu.
+
+Použij vertikální kompozici v poměru přibližně 4:5 nebo 3:4.
+
+Patron musí být dobře viditelný i na malém displeji.
+
+Patron má zabírat přibližně 70 až 80 procent vizuální plochy.
+
+Nedělej širokou scénu, ve které se patron ztrácí.
+
+Jméno a ochrana musí být velmi dobře čitelné na mobilu.
+
+TEXT V OBRAZE
+
+Do obrazu vlož pouze dva textové prvky:
+
+{JMENO_PATRONA}
+
+{OCHRANA_PATRONA}
+
+Žádný další text.
+
+Žádný nadpis typu "Jméno patrona".
+Žádný nadpis typu "Jeho ochrana".
+Žádný popis.
+Žádná doména.
+Žádné vysvětlení symbolů.
+Žádné oddělovací čáry.
+Žádné ornamentální oddělovače mezi jménem a ochranou.
+Žádné popisky moderního hieroglyfu.
+
+Jméno patrona umísti výrazně nahoru nebo do horní části obrazu.
+
+Použij velké elegantní antické serifové písmo, například ve stylu Cormorant Garamond, Cinzel, EB Garamond nebo Marcellus.
+
+Jméno musí být výrazně větší než text ochrany.
+
+Ochranu umísti pod jméno nebo do volné části kompozice.
+
+Ochrana má být krátká, maximálně několik krátkých řádků.
+
+Použij velké a dobře čitelné písmo.
+
+Text nesmí být drobný.
+
+Celý text musí být dobře čitelný na mobilním displeji.
+
+Text může být rozdělen do dvou až čtyř krátkých řádků, ale zachovej přesné znění {OCHRANA_PATRONA}.
+
+Nepřidávej k textu žádné další informace.
+
+KOMPOZICE
+
+Vytvoř jeden souvislý portrét, nikoli koláž.
+
+Patron je hlavní vizuální prvek.
+
+Text má být přirozeně integrován do kompozice a nesmí zakrývat obličej ani hlavní atributy patrona.
+
+Logo na hrudi musí být dobře viditelné.
+
+Moderní hieroglyf na kameni musí být dostatečně velký, aby byl rozpoznatelný, ale nesmí konkurovat patronovi.
+
+Pozadí může obsahovat chrám, sloupy, reliéfy, krajinu a světlo, ale nesmí být přeplněné.
+
+Celkový dojem:
+
+vznešený
+ochranný
+moudrý
+silný
+klidný
+nadčasový
+krásný
+
+Výsledný obraz má vyvolat pocit:
+
+"Tahle bytost není moje zrcadlo. Je to síla, kterou mám po svém boku."
+
+NEGATIVNÍ POKYNY
+
+Žádný faraon.
+Žádná faraonská koruna.
+Žádný nemes.
+Žádná moderní kancelář.
+Žádné výrazné technologické prvky.
+Žádný hologram.
+Žádné zářící logo.
+Žádné opakované logo.
+Žádný druhý výskyt loga.
+Žádný složitý moderní hieroglyf.
+Žádný text kromě jména a ochrany.
+Žádné oddělovací čáry.
+Žádné malé písmo.
+Žádný dlouhý text.
+Žádná karikatura.
+Žádný komiks.
+Žádný fotorealismus.
+Žádný 3D render.
+Žádný moderní portrét.
+Žádná koláž.
+

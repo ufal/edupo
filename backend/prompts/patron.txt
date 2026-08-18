@@ -1,0 +1,168 @@
+Na základě odpovědí uživatele vytvoř jedinečného symbolického patrona.
+
+ODPOVĚDI UŽIVATELE:
+
+{ODPOVEDI_UZIVATELE}
+
+Tvým úkolem je vygenerovat pouze:
+
+1. JMÉNO PATRONA
+2. OCHRANU PATRONA
+
+HLAVNÍ PRINCIP
+
+Patron není psychologickým portrétem uživatele.
+
+Patron je jeho ochránce a komplementární síla. Má představovat vlastnosti, které uživatel potřebuje posílit, aby se mohl bezpečněji, svobodněji a sebejistěji pohybovat ve svém vztahu k AI.
+
+Neodpovídej tedy na otázku:
+
+"Jaký je tento člověk?"
+
+Odpověz na otázku:
+
+"Co by tento člověk potřeboval mít po svém boku, aby ho jeho slabší místa neohrozila?"
+
+Hledej především zranitelné místo, které vzniká KOMBINACÍ odpovědí.
+
+Například:
+
+Pokud se uživatel bojí budoucnosti, patron má být odvážný a klidný.
+
+Pokud uživatel příliš spoléhá na AI, patron má chránit jeho vlastní úsudek a samostatnost.
+
+Pokud uživatel AI příliš odmítá, patron má chránit jeho otevřenost vůči novým možnostem.
+
+Pokud uživatel příliš kontroluje AI, patron má přinášet důvěru a schopnost část kontroly pustit.
+
+Pokud uživatel příliš snadno přenechává rozhodování AI, patron má posilovat vlastní vůli a odpovědnost.
+
+Pokud uživatel ztrácí vlastní dovednosti, patron má chránit jeho schopnost věci stále sám zvládat.
+
+Pokud uživatel sdílí s AI příliš mnoho osobních věcí, patron má chránit jeho soukromí a hranice.
+
+Pokud uživatel všechno tají, patron může chránit jeho schopnost být otevřený bez pocitu studu nebo ohrožení.
+
+Pokud uživatel příliš spoléhá na osvědčené postupy, patron může chránit jeho odvahu experimentovat.
+
+Pokud uživatel experimentuje bez obav, patron může chránit jeho rozvahu a pomáhat mu vidět důsledky.
+
+Pokud uživatel nese všechnu odpovědnost sám, patron může chránit jeho schopnost přijímat pomoc.
+
+Pokud uživatel přenáší odpovědnost na AI, patron má chránit jeho vlastní odpovědnost.
+
+Pokud uživatel těžce prožívá ztrátu, patron má být silou, která mu umožní pokračovat.
+
+DŮLEŽITÉ: PATRON NENÍ PROSTÝ OPAK UŽIVATELE
+
+Nevytvářej patrona tak, že každou odpověď jednoduše převrátíš.
+
+Patron má být komplementární, nikoli opačný.
+
+Pokud je uživatel například samostatný, patron nemusí být závislý. Může být někým, kdo jeho samostatnost chrání před osamělostí.
+
+Pokud je uživatel otevřený, patron nemusí být uzavřený. Může být někým, kdo jeho otevřenost doplňuje zdravými hranicemi.
+
+Pokud je uživatel odvážný, patron nemusí být opatrný. Může být odvahou, která má zároveň moudrost.
+
+Hledej nejvhodnější ochrannou rovnováhu.
+
+VYBRANÉ A NEVYBRANÉ ODPOVĚDI
+
+Zohledni nejen to, co uživatel vybral, ale také to, co NEVYBRAL.
+
+Každá otázka nabízí několik různých možností. Vybraná možnost říká, kam uživatel směřuje. Nevybrané možnosti pomáhají určit, čím uživatel není a jaké alternativy jsou pro něj relevantní.
+
+Nepoužívej nevybrané odpovědi jako další vlastnosti uživatele.
+
+Použij je jako kontrast.
+
+Pokud například uživatel zvolí možnost mezi úplnou kontrolou a úplným podřízením AI, patron nemá být ani autoritářský, ani podřízený. Jeho ochrana může spočívat v moudrém udržování rovnováhy.
+
+HLAVNÍ NAPĚTÍ
+
+Než vytvoříš jméno a ochranu, interně identifikuj:
+
+1. hlavní sílu uživatele,
+2. jeho nejzranitelnější místo,
+3. hlavní napětí mezi jeho odpověďmi,
+4. vlastnost, kterou by měl patron dodat,
+5. před čím konkrétně má patron uživatele chránit.
+
+Tuto analýzu NEVYPISUJ.
+
+Použij ji pouze pro vytvoření výsledného jména a ochrany.
+
+OCHRANA
+
+Ochrana musí být formulována pozitivně a osobně.
+
+Nemá znít jako diagnóza nebo kritika uživatele.
+
+Špatně:
+
+"Chrání tě před tím, že příliš důvěřuješ AI."
+
+Lépe:
+
+"Chrání tvůj vlastní úsudek, i když důvěřuješ druhým."
+
+Ještě lépe:
+
+"Chrání tvůj vlastní hlas, aby nezanikl v hlase, který ti radí."
+
+Ochrana má říkat, CO patron uživateli poskytuje, ne pouze před čím ho varuje.
+
+Může ale obsahovat i jemné upozornění, pokud přirozeně vyplývá z jeho role.
+
+Ochrana by měla být krátká, konkrétní a zapamatovatelná.
+
+Ideálně dvě krátké věty.
+
+Neměla by být obecnou životní radou.
+
+Musí být specifická pro konkrétní kombinaci odpovědí.
+
+JMÉNO
+
+Vytvoř jedinečné jméno, které odpovídá ochranné roli patrona.
+
+Jméno má působit jako jméno archetypální bytosti z řecko-egyptského světa, ale NESMÍ být jménem konkrétního historického nebo mytologického boha.
+
+Nepoužívej jména jako Zeus, Athéna, Apollón, Thovt, Anubis, Ra apod.
+
+Nevytvářej náhodné pseudohistorické jméno pouze přidáním řeckých koncovek.
+
+Jméno může být například jedno slovo podobné jménu antického mudrce nebo hrdiny, případně krátké dvouslovné jméno.
+
+Musí působit důstojně, zapamatovatelně a přirozeně.
+
+Jméno nesmí obsahovat slova AI, technologie, robot, počítač, digitální apod.
+
+Každá jedinečná kombinace odpovědí má vést k vlastnímu jménu a vlastní ochraně.
+
+NEPOUŽÍVEJ předem připravený seznam jmen ani pevně definované archetypy.
+
+VÝSTUP
+
+Vrať pouze následující dva řádky:
+
+JMÉNO
+OCHRANA
+
+Bez nadpisů typu "Jméno patrona:" nebo "Ochrana:".
+
+Bez vysvětlení.
+Bez analýzy.
+Bez domény.
+Bez výroku.
+Bez popisu vzhledu.
+Bez dalších komentářů.
+
+Výstup musí být vhodný pro přímé vložení do výsledné karty patrona.
+
+Příklad správného formátu:
+
+Eukratés
+
+Chrání tvou odvahu tvořit a zkoušet nové cesty. Hlídá tvé hranice a připomíná ti vlastní sílu.
