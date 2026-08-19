@@ -580,6 +580,7 @@ def call_generuj():
     # gather examples if author style is specified
     if params['author_name']:
         NUM_EXAMPLES = 5
+        db = get_db()
         if params['collection_style']:
             sql = 'SELECT poems.title, poems.body FROM poems, books WHERE poems.author=? AND books.id=poems.book_id AND books.title=?'
             poems = db.execute(sql, (params['author_name'],params['collection_style'])).fetchall()
@@ -587,7 +588,10 @@ def call_generuj():
             sql = 'SELECT title, body FROM poems WHERE author=?'
             poems = db.execute(sql, (params['author_name'],)).fetchall()
         
-        params['examples'] = TODO
+        params['examples'] = [
+            f"{poem['title']}\n\n{poem2text(poem)}"
+            for poem in random.sample(poems, min(NUM_EXAMPLES, len(poems)))
+        ]
 
     if params['frontend'] in CACHED_FRONTENDS:
         # serve a cached poem instantly and regenerate a fresh one in the background
