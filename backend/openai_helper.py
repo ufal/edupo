@@ -171,12 +171,12 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
         # simulate style of this author
         system = PROMPT_POEM_EXAMPLES.read_text()
         examples = "\n".join(["```text\n" + t + "\n```" for t in params['examples']])
-        system.replace('{XXX_REFERENCE_POEMS}', examples)
+        system = system.replace('{XXX_REFERENCE_POEMS}', examples)
     else:
         system = PROMPT_POEM_GENERAL.read_text()
 
     if params['language'] != 'Czech':
-        system = system.replace('Czech', params['language']).replace('CZECH', params['language'].upper())
+        system = system.replace('Czech', params['language'])
     
     # build user prompt
     
