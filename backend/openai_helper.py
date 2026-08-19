@@ -11,6 +11,18 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.INFO)
 
+from pathlib import Path
+PROMPTS_DIR = Path(__file__).parent / "prompts"
+
+PROMPT_POEM_GENERAL = PROMPTS_DIR / "poem_gen_general.txt"
+PROMPT_POEM_EXAMPLES = PROMPTS_DIR / "poem_gen_with_examples.txt"
+
+# temporary: patroni
+TEXT_PROMPT_FILE = PROMPTS_DIR / "patron.txt"
+IMAGE_PROMPT_FILE = PROMPTS_DIR / "patron_img.txt"
+LOGO_FILE = PROMPTS_DIR / "wifi_eye.png"
+
+
 # OpenAI key
 KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
 
@@ -153,65 +165,21 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
     if not 'language' in params:
         params['language'] = 'Czech'
 
-    REASONING = 'gpt-5' in model or 'gemini-3' in model
+    # build system prompt
 
-    if REASONING:
-        plan = "Begin with a concise checklist (3-7 bullets) of what you will do; keep items conceptual, not implementation-level. Do not print this checklist to the output, only create the checklist in the reasoning phase.\n"
-        validation = "After generating the poem, validate in 1-2 lines that all output requirements are met (correct header, stanza and line formatting, no extra content), and proceed or self-correct if not. Do not write the validation top the output, only do it in the reasoning phase.\n"
+    if params['examples']:
+        # simulate style of this author
+        system = PROMPT_POEM_EXAMPLES.read_text()
+        examples = "\n".join(["```text\n" + t + "\n```" for t in params['examples']])
+        system.replace('{XXX_REFERENCE_POEMS}', examples)
     else:
-        plan = ""
-        validation = ""
+        system = PROMPT_POEM_GENERAL.read_text()
 
-    system=f"""You are a renowned {params["language"]} poet, an expert in the {params["language"]} language known for your mastery of rich and poetic vocabulary. Unless otherwise instructed, compose poetry in a standard poetic metre such as trochee, iamb, or dactyl. Your poetry should evoke deep emotions and subtle feelings. Each verse should be on its own line, and stanzas must be separated by exactly one blank line.
-Do not rhyme the verses with identical words; use similar-sounding but different words.
-
-{plan}
-When generating output, strictly follow this sequence:
-- The first line must be formatted as 'Author Name: Poem Title'.
-- If both author and title are provided, use them exactly as given.
-- If only an author or only a title is provided, use the specified name and invent the missing detail.
-- If neither is provided, invent both the author and the title.
-
-Continue with the poem text, one verse per line, and insert a single blank line between stanzas, accurately preserving stanza structure.
-
-Do not explicitly mention the author name, the motives, or any other
-parameters in the text of the poem.
-
-{validation}
-Output must contain only the author name, poem title, and poem text. Do not include any additional commentary or formatting. Do not include any marks such as rhyme scheme or metre in the output, only write out the plain text of the poem.
-
-## Output Format
-Strictly use this structure:
-
-Author Name: Poem Title
-Verse 1
-Verse 2
-
-Verse 3
-Verse 4
-
-... etc.
-
-Segment the verses into stanzas separated by newlines; so e.g. if the stanzas
-have 4 verses each, then the format is:
-
-Author Name: Poem Title
-Verse 1
-Verse 2
-Verse 3
-Verse 4
-
-Verse 5
-Verse 6
-Verse 7
-Verse 8
-
-... etc.
-
-If a title and/or author is specified, use them exactly as given, inventing any missing part as needed. 
-Between stanzas, use exactly one blank line. 
-Do not output any other content or formatting."""
-
+    if params['language'] != 'Czech':
+        system = system.replace('Czech', params['language']).replace('CZECH', params['language'].upper())
+    
+    # build user prompt
+    
     prompt_parts = list()
     
     # FORM: prompting in English
@@ -311,6 +279,7 @@ Do not output any other content or formatting."""
         strophes = params['max_strophes'] if params['max_strophes'] else 4
         # max 50 per verse + title + author name
         max_tokens = 50 * verses * strophes + 100
+    REASONING = 'gpt-5' in model or 'gemini-3' in model
     if REASONING:
         # reasoning models: add reasoning tokens
         max_tokens += 70000
@@ -433,12 +402,6 @@ def generate_with_openai_streaming(model="gpt-4o-mini"):
         logging.exception("EXCEPTION Neúspěšné generování pomocí OpenAI.")
         return None
 
-
-from pathlib import Path
-PROMPTS_DIR = Path(__file__).parent / "prompts"
-TEXT_PROMPT_FILE = PROMPTS_DIR / "patron.txt"
-IMAGE_PROMPT_FILE = PROMPTS_DIR / "patron_img.txt"
-LOGO_FILE = PROMPTS_DIR / "wifi_eye.png"
 
 def generate_patron(answers_json):
     """
