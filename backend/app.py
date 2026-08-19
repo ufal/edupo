@@ -578,7 +578,7 @@ def call_generuj():
         params['max_tries'] = 1
 
     # gather examples if author style is specified
-    if params['author_name']:
+    if params.get('author_name'):
         NUM_EXAMPLES = 5
         db = get_db()
         if params['collection_style']:
