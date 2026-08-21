@@ -1544,12 +1544,6 @@ def call_like_count():
     count = get_like_count(poemid)
     return return_accepted_type(str(count), count, str(count))
 
-@app.route("/get_patron", methods=['GET', 'POST'])
-def get_patron():
-    answers = get_post_arg('answers')
-    result = generate_patron(answers)
-    return jsonify(result)
-
 @app.errorhandler(ExceptionPoemInvalid)
 def handle_exception(e):
     app.logger.exception('EXCEPTION')
