@@ -586,8 +586,10 @@ def call_generuj():
             sql = select + ' AND books.title=?'
             poems = db.execute(sql, (params['author_name'],params['collection_style'])).fetchall()
         elif params['author_name'] in collectionsByAuthor:
-            sql = select + ' AND books.title IN ' + str(tuple(collectionsByAuthor[params['author_name']]))
-            poems = db.execute(sql, (params['author_name'],)).fetchall()
+            collections = collectionsByAuthor[params['author_name']]
+            placeholders = ','.join('?' for _ in collections)
+            sql = select + f' AND books.title IN ({placeholders})'
+            poems = db.execute(sql, (params['author_name'],*collections)).fetchall()
         else:
             sql = 'SELECT title, body FROM poems WHERE author=?'
             poems = db.execute(sql, (params['author_name'],)).fetchall()
