@@ -522,7 +522,7 @@ def generuj_poem(params):
 
     return data
 
-
+from selected_collections import collectionsByAuthor
 @app.route("/gen", methods=['GET', 'POST'])
 def call_generuj():
     # empty or 'náhodně' means random
@@ -581,9 +581,13 @@ def call_generuj():
     if params.get('author_name'):
         NUM_EXAMPLES = 5
         db = get_db()
+        select = 'SELECT poems.title, poems.body FROM poems, books WHERE poems.author=? AND books.id=poems.book_id'
         if params['collection_style']:
-            sql = 'SELECT poems.title, poems.body FROM poems, books WHERE poems.author=? AND books.id=poems.book_id AND books.title=?'
+            sql = select + ' AND books.title=?'
             poems = db.execute(sql, (params['author_name'],params['collection_style'])).fetchall()
+        elif params['author_name'] in collectionsByAuthor:
+            sql = select + ' AND books.title IN ' + str(tuple(collectionsByAuthor[params['author_name']]))
+            poems = db.execute(sql, (params['author_name'],)).fetchall()
         else:
             sql = 'SELECT title, body FROM poems WHERE author=?'
             poems = db.execute(sql, (params['author_name'],)).fetchall()
