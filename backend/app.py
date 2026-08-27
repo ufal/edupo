@@ -15,6 +15,7 @@ from collections import defaultdict, Counter
 import re
 import random
 from openai_helper import *
+import html
 
 import requests
 
@@ -1015,11 +1016,11 @@ def call_translate():
     if language == 'sk':
         response = requests.post(
             'https://lindat.mff.cuni.cz/services/rest/cesilko/translate',
-            data={'data': poem2text(data)}
+            data={'data': poem2text(data).replace("\n", "\n\n")}
             )
         response.raise_for_status()
         response.encoding='utf8'
-        data['translations']['sk'] = response.json()['result']
+        data['translations']['sk'] = html.unescape(response.json()['result'])
     else:
         response = requests.post(
             'http://lindat.mff.cuni.cz/services/translation/api/v2/models/cs-uk',
