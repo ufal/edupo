@@ -882,6 +882,14 @@ def call_typfeatures():
     # TODO return_accepted_type -- now only text
     return Response(result, mimetype='text/plain')
 
+# TODO implement this
+def guess_form(data):
+    form = ''
+    if 'body' in data:
+        if len(data['body']) == 14:
+            form = 'Sonet'
+    return form
+
 # can be called from input on main page -> no id
 @app.route("/analyze", methods=['GET', 'POST'])
 def call_analyze():
@@ -913,6 +921,11 @@ def call_analyze():
                 parameters['metre'] = metre
         data['measures'] = get_measures_from_analyzed_poem(
                 data['body'], parameters)
+        if 'schemes' in data and data['schemes']['form']:
+            # form is annotated in data
+            data['form'] = data['schemes']['form']
+        else:
+            data['form'] = guess_form(data)
 
     store(data)
 

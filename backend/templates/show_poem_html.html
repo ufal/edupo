@@ -81,6 +81,12 @@
     <p class="mood">Automaticky určená nálada básně: <em>{{ mood }}</em></p>
     {% endif %}
 
+    {% if schemes and schemes.form %}
+    <p class="form">Forma básně: <em>{{ schemes.form }}</em></p>
+    {% elif form %}
+    <p class="form">Automaticky určená forma básně: <em>{{ form }}</em></p>
+    {% endif %}
+
     <div>
         <button onclick="set_style('plain')">Bez anotace</button>
         <button onclick="set_style('rich')">S anotací</button>
