@@ -21,6 +21,7 @@ níže...
 - **died** *(integer, nullable)* – Rok úmrtí autora.
 - **duplicate** *(integer)* – báseň je duplikátem básně s tímto id
 - **edition** *(integer)* – Číslo vydání knihy.
+- **form** *(string, nullable)* – Forma básně (např. Sonet), automaticky určená (nebo zkopírovaná ze schemes.form pokud existuje).
 - **id** *(integer)* – Unikátní ID básně (**poemid**).
 - **identity** *(string)* – Identifikátor autora.
 - **imgfile** *(string, nullable)* – Cesta k souboru s vygenerovaným obrázkem.
@@ -38,7 +39,7 @@ níže...
 - **present_metres** *(array, nullable)* – Seznam metrických schémat v básni.
 - **publisher** *(string, nullable)* – Vydavatel knihy.
 - **schemes** *(object)* – Informace o schématu rýmů a formě básně.
-  - **form** *(string, nullable)* – Forma básně (např. sonet).
+  - **form** *(string, nullable)* – Forma básně (např. Sonet), pokud je anotována v korpuse.
   - **rhyme_scheme** *(array)* – Seznam schémat rýmů (TODO asi je prázdný).
   - **rhymed** *(boolean)* – Indikátor, zda báseň obsahuje rým.
   - **stanza_scheme** *(array)* – Seznam schémat slok (délky veršů ve slokách).
