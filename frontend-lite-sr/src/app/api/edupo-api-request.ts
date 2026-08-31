@@ -33,7 +33,7 @@ export class EdupoGenRequest extends Deserializable
     public rhymed:string = "";
 
     @Deserialize()
-    public temperature:number = 0.7;
+    public temperature:number = 0.71;
 
     @Deserialize()
     public frontend:string = "";

@@ -6,7 +6,7 @@
     "api_default_params" : 
     {
         "frontend" : "lite",
-        "temperature" : 0.7,
+        "temperature" : 0.71,
         "language" : "Serbian"
     },
     "animation_speed" : 100,

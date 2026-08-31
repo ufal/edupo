@@ -133,6 +133,8 @@ FORM_EN = {
 MOOD_EN = {
     'veselá': 'happy',
     'smutná': 'sad',
+    'vesela': 'happy',
+    'tužna': 'sad',
 }
 
 LENGTH_EN = {
