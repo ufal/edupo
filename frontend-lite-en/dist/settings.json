@@ -14,7 +14,7 @@
     [
         {    "x": 0.3,  "y": 0.125,   "parameter" : "old_style",           "label" : "Old<br/>style",          "value" : "old" },
         {    "x": 0.5,  "y": 0.125,   "parameter" : "old_style",           "label" : "Modern<br/>style",       "value" : "modern"  },
-        {    "x": 0.7,  "y": 0.125,   "parameter" : "old_style",           "label" : "Contemporary<br/>style", "value" : "contemporary" },
+        {    "x": 0.7,  "y": 0.125,   "parameter" : "old_style",           "label" : "Current<br/>style",      "value" : "contemporary" },
 
         {    "x": 0.2,  "y": 0.375,   "parameter" : "syllables_count",    "label" : "Short lines",   "value" : "short"  },
         {    "x": 0.4,  "y": 0.375,   "parameter" : "syllables_count",    "label" : "Long lines",    "value" : "long" },
