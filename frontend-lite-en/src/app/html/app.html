@@ -1,0 +1,52 @@
+<div id="epl_app">
+    
+    <div id="epl_header">
+        <h1>Mix Your Own Poem</h1>
+    </div>            
+
+    <div id="epl_ingredients">
+        <div id="epl_instructions">
+            <div id="epl_instruction_1">Add ingredients to the beaker and start the reaction</div>
+            <div id="epl_instruction_2">Add ingredients to the beaker and start the reaction</div>
+        </div>
+        <div id="epl_ingredients_container"></div>    
+    </div>
+
+    <div id="epl_drag_container">
+        <div id="epl_jar_wrapper">
+            <div id="epl_jar">
+                <img id="epl_jar_back" src="assets/jar_back.png" draggable="false">            
+                <img id="epl_jar_front" src="assets/jar_front.png">
+                <div id="epl_jar_dropzone"></div>            
+            </div>
+        </div>
+    </div>                
+
+    <div id="epl_result_modal">
+        <div id="epl_result_panel">
+            <div id="epl_result"></div>        
+            <div id="epl_result_buttons">
+                <button id="epl_btn_close" onclick="app.closeResult()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="epl_timeout_modal">
+        <div id="epl_timeout_panel">
+            <div>Still there? The application will restart in&nbsp;<span id="epl_timeout_count">10</span>&nbsp;s</div>
+            <button id="epl_btn_stay" onclick="app.cancelRestart()">I'm still reading!</button>
+        </div>
+    </div>
+
+    <div id="epl_waiting_modal">
+        <div id="epl_waiting_modal_content">
+            <img id="epl_waiting_progress" src="assets/progress_80.png">
+            <span>Mixing your poem</span>
+        </div>
+        
+    </div>
+
+    <button id="epl_btn_generate" onclick="app.generate()"><img src="assets/stars.svg" style="height:1em; margin-right:0.5em">&nbsp;Start the reaction!</button>
+    <button id="epl_btn_reset" onclick="app.resetAll()" title="Return ingredients">↺</button>
+</div>
+

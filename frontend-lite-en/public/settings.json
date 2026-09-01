@@ -1,0 +1,56 @@
+{
+    "version" : "1.0",
+    "api_url" : "https://edupo.cz/api/",
+    "share_url" : "https://quest.ms.mff.cuni.cz/edupo/?viewMode=reading&controls=poem&poemId={0}",
+
+    "api_default_params" : 
+    {
+        "frontend" : "lite",
+        "temperature" : 0.72,
+        "language" : "English"
+    },
+    "animation_speed" : 100,
+    "ingredients" : 
+    [
+        {    "x": 0.3,  "y": 0.125,   "parameter" : "old_style",           "label" : "Old<br/>style",          "value" : "old" },
+        {    "x": 0.5,  "y": 0.125,   "parameter" : "old_style",           "label" : "Modern<br/>style",       "value" : "modern"  },
+        {    "x": 0.7,  "y": 0.125,   "parameter" : "old_style",           "label" : "Contemporary<br/>style", "value" : "contemporary" },
+
+        {    "x": 0.2,  "y": 0.375,   "parameter" : "syllables_count",    "label" : "Short lines",   "value" : "short"  },
+        {    "x": 0.4,  "y": 0.375,   "parameter" : "syllables_count",    "label" : "Long lines",    "value" : "long" },
+        {    "x": 0.6,  "y": 0.375,   "parameter" : "poem_length",        "label" : "Short poem",    "value" : "short"  },
+        {    "x": 0.8,  "y": 0.375,   "parameter" : "poem_length",        "label" : "Long poem",     "value" : "medium" },
+
+        {    "x": 0.1,  "y": 0.625,   "parameter" : "motives",            "label" : "About<br/>love",    "value" : "love"  },
+        {    "x": 0.3,  "y": 0.625,   "parameter" : "motives",            "label" : "About<br/>nature",  "value" : "nature" },
+        {    "x": 0.5,  "y": 0.625,   "parameter" : "motives",            "label" : "About<br/>the city", "value" : "city"  },
+        {    "x": 0.7,  "y": 0.625,   "parameter" : "motives",            "label" : "About<br/>family",  "value" : "family" },
+        {    "x": 0.9,  "y": 0.625,   "parameter" : "motives",            "label" : "About<br/>time",    "value" : "time"  },
+
+        {    "x": 0.2,  "y": 0.875,   "parameter" : "mood",               "label" : "Happy",          "value" : "happy" },
+        {    "x": 0.4,  "y": 0.875,   "parameter" : "mood",               "label" : "Sad",            "value" : "sad" },        
+        {    "x": 0.6,  "y": 0.875,   "parameter" : "rhymed",             "label" : "Rhymed",         "value" : "yes" },
+        {    "x": 0.8,  "y": 0.875,   "parameter" : "rhymed",             "label" : "Unrhymed",       "value" : "no" }
+    ],
+    "colors" :
+    {
+        "old_style"         : "#008769",
+        "syllables_count"   : "#247a9a",
+        "rhymed"            : "#6F491B",
+        "poem_length"       : "#C9A831",
+        "mood"              : "#CE3636",
+        "motives"           : "#7949a3"
+    },
+    "position_shuffle" : false,
+    "position_jitter_x" : 0, 
+    "position_jitter_y" : 0,
+    "target_points" :
+    [
+        { "x" : 0.3    , "y" : 0.5  },
+        { "x" : 0.5    , "y" : 0.55 },
+        { "x" : 0.75   , "y" : 0.52 },
+        { "x" : 0.3    , "y" : 0.7  },
+        { "x" : 0.5    , "y" : 0.75 },
+        { "x" : 0.75   , "y" : 0.75 }
+    ]
+}
