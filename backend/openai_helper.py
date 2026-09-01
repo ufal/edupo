@@ -135,6 +135,8 @@ MOOD_EN = {
     'smutná': 'sad',
     'vesela': 'happy',
     'tužna': 'sad',
+    'happy': 'happy',
+    'sad': 'sad',
 }
 
 LENGTH_EN = {
@@ -259,6 +261,18 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
             prompt_parts.extend(params['motives'])
         prompt_parts.append(f"\n")
         prompt_parts.append(f"Sada napiši pesmu na srpskom prema ovom zadatku.")    
+    elif params['language'] == 'English':
+        if params['author_name'] and params['author_name'] != 'Anonymous':
+            prompt_parts.append(f"The poem should be in the style of the well-known author {params['author_name']}.")
+        if params['collection_style']:
+            prompt_parts.append(f"The poem's style should match the author's collection {params['collection_style']}.")
+        if params['title'] and params['title'] != 'Untitled':
+            prompt_parts.append(f"The poem's title is: {params['title']}.")
+        if params['motives']:
+            prompt_parts.append("The poem should include the following themes:")
+            prompt_parts.extend(params['motives'])
+        prompt_parts.append("\n")
+        prompt_parts.append("Now write an English poem that follows these instructions.")
 
     # TODO anaphors, epanastrophes
     prompt = ' '.join(prompt_parts)
@@ -446,5 +460,3 @@ if __name__=="__main__":
 
     if GEN_STREAM:
         generate_with_openai_streaming()
-
-
