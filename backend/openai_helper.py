@@ -247,6 +247,8 @@ def generate_poem_with_openai(params, model="gpt-4o-mini"):
         if params['motives']:
             prompt_parts.append(f"V básni se objevují následující motivy:")
             prompt_parts.extend(params['motives'])
+        if params['add_random_word']:
+            prompt_parts.append(f"Báseň by se navíc měla částečně týkat následujícího tématu: {params['random_word']}")
         prompt_parts.append(f"\n")
         prompt_parts.append(f"Nyní napiš českou báseň dle tohoto zadání.")
     elif params['language'] == 'Serbian':

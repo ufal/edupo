@@ -577,6 +577,11 @@ def call_generuj():
     params['max_tries'] = int(get_post_arg('max_tries', '1', True))
     if params['max_tries'] < 1:
         params['max_tries'] = 1
+    
+    params['add_random_word'] = get_post_arg('add_random_word', True)
+    if params['add_random_word']:
+        with open('nouns.txt') as nouns:
+            params['random_word'] = random.choice(nouns.readlines()).rstrip('\n')
 
     # gather examples if author style is specified
     if params.get('author_name'):
