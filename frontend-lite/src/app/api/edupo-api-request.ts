@@ -38,6 +38,9 @@ export class EdupoGenRequest extends Deserializable
     @Deserialize()
     public frontend:string = "";
 
+    @Deserialize()
+    public add_random_word:boolean = true;
+
     // @Deserialize()
     // public metre: string = "";
 

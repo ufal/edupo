@@ -578,7 +578,7 @@ def call_generuj():
     if params['max_tries'] < 1:
         params['max_tries'] = 1
     
-    params['add_random_word'] = get_post_arg('add_random_word', True)
+    params['add_random_word'] = bool(get_post_arg('add_random_word', False))
     if params['add_random_word']:
         with open('nouns.txt') as nouns:
             params['random_word'] = random.choice(nouns.readlines()).rstrip('\n')
