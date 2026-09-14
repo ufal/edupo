@@ -78,6 +78,68 @@ export async function fetchPoemApi(
   })
 }
 
+type SavePoemParams = {
+  author?: string
+  title?: string
+  text: string
+}
+
+function getPoemIdFromInputResponse(response: unknown): string {
+  if (typeof response === 'string') {
+    const poemId = response.trim()
+
+    if (poemId) return poemId
+  }
+
+  if (typeof response === 'number') {
+    return String(response)
+  }
+
+  if (response && typeof response === 'object') {
+    const value = 'poemid' in response
+      ? response.poemid
+      : 'id' in response
+        ? response.id
+        : undefined
+
+    if (typeof value === 'string') {
+      const poemId = value.trim()
+
+      if (poemId) return poemId
+    }
+
+    if (typeof value === 'number') {
+      return String(value)
+    }
+  }
+
+  throw new Error('Edupo API returned an invalid poem ID from "input".')
+}
+
+export async function savePoemApi(
+  params: SavePoemParams,
+): Promise<string> {
+  const response = await apiGetJson<unknown>('input', {
+    accept: 'json',
+    author: params.author,
+    title: params.title,
+    text: params.text,
+  })
+
+  return getPoemIdFromInputResponse(response)
+}
+
+export async function regeneratePoemLineApi(
+  poemId: string | number,
+  badLine: string,
+): Promise<GeneratePoemResponse> {
+  return apiGetJson<GeneratePoemResponse>('regen', {
+    poemid: poemId,
+    badline: badLine,
+    accept: 'json',
+  })
+}
+
 const METRUM_TO_BACKEND: Record<PoemMetrum, string> = {
   trochej: 'T',
   jamb: 'J',

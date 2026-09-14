@@ -11,7 +11,9 @@ import {
   fetchAnalysisApi,
   fetchPoemApi,
   generatePoemApi,
-  sendLikeApi
+  regeneratePoemLineApi,
+  savePoemApi,
+  sendLikeApi,
 } from '@/services/api/edupo-api'
 import type { AnalysisResponse, GeneratePoemParams } from '@/types/edupo-api'
 
@@ -32,8 +34,10 @@ const demoPoem: Poem = {
   id: 'demo-poem-1',
   title: 'Nač ještě vzpomínat',
   text: demoLines.map((line) => line.text).join('\n'),
+  originalText: demoLines.map((line) => line.text).join('\n'),
   lines: demoLines,
   createdAt: new Date().toISOString(),
+  source: 'local',
 }
 
 function parseRhymeLetter(value: string | null | undefined): PoemLineGroup {
@@ -164,6 +168,7 @@ type PoemState = {
   loadPoemById: (poemId: string) => Promise<Poem>
   loadPoemAnalysis: (poemId: string) => Promise<void>
   generatePoem: () => Promise<Poem>
+  regeneratePoemLine: (lineId: string) => Promise<Poem>
   updatePoemLine: (lineId: string, text: string) => void
   addPoemLine: () => string | null
   removePoemLine: (lineId: string) => void
@@ -398,6 +403,65 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     }
   },
 
+  regeneratePoemLine: async (lineId: string) => {
+    const poem = get().poem
+
+    if (!poem) {
+      throw new Error('No poem is loaded.')
+    }
+
+    const line = poem.lines?.find((item) => item.id === lineId)
+
+    if (!line || !line.text.trim()) {
+      throw new Error('The selected poem line is empty or missing.')
+    }
+
+    set({
+      status: 'loading',
+      error: null,
+      analysisStatus: 'idle',
+      analysisError: null,
+    })
+
+    try {
+      const hasUnsavedChanges =
+        poem.source !== 'backend' ||
+        poem.originalText === undefined ||
+        poem.text !== poem.originalText
+
+      const poemId = hasUnsavedChanges
+        ? await savePoemApi({
+            author: poem.authorName,
+            title: poem.title,
+            text: poem.text,
+          })
+        : poem.id
+
+      const response = await regeneratePoemLineApi(poemId, line.text)
+      const regeneratedPoem = mapPoemResponseToPoem(response)
+
+      set({
+        poem: regeneratedPoem,
+        status: 'success',
+        error: null,
+        mode: 'editing',
+      })
+
+      void get().loadPoemAnalysis(regeneratedPoem.id)
+
+      return regeneratedPoem
+    } catch (error) {
+      console.error(error)
+
+      set({
+        status: 'error',
+        error: 'Nepodařilo se navrhnout úpravu verše.',
+      })
+
+      throw error
+    }
+  },
+
   updatePoemLine: (lineId, text) =>
     set((state) => {
       if (!state.poem) return state
@@ -537,7 +601,10 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     set({
       poem: {
         ...sample.poem,
+        authorName: sample.author,
+        originalText: sample.poem.text,
         createdAt: new Date().toISOString(),
+        source: 'local',
       },
       status: 'success',
       analysisStatus: 'success',

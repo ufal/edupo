@@ -22,9 +22,11 @@ export function mapPoemResponseToPoem(
   return {
     id: response.id,
     title: response.title,
+    authorName: response.author_name,
     text: normalizedText,
     originalText: normalizedText,
     lines,
     createdAt: new Date().toISOString(),
+    source: 'backend',
   }
 }

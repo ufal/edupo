@@ -1,19 +1,25 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 import { toast } from 'sonner'
-import { MAX_POEM_LINES, usePoemStore } from '@/stores/poem-store'
+import { usePoemStore } from '@/stores/poem-store'
 import { AppIcon } from '@/components/icons/app-icon'
 import { getPoemLines, PoemCardActions, PoemEmptyState } from './poem-view-utils'
 import { SmartWrappedVerseText } from '@/components/ui/smart-wrapped-verse-text'
-import { X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useUiStore } from '@/stores/ui-store'
 
 export function PoemEditingView() {
+  const router = useRouter()
   const poem = usePoemStore((state) => state.poem)
+  const regeneratePoemLine = usePoemStore(
+    (state) => state.regeneratePoemLine,
+  )
   const updatePoemLine = usePoemStore((state) => state.updatePoemLine)
   const addPoemLine = usePoemStore((state) => state.addPoemLine)
   const removePoemLine = usePoemStore((state) => state.removePoemLine)
+  const openOverlay = useUiStore((state) => state.openOverlay)
+  const closeOverlay = useUiStore((state) => state.closeOverlay)
 
   const lines = getPoemLines(poem)
   const [activeLineId, setActiveLineId] = useState<string | null>(null)
@@ -45,16 +51,24 @@ export function PoemEditingView() {
     setActiveLineId(null)
   }
 
-  function handleAddLine() {
-    const newLineId = addPoemLine()
+  async function handleRegenerateLine(lineId: string) {
+    openOverlay('generation')
 
-    if (newLineId) {
-      setActiveLineId(newLineId)
+    try {
+      const regeneratedPoem = await regeneratePoemLine(lineId)
+      const base = process.env.NEXT_PUBLIC_LINK_BASE || '/'
+
+      router.replace(
+        `${base}dashboard?poemId=${encodeURIComponent(regeneratedPoem.id)}&viewMode=editing`,
+      )
+    } catch (error) {
+      console.error(error)
+      toast.error(
+        'Nepodařilo se navrhnout úpravu verše. Zkuste to prosím znovu.',
+      )
+    } finally {
+      closeOverlay()
     }
-  }
-
-  function displayInProgress() {
-    toast.error('Funkce zatím není dostupná')
   }
 
   return (
@@ -69,19 +83,8 @@ export function PoemEditingView() {
           return (
             <div
               key={line.id}
-              className="grid grid-cols-[32px_32px_minmax(0,1fr)_32px] items-start gap-2"
+              className="grid grid-cols-[32px_minmax(0,1fr)_32px] items-start gap-2"
             >
-              <button
-                type="button"
-                aria-label="Smazat verš"
-                onClick={() => removePoemLine(line.id)}
-                className={`${buttonCls} text-zinc-700 ${
-                  isActive ? 'bg-yellow-300' : 'bg-grey-50'
-                }`}
-              >
-                <X className="h-4 w-4" />
-              </button>
-
               <button
                 type="button"
                 aria-label="Upravit verš"
@@ -130,7 +133,7 @@ export function PoemEditingView() {
               <button
                 type="button"
                 aria-label="Navrhnout úpravu verše"
-                onClick={() => displayInProgress()}
+                onClick={() => void handleRegenerateLine(line.id)}
                 className="grid size-8 place-items-center rounded-xl bg-teal-700 text-white cursor-pointer"
               >
                 <AppIcon name="starsBold" size={18} />
@@ -139,22 +142,6 @@ export function PoemEditingView() {
           )
         })}
       </div>
-
-      {lines.length < MAX_POEM_LINES && (
-        <button
-          type="button"
-          aria-label="Přidat verš"
-          onClick={handleAddLine}
-          className="mx-auto mt-5 grid size-8 place-items-center rounded-xl bg-teal-700"
-        >
-          <Image
-            src={(process.env.NEXT_PUBLIC_LINK_BASE || '/') + 'assets/icons/plus.svg'}
-            alt=""
-            width={15}
-            height={15}
-          />
-        </button>
-      )}
 
       <PoemCardActions />
     </div>

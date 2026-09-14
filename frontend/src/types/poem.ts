@@ -33,8 +33,10 @@ export type PoemLine = {
 export type Poem = {
   id: string
   title?: string
+  authorName?: string
   text: string
   originalText?: string
   lines?: PoemLine[]
   createdAt?: string
+  source?: 'backend' | 'local'
 }

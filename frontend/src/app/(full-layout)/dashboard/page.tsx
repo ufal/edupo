@@ -21,7 +21,6 @@ function DashboardPageContent() {
   const poemId = searchParams.get('poemId')
   const viewMode = searchParams.get('viewMode')
 
-  const poem = usePoemStore((state) => state.poem)
   const setMode = usePoemStore((state) => state.setMode)
   const loadPoemById = usePoemStore((state) => state.loadPoemById)
 
@@ -37,10 +36,13 @@ function DashboardPageContent() {
 
   useEffect(() => {
     if (!poemId) return
-    if (poem?.id === poemId) return
+
+    const currentPoem = usePoemStore.getState().poem
+
+    if (currentPoem?.id === poemId) return
 
     void loadPoemById(poemId)
-  }, [poemId, poem?.id, loadPoemById])
+  }, [poemId, loadPoemById])
 
   return <DashboardScreen />
 }
