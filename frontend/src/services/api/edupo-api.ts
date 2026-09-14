@@ -1,8 +1,4 @@
 import type { PoemForm, PoemMetrum } from '@/types/poem'
-
-import { DEFAULT_MAX_STROPHES } from '@/config/poem-param-max-strophes'
-import { DEFAULT_MODEL_SPEC } from '@/config/poem-param-model'
-
 import { apiGetJson, apiGetText } from './http-client'
 
 import type {
@@ -192,7 +188,7 @@ export async function generatePoemApi(
 
   return apiGetJson<GeneratePoemResponse>('gen', {
     accept: 'json',
-    modelspec: params.modelSpec ?? DEFAULT_MODEL_SPEC,
+    modelspec: params.modelSpec,
     
     title: params.title,
     motives: params.motifs?.join('\n'),
@@ -203,7 +199,7 @@ export async function generatePoemApi(
       : undefined,
 
     verses_count: shouldSendVerseCount ? params.verseCount : undefined,
-    max_strophes: params.maxStrophes ?? DEFAULT_MAX_STROPHES,
+    max_strophes: params.maxStrophes,
     rhyme_scheme: shouldSendRhymeScheme ? params.rhymeScheme : undefined,
     syllables_count: shouldSendFirstVerseLength ? params.firstVerseLength : undefined,
     temperature: params.temperature,

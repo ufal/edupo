@@ -65,10 +65,16 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
     (state) => state.params.maxStrophes,
   )
 
+  useEffect(() => {
+    if (typeof storedMaxStrophes !== 'number') {
+      updateParams({
+        maxStrophes: DEFAULT_MAX_STROPHES,
+      })
+    }
+  }, [storedMaxStrophes, updateParams])
+
   const maxStrophes =
-    typeof storedMaxStrophes === 'number'
-      ? storedMaxStrophes
-      : DEFAULT_MAX_STROPHES
+    storedMaxStrophes ?? DEFAULT_MAX_STROPHES
 
   const [maxStrophesInputValue, setMaxStrophesInputValue] = useState(
     String(maxStrophes),

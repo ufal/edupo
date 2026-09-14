@@ -51,9 +51,20 @@ export function DesktopTemperaturePanel({
     setInputValue(temperature.toFixed(1))
   }, [temperature])
 
+  const storedModelSpec = usePoemStore(
+    (state) => state.params.modelSpec,
+  )
+
+  useEffect(() => {
+    if (!storedModelSpec) {
+      updateParams({
+        modelSpec: DEFAULT_MODEL_SPEC,
+      })
+    }
+  }, [storedModelSpec, updateParams])
+
   const modelSpec =
-    usePoemStore((state) => state.params.modelSpec) ??
-    DEFAULT_MODEL_SPEC
+    storedModelSpec ?? DEFAULT_MODEL_SPEC
 
   return (
     <DesktopSidePanelShell

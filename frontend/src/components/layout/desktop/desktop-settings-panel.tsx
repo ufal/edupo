@@ -3,8 +3,6 @@
 import type { ReactNode } from 'react'
 import { AppIcon, type IconName } from '@/components/icons/app-icon'
 import { usePoemStore } from '@/stores/poem-store'
-import { DEFAULT_MAX_STROPHES } from '@/config/poem-param-max-strophes'
-import { DEFAULT_MODEL_SPEC } from '@/config/poem-param-model'
 
 const FORM_LABELS = {
   free: 'Volná forma',
@@ -78,9 +76,10 @@ export function DesktopSettingsPanel() {
       ? params.temperature.toFixed(1)
       : 'Nenastaveno'
 
-  const maxStrophesLabel = `${
-    params.maxStrophes ?? DEFAULT_MAX_STROPHES
-  }`
+  const maxStrophesLabel =
+    typeof params.maxStrophes === 'number'
+      ? `${params.maxStrophes}`
+      : 'Nenastaveno'
 
   const moodLabel =
     params.mood === 'veselá'
@@ -90,7 +89,7 @@ export function DesktopSettingsPanel() {
         : 'Nenastaveno'
 
   const modelSpecLabel =
-    params.modelSpec ?? DEFAULT_MODEL_SPEC
+    params.modelSpec ?? 'Nenastaveno'
 
   const settingsItems: SettingsItem[] = [
     {

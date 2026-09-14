@@ -54,9 +54,13 @@ export function SettingsOverview() {
       ? params.temperature.toFixed(1)
       : 'Nenastaveno'
 
-    const maxStrophesLabel = `${
-      params.maxStrophes ?? DEFAULT_MAX_STROPHES
-    }`
+  const maxStrophesLabel =
+    typeof params.maxStrophes === 'number'
+      ? `${params.maxStrophes}`
+      : 'Nenastaveno'
+
+  const modelSpecLabel =
+    params.modelSpec ?? 'Nenastaveno'
 
     const moodLabel =
       params.mood === 'veselá'
@@ -64,9 +68,6 @@ export function SettingsOverview() {
         : params.mood === 'smutná'
           ? 'Smutná'
           : 'Nenastaveno'
-
-    const modelSpecLabel =
-      params.modelSpec ?? DEFAULT_MODEL_SPEC
 
   return (
     <div className="flex flex-col gap-6 px-5 py-5">

@@ -55,6 +55,14 @@ export function DesktopVerseCountPanel({
     (state) => state.params.maxStrophes,
   )
 
+  useEffect(() => {
+    if (typeof storedMaxStrophes !== 'number') {
+      updateParams({
+        maxStrophes: DEFAULT_MAX_STROPHES,
+      })
+    }
+  }, [storedMaxStrophes, updateParams])
+
   const maxStrophes =
     typeof storedMaxStrophes === 'number'
       ? storedMaxStrophes
