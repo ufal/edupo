@@ -1,5 +1,8 @@
 import type { PoemForm, PoemMetrum } from '@/types/poem'
 
+import { DEFAULT_MAX_STROPHES } from '@/config/poem-param-max-strophes'
+import { DEFAULT_MODEL_SPEC } from '@/config/poem-param-model'
+
 import { apiGetJson, apiGetText } from './http-client'
 
 import type {
@@ -189,16 +192,18 @@ export async function generatePoemApi(
 
   return apiGetJson<GeneratePoemResponse>('gen', {
     accept: 'json',
-    modelspec: 'google/gemini-3.1-pro-preview',
+    modelspec: params.modelSpec ?? DEFAULT_MODEL_SPEC,
     
     title: params.title,
     motives: params.motifs?.join('\n'),
+    mood: params.mood,
     form: params.form,
     metre: params.metrum
       ? METRUM_TO_BACKEND[params.metrum]
       : undefined,
 
     verses_count: shouldSendVerseCount ? params.verseCount : undefined,
+    max_strophes: params.maxStrophes ?? DEFAULT_MAX_STROPHES,
     rhyme_scheme: shouldSendRhymeScheme ? params.rhymeScheme : undefined,
     syllables_count: shouldSendFirstVerseLength ? params.firstVerseLength : undefined,
     temperature: params.temperature,

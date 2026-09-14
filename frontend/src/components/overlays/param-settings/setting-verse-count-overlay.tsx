@@ -1,6 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import {
+  DEFAULT_MAX_STROPHES,
+  MAX_STROPHES,
+  MIN_STROPHES,
+  STROPHE_COUNT_STEP,
+  isValidMaxStrophes,
+  getRandomMaxStrophes
+} from '@/config/poem-param-max-strophes'
 import { ShellOverlay } from '../shell-overlay'
 import { ShellControlPanel } from '../shell-control-panel'
 import { LockedParamOverlay } from './locked-param-overlay'
@@ -52,6 +60,23 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
 
   const form = usePoemStore((state) => state.params.form)
   const isEditable = true //!form || form === 'free' || form === 'epigram'
+
+  const storedMaxStrophes = usePoemStore(
+    (state) => state.params.maxStrophes,
+  )
+
+  const maxStrophes =
+    typeof storedMaxStrophes === 'number'
+      ? storedMaxStrophes
+      : DEFAULT_MAX_STROPHES
+
+  const [maxStrophesInputValue, setMaxStrophesInputValue] = useState(
+    String(maxStrophes),
+  )
+
+  useEffect(() => {
+    setMaxStrophesInputValue(String(maxStrophes))
+  }, [maxStrophes])
 
   if (!isEditable) {
     return (
@@ -122,18 +147,73 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
           }}
         />
 
+        <section className="mt-12 border-t border-grey-200 pt-8">
+          <p className="typo-large text-grey-700">
+            Nastavte maximální počet slok
+          </p>
+
+          <div className="mt-8 flex items-center gap-5">
+            <label className="typo-body font-semibold text-grey-900">
+              Maximální počet slok
+            </label>
+
+            <Input
+              type="number"
+              min={MIN_STROPHES}
+              max={MAX_STROPHES}
+              step={STROPHE_COUNT_STEP}
+              value={maxStrophesInputValue}
+              className="min-w-0 flex-1"
+              onChange={(event) => {
+                const nextInputValue = event.target.value
+                setMaxStrophesInputValue(nextInputValue)
+
+                const nextValue = Number(nextInputValue)
+
+                if (!isValidMaxStrophes(nextValue)) return
+
+                updateParams({ maxStrophes: nextValue })
+              }}
+              onBlur={() => {
+                setMaxStrophesInputValue(String(maxStrophes))
+              }}
+            />
+          </div>
+
+          <Slider
+            colorTheme="green"
+            className="mt-7"
+            min={MIN_STROPHES}
+            max={MAX_STROPHES}
+            step={STROPHE_COUNT_STEP}
+            value={[maxStrophes]}
+            onValueChange={(value) => {
+              updateParams({
+                maxStrophes: value[0] ?? maxStrophes,
+              })
+            }}
+          />
+        </section>
+
         <Button
           type="button"
           variant="primary"
           size="md"
           className="mt-7 px-10"
           onClick={() => {
-            updateParams({ verseCount: getRandomVerseCount() })
+            const maxStrophes = getRandomMaxStrophes();
+            console.log('Random maxStrophes:', maxStrophes);
+
+            updateParams({
+              verseCount: getRandomVerseCount(),
+              maxStrophes: maxStrophes
+            })
           }}
         >
           Nastavit náhodně
         </Button>
       </div>
+
     </ShellOverlay>
   )
 }

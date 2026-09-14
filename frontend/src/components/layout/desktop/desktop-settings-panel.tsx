@@ -3,6 +3,8 @@
 import type { ReactNode } from 'react'
 import { AppIcon, type IconName } from '@/components/icons/app-icon'
 import { usePoemStore } from '@/stores/poem-store'
+import { DEFAULT_MAX_STROPHES } from '@/config/poem-param-max-strophes'
+import { DEFAULT_MODEL_SPEC } from '@/config/poem-param-model'
 
 const FORM_LABELS = {
   free: 'Volná forma',
@@ -76,6 +78,20 @@ export function DesktopSettingsPanel() {
       ? params.temperature.toFixed(1)
       : 'Nenastaveno'
 
+  const maxStrophesLabel = `${
+    params.maxStrophes ?? DEFAULT_MAX_STROPHES
+  }`
+
+  const moodLabel =
+    params.mood === 'veselá'
+      ? 'Veselá'
+      : params.mood === 'smutná'
+        ? 'Smutná'
+        : 'Nenastaveno'
+
+  const modelSpecLabel =
+    params.modelSpec ?? DEFAULT_MODEL_SPEC
+
   const settingsItems: SettingsItem[] = [
     {
       icon: 'book',
@@ -85,15 +101,37 @@ export function DesktopSettingsPanel() {
           Název: {titleLabel}
           <br />
           Motiv: {motifsLabel}
+          <br />
+          Nálada: {moodLabel}
         </>
       ),
     },
     { icon: 'geometry', label: 'Forma', value: formLabel },
-    { icon: 'verseList', label: 'Počet veršů', value: versesCountLabel },
+    {
+      icon: 'verseList',
+      label: 'Počet veršů',
+      value: (
+        <>
+          Počet veršů: {versesCountLabel}
+          <br />
+          Maximum slok: {maxStrophesLabel}
+        </>
+      ),
+    },
     { icon: 'verseGroups', label: 'Rýmové schéma', value: rhymeSchemeLabel },
     { icon: 'ruler', label: 'Délka prvního verše', value: firstVerseLengthLabel },
     { icon: 'metrum', label: 'Metrum', value: metrumLabel },
-    { icon: 'thermometer', label: 'Temperature', value: temperatureLabel },
+    {
+      icon: 'thermometer',
+      label: 'Temperature',
+      value: (
+        <>
+          Temperature: {temperatureLabel}
+          <br />
+          Model: {modelSpecLabel}
+        </>
+      ),
+    },
   ]
 
   return (

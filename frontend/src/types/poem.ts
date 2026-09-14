@@ -9,15 +9,26 @@ export function isPoemMode(value: string | null): value is PoemMode {
 export type PoemForm = 'free' | 'sonet' | 'limerik' | 'haiku' | 'epigram'
 export type PoemMetrum = 'trochej' | 'jamb' | 'daktyl' | 'volný'
 
+export type PoemMood = 'veselá' | 'smutná'
+
+export type PoemModelSpec =
+  | 'mc'
+  | 'tm'
+  | 'gpt-4o-mini'
+  | 'google/gemini-3.1-pro-preview'
+
 export type PoemGenerationParams = {
   title?: string
   motifs?: string[]
   form?: PoemForm
   verseCount?: number
+  maxStrophes?: number
   rhymeScheme?: string
   firstVerseLength?: number
   metrum?: PoemMetrum
   temperature?: number
+  mood?: PoemMood
+  modelSpec?: PoemModelSpec
   firstWords?: string[]
   authorStyleId?: string
 }

@@ -3,6 +3,8 @@
 import { useUiStore } from '@/stores/ui-store'
 import { usePoemStore } from '@/stores/poem-store'
 import { SettingsCard } from './settings-card'
+import { DEFAULT_MAX_STROPHES } from '@/config/poem-param-max-strophes'
+import { DEFAULT_MODEL_SPEC } from '@/config/poem-param-model'
 
 const FORM_LABELS = {
   free: 'Volná forma',
@@ -52,6 +54,20 @@ export function SettingsOverview() {
       ? params.temperature.toFixed(1)
       : 'Nenastaveno'
 
+    const maxStrophesLabel = `${
+      params.maxStrophes ?? DEFAULT_MAX_STROPHES
+    }`
+
+    const moodLabel =
+      params.mood === 'veselá'
+        ? 'Veselá'
+        : params.mood === 'smutná'
+          ? 'Smutná'
+          : 'Nenastaveno'
+
+    const modelSpecLabel =
+      params.modelSpec ?? DEFAULT_MODEL_SPEC
+
   return (
     <div className="flex flex-col gap-6 px-5 py-5">
       <h1 className="text-center text-lg text-zinc-700">
@@ -66,6 +82,8 @@ export function SettingsOverview() {
             Název: {titleLabel}
             <br />
             Motiv: {motifsLabel}
+            <br />
+            Nálada: {moodLabel}
           </>
         }
         onClick={() => openOverlay('setting-param-title-motifs')}
@@ -82,7 +100,13 @@ export function SettingsOverview() {
         <SettingsCard
           iconName="verseList"
           title="Počet veršů"
-          value={versesCountLabel}
+          value={
+            <>
+              Počet veršů: {versesCountLabel}
+              <br />
+              Maximum slok: {maxStrophesLabel}
+            </>
+          }
           onClick={() => openOverlay('setting-param-verse-count')}
         />
 
@@ -110,7 +134,13 @@ export function SettingsOverview() {
         <SettingsCard
           iconName="thermometer"
           title="Temperature"
-          value={temperatureLabel}
+          value={
+            <>
+              Temperature: {temperatureLabel}
+              <br />
+              Model: {modelSpecLabel}
+            </>
+          }
           onClick={() => openOverlay('setting-param-temperature')}
         />
       </div>

@@ -7,6 +7,9 @@ import { usePoemStore } from '@/stores/poem-store'
 import { DesktopSidePanelShell } from './desktop-side-panel-shell'
 import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
 import { MAX_MOTIFS } from '@/config/poem-param-title-motifs'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { MOOD_OPTIONS } from '@/config/poem-param-mood'
+import type { PoemMood } from '@/types/poem'
 
 const EMPTY_MOTIFS: string[] = []
 
@@ -17,6 +20,7 @@ type DesktopTitleMotifsPanelProps = {
 export function DesktopTitleMotifsPanel({ onClose }: DesktopTitleMotifsPanelProps) {
   const title = usePoemStore((state) => state.params.title ?? '')
   const motifs = usePoemStore((state) => state.params.motifs ?? EMPTY_MOTIFS)
+  const mood = usePoemStore((state) => state.params.mood)
   const updateParams = usePoemStore((state) => state.updateParams)
 
   const [motifInputs, setMotifInputs] = useState<string[]>(
@@ -91,6 +95,34 @@ export function DesktopTitleMotifsPanel({ onClose }: DesktopTitleMotifsPanelProp
           })}
         </div>
       </section>
+
+      <section className="mt-20">
+        <label className="typo-body font-bold">
+          Nálada
+        </label>
+
+        <RadioGroup
+          value={mood}
+          onValueChange={(value) => {
+            updateParams({ mood: value as PoemMood })
+          }}
+          className="mt-7"
+        >
+          {MOOD_OPTIONS.map((option) => (
+            <label
+              key={option.value}
+              className="flex cursor-pointer items-center gap-3"
+            >
+              <RadioGroupItem value={option.value} />
+
+              <span className="typo-body text-primary-foreground">
+                {option.label}
+              </span>
+            </label>
+          ))}
+        </RadioGroup>
+      </section>
+
     </DesktopSidePanelShell>
   )
 }

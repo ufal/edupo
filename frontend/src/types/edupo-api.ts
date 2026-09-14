@@ -1,4 +1,9 @@
-import type { PoemForm, PoemMetrum } from '@/types/poem'
+import type {
+  PoemForm,
+  PoemMetrum,
+  PoemModelSpec,
+  PoemMood,
+} from '@/types/poem'
 
 export type Author = string
 
@@ -21,10 +26,13 @@ export type GeneratePoemParams = {
   motifs?: string[]
   form?: PoemForm
   verseCount?: number
+  maxStrophes?: number
   rhymeScheme?: string
   firstVerseLength?: number
   metrum?: PoemMetrum
   temperature?: number
+  mood?: PoemMood
+  modelSpec?: PoemModelSpec
   first_words?: string[]
   authorStyleId?: string
 }

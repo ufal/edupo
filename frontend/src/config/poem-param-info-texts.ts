@@ -21,7 +21,7 @@ export type PoemParamInfo = {
 export const poemParamInfoTexts: Record<PoemParamInfoKey, PoemParamInfo> = {
   titleMotifs: {
     title: 'Název a motiv',
-    text: 'Názvem a volbou až pěti motivů můžete ovlivnit téma generované básně.',
+    text: 'Názvem, volbou až pěti motivů a náladou můžete ovlivnit téma a vyznění generované básně.',
   },
 
   form: {
@@ -31,7 +31,7 @@ export const poemParamInfoTexts: Record<PoemParamInfoKey, PoemParamInfo> = {
 
   verseCount: {
     title: 'Počet veršů',
-    text: 'Kolik má mít báseň veršů?',
+    text: 'Nastavte počet veršů v první sloce a maximální počet slok básně.',
   },
 
   rhymeScheme: {
@@ -51,6 +51,6 @@ export const poemParamInfoTexts: Record<PoemParamInfoKey, PoemParamInfo> = {
 
   temperature: {
     title: 'Temperature',
-    text: 'Teplota - říká AI, jak moc má být kreativní: nízká teplota sází na jistotu, vysoká zkouší divoké nápady.',
-  }
+    text: 'Teplota určuje, jak moc má být AI kreativní. Zároveň můžete vybrat model použitý pro generování.',
+  },
 }

@@ -8,6 +8,13 @@ import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
 import { usePoemStore } from '@/stores/poem-store'
 import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
+import { PlainSelect } from '@/components/ui/plain-select'
+import {
+  DEFAULT_MODEL_SPEC,
+  MODEL_OPTIONS,
+  getRandomModelSpec,
+} from '@/config/poem-param-model'
+import type { PoemModelSpec } from '@/types/poem'
 
 const MIN_TEMPERATURE = 0.1
 const MAX_TEMPERATURE = 1
@@ -42,6 +49,10 @@ export function SettingTemperatureOverlay({ onClose }: { onClose: () => void }) 
   useEffect(() => {
     setInputValue(temperature.toFixed(1))
   }, [temperature])
+
+  const modelSpec =
+    usePoemStore((state) => state.params.modelSpec) ??
+    DEFAULT_MODEL_SPEC
 
   return (
     <ShellOverlay variant="menu" className="bg-yellow-50">
@@ -105,23 +116,39 @@ export function SettingTemperatureOverlay({ onClose }: { onClose: () => void }) 
           }}
         />
 
+        <section className="mt-12 border-t border-grey-200 pt-8">
+          <p className="typo-large text-grey-700">
+            Vyberte model
+          </p>
+
+          <PlainSelect
+            className="mt-7"
+            value={modelSpec}
+            options={MODEL_OPTIONS}
+            onChange={(value) => {
+              updateParams({ modelSpec: value as PoemModelSpec })
+            }}
+          />
+        </section>
+
         <Button
           type="button"
           variant="primary"
           size="md"
           className="mt-7 px-10"
           onClick={() => {
-            const random = normalizeTemperature(
-              Math.random() * (MAX_TEMPERATURE - MIN_TEMPERATURE) +
-                MIN_TEMPERATURE,
-            )
+            const random = Math.random() * (MAX_TEMPERATURE - MIN_TEMPERATURE) + MIN_TEMPERATURE
 
-            updateParams({ temperature: random })
+            updateParams({
+              temperature: Number(random.toFixed(1)),
+              modelSpec: getRandomModelSpec(),
+            })
           }}
         >
           Nastavit náhodně
         </Button>
       </div>
+
     </ShellOverlay>
   )
 }

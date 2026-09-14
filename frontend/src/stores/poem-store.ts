@@ -361,6 +361,8 @@ export const usePoemStore = create<PoemState>((set, get) => ({
 
       verseCount: params.verseCount ?? undefined,
 
+      maxStrophes: params.maxStrophes ?? undefined,
+
       rhymeScheme:
         !params.form || params.form === 'free' || params.form === 'epigram'
           ? params.rhymeScheme ?? undefined
@@ -371,6 +373,10 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       metrum: params.metrum ?? undefined,
 
       temperature: params.temperature ?? undefined,
+
+      mood: params.mood ?? undefined,
+
+      modelSpec: params.modelSpec ?? undefined,
 
       first_words: firstWords ? [firstWords] : undefined,
 

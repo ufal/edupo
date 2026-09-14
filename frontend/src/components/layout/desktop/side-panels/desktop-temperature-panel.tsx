@@ -16,6 +16,13 @@ import {
   normalizeTemperature,
 } from '@/config/poem-param-temperature'
 import { DesktopSidePanelShell } from './desktop-side-panel-shell'
+import { PlainSelect } from '@/components/ui/plain-select'
+import {
+  DEFAULT_MODEL_SPEC,
+  MODEL_OPTIONS,
+  getRandomModelSpec
+} from '@/config/poem-param-model'
+import type { PoemModelSpec } from '@/types/poem'
 
 type DesktopTemperaturePanelProps = {
   onClose: () => void
@@ -43,6 +50,10 @@ export function DesktopTemperaturePanel({
   useEffect(() => {
     setInputValue(temperature.toFixed(1))
   }, [temperature])
+
+  const modelSpec =
+    usePoemStore((state) => state.params.modelSpec) ??
+    DEFAULT_MODEL_SPEC
 
   return (
     <DesktopSidePanelShell
@@ -101,13 +112,31 @@ export function DesktopTemperaturePanel({
         }}
       />
 
+      <section className="mt-12 border-t border-white/25 pt-8">
+        <p className="typo-body font-bold">
+          Vyberte model
+        </p>
+
+        <PlainSelect
+          className="mt-7"
+          value={modelSpec}
+          options={MODEL_OPTIONS}
+          onChange={(value) => {
+            updateParams({ modelSpec: value as PoemModelSpec })
+          }}
+        />
+      </section>
+
       <Button
         type="button"
         variant="subtle"
         size="md"
         className="mt-7 w-full"
         onClick={() => {
-          updateParams({ temperature: getRandomTemperature() })
+          updateParams({
+            temperature: getRandomTemperature(),
+            modelSpec: getRandomModelSpec(),
+          })
         }}
       >
         Nastavit náhodně
