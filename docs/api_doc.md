@@ -105,11 +105,15 @@ Podporuje:
 ### Vyhledání básně v korpusu
 `/search`
 - Parametry:
-  - `query` = Hledaný text
-  - `use_regex` = `true` / `''` (volitelné, pokud má být použit regulární výraz)
-- Vrací: Seznam odpovídajících básní.
+  - `query` = Hledaný text (hledá se v textu veršů, bez ohledu na velikost písmen; může obsahovat i zalomení řádku, pokud má hledaný text pokračovat na dalším verši)
+  - `use_regex` = `true` / `false` (volitelné, výchozí `false`; pokud má být `query` použit jako regulární výraz, syntaxe [Rust regex](https://docs.rs/regex/latest/regex/#syntax), např. `(?i)` pro ignorování velikosti písmen; `^` a `$` odpovídají začátku a konci verše)
+  - `target` = `text` / `json` (volitelné, výchozí `text`; s `json` se hledá v surovém JSONu básně uloženém v databázi, tedy včetně anotací metra, rýmů apod.)
+  - `page` = číslo stránky výsledků (volitelné, výchozí `1`)
+  - `per_page` = počet výsledků na stránku (volitelné, výchozí `20`, nejvýše `200`)
+- Vrací: Objekt s položkami `total` (celkový počet odpovídajících básní), `page`, `pages` (počet stránek), `per_page` a `results` (seznam básní na dané stránce: `id`, `author`, `author_name`, `title`, `body`, `text` a `matches` = nalezené shody). Při chybě (prázdný dotaz, neplatný regulární výraz) vrací stav 400 a položku `error`.
 - Příklad:  
   - [https://edupo.cz/api/search?query=Ostrava\&accept=txt](https://edupo.cz/api/search?query=Ostrava&accept=txt)   
+  - [https://edupo.cz/api/search?query=Ostrava\&page=2\&per_page=50\&accept=json](https://edupo.cz/api/search?query=Ostrava&page=2&per_page=50&accept=json)   
 
 ### Zobrazení seznamu autorů
 `/showlist`

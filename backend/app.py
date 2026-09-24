@@ -11,11 +11,12 @@ import secrets
 import show_poem_html
 import sqlite3
 import json
-from collections import defaultdict, Counter
+from collections import defaultdict, Counter, OrderedDict
 import re
 import random
 from openai_helper import *
 import html
+from markupsafe import Markup, escape
 
 import requests
 
@@ -1093,38 +1094,235 @@ def call_gentts():
             redirect_for_poemid(poemid)
             )
 
+### SEARCH ###
+
+SEARCH_DEFAULT_PER_PAGE = 20
+SEARCH_MAX_PER_PAGE = 200
+SEARCH_MAX_SNIPPETS = 5
+SEARCH_CACHE_SIZE = 64
+# multiline mode: ^ and $ match the start and end of a verse
+REGEX_FLAGS = '(?m)'
+
+# SQL expression that rebuilds the poem's plain text (verses joined by
+# newlines) from the JSON body. Searching in this instead of in the raw JSON
+# means that JSON keys and metre/rhyme annotations ("text", "stanza", "T",
+# "J", ...) do not match, and that quotes and other JSON-escaped characters
+# match as they appear in the poem.
+POEM_TEXT_SQL = (
+    "(SELECT group_concat(coalesce(json_extract(j.value, '$.text'), ''), char(10))"
+    " FROM (SELECT value FROM json_each(poems.body) ORDER BY key) AS j)"
+)
+
+def poem_verses_text(body):
+    """Same text as POEM_TEXT_SQL, built from the parsed body."""
+    return '\n'.join(verse.get('text') or '' for verse in body)
+
+def parse_bool_arg(key, default=False):
+    value = get_post_arg(key)
+    if value is None:
+        return default
+    return str(value).strip().lower() not in ('', '0', 'false', 'no', 'off', 'none')
+
+def parse_int_arg(key, default, minimum=None, maximum=None):
+    try:
+        value = int(get_post_arg(key, default))
+    except (TypeError, ValueError):
+        value = default
+    if minimum is not None:
+        value = max(minimum, value)
+    if maximum is not None:
+        value = min(maximum, value)
+    return value
+
+def escape_like(text):
+    """Escape LIKE wildcards so that the query is matched literally."""
+    return text.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
+
+def json_stores_verbatim(text):
+    """True if the text appears unchanged inside a JSON string (bodies are
+    stored with ensure_ascii=False, so only quotes, backslashes and control
+    characters are escaped)."""
+    return not any(c in '"\\' or ord(c) < 32 for c in text)
+
+# (query, use_regex) -> sorted list of matching poem ids; the full scan of the
+# corpus takes a while, so pages of the same query are served from here
+_search_cache = OrderedDict()
+
+def search_poem_ids(db, query, use_regex, search_json=False):
+    """IDs of poems matching the query in their text, or, with search_json,
+    in the raw JSON body (including the metre/rhyme annotations)."""
+    key = (query, use_regex, search_json)
+    if key in _search_cache:
+        _search_cache.move_to_end(key)
+        return _search_cache[key]
+
+    if search_json and use_regex:
+        sql = "SELECT id FROM poems WHERE body REGEXP ? ORDER BY id"
+        params = (REGEX_FLAGS + query,)
+    elif search_json:
+        sql = "SELECT id FROM poems WHERE body LIKE ? ESCAPE '\\' ORDER BY id"
+        params = (f'%{escape_like(query)}%',)
+    elif use_regex:
+        sql = f"SELECT id FROM poems WHERE {POEM_TEXT_SQL} REGEXP ? ORDER BY id"
+        params = (REGEX_FLAGS + query,)
+    else:
+        pattern = f'%{escape_like(query)}%'
+        text_condition = f"{POEM_TEXT_SQL} LIKE ? ESCAPE '\\'"
+        if json_stores_verbatim(query):
+            # Rebuilding the text from JSON for every poem is slow, so first
+            # prefilter cheaply on the raw JSON: the verse text appears in it
+            # verbatim unless it contains characters that JSON escapes.
+            sql = f"SELECT id FROM poems WHERE body LIKE ? ESCAPE '\\' AND {text_condition} ORDER BY id"
+            params = (pattern, pattern)
+        else:
+            sql = f"SELECT id FROM poems WHERE {text_condition} ORDER BY id"
+            params = (pattern,)
+    ids = [row['id'] for row in db.execute(sql, params)]
+
+    _search_cache[key] = ids
+    while len(_search_cache) > SEARCH_CACHE_SIZE:
+        _search_cache.popitem(last=False)
+    return ids
+
+def find_match_spans(text, query, use_regex):
+    """Return (start, end) spans of the query in the text."""
+    try:
+        if use_regex:
+            # the SQL side uses the Rust regex crate; its syntax mostly
+            # overlaps with Python's, but not entirely
+            pattern = re.compile(REGEX_FLAGS + query)
+        else:
+            # LIKE is case-insensitive
+            pattern = re.compile(re.escape(query), re.IGNORECASE)
+    except re.error:
+        return []
+    return [(m.start(), m.end()) for m in pattern.finditer(text) if m.end() > m.start()]
+
+def highlight_matches(text, spans, max_lines=SEARCH_MAX_SNIPPETS):
+    """Return the verses containing a match, with matches wrapped in <mark>."""
+    lines = []
+    pos = 0
+    for line in text.split('\n'):
+        start, end = pos, pos + len(line)
+        pos = end + 1
+        line_spans = [(max(s, start) - start, min(e, end) - start)
+                      for s, e in spans if s < end and e > start]
+        if not line_spans:
+            continue
+        out = Markup('')
+        cur = 0
+        for s, e in line_spans:
+            s = max(s, cur)
+            if e <= s:
+                continue
+            out += escape(line[cur:s]) + Markup('<mark>') + escape(line[s:e]) + Markup('</mark>')
+            cur = e
+        out += escape(line[cur:])
+        lines.append(out)
+        if len(lines) >= max_lines:
+            break
+    return lines
+
+def highlight_context(text, spans, context=60, max_snippets=SEARCH_MAX_SNIPPETS):
+    """Return snippets of text around each match (for the one-line JSON),
+    with the match wrapped in <mark>."""
+    snippets = []
+    for s, e in spans[:max_snippets]:
+        before, after = max(0, s - context), min(len(text), e + context)
+        snippet = Markup('')
+        if before > 0:
+            snippet += Markup('…')
+        snippet += escape(text[before:s]) + Markup('<mark>') + escape(text[s:e]) + Markup('</mark>') + escape(text[e:after])
+        if after < len(text):
+            snippet += Markup('…')
+        snippets.append(snippet)
+    return snippets
+
+def pagination_pages(page, pages, around=2):
+    """Page numbers to link to, None marks a gap: 1 ... 5 6 [7] 8 9 ... 42"""
+    numbers = sorted(set([1, pages] + [p for p in range(page - around, page + around + 1) if 1 <= p <= pages]))
+    result = []
+    for number in numbers:
+        if result and number - result[-1] > 1:
+            result.append(None)
+        result.append(number)
+    return result
+
 @app.route("/search", methods=['GET', 'POST'])
 def call_search():
-    # TODO do this nicely
-    results = []
     query = get_post_arg('query', '')
-    use_regex = get_post_arg('use_regex', False)
-    with get_db() as db:
-        if use_regex:
-            # sql = f'SELECT id, title, author, regex_capture(captures, 0) as entire_match FROM poems WHERE body REGEXP ?'
-            sql = f'SELECT id, title, author, body FROM poems WHERE body REGEXP ? LIMIT 20'
-            poems = db.execute(sql, (query,)).fetchall()
-            for poem in poems:
-                results.append({
-                    'id': poem["id"],
-                    'author': poem["author"],
-                    'title': poem["title"],
-                    'body': poem["body"],
-                    'match': re.findall(query.replace('"', "'"), str(poem['body']))
-                    })
-        else:
-            sql = f'SELECT id, title, author, body FROM poems WHERE body LIKE ? LIMIT 20'
-            poems = db.execute(sql, (f'%{query}%',)).fetchall()
-            for poem in poems:
-                results.append({
-                    'id': poem["id"],
-                    'author': poem["author"],
-                    'title': poem["title"],
-                    'body': poem["body"],
-                    })
-    html = render_template('show_search_result.html', query=query, results=results)
-    text = "\n".join([f"{result['id']} ({result['author']}: {result['title']})" for result in results])
-    return return_accepted_type(text, results, html)
+    use_regex = parse_bool_arg('use_regex')
+    search_json = get_post_arg('target', 'text') == 'json'
+    per_page = parse_int_arg('per_page', SEARCH_DEFAULT_PER_PAGE, 1, SEARCH_MAX_PER_PAGE)
+    page = parse_int_arg('page', 1, 1)
+
+    error = None
+    ids = []
+    if not query.strip():
+        error = "Zadejte hledaný text."
+    else:
+        try:
+            with get_db() as db:
+                ids = search_poem_ids(db, query, use_regex, search_json)
+        except sqlite3.OperationalError as e:
+            # most likely an invalid regular expression
+            error = f"Vyhledávání se nezdařilo: {e}"
+
+    total = len(ids)
+    pages = max(1, math.ceil(total / per_page))
+    page = min(page, pages)
+    page_ids = ids[(page - 1) * per_page:page * per_page]
+
+    results = []
+    if page_ids:
+        with get_db() as db:
+            placeholders = ','.join('?' for _ in page_ids)
+            # CAST gives the raw JSON string, without the registered "json" column converter
+            sql = f'SELECT id, title, author, author_name, body, CAST(body AS TEXT) AS body_json FROM poems WHERE id IN ({placeholders})'
+            rows = {row['id']: row for row in db.execute(sql, page_ids).fetchall()}
+        for poemid in page_ids:
+            poem = dict(rows[poemid])
+            text = poem_verses_text(poem['body'])
+            if search_json:
+                spans = find_match_spans(poem['body_json'], query, use_regex)
+                matches = [poem['body_json'][s:e] for s, e in spans]
+                snippets = highlight_context(poem['body_json'], spans)
+            else:
+                spans = find_match_spans(text, query, use_regex)
+                matches = [text[s:e] for s, e in spans]
+                snippets = highlight_matches(text, spans)
+            results.append({
+                'id': poem['id'],
+                'author': poem['author'],
+                'author_name': poem['author_name'],
+                'title': poem['title'],
+                'body': poem['body'],
+                'text': text,
+                'matches': matches,
+                'snippets': snippets,
+                })
+
+    status = 400 if error else 200
+    html = render_template('show_search_result.html',
+            query=query, use_regex=use_regex, search_json=search_json, error=error,
+            results=results, total=total,
+            page=page, pages=pages, per_page=per_page,
+            page_numbers=pagination_pages(page, pages),
+            per_page_options=[20, 50, 100, SEARCH_MAX_PER_PAGE])
+    json_result = {
+            'query': query,
+            'use_regex': use_regex,
+            'target': 'json' if search_json else 'text',
+            'error': error,
+            'total': total,
+            'page': page,
+            'pages': pages,
+            'per_page': per_page,
+            'results': [{k: v for k, v in result.items() if k != 'snippets'} for result in results],
+            }
+    text_lines = [error] if error else [f"# {total} výsledků, stránka {page}/{pages}"]
+    text_lines += [f"{result['id']} ({result['author']}: {result['title']})" for result in results]
+    return return_accepted_type("\n".join(text_lines), json_result, html, status)
 
 @app.route("/openaigenerate", methods=['GET', 'POST'])
 def call_generate_openai():

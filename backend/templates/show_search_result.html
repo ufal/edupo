@@ -3,31 +3,77 @@
 <head>
     <meta charset="utf-8">
     <title>Výsledky vyhledávání</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .search-snippets { margin: 0.2em 0 0.8em 0; padding-left: 1em; color: #555; font-style: italic; }
+        .search-snippets div { white-space: pre-wrap; overflow-wrap: anywhere; }
+        .pagination { margin: 1em 0; }
+        .pagination a, .pagination strong, .pagination span { margin-right: 0.6em; }
+    </style>
 </head>
 <body>
 
-<h1>Výsledky vyhledávání</h1>
+<h1><i class="fas fa-search"></i> Výsledky vyhledávání</h1>
 
-<p>Vyhledávací dotaz: <kbd>{{ query }}</kbd></p>
+<p><a href="{{ url_for('hello_world') }}">« zpět na úvodní stránku</a></p>
 
-<p>(Pokud je výsledků více než 20, zobrazuje se jen prvních 20.)</p>
+{% include 'search_input.html' %}
 
-<ul>
+{% if error %}
+    <p><strong>{{ error }}</strong></p>
+{% else %}
+
+<p>Vyhledávací dotaz: <kbd>{{ query }}</kbd>{% if use_regex %} (regulární výraz){% endif %}{% if search_json %} (v JSONu){% endif %}</p>
+
+<p>Nalezeno básní: <strong>{{ total }}</strong>{% if total %},
+zobrazeny výsledky {{ (page - 1) * per_page + 1 }}–{{ [page * per_page, total] | min }}{% endif %}.
+Na stránku:
+{% for option in per_page_options %}
+    {% if option == per_page %}<strong>{{ option }}</strong>{% else %}<a href="{{ url_for('call_search', query=query, use_regex=use_regex or None, target='json' if search_json else None, per_page=option) }}">{{ option }}</a>{% endif %}
+{% endfor %}
+</p>
+
+{% macro pagination() %}
+{% if pages > 1 %}
+<p class="pagination">
+    {% if page > 1 %}<a href="{{ url_for('call_search', query=query, use_regex=use_regex or None, target='json' if search_json else None, per_page=per_page, page=page - 1) }}">« předchozí</a>{% endif %}
+    {% for number in page_numbers %}
+        {% if number is none %}<span>…</span>
+        {% elif number == page %}<strong>{{ number }}</strong>
+        {% else %}<a href="{{ url_for('call_search', query=query, use_regex=use_regex or None, target='json' if search_json else None, per_page=per_page, page=number) }}">{{ number }}</a>{% endif %}
+    {% endfor %}
+    {% if page < pages %}<a href="{{ url_for('call_search', query=query, use_regex=use_regex or None, target='json' if search_json else None, per_page=per_page, page=page + 1) }}">další »</a>{% endif %}
+</p>
+{% endif %}
+{% endmacro %}
+
+{{ pagination() }}
+
+<ol start="{{ (page - 1) * per_page + 1 }}">
 {% for result in results %}
     <li>
-        {{ result.id }}
         <a href="{{ url_for('call_show', poemid=result.id) }}">{{ result.author }}:
-    {% if result.title %}
-        {{ result.title }}
-    {% else %}
-        Bez názvu ({{ result.body[0]['text'] }}...)
-    {% endif %}
-    </a>
-        <kbd>{{result.match}}</kbd>
+        {% if result.title %}
+            {{ result.title }}
+        {% else %}
+            Bez názvu ({{ result.text.split('\n')[0] }}…)
+        {% endif %}
+        </a>
+        <small>({{ result.id }})</small>
+        {% if result.snippets %}
+        <div class="search-snippets">
+            {% for snippet in result.snippets %}<div>{{ snippet }}</div>{% endfor %}
+        </div>
+        {% endif %}
     </li>
 {% endfor %}
-</ul>
+</ol>
+
+{{ pagination() }}
+
+{% endif %}
 
 </body>
 </html>
-
