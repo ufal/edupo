@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Slova</title>
+<style>
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  overflow: hidden; background: #fff;
+}
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+#stage {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: #fff;
+}
+.word {
+  position: absolute;
+  display: block;
+  white-space: nowrap;
+  color: #111;
+  font-size: clamp(18px, 3.2vw, 30px);
+  line-height: 1.2;
+  font-weight: 400;
+  cursor: grab;
+  padding: 3px 5px;
+  touch-action: none;
+  will-change: left, top;
+}
+.word.dragging { cursor: grabbing; z-index: 1000; }
+@media (max-width: 600px) {
+  .word { font-size: clamp(18px, 5.2vw, 24px); }
+}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="Slova"></main>
+<script>
+(() => {
+  "use strict";
+  const WORDS = ["pes","mravenec","kůň","kráva","veverka","moucha","maso","mléko","sýr","jablko","ryba","ponožka","kuchař","mech","řidič","učitel","prsten","auto","letadlo","kolo","vlak","děti","list","škola","obchod","farma","svetr","knoflík","koberec","louka","silnice","hřiště","les","park","řeka"];
+  const MOBILE_LIMIT = 600;
+  const MOBILE_WORD_COUNT = 13;
+  const MIN_GAP = 8;
+  let active = null;
+  let resizeTimer = null;
+
+  function shuffled(items) {
+    const a = items.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function getWordCount() {
+    const w = window.innerWidth, h = window.innerHeight;
+    if (Math.min(w, h) <= MOBILE_LIMIT) return Math.min(MOBILE_WORD_COUNT, WORDS.length);
+    if (w <= 900) return Math.min(24, WORDS.length);
+    return WORDS.length;
+  }
+
+  function rectsOverlap(a, b) {
+    return !(
+      a.right + MIN_GAP <= b.left ||
+      a.left >= b.right + MIN_GAP ||
+      a.bottom + MIN_GAP <= b.top ||
+      a.top >= b.bottom + MIN_GAP
+    );
+  }
+
+  function placeWords() {
+    stage.innerHTML = "";
+    const selected = shuffled(WORDS).slice(0, getWordCount());
+    const placed = [];
+
+    for (const wordText of selected) {
+      const el = document.createElement("div");
+      el.className = "word";
+      el.textContent = wordText;
+      stage.appendChild(el);
+
+      const maxX = Math.max(0, stage.clientWidth - el.offsetWidth - 10);
+      const maxY = Math.max(0, stage.clientHeight - el.offsetHeight - 10);
+      let best = null;
+
+      for (let attempt = 0; attempt < 80; attempt++) {
+        const x = 5 + Math.random() * Math.max(0, maxX - 5);
+        const y = 5 + Math.random() * Math.max(0, maxY - 5);
+        const r = {
+          left: x, top: y,
+          right: x + el.offsetWidth,
+          bottom: y + el.offsetHeight
+        };
+        if (!placed.some(other => rectsOverlap(r, other))) {
+          best = r;
+          break;
+        }
+        if (!best) best = r;
+      }
+
+      el.style.left = best.left + "px";
+      el.style.top = best.top + "px";
+      placed.push(best);
+      el.addEventListener("pointerdown", startDrag);
+    }
+  }
+
+  function startDrag(e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    const el = e.currentTarget;
+    const stageRect = stage.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
+
+    active = {
+      el,
+      pointerId: e.pointerId,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+      stageLeft: stageRect.left,
+      stageTop: stageRect.top
+    };
+
+    el.classList.add("dragging");
+    el.setPointerCapture?.(e.pointerId);
+    e.preventDefault();
+  }
+
+  stage.addEventListener("pointermove", (e) => {
+    if (!active || e.pointerId !== active.pointerId) return;
+    const el = active.el;
+    const maxX = Math.max(0, stage.clientWidth - el.offsetWidth);
+    const maxY = Math.max(0, stage.clientHeight - el.offsetHeight);
+    let x = e.clientX - active.stageLeft - active.offsetX;
+    let y = e.clientY - active.stageTop - active.offsetY;
+    x = Math.max(0, Math.min(maxX, x));
+    y = Math.max(0, Math.min(maxY, y));
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    e.preventDefault();
+  });
+
+  function endDrag(e) {
+    if (!active || e.pointerId !== active.pointerId) return;
+    active.el.classList.remove("dragging");
+    try { active.el.releasePointerCapture?.(e.pointerId); } catch (_) {}
+    active = null;
+  }
+
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
+
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(placeWords, 120);
+  });
+
+  placeWords();
+})();
+</script>
+</body>
+</html>
