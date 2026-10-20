@@ -4,6 +4,7 @@ from openai import OpenAI
 import base64
 import io
 import json
+import re
 
 import logging
 logging.basicConfig(
@@ -145,6 +146,19 @@ LENGTH_EN = {
     'long': 'more than 14',
 }
 
+
+MEANING_PROMPT = "Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n"
+
+def measure_meaning(text, model="google/gemini-2.5-flash"):
+    """Ask an LLM to rate how meaningful the poem is; returns a float in [0, 1].
+    Shared by kveta/get_measures.py (batch use) and backend/app.py (web use),
+    so that the analysis ZMQ worker can stay free of network calls."""
+    response = generate_with_openai_simple(MEANING_PROMPT + text, model=model)
+    numbers = re.findall(r'\d+', response)
+    meaning_num = 5
+    if numbers:
+        meaning_num = int(numbers[0])
+    return min(meaning_num / 10, 1.0)
 
 def int2th(i):
     result = 'th'

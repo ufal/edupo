@@ -21,10 +21,8 @@ from markupsafe import Markup, escape
 import requests
 
 import sys
-sys.path.append("../kveta")
-sys.path.append("../scripts/diphthongs")
-from kveta import okvetuj, okvetuj_ccv
-from get_measures import get_measures, get_measures_from_analyzed_poem
+# kveta / get_measures are no longer imported here: analysis runs in the
+# analyze.py ZMQ worker (see analyze_zmq below).
 
 # TODO use this instead of a plain dict
 from data_types import GenerationParameters
@@ -110,6 +108,9 @@ app.wsgi_app = PrefixFromHostMiddleware(app.wsgi_app)
 MC_MODEL_PORT = os.getenv('MC_MODEL_PORT', 5010)
 TM_MODEL_PORT = os.getenv('TM_MODEL_PORT', 5011)
 NEW_MODEL_PORT = os.getenv('NEW_MODEL_PORT', 5012)
+ANALYZE_PORT = os.getenv('ANALYZE_PORT', 5013)
+# how long to wait for the analysis worker (ms); kveta on a long poem takes seconds
+ANALYZE_TIMEOUT_MS = int(os.getenv('ANALYZE_TIMEOUT_MS', 120000))
 
 sqlite3.register_converter("json", json.loads)
 
@@ -342,7 +343,7 @@ def get_poem_by_id(poemid=None, random_if_no_id=False):
         result = dict(result)
         # always analyze for KCV, never for KSP
         if result['id'] < 100000:
-            result['body'] = okvetuj_ccv(result['body'])
+            result['body'] = analyze_zmq({'body': result['body']})['body']
         # TODO this would be good but get_measures does not work for CCV data
         # result['measures'] = get_measures_from_analyzed_poem(result['body'])
         data = show_poem_html.show(result)
@@ -434,6 +435,41 @@ def gen_zmq(params):
     socket.send_string(json.dumps(params))
     return json.loads(socket.recv())
 
+class ExceptionAnalysisFailed(Exception):
+    pass
+
+_zmq_context = None
+def _get_zmq_context():
+    """One Context per process (gunicorn forks, so create it lazily)."""
+    global _zmq_context
+    if _zmq_context is None or _zmq_context.closed:
+        _zmq_context = zmq.Context()
+    return _zmq_context
+
+def analyze_zmq(request):
+    """Send one analysis request to the analyze.py worker and return its
+    reply dict. See analyze.analyze_poem for the request/reply keys.
+    Raises ExceptionAnalysisFailed on worker error or timeout."""
+    request = dict(request)
+    request.setdefault('id', getattr(g, 'request_id', None) if has_request_context() else None)
+    socket = _get_zmq_context().socket(zmq.REQ)
+    socket.setsockopt(zmq.LINGER, 0)
+    socket.setsockopt(zmq.RCVTIMEO, ANALYZE_TIMEOUT_MS)
+    try:
+        socket.connect(f"tcp://localhost:{ANALYZE_PORT}")
+        socket.send_string(json.dumps(request))
+        try:
+            reply = json.loads(socket.recv())
+        except zmq.Again:
+            raise ExceptionAnalysisFailed(
+                f"analysis worker did not answer within {ANALYZE_TIMEOUT_MS} ms")
+    finally:
+        socket.close()
+    if 'error' in reply:
+        app.logger.error(f"analysis worker error: {reply['error']}")
+        raise ExceptionAnalysisFailed("analysis worker failed: " + reply['error'].strip().splitlines()[-1])
+    return reply
+
 def set_params_for_form(params):
     if params['modelspec'] == 'new':
         return
@@ -487,7 +523,9 @@ def generuj_poem(params):
         # also spares cached frontends an extra OpenRouter dependency per generation.
         if params['max_tries'] > 1:
             app.logger.info("Calling get_measures")
-            measures = get_measures("\n".join(clean_verses), {'nekvetuj': True})
+            plaintext = "\n".join(clean_verses)
+            measures = analyze_zmq({'text': plaintext, 'fast': True})['measures']
+            measures['chatgpt_meaning'] = measure_meaning(plaintext)
             app.logger.info(f"Got measures: {measures}")
             if measures['chatgpt_meaning'] >= params['min_meaning'] and measures['unknown_words'] <= params['max_unk']:
                 app.logger.info(f"GOOD: meaning {measures['chatgpt_meaning']}, unk {measures['unknown_words']}")
@@ -913,20 +951,17 @@ def call_analyze():
         # or within get_poem_by_id()
         pass
     else:
-        kveta_result = okvetuj(data['plaintext'])
-        data['body'] = kveta_result[0][0]['body']
-        # metrics
-        parameters = {}
+        request = {'text': data['plaintext'], 'measures': True}
         if 'geninput' in data:
-            # is generated
-            rhyme_scheme = data['geninput'].get('rhyme_scheme', '')
-            metre = data['geninput'].get('metre', '')
-            if rhyme_scheme:
-                parameters['rhyme_scheme'] = rhyme_scheme
-            if metre:
-                parameters['metre'] = metre
-        data['measures'] = get_measures_from_analyzed_poem(
-                data['body'], parameters)
+            # is generated: pass the requested scheme/metre as hints
+            for key in ('rhyme_scheme', 'metre'):
+                if data['geninput'].get(key, ''):
+                    request[key] = data['geninput'][key]
+        result = analyze_zmq(request)
+        data['body'] = result['body']
+        data['measures'] = result['measures']
+        # the LLM meaning score is made here, not in the worker
+        data['measures']['chatgpt_meaning'] = measure_meaning(data['plaintext'])
         if 'schemes' in data and data['schemes']['form']:
             # form is annotated in data
             data['form'] = data['schemes']['form']
@@ -1776,6 +1811,11 @@ def handle_exception(e):
 def handle_exception(e):
     app.logger.exception('EXCEPTION')
     return return_error("Požadovaná báseň neexistuje.", e, 404)
+
+@app.errorhandler(ExceptionAnalysisFailed)
+def handle_exception(e):
+    app.logger.exception('EXCEPTION')
+    return return_error("Analýza básně selhala. Můžete to zkusit znova.", e, 503)
 
 @app.errorhandler(Exception)
 def handle_exception(e):

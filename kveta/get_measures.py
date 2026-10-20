@@ -13,7 +13,7 @@ from kveta import okvetuj
 from collections import defaultdict
 from openai import OpenAI
 sys.path.append("../backend")
-from openai_helper import generate_with_openai_simple, generate_with_openai_responses
+from openai_helper import generate_with_openai_simple, generate_with_openai_responses, measure_meaning
 from ufal.morphodita import *
 
 class Morphodita:
@@ -85,7 +85,12 @@ def check_rs(rs, rhyme_scheme, current_stanza_num):
     else:
         return False
 
-def get_measures_from_analyzed_poem(poem, parameters={}):
+def get_measures_from_analyzed_poem(poem, parameters=None):
+    """Compute measures from an analyzed body (list of verse dicts as returned
+    by kveta.okvetuj). parameters: rhyme_scheme, metre (hints for accuracy
+    measures), meaning (bool, default True: make the LLM meaning call and
+    include 'chatgpt_meaning' in the result)."""
+    parameters = dict(parameters or {})
 
     #if not 'rhyme_scheme' in parameters:
     #    rhyme_scheme = None
@@ -113,8 +118,6 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
         # plechacovina
         clusters = [ poem[i]['rhyme'] for i in range(len(poem)) ]
         plech = plechacovina(clusters)
-        print(plech)
-        print(plech_scheme)
         # spocitej shody
         pos = 0
         for pl in plech:
@@ -200,33 +203,11 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
         #rhyme_scheme_total += 1
         rhyme_schemes[rs] += 1
 
-    # ChatGPT init
-    #KEY_PATH = '/net/projects/EduPo/data/apikey.txt'
-    #with open(KEY_PATH) as infile:
-    #    apikey = infile.read().rstrip()
-    #try:
-    #    client = OpenAI(api_key=apikey)
-    #except:
-    #    logging.exception("EXCEPTION Neúspěšná inicializace OpenAI.")
+    # smysluplnost (LLM call); skipped when parameters['meaning'] is False
+    meaning_num = None
+    if parameters.get('meaning', True):
+        meaning_num = measure_meaning(raw_text)
 
-    # ChatGPT metrics
-    #meaning_response = client.responses.create(
-    #    model="gpt-4.1",
-    #    input="Na škále 1 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text
-    #)
-    
-    # smysluplnost
-    #response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text")
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text, model="google/gemini-2.5-flash")
-    #response = generate_with_openai_responses("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + raw_text)
-    numbers = re.findall(r'\d+', response)
-    meaning_num = 5
-    if numbers:
-        meaning_num = int(numbers[0])
-    meaning_num /= 10
-    if meaning_num > 1:
-        meaning_num = 1
-    
     # syntax
     COMPUTE_SYNTAX = False
     if COMPUTE_SYNTAX:
@@ -247,17 +228,21 @@ def get_measures_from_analyzed_poem(poem, parameters={}):
             #'metre_consistency_rb': max(metre_probs_rb.values()) / syllables_total,
             'syllable_count_entropy': syllable_count_entropy,
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
-            'chatgpt_meaning': meaning_num,
             'word_repetitions': word_repetitions / len(poem),
             'line_repetitions': line_repetitions / len(poem),
            }
+    if meaning_num is not None:
+        result['chatgpt_meaning'] = meaning_num
 
     if COMPUTE_SYNTAX:
         result['chatgpt_syntax'] = syntax_num
 
     return result
 
-def get_measures_fast(text, parameters={}):
+def get_measures_fast(text, parameters=None):
+    """Cheap measures on plain text: MorphoDiTa unknown-word ratio and,
+    unless parameters['meaning'] is False, the LLM meaning score."""
+    parameters = dict(parameters or {})
 
     # Pass poem to tokenizer
     morphodita.tokenizer.setText(text)
@@ -274,23 +259,17 @@ def get_measures_fast(text, parameters={}):
                 if result == morphodita.morpho.GUESSER:
                     unknown_counter += 1
 
-    # smysluplnost
-    response = generate_with_openai_simple("Na škále 0 až 10 ohodnoť smysluplnost následující básně. Napiš pouze to číslo.\n\n" + text, model="google/gemini-2.5-flash")
-    numbers = re.findall(r'\d+', response)
-    meaning_num = 5
-    if numbers:
-        meaning_num = int(numbers[0])
-    if meaning_num > 0 and meaning_num <= 10:
-        meaning_num /= 10
-
-    result = {'unknown_words': unknown_counter/word_counter,
-              'chatgpt_meaning': meaning_num,
-             }
+    result = {'unknown_words': unknown_counter/word_counter}
+    if parameters.get('meaning', True):
+        result['chatgpt_meaning'] = measure_meaning(text)
 
     return result
 
 
-def get_measures(input_txt, parameters={}):
+def get_measures(input_txt, parameters=None):
+    """Measures from plain text. parameters['nekvetuj'] selects the fast path
+    (no kveta analysis); see get_measures_from_analyzed_poem for the rest."""
+    parameters = dict(parameters or {})
 
     #print(time.time(), "MEASURES START")
     if parameters.get('nekvetuj', False):

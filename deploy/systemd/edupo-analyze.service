@@ -1,0 +1,13 @@
+[Unit]
+Description=EduPo poem analysis worker (analyze.py, ZMQ port 5013)
+After=network.target
+
+[Service]
+User=jarda
+ExecStart=/home/jarda/edupo/deploy/start-analyze.sh 5013
+TimeoutStopSec=30
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
