@@ -13,6 +13,21 @@
 
 <h1>EduPo</h1>
 
+{% if authenticated %}
+<p>Přihlášeno pro přístup k chráněným funkcím.</p>
+<p><a href="{{ url_for('call_logs', accept='html') }}">Zobrazit logy</a></p>
+<form method="post" action="{{ url_for('logout') }}">
+    <button type="submit">Odhlásit se</button>
+</form>
+{% else %}
+<form method="post" action="{{ url_for('login') }}">
+    <label for="access-password">Heslo pro chráněné funkce:</label>
+    <input id="access-password" type="password" name="password" autocomplete="current-password" required>
+    <button type="submit">Přihlásit se</button>
+</form>
+{% if login_error %}<p role="alert">{{ login_error }}</p>{% endif %}
+{% endif %}
+
 <h2>i<i class="fas fa-random"></i> Náhodná báseň</h2>
 <a href="{{ url_for('call_show', poemid='RANDOMGEN') }}">Zobrazit náhodnou vygenerovanou báseň</a>
 

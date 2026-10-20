@@ -22,6 +22,7 @@ export EDUPO_SERVER_PATH=/api
 # blocking sqlite/ZMQ calls as they are (no gevent/eventlet).
 exec "$PYBIN/gunicorn" app:app -b 0.0.0.0:5000 -w 2 -k gthread --threads 8 \
     --access-logfile=- \
+    --logger-class access_logging.PasswordMaskingLogger \
     --access-logformat '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" [%({x-request-id}o)s]' \
     --pid gunicorn.pid \
     --timeout 180

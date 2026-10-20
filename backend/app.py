@@ -28,6 +28,7 @@ import sys
 from data_types import GenerationParameters
 
 import poem_cache
+from password_auth import PasswordAuth
 
 app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
@@ -148,6 +149,29 @@ try:
         HESLA = set(json.load(infile))
 except:
     HESLA = set()
+
+password_auth = PasswordAuth(lambda: HESLA)
+
+PASSWORD_PROTECTED_ENDPOINTS = {
+    'call_typfeatures', 'call_search', 'call_translate',
+    'call_processopenai', 'call_generate_openai', 'call_logs',
+    'call_showlist', 'call_genimage',
+}
+
+@app.before_request
+def protect_legacy_endpoints():
+    if request.endpoint in PASSWORD_PROTECTED_ENDPOINTS and not password_auth.authenticated():
+        return return_accepted_type('Unauthorized', {'error': 'Unauthorized'},
+                                    'Unauthorized', status=401)
+
+@app.after_request
+def prevent_private_response_caching(response):
+    if (request.endpoint in PASSWORD_PROTECTED_ENDPOINTS
+            or request.endpoint in {'call_show', 'hello_world', 'login', 'logout'}):
+        response.headers['Cache-Control'] = 'private, no-store'
+        response.vary.add('Cookie')
+        response.vary.add('Authorization')
+    return response
 
 class ExceptionPoemDoesNotExist(Exception):
     pass
@@ -416,7 +440,24 @@ def store(data, write_file=True):
 @app.route("/")
 @app.route("/index")
 def hello_world():
-    return render_template('index.html')
+    return render_template('index.html', authenticated=password_auth.authenticated())
+
+@app.route('/login', methods=['POST'])
+def login():
+    if not password_auth.valid_password(request.form.get('password', '')):
+        response = make_response(render_template('index.html', authenticated=False,
+                                                 login_error='Unauthorized'), 401)
+        password_auth.clear_cookie(response)
+        return response
+    response = redirect(url_for('hello_world'), code=303)
+    password_auth.set_cookie(response)
+    return response
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    response = redirect(url_for('hello_world'), code=303)
+    password_auth.clear_cookie(response)
+    return response
 
 @app.route("/favicon.ico")
 def favicon():
@@ -763,14 +804,22 @@ def call_regenerate_line():
 @app.route("/show", methods=['GET', 'POST'])
 def call_show():
     data = get_poem_by_id(random_if_no_id=True)
-    password = get_post_arg('password', default='')
     if data:
-        if password in HESLA:
-            data['copyrighted'] = 0
-            logmsg = datetime.now().strftime("%Y-%m-%d %H:%M:%S "
-                    ) + f"{data['id']} {password[0]}{'.'*(len(password)-1)}"
+        if password_auth.authenticated():
+            data = dict(data, copyrighted=0)
+            # Dedicated audit log contains no password or password fragment.
             with open(PWDLOG, 'a') as outfile:
-                print(logmsg, file=outfile)
+                print(datetime.now().strftime("%Y-%m-%d %H:%M:%S ") + str(data['id']),
+                      file=outfile)
+        elif data.get('copyrighted'):
+            # Whitelist fields: body, verses, translations and raw analysis can
+            # otherwise expose the complete poem even if plaintext is shortened.
+            preview = poem2text(data).split('\n', 1)[0][:20] + '...'
+            message = 'Plný text této básně je chráněn autorskými právy.'
+            data = {key: data[key] for key in
+                    ('id', 'title', 'author_name', 'copyrighted') if key in data}
+            data.update(plaintext=preview + '\n\n' + message,
+                        verses=[{'text': preview}], copyright_notice=message)
         return return_accepted_type_for_poemid(data, 'show_poem_html.html')
     else:
         return return_error('The requested poem does not exist.', get_post_arg('poemid'), 404)

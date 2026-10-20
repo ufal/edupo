@@ -20,6 +20,25 @@ Podporuje:
 - **poemid** – unikátní identifikátor básně (povinné pro některé endpointy)
     - ve vraceném JSONu někdy jako `id`
 
+## Přístup k chráněným funkcím
+
+Endpointy `/typfeatures`, `/search`, `/translate`, `/processopenai` a
+`/openaigenerate`, `/logs`, `/showlist` a `/genimage` vyžadují heslo ze stávajícího souboru `hesla.json`.
+Chybějící nebo nesprávné heslo vrací HTTP **401 Unauthorized** ve všech formátech.
+API klienti mohou použít hlavičku `Authorization: Bearer <heslo>` nebo formulářový
+POST parametr `password`. Starý GET parametr `password` zůstává podporován,
+ale nedoporučuje se: URL mohou uchovávat prohlížeče a proxy logy.
+Backendový access log zachovává parametry URL, referrer i user-agent, ale hodnoty
+parametru `password` v URL požadavku a referreru nahrazuje `[REDACTED]`.
+
+Na hlavní HTML stránce lze heslo zadat přihlašovacím formulářem. Prohlížeč pak
+posílá HttpOnly cookie s podepsaným přístupovým tokenem (platnost 8 hodin);
+heslo se do cookie neukládá. Odhlášení cookie odstraní.
+
+`/show` bez platného přihlášení vrací u autorsky chráněných básní pouze začátek
+textu a upozornění na autorská práva, také v JSON a TXT. Veřejné a vygenerované
+básně zůstávají dostupné celé.
+
 ## Formát výstupu
 
 - pokud to vrací báseň, tak:
