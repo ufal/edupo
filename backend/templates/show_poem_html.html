@@ -115,6 +115,7 @@
     {% if not body %}
     <form method="post" action="{{ url_for('call_analyze') }}">
         <input type="hidden" name="poemid" value="{{ id }}">
+        <input name="full" type="hidden" value="True">
         <input type="submit" value="Analyzovat"
         onclick="this.value='Analyzuji...'; this.disabled = true; this.form.submit();">
     </form>

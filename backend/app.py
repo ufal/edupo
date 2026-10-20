@@ -951,7 +951,8 @@ def call_analyze():
         # or within get_poem_by_id()
         pass
     else:
-        request = {'text': data['plaintext'], 'measures': True}
+        full = bool(get_post_arg('full', False))
+        request = {'text': data['plaintext'], 'measures': True, 'full': full}
         if 'geninput' in data:
             # is generated: pass the requested scheme/metre as hints
             for key in ('rhyme_scheme', 'metre'):
