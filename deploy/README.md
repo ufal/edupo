@@ -20,10 +20,12 @@ paths live in one place, `env.sh`. Restart-on-crash with a 10s delay is
 handled by systemd (`Restart=always`, `RestartSec=10`), same behaviour as the
 old while loops. `authbind` was dropped — port 5000 doesn't need it.
 
-`autodeploy.sh` and `reload.sh` keep working unchanged: `pkill -f gen.py`
-makes systemd restart the generators, and `kill -HUP` on the gunicorn pid
-file gracefully reloads the backend workers. `systemctl reload
-edupo-backend` does the same HUP.
+`autodeploy.sh` runs `backend/reload.sh`, which restarts everything
+without root: it kills the generators, the analysis worker and the gunicorn
+master, and systemd starts each again (`Restart=always`). gunicorn gets a
+TERM rather than a HUP so that changes to its command line or environment
+in `start-backend.sh` also take effect; the price is ~10-20 s of backend
+downtime per deploy.
 
 Not covered here (unchanged): the frontend, the reverse proxy in front of
 port 5000, frontend-lite (static files, no process), the data directory
@@ -76,7 +78,8 @@ port 5000, frontend-lite (static files, no process), the data directory
   `backend/logs/gen_tm.log`, `backend/logs/analyze.log`, `autodeploy.log` — so `watch_server.sh` keeps
   working. The journal (`journalctl -u edupo-backend` etc.) only catches
   launcher-level errors, e.g. wrong paths in `env.sh`.
-- reload backend code without dropping requests: `sudo systemctl reload edupo-backend`
+- reload backend code only, without dropping requests: `sudo systemctl reload edupo-backend`
+- restart everything by hand, as a deploy would: `backend/reload.sh`
 - restart a generator: `sudo systemctl restart edupo-gen-tm`
 - restart the analysis worker (after changes under `kveta/`): `sudo systemctl restart edupo-analyze`
 - deploys still happen automatically via the timer;
