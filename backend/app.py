@@ -33,6 +33,30 @@ app = Flask(__name__)
 CORS(app)  # Povolit CORS pro všechny endpointy
 print(__name__)
 
+MODELS_FILE = 'models.json'
+with open(MODELS_FILE, encoding='utf-8') as models_file:
+    MODELS_CONFIG = json.load(models_file)
+
+MODELS_BY_IDENTIFIER = {
+    alias: model['precise_identifier']
+    for model in MODELS_CONFIG['models']
+    for alias in (model['precise_identifier'], model['generic_identifier'])
+}
+DEFAULT_MODEL = next(
+    model['precise_identifier']
+    for model in MODELS_CONFIG['models'] if model.get('default'))
+FAST_MODEL = MODELS_BY_IDENTIFIER['fast']
+
+
+def resolve_modelspec(modelspec):
+    """Translate an allowed exact or generic model id to its exact id."""
+    resolved = MODELS_BY_IDENTIFIER.get(modelspec)
+    if resolved is not None:
+        return resolved
+    app.logger.warning(
+        "Unknown modelspec %r; using fast model %s", modelspec, FAST_MODEL)
+    return FAST_MODEL
+
 class RequestIdFilter(logging.Filter):
     def filter(self, record):
         if has_request_context() and getattr(g, 'request_id', None):
@@ -572,8 +596,9 @@ def call_generuj():
     # a cached frontend may define its own default model (used only when the request does
     # not specify modelspec) -- e.g. lite defaults to Gemini via OpenRouter
     params['modelspec'] = get_post_arg(
-        'modelspec', FRONTEND_DEFAULT_MODELSPEC.get(params['frontend'], 'mc'),
+        'modelspec', FRONTEND_DEFAULT_MODELSPEC.get(params['frontend'], DEFAULT_MODEL),
         nonempty=True)
+    params['modelspec'] = resolve_modelspec(params['modelspec'])
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
     params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
     
@@ -1455,6 +1480,11 @@ def call_continuation():
 def call_get_generation_parameters_specification():
     schema = GenerationParameters.schema_json(indent=2)
     return return_accepted_type(schema, schema, schema)
+
+
+@app.route("/get_models", methods=['GET', 'POST'])
+def get_models():
+    return jsonify(MODELS_CONFIG)
 
 
 @app.route("/logs", methods=['GET', 'POST'])
