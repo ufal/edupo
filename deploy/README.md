@@ -5,7 +5,7 @@ Systemd units replacing the screen/while-loop setup on the production server
 
 | unit | replaces | what it runs |
 |---|---|---|
-| `edupo-backend.service` | `backend/app.sh` loop | gunicorn `app:app` on port 5000, 2 workers |
+| `edupo-backend.service` | `backend/app.sh` loop | gunicorn `app:app` on port 5000, 2 workers × 8 threads |
 | `edupo-gen-mc.service` | `backend/run_gen_mc.sh` loop | `gen.py mc 5010` (ZMQ) |
 | `edupo-gen-tm.service` | `backend/run_gen_tm.sh` loop | `gen.py tm 5011 --16bit` (ZMQ) |
 | `edupo-gen-new.service` | `backend/run_gen_3g.sh` loop | `gen.py new 5012 --16bit` — optional, only if the `new` modelspec is in use |

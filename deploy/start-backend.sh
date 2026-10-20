@@ -16,7 +16,11 @@ echo Starting backend server...
 export EDUPO_CACHE_MAX_REGEN_IN_FLIGHT=3
 export EDUPO_SERVER_PATH=/api
 
-exec "$PYBIN/gunicorn" app:app -b 0.0.0.0:5000 -w 2 \
+# 2 processes x 8 threads (4-CPU server). Handlers mostly wait on the ZMQ
+# workers (analysis, generators) or OpenRouter, so threads overlap that
+# waiting; CPU-heavy work no longer runs in this process. gthread keeps
+# blocking sqlite/ZMQ calls as they are (no gevent/eventlet).
+exec "$PYBIN/gunicorn" app:app -b 0.0.0.0:5000 -w 2 -k gthread --threads 8 \
     --access-logfile=- \
     --access-logformat '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" [%({x-request-id}o)s]' \
     --pid gunicorn.pid \
