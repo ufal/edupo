@@ -45,7 +45,9 @@ MODELS_BY_IDENTIFIER = {
 DEFAULT_MODEL = next(
     model['precise_identifier']
     for model in MODELS_CONFIG['models'] if model.get('default'))
-FAST_MODEL = MODELS_BY_IDENTIFIER['fast']
+FALLBACK_MODEL = next(
+    model['precise_identifier']
+    for model in MODELS_CONFIG['models'] if model.get('fallback'))
 
 
 def resolve_modelspec(modelspec):
@@ -54,8 +56,8 @@ def resolve_modelspec(modelspec):
     if resolved is not None:
         return resolved
     app.logger.warning(
-        "Unknown modelspec %r; using fast model %s", modelspec, FAST_MODEL)
-    return FAST_MODEL
+        "Unknown modelspec %r; using fallback model %s", modelspec, FALLBACK_MODEL)
+    return FALLBACK_MODEL
 
 class RequestIdFilter(logging.Filter):
     def filter(self, record):

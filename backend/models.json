@@ -4,19 +4,22 @@
       "precise_identifier": "tm",
       "generic_identifier": "EduPo",
       "human_readable_identifier": "EduPo model",
-      "default": false
+      "default": false,
+      "fallback": false
     },
     {
       "precise_identifier": "google/gemini-3.5-flash",
       "generic_identifier": "good",
       "human_readable_identifier": "lepší komerční model",
-      "default": true
+      "default": true,
+      "fallback": false
     },
     {
       "precise_identifier": "google/gemini-3.1-flash-lite",
       "generic_identifier": "fast",
       "human_readable_identifier": "rychlejší komerční model",
-      "default": false
+      "default": false,
+      "fallback": true
     }
   ]
 }
