@@ -1,0 +1,14 @@
+[Unit]
+Description=EduPo MC generator model (gen.py mc, ZMQ port 5010)
+After=network.target
+
+[Service]
+User=jarda
+ExecStart=/home/jarda/edupo/deploy/start-gen.sh mc 5010
+# Model load takes a while; give it time to shut down cleanly too
+TimeoutStopSec=30
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

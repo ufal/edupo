@@ -1,0 +1,8 @@
+[Unit]
+Description=EduPo autodeploy (git pull + reload backend and generators)
+
+[Service]
+Type=oneshot
+User=jarda
+WorkingDirectory=/home/jarda/edupo
+ExecStart=/home/jarda/edupo/autodeploy.sh

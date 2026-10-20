@@ -1,0 +1,13 @@
+[Unit]
+Description=EduPo TM generator model (gen.py tm --16bit, ZMQ port 5011)
+After=network.target
+
+[Service]
+User=jarda
+ExecStart=/home/jarda/edupo/deploy/start-gen.sh tm 5011 --16bit
+TimeoutStopSec=30
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

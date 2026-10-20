@@ -1,0 +1,14 @@
+[Unit]
+Description=EduPo NEW generator model (gen.py new --16bit, ZMQ port 5012)
+# Optional: enable only if the "new" modelspec is in use (see run_gen_3g.sh).
+After=network.target
+
+[Service]
+User=jarda
+ExecStart=/home/jarda/edupo/deploy/start-gen.sh new 5012 --16bit
+TimeoutStopSec=30
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

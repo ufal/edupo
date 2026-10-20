@@ -1,0 +1,16 @@
+[Unit]
+Description=EduPo backend API (gunicorn, port 5000)
+Documentation=https://github.com/ufal/edupo
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=jarda
+ExecStart=/home/jarda/deploy/start-backend.sh
+# Graceful code reload (same as reload.sh's kill -HUP): systemctl reload edupo-backend
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
