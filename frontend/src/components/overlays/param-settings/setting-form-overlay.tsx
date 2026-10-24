@@ -9,16 +9,14 @@ import { usePoemStore } from '@/stores/poem-store'
 import { PoemForm } from '@/types/poem'
 import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
 
-const DEFAULT_FORM: FormOption = 'free'
+const DEFAULT_FORM: FormOption = 'sonet'
 
 type FormOption = PoemForm
 
 const options: { value: FormOption; label: string }[] = [
-  { value: 'free', label: 'Volná forma' },
   { value: 'sonet', label: 'Sonet' },
   { value: 'limerik', label: 'Limerik' },
-  { value: 'haiku', label: 'Haiku' },
-  { value: 'epigram', label: 'Epigram' },
+  { value: 'haiku', label: 'Haiku' }
 ]
 
 export function SettingFormOverlay({ onClose }: { onClose: () => void }) {
