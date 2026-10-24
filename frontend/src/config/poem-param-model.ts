@@ -1,23 +1,37 @@
-import type { PoemModelSpec } from '@/types/poem'
+import type { AvailableModel } from '@/types/edupo-api'
 
-export const DEFAULT_MODEL_SPEC: PoemModelSpec =
-  'google/gemini-3.1-pro-preview'
+export const LEGACY_DEFAULT_MODEL_SPEC = 'EduPo'
 
-export const MODEL_OPTIONS: {
-  value: PoemModelSpec
-  label: string
-}[] = [
-  { value: 'mc', label: 'mc' },
-  { value: 'tm', label: 'tm' },
-  { value: 'gpt-4o-mini', label: 'gpt-4o-mini' },
-  {
-    value: 'google/gemini-3.1-pro-preview',
-    label: 'google/gemini-3.1-pro-preview',
-  },
+export const LEGACY_MODEL_OPTIONS = [
+  { value: 'Komerční rychejší', label: 'Komerční rychejší' },
+  { value: 'Komerční lepší', label: 'Komerční lepší' },
+  { value: 'EduPo', label: 'EduPo' },
 ]
 
-export function getRandomModelSpec(): PoemModelSpec {
-  return MODEL_OPTIONS[
-    Math.floor(Math.random() * MODEL_OPTIONS.length)
-  ].value
+const LEGACY_MODEL_IDENTIFIERS: Record<string, string> = {
+  'Komerční rychejší': 'fast',
+  'Komerční rychlejší': 'fast',
+  'Komerční lepší': 'good',
+}
+
+export function getDefaultModel(
+  models: AvailableModel[],
+): AvailableModel | undefined {
+  return models.find((model) => model.default)
+}
+
+export function findAvailableModel(
+  models: AvailableModel[],
+  identifier: string | null | undefined,
+): AvailableModel | undefined {
+  if (!identifier) return undefined
+
+  const normalizedIdentifier =
+    LEGACY_MODEL_IDENTIFIERS[identifier] ?? identifier
+
+  return models.find(
+    (model) =>
+      model.generic_identifier === normalizedIdentifier ||
+      model.precise_identifier === normalizedIdentifier,
+  )
 }

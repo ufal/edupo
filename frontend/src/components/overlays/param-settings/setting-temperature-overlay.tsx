@@ -9,11 +9,7 @@ import { Input } from '@/components/ui/input'
 import { usePoemStore } from '@/stores/poem-store'
 import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
 import { PlainSelect } from '@/components/ui/plain-select'
-import {
-  DEFAULT_MODEL_SPEC,
-  MODEL_OPTIONS,
-  getRandomModelSpec,
-} from '@/config/poem-param-model'
+import { usePoemModels } from '@/hooks/use-poem-models'
 import type { PoemModelSpec } from '@/types/poem'
 
 const MIN_TEMPERATURE = 0.1
@@ -50,20 +46,14 @@ export function SettingTemperatureOverlay({ onClose }: { onClose: () => void }) 
     setInputValue(temperature.toFixed(1))
   }, [temperature])
 
-  const storedModelSpec = usePoemStore(
-    (state) => state.params.modelSpec,
-  )
-
-  useEffect(() => {
-    if (!storedModelSpec) {
-      updateParams({
-        modelSpec: DEFAULT_MODEL_SPEC,
-      })
-    }
-  }, [storedModelSpec, updateParams])
-
-  const modelSpec =
-    storedModelSpec ?? DEFAULT_MODEL_SPEC
+  const {
+    models,
+    modelSpec,
+    modelOptions,
+    status: modelsStatus,
+    error: modelsError,
+    retryModels,
+  } = usePoemModels()
 
   return (
     <ShellOverlay variant="menu" className="bg-yellow-50">
@@ -127,7 +117,7 @@ export function SettingTemperatureOverlay({ onClose }: { onClose: () => void }) 
           }}
         />
 
-        <section className="mt-12 border-t border-grey-200 pt-8">
+        <section className="mt-12">
           <p className="typo-large text-grey-700">
             Vyberte model
           </p>
@@ -135,11 +125,30 @@ export function SettingTemperatureOverlay({ onClose }: { onClose: () => void }) 
           <PlainSelect
             className="mt-7"
             value={modelSpec}
-            options={MODEL_OPTIONS}
+            options={modelOptions}
+            emptyLabel={
+              modelsStatus === 'error'
+                ? 'Modely se nepodařilo načíst'
+                : 'Načítání modelů…'
+            }
             onChange={(value) => {
               updateParams({ modelSpec: value as PoemModelSpec })
             }}
           />
+
+          {modelsStatus === 'error' && (
+            <div className="mt-3 typo-small text-grey-700" role="alert">
+              <p>{modelsError}</p>
+
+              <button
+                type="button"
+                onClick={retryModels}
+                className="mt-2 cursor-pointer underline"
+              >
+                Zkusit znovu
+              </button>
+            </div>
+          )}
         </section>
 
         <Button
@@ -148,11 +157,18 @@ export function SettingTemperatureOverlay({ onClose }: { onClose: () => void }) 
           size="md"
           className="mt-7 px-10"
           onClick={() => {
-            const random = Math.random() * (MAX_TEMPERATURE - MIN_TEMPERATURE) + MIN_TEMPERATURE
+            const randomTemperature =
+              Math.random() * (MAX_TEMPERATURE - MIN_TEMPERATURE) +
+              MIN_TEMPERATURE
+
+            const randomModel =
+              models[Math.floor(Math.random() * models.length)]
 
             updateParams({
-              temperature: Number(random.toFixed(1)),
-              modelSpec: getRandomModelSpec(),
+              temperature: Number(randomTemperature.toFixed(1)),
+              ...(randomModel
+                ? { modelSpec: randomModel.generic_identifier }
+                : {}),
             })
           }}
         >

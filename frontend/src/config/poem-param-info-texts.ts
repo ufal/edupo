@@ -25,18 +25,18 @@ export const poemParamInfoTexts: Record<PoemParamInfoKey, PoemParamInfo> = {
   },
 
   form: {
-    title: 'Forma',
+    title: 'Pevná forma',
     text: 'Chcete, aby báseň měla nějakou pevnou formu, např. sonet?',
   },
 
   verseCount: {
-    title: 'Počet veršů',
+    title: 'Počet veršů a slok',
     text: 'Nastavte počet veršů v první sloce a maximální počet slok básně.',
   },
 
   rhymeScheme: {
     title: 'Rýmové schéma',
-    text: 'Rýmové schéma určuje, které verše se mají rýmovat. Stejná písmena označují verše se stejným rýmem, X označuje verš bez rýmu.',
+    text: 'Pro použití této funkce nastavte počet veršů a nepoužívejte pevnou formu.',
   },
 
   firstVerseLength: {
@@ -50,7 +50,7 @@ export const poemParamInfoTexts: Record<PoemParamInfoKey, PoemParamInfo> = {
   },
 
   temperature: {
-    title: 'Temperature',
+    title: 'AI model',
     text: 'Teplota určuje, jak moc má být AI kreativní. Zároveň můžete vybrat model použitý pro generování.',
   },
 }

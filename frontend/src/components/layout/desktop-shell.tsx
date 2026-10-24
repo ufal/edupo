@@ -13,6 +13,7 @@ import { DesktopTemperaturePanel } from './desktop/side-panels/desktop-temperatu
 import { DesktopVerseCountPanel } from './desktop/side-panels/desktop-verse-count-panel'
 import { DesktopFirstVerseLengthPanel } from './desktop/side-panels/desktop-first-verse-length-panel'
 import { DesktopRhymeSchemePanel } from './desktop/side-panels/desktop-rhyme-panel-scheme'
+import { DesktopAuthorStylePanel } from './desktop/side-panels/desktop-author-style-panel'
 
 type DesktopShellProps = {
   children: ReactNode
@@ -30,11 +31,15 @@ export function DesktopShell({ children }: DesktopShellProps) {
       className={[
         'fixed inset-0 grid bg-yellow-50 text-foreground',
         activePanel
-          ? 'grid-cols-[320px_320px_minmax(0,1fr)]'
-          : 'grid-cols-[320px_minmax(0,1fr)]',
+          ? 'grid-cols-[410px_410px_minmax(0,1fr)]'
+          : 'grid-cols-[410px_minmax(0,1fr)]',
       ].join(' ')}
     >
       <DesktopSideMenu activePanel={activePanel} onPanelToggle={togglePanel} />
+
+      {activePanel === 'author-style' && (
+        <DesktopAuthorStylePanel onClose={() => setActivePanel(null)} />
+      )}
 
       {activePanel === 'title-motifs' && (
         <DesktopTitleMotifsPanel onClose={() => setActivePanel(null)} />

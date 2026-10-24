@@ -17,6 +17,11 @@ import ThermometerIcon from '@/assets/icons/thermometer.svg'
 import QRIcon from '@/assets/icons/qr.svg'
 import FBIcon from '@/assets/icons/fb.svg'
 import LinkedInIcon from '@/assets/icons/linked-in.svg'
+import FeatherIcon from '@/assets/icons/feather.svg'
+import EyeIcon from '@/assets/icons/eye.svg'
+import EyeOffIcon from '@/assets/icons/eye-off.svg'
+import ResetIcon from '@/assets/icons/reset.svg'
+import TrashIcon from '@/assets/icons/trash.svg'
 
 export type IconName = 'hamburger'
   | 'home'
@@ -36,6 +41,11 @@ export type IconName = 'hamburger'
   | 'fb'
   | 'x'
   | 'linkedIn'
+  | 'feather'
+  | 'eye'
+  | 'eyeOff'
+  | 'reset'
+  | 'trash'
 
 type AppIconProps = {
   name: IconName
@@ -62,6 +72,11 @@ const icons = {
   fb: FBIcon,
   x: XIcon,
   linkedIn: LinkedInIcon,
+  feather: FeatherIcon,
+  eye: EyeIcon,
+  eyeOff: EyeOffIcon,
+  reset: ResetIcon,
+  trash: TrashIcon
 }
 
 export function AppIcon({ name, size = 42, className }: AppIconProps) {

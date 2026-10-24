@@ -5,11 +5,18 @@ import { cn } from '@/libs/utils'
 
 type SliderColorTheme = 'green' | 'yellow'
 
+type SliderProps =
+  React.ComponentProps<typeof SliderPrimitive.Root> & {
+    colorTheme?: SliderColorTheme
+    empty?: boolean
+  }
+
 function Slider({
   colorTheme = 'green',
+  empty = false,
   className,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root> & { colorTheme?: SliderColorTheme }) {
+}: SliderProps) {
   return (
     <SliderPrimitive.Root
       data-slot="slider"
@@ -19,20 +26,24 @@ function Slider({
       )}
       {...props}
     >
-      <SliderPrimitive.Track className={cn("relative h-1.5 w-full grow overflow-hidden rounded-full", colorTheme === 'green' ? "bg-grey-300" : "bg-white")}>
-        <SliderPrimitive.Range className={cn("absolute h-full", colorTheme === 'green' ? "bg-teal-700" : "bg-yellow-400")} />
+      <SliderPrimitive.Track
+        className={cn(
+          'relative h-1.5 w-full grow overflow-hidden rounded-full',
+          colorTheme === 'green' ? 'bg-grey-300' : 'bg-white',
+        )}
+      >
+        <SliderPrimitive.Range
+          className={cn(
+            'absolute h-full',
+            colorTheme === 'green'
+              ? 'bg-teal-700'
+              : 'bg-yellow-400',
+            empty && 'invisible',
+          )}
+        />
       </SliderPrimitive.Track>
 
-      <SliderPrimitive.Thumb
-        className="block size-5 opacity-0"
-      />
-      
-      { /*
-      <SliderPrimitive.Thumb
-        className="block size-5 rounded-full bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2"
-        aria-label="Temperature"
-      />
-      */ }
+      <SliderPrimitive.Thumb className="block size-5 opacity-0" />
     </SliderPrimitive.Root>
   )
 }

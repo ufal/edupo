@@ -3,20 +3,19 @@
 import type { ReactNode } from 'react'
 import { AppIcon, type IconName } from '@/components/icons/app-icon'
 import { usePoemStore } from '@/stores/poem-store'
+import { usePoemModels } from '@/hooks/use-poem-models'
 
 const FORM_LABELS = {
-  free: 'Volná forma',
-  sonet: 'Sonet',
-  limerik: 'Limerik',
   haiku: 'Haiku',
-  epigram: 'Epigram',
+  limerik: 'Limerik',
+  sonet: 'Sonet'
 } as const
 
 const METRUM_LABELS = {
-  trochej: 'Trochej',
-  jamb: 'Jamb',
   daktyl: 'Daktyl',
-  volný: 'Volný',
+  jamb: 'Jamb',
+  trochej: 'Trochej',
+  volný: 'Volný verš'
 } as const
 
 type SettingsItem = {
@@ -44,6 +43,9 @@ function DesktopSettingsItem({ icon, label, value }: SettingsItem) {
 }
 
 export function DesktopSettingsPanel() {
+
+  const { modelLabel } = usePoemModels()
+
   const params = usePoemStore((state) => state.params)
 
   const titleLabel = params.title ?? 'Nenastaveno'
@@ -88,8 +90,7 @@ export function DesktopSettingsPanel() {
         ? 'Smutná'
         : 'Nenastaveno'
 
-  const modelSpecLabel =
-    params.modelSpec ?? 'Nenastaveno'
+  const modelSpecLabel = modelLabel
 
   const settingsItems: SettingsItem[] = [
     {
@@ -108,7 +109,7 @@ export function DesktopSettingsPanel() {
     { icon: 'geometry', label: 'Forma', value: formLabel },
     {
       icon: 'verseList',
-      label: 'Počet veršů',
+      label: 'Počet veršů a slok',
       value: (
         <>
           Počet veršů: {versesCountLabel}
@@ -122,7 +123,7 @@ export function DesktopSettingsPanel() {
     { icon: 'metrum', label: 'Metrum', value: metrumLabel },
     {
       icon: 'thermometer',
-      label: 'Temperature',
+      label: 'AI model',
       value: (
         <>
           Temperature: {temperatureLabel}

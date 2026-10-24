@@ -1,4 +1,5 @@
 export type DesktopSidePanel =
+  | 'author-style'
   | 'title-motifs'
   | 'form'
   | 'metrum'

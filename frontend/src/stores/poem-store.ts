@@ -16,6 +16,13 @@ import {
   sendLikeApi,
 } from '@/services/api/edupo-api'
 import type { AnalysisResponse, GeneratePoemParams } from '@/types/edupo-api'
+import { useModelsStore } from '@/stores/models-store'
+import { useDesktopSettingsUiStore } from '@/stores/desktop-settings-ui-store'
+import {
+  findAvailableModel,
+  getDefaultModel,
+} from '@/config/poem-param-model'
+import { buildGenerationParams } from '@/services/poem-generation-params'
 
 export const MAX_POEM_LINES = 10
 
@@ -145,6 +152,10 @@ function buildFirstWordsFromEditedPoem(poem: Poem) {
   return undefined
 }
 
+type GeneratePoemOptions = {
+  respectDesktopUnset?: boolean
+}
+
 type PoemState = {
   poem: Poem | null
   params: PoemGenerationParams
@@ -167,7 +178,7 @@ type PoemState = {
   resetPoem: () => void
   loadPoemById: (poemId: string) => Promise<Poem>
   loadPoemAnalysis: (poemId: string) => Promise<void>
-  generatePoem: () => Promise<Poem>
+  generatePoem: (options?: GeneratePoemOptions) => Promise<Poem>
   regeneratePoemLine: (lineId: string) => Promise<Poem>
   updatePoemLine: (lineId: string, text: string) => void
   addPoemLine: () => string | null
@@ -333,7 +344,9 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     }
   },
 
-  generatePoem: async () => {
+  generatePoem: async ({
+    respectDesktopUnset = false,
+  }: GeneratePoemOptions = {}) => {
     set({
       status: 'loading',
       error: null,
@@ -341,49 +354,46 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       analysisError: null,
     })
 
+    // Zachytíme parametry a přepínače při zahájení generování.
     const params = get().params
 
-    const poem = get().poem
-    const firstWords = poem ? buildFirstWordsFromEditedPoem(poem) : undefined
+    const unset = respectDesktopUnset
+      ? { ...useDesktopSettingsUiStore.getState().unset }
+      : undefined
 
-    const generationParams: GeneratePoemParams = {
-      title: params.title ?? undefined,
+    const currentPoem = get().poem
 
-      motifs:
-        params.motifs && params.motifs.length > 0
-          ? params.motifs
-          : undefined,
+    const firstWords = currentPoem
+      ? buildFirstWordsFromEditedPoem(currentPoem)
+      : undefined
 
-      form:
-        params.form === 'free'
-          ? undefined
-          : params.form ?? undefined,
+    const generationParams: GeneratePoemParams =
+      buildGenerationParams(params, unset)
 
-      verseCount: params.verseCount ?? undefined,
-
-      maxStrophes: params.maxStrophes ?? undefined,
-
-      rhymeScheme:
-        !params.form || params.form === 'free' || params.form === 'epigram'
-          ? params.rhymeScheme ?? undefined
-          : undefined,
-
-      firstVerseLength: params.firstVerseLength ?? undefined,
-
-      metrum: params.metrum ?? undefined,
-
-      temperature: params.temperature ?? undefined,
-
-      mood: params.mood ?? undefined,
-
-      modelSpec: params.modelSpec ?? undefined,
-
-      first_words: firstWords ? [firstWords] : undefined,
-
-      authorStyleId: params.authorStyleId ?? undefined,
-    }
+    // Dosavadní chování pokračování básně zatím ponecháváme.
+    generationParams.first_words = firstWords
+      ? [firstWords]
+      : undefined
 
     try {
+      if (unset?.modelSpec === true) {
+        // Model není nastavený: backend použije svůj default.
+        generationParams.modelSpec = undefined
+      } else {
+        const models = await useModelsStore.getState().loadModels()
+
+        const selectedModel =
+          findAvailableModel(models, generationParams.modelSpec) ??
+          getDefaultModel(models)
+
+        if (!selectedModel) {
+          throw new Error('Není dostupný žádný výchozí AI model.')
+        }
+
+        generationParams.modelSpec =
+          selectedModel.generic_identifier
+      }
+
       const response = await generatePoemApi(generationParams)
       const poem = mapPoemResponseToPoem(response)
 

@@ -4,24 +4,23 @@ import { useUiStore } from '@/stores/ui-store'
 import { usePoemStore } from '@/stores/poem-store'
 import { SettingsCard } from './settings-card'
 import { DEFAULT_MAX_STROPHES } from '@/config/poem-param-max-strophes'
-import { DEFAULT_MODEL_SPEC } from '@/config/poem-param-model'
+import { usePoemModels } from '@/hooks/use-poem-models'
 
 const FORM_LABELS = {
-  free: 'Volná forma',
-  sonet: 'Sonet',
-  limerik: 'Limerik',
   haiku: 'Haiku',
-  epigram: 'Epigram',
+  limerik: 'Limerik',
+  sonet: 'Sonet'
 } as const
 
 const METRUM_LABELS = {
-  trochej: 'Trochej',
-  jamb: 'Jamb',
   daktyl: 'Daktyl',
-  volný: 'Volný',
+  jamb: 'Jamb',
+  trochej: 'Trochej',
+  volný: 'Volný verš',
 } as const
 
 export function SettingsOverview() {
+  const { modelLabel } = usePoemModels()
   const openOverlay = useUiStore((state) => state.openOverlay)
   const params = usePoemStore((state) => state.params)
 
@@ -59,8 +58,7 @@ export function SettingsOverview() {
       ? `${params.maxStrophes}`
       : 'Nenastaveno'
 
-  const modelSpecLabel =
-    params.modelSpec ?? 'Nenastaveno'
+  const modelSpecLabel = modelLabel
 
     const moodLabel =
       params.mood === 'veselá'
@@ -93,14 +91,14 @@ export function SettingsOverview() {
       <div className="grid grid-cols-2 gap-4">
         <SettingsCard
           iconName="geometry"
-          title="Forma"
+          title="Pevná forma"
           value={formLabel}
           onClick={() => openOverlay('setting-param-form')}
         />
 
         <SettingsCard
           iconName="verseList"
-          title="Počet veršů"
+          title="Počet veršů a slok"
           value={
             <>
               Počet veršů: {versesCountLabel}

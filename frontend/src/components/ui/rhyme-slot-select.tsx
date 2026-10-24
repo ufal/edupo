@@ -20,6 +20,7 @@ type RhymeSlotSelectProps = {
   value: RhymeDisplayValue
   disabled?: boolean
   isOpen: boolean
+  allowEmptySelection?: boolean
   onOpenChange: (open: boolean) => void
   onChange: (value: RhymeValue) => void
 }
@@ -28,10 +29,11 @@ export function RhymeSlotSelect({
   value,
   disabled,
   isOpen,
+  allowEmptySelection = false,
   onOpenChange,
   onChange,
 }: RhymeSlotSelectProps) {
-  if (disabled || value === '-') {
+  if (disabled || (value === '-' && !allowEmptySelection)) {
     return (
       <button
         type="button"

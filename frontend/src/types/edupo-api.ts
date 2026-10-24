@@ -75,3 +75,15 @@ export type TTSResponse = {
 }
 export type MotivesResponse = unknown
 export type ImageResponse = unknown
+
+export type AvailableModel = {
+  generic_identifier: string
+  human_readable_identifier: string
+  precise_identifier: string
+  default: boolean
+  fallback: boolean
+}
+
+export type AvailableModelsResponse = {
+  models: AvailableModel[]
+}

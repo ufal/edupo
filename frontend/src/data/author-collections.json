@@ -1,0 +1,32 @@
+[
+  {
+    "id": "macha-test-1",
+    "authorId": "macha",
+    "label": "Testovací sbírka Mácha 1"
+  },
+  {
+    "id": "macha-test-2",
+    "authorId": "macha",
+    "label": "Testovací sbírka Mácha 2"
+  },
+  {
+    "id": "erben-test-1",
+    "authorId": "erben",
+    "label": "Testovací sbírka Erben 1"
+  },
+  {
+    "id": "erben-test-2",
+    "authorId": "erben",
+    "label": "Testovací sbírka Erben 2"
+  },
+  {
+    "id": "halek-test-1",
+    "authorId": "halek",
+    "label": "Testovací sbírka Hálek 1"
+  },
+  {
+    "id": "halek-test-2",
+    "authorId": "halek",
+    "label": "Testovací sbírka Hálek 2"
+  }
+]

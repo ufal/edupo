@@ -45,7 +45,7 @@ export function InfoPopup({
 
         <Button
           type="button"
-          variant="primary"
+          variant="accent"
           size="sm"
           className="w-full"
           onClick={onClose}

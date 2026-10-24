@@ -111,9 +111,9 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
           Nastavte počet veršů
         </p>
 
-        <div className="mt-8 flex items-center gap-5">
+        <div className="mt-4 flex items-center gap-5">
           <label className="typo-body font-semibold text-grey-900">
-            Počet veršů
+            Počet veršů a slok
           </label>
 
         <Input
@@ -141,7 +141,7 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
 
         <Slider
           colorTheme="green"
-          className="mt-7"
+          className="mt-4"
           min={MIN_VERSES}
           max={MAX_VERSES}
           step={STEP}
@@ -153,12 +153,12 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
           }}
         />
 
-        <section className="mt-12 border-t border-grey-200 pt-8">
+        <section className="mt-12 pt-8">
           <p className="typo-large text-grey-700">
             Nastavte maximální počet slok
           </p>
 
-          <div className="mt-8 flex items-center gap-5">
+          <div className="mt-4 flex items-center gap-5">
             <label className="typo-body font-semibold text-grey-900">
               Maximální počet slok
             </label>
@@ -188,7 +188,7 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
 
           <Slider
             colorTheme="green"
-            className="mt-7"
+            className="mt-4"
             min={MIN_STROPHES}
             max={MAX_STROPHES}
             step={STROPHE_COUNT_STEP}
@@ -205,7 +205,7 @@ export function SettingVerseCountOverlay({ onClose }: { onClose: () => void }) {
           type="button"
           variant="primary"
           size="md"
-          className="mt-7 px-10"
+          className="mt-4 px-10"
           onClick={() => {
             const maxStrophes = getRandomMaxStrophes();
             console.log('Random maxStrophes:', maxStrophes);

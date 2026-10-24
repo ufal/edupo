@@ -1,128 +1,251 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { usePoemStore } from '@/stores/poem-store'
-import { DesktopSidePanelShell } from './desktop-side-panel-shell'
+import { useDesktopSettingsUiStore } from '@/stores/desktop-settings-ui-store'
 import { poemParamInfoTexts } from '@/config/poem-param-info-texts'
 import { MAX_MOTIFS } from '@/config/poem-param-title-motifs'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { MOOD_OPTIONS } from '@/config/poem-param-mood'
+import { DesktopSidePanelShell } from './desktop-side-panel-shell'
+import { DesktopUnsetToggle } from './../desktop-unset-toggle'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { AppIcon } from '@/components/icons/app-icon'
 import type { PoemMood } from '@/types/poem'
 
 const EMPTY_MOTIFS: string[] = []
+
+const inputClassName = [
+  'disabled:cursor-not-allowed',
+  'disabled:bg-purple-200/70',
+  'focus:ring-yellow-300',
+].join(' ')
 
 type DesktopTitleMotifsPanelProps = {
   onClose: () => void
 }
 
-export function DesktopTitleMotifsPanel({ onClose }: DesktopTitleMotifsPanelProps) {
+export function DesktopTitleMotifsPanel({
+  onClose,
+}: DesktopTitleMotifsPanelProps) {
+  const inputId = useId()
+
   const title = usePoemStore((state) => state.params.title ?? '')
-  const motifs = usePoemStore((state) => state.params.motifs ?? EMPTY_MOTIFS)
+  const motifs = usePoemStore(
+    (state) => state.params.motifs ?? EMPTY_MOTIFS,
+  )
   const mood = usePoemStore((state) => state.params.mood)
   const updateParams = usePoemStore((state) => state.updateParams)
 
-  const [motifInputs, setMotifInputs] = useState<string[]>(
-    motifs.length > 0 ? motifs : [''],
+  const titleUnset = useDesktopSettingsUiStore(
+    (state) => state.unset.title,
+  )
+  const motifsUnset = useDesktopSettingsUiStore(
+    (state) => state.unset.motifs,
+  )
+  const moodUnset = useDesktopSettingsUiStore(
+    (state) => state.unset.mood,
+  )
+  const setUnset = useDesktopSettingsUiStore(
+    (state) => state.setUnset,
   )
 
-  const cleanMotifs = (values: string[]) =>
-    values.map((value) => value.trim()).filter(Boolean)
+  const [motifInputs, setMotifInputs] = useState<string[]>(
+    () => (motifs.length ? [...motifs] : ['']),
+  )
 
-  const updateMotif = (index: number, value: string) => {
-    const nextMotifInputs = [...motifInputs]
-    nextMotifInputs[index] = value
+  function updateMotif(index: number, value: string) {
+    const nextInputs = [...motifInputs]
+    nextInputs[index] = value
 
-    setMotifInputs(nextMotifInputs)
-    updateParams({ motifs: cleanMotifs(nextMotifInputs) })
+    setMotifInputs(nextInputs)
+
+    updateParams({
+      motifs: nextInputs.map((motif) => motif.trim()).filter(Boolean),
+    })
   }
 
-  const addMotif = () => {
-    if (motifInputs.length >= MAX_MOTIFS) return
-    setMotifInputs([...motifInputs, ''])
+  function addMotif() {
+    if (motifsUnset) return
+
+    setMotifInputs((current) =>
+      current.length < MAX_MOTIFS ? [...current, ''] : current,
+    )
+  }
+
+  function removeMotif(index: number) {
+    if (motifsUnset) return
+
+    const remainingInputs = motifInputs.filter(
+      (_, currentIndex) => currentIndex !== index,
+    )
+
+    // Po odstranění posledního motivu ponecháme jedno prázdné pole.
+    const nextInputs = remainingInputs.length > 0
+      ? remainingInputs
+      : ['']
+
+    setMotifInputs(nextInputs)
+
+    updateParams({
+      motifs: nextInputs
+        .map((motif) => motif.trim())
+        .filter(Boolean),
+    })
   }
 
   return (
-    <DesktopSidePanelShell onClose={onClose} title={poemParamInfoTexts.titleMotifs.title} infoText={poemParamInfoTexts.titleMotifs.text}>
+    <DesktopSidePanelShell
+      title="Název a motiv"
+      infoText={poemParamInfoTexts.titleMotifs.text}
+      onClose={onClose}
+    >
       <section>
-        
-        <label className="typo-body font-bold">
+        <label
+          htmlFor={`${inputId}-title`}
+          className="block typo-body font-bold"
+        >
           Název
         </label>
 
         <Input
+          id={`${inputId}-title`}
           type="text"
           value={title}
-          onChange={(event) => updateParams({ title: event.target.value })}
+          disabled={titleUnset}
+          onChange={(event) =>
+            updateParams({ title: event.target.value })
+          }
           placeholder="Název"
-          className="mt-4"
+          className={`mt-4 ${inputClassName}`}
+        />
+
+        <DesktopUnsetToggle
+          label="Název"
+          unset={titleUnset}
+          onUnsetChange={(unset) => setUnset('title', unset)}
         />
       </section>
 
       <section className="mt-20">
-        <label className="typo-body font-bold">
+        <h3 className="typo-body font-bold">
           Motivy
-        </label>
+        </h3>
 
-        <div className="mt-4 space-y-4">
-          {motifInputs.map((motif, index) => {
-            const isLast = index === motifInputs.length - 1
-            const canAddMotif = motifInputs.length < MAX_MOTIFS
+      <div className="mt-4 space-y-4">
+        {motifInputs.map((motif, index) => {
 
-            return (
-              <div key={index} className="flex items-center gap-3">
-                <Input
-                  type="text"
-                  value={motif}
-                  onChange={(event) => updateMotif(index, event.target.value)}
-                  placeholder={`Motiv ${index + 1}`}
-                  className="min-w-0 flex-1"
-                />
+          const canAdd =
+            index === motifInputs.length - 1 &&
+            motifInputs.length < MAX_MOTIFS
 
-                {isLast && canAddMotif && (
-                  <button
-                    type="button"
-                    aria-label="Přidat motiv"
-                    onClick={addMotif}
-                    className="grid size-11 shrink-0 place-items-center rounded-2xl bg-yellow-300 text-zinc-900 cursor-pointer"
-                  >
-                    <Plus size={18} strokeWidth={2.5} />
-                  </button>
-                )}
-              </div>
-            )
-          })}
-        </div>
+          const canRemove =
+            !canAdd &&
+            (motifInputs.length > 1 || motif.length > 0)
+
+          const actionButtonClassName = [
+            'grid size-11 shrink-0 place-items-center',
+            'rounded-2xl bg-yellow-300 text-zinc-900',
+            'cursor-pointer',
+            'focus-visible:outline-none focus-visible:ring-2',
+            'focus-visible:ring-white',
+            'disabled:cursor-not-allowed',
+            'disabled:bg-purple-200/70',
+          ].join(' ')
+
+          return (
+            <div key={index} className="flex items-center gap-3">
+              <Input
+                type="text"
+                aria-label={`Motiv ${index + 1}`}
+                value={motif}
+                disabled={motifsUnset}
+                onChange={(event) =>
+                  updateMotif(index, event.target.value)
+                }
+                placeholder={
+                  motifInputs.length === 1
+                    ? 'Motivy'
+                    : `Motiv ${index + 1}`
+                }
+                className={`min-w-0 flex-1 ${inputClassName}`}
+              />
+
+              {canRemove && (
+                <button
+                  type="button"
+                  aria-label={`Odstranit motiv ${index + 1}`}
+                  title="Odstranit motiv"
+                  disabled={motifsUnset}
+                  onClick={() => removeMotif(index)}
+                  className={actionButtonClassName}
+                >
+                  <AppIcon name="trash" size={18} />
+                </button>
+              )}
+
+              {canAdd && (
+                <button
+                  type="button"
+                  aria-label="Přidat motiv"
+                  disabled={motifsUnset}
+                  onClick={addMotif}
+                  className={actionButtonClassName}
+                >
+                  <Plus size={18} strokeWidth={2.5} />
+                </button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+        <DesktopUnsetToggle
+          label="Motivy"
+          unset={motifsUnset}
+          onUnsetChange={(unset) => setUnset('motifs', unset)}
+        />
       </section>
 
       <section className="mt-20">
-        <label className="typo-body font-bold">
-          Nálada
-        </label>
+        <fieldset>
+          <legend className="typo-body font-bold">
+            Nálada
+          </legend>
 
-        <RadioGroup
-          value={mood}
-          onValueChange={(value) => {
-            updateParams({ mood: value as PoemMood })
-          }}
-          className="mt-7"
-        >
-          {MOOD_OPTIONS.map((option) => (
-            <label
-              key={option.value}
-              className="flex cursor-pointer items-center gap-3"
-            >
-              <RadioGroupItem value={option.value} />
+          <RadioGroup
+            disabled={moodUnset}
+            value={mood ?? ''}
+            onValueChange={(value) =>
+              updateParams({ mood: value as PoemMood })
+            }
+            className="mt-4"
+          >
+            {MOOD_OPTIONS.map((option) => (
+              <label
+                key={option.value}
+                className={[
+                  'flex items-center gap-3 typo-body',
+                  moodUnset
+                    ? 'cursor-not-allowed text-purple-200/70'
+                    : 'cursor-pointer text-white',
+                ].join(' ')}
+              >
+                <RadioGroupItem value={option.value} />
 
-              <span className="typo-body text-primary-foreground">
                 {option.label}
-              </span>
-            </label>
-          ))}
-        </RadioGroup>
-      </section>
+              </label>
+            ))}
+          </RadioGroup>
+        </fieldset>
 
+        <DesktopUnsetToggle
+          label="Nálada"
+          unset={moodUnset}
+          onUnsetChange={(unset) => setUnset('mood', unset)}
+        />
+      </section>
     </DesktopSidePanelShell>
   )
 }
