@@ -23,6 +23,11 @@ import {
   getDefaultModel,
 } from '@/config/poem-param-model'
 import { buildGenerationParams } from '@/services/poem-generation-params'
+import {
+  parsePlaintextToLines,
+  serializePoemLines,
+} from '@/utils/poem-lines'
+import type { PoemLine } from '@/types/poem'
 
 export const MAX_POEM_LINES = 10
 
@@ -72,12 +77,7 @@ function applyAnalysisToPoem(poem: Poem, analysis: AnalysisResponse): Poem {
   const currentLines =
     poem.lines?.length
       ? poem.lines
-      : poem.text
-          .split('\n')
-          .map((lineText, index) => ({
-            id: `line-${index + 1}`,
-            text: lineText,
-          }))
+      : parsePlaintextToLines(poem.text)
 
   const lines = currentLines.map((line, index) => ({
     ...line,
@@ -128,7 +128,7 @@ function getLastEditedCharIndex(original: string, current: string) {
 function buildFirstWordsFromEditedPoem(poem: Poem) {
   if (!poem.originalText) return undefined
 
-  const originalLines = poem.originalText.split('\n')
+  const originalLines = parsePlaintextToLines(poem.originalText).map((line) => line.text)
   const currentLines = getPoemLinesText(poem)
 
   for (let lineIndex = currentLines.length - 1; lineIndex >= 0; lineIndex -= 1) {
@@ -485,12 +485,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       const currentLines =
         state.poem.lines?.length
           ? state.poem.lines
-          : state.poem.text
-              .split('\n')
-              .map((lineText, index) => ({
-                id: `line-${index + 1}`,
-                text: lineText,
-              }))
+          : parsePlaintextToLines(state.poem.text)
 
       const lines = currentLines.map((line) =>
         line.id === lineId ? { ...line, text } : line,
@@ -500,7 +495,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
         poem: {
           ...state.poem,
           lines,
-          text: lines.map((line) => line.text).join('\n'),
+          text: serializePoemLines(lines),
         },
       }
     }),
@@ -537,7 +532,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
         poem: {
           ...state.poem,
           lines,
-          text: lines.map((line) => line.text).join('\n'),
+          text: serializePoemLines(lines),
         },
       }
     })
@@ -549,23 +544,34 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     set((state) => {
       if (!state.poem) return state
 
-      const currentLines =
-        state.poem.lines?.length
-          ? state.poem.lines
-          : state.poem.text
-              .split('\n')
-              .map((lineText, index) => ({
-                id: `line-${index + 1}`,
-                text: lineText,
-              }))
+      const currentLines: PoemLine[] = state.poem.lines?.length
+        ? state.poem.lines
+        : parsePlaintextToLines(state.poem.text)
 
-      const lines = currentLines.filter((line) => line.id !== lineId)
+      const removedIndex = currentLines.findIndex(
+        (line) => line.id === lineId,
+      )
+
+      if (removedIndex === -1) return state
+
+      const removedLine = currentLines[removedIndex]
+
+      const lines = currentLines.filter(
+        (line) => line.id !== lineId,
+      )
+
+      if (removedLine.stanzaStart && removedIndex < lines.length) {
+        lines[removedIndex] = {
+          ...lines[removedIndex],
+          stanzaStart: removedIndex > 0,
+        }
+      }
 
       return {
         poem: {
           ...state.poem,
           lines,
-          text: lines.map((line) => line.text).join('\n'),
+          text: serializePoemLines(lines),
         },
       }
     }),

@@ -4,6 +4,7 @@ import { usePoemStore } from '@/stores/poem-store'
 import type { PoemLineGroup } from '@/types/poem'
 import { getPoemLines, PoemCardActions, PoemEmptyState } from './poem-view-utils'
 import { SmartWrappedVerseText } from '@/components/ui/smart-wrapped-verse-text'
+import { PoemHeader } from './poem-header'
 
 const groupClasses: Record<PoemLineGroup, { badge: string; line: string }> = {
   A: {
@@ -57,7 +58,8 @@ export function PoemAnalysisView() {
 
   return (
     <div className="flex w-full grow flex-col">
-      <h2 className="typo-large text-grey-700 pl-[10px]">{poem.title ?? 'Analýza básně'}</h2>
+      <PoemHeader poem={poem} />
+
 
       {analysisStatus === 'loading' && hasMissingGroups && (
         <p className="mt-3 typo-detail text-grey-600">
@@ -71,7 +73,7 @@ export function PoemAnalysisView() {
         </p>
       )}
 
-      <div className="mt-5 space-y-2 desktop:mt-7 desktop:space-y-[10px]">
+      <div className="mt-5 space-y-2 desktop:mt-6 desktop:space-y-[10px]">
         {lines.map((line) => {
           const group = line.group
           const classes = group ? groupClasses[group] : pendingClasses
@@ -79,7 +81,10 @@ export function PoemAnalysisView() {
           return (
             <div
               key={line.id}
-              className="grid grid-cols-[32px_minmax(0,1fr)] items-start gap-2"
+              className={[
+                'grid grid-cols-[32px_minmax(0,1fr)] items-start gap-2',
+                line.stanzaStart ? '!mt-5 desktop:!mt-6' : '',
+              ].join(' ')}
             >
               <span
                 className={`grid size-8 shrink-0 place-items-center rounded-xl font-medium leading-none ${classes.badge}`}

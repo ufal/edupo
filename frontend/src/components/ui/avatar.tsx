@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 
-const FALLBACK_AVATAR_SRC = "assets/author-avatar.svg"
+const FALLBACK_AVATAR_SRC = "assets/authors/author-avatar.png"
 
 type AvatarProps = {
   src?: string | null

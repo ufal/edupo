@@ -83,7 +83,10 @@ export function PoemEditingView() {
           return (
             <div
               key={line.id}
-              className="grid grid-cols-[32px_minmax(0,1fr)_32px] items-start gap-2"
+              className={[
+                'grid grid-cols-[32px_minmax(0,1fr)_32px] items-start gap-2',
+                line.stanzaStart ? '!mt-5 desktop:!mt-6' : '',
+              ].join(' ')}
             >
               <button
                 type="button"
@@ -134,9 +137,9 @@ export function PoemEditingView() {
                 type="button"
                 aria-label="Navrhnout úpravu verše"
                 onClick={() => void handleRegenerateLine(line.id)}
-                className="grid size-8 place-items-center rounded-xl bg-teal-700 text-white cursor-pointer"
+                className="grid size-8 place-items-center rounded-xl bg-yellow-300 cursor-pointer"
               >
-                <AppIcon name="starsBold" size={18} />
+                <AppIcon name="stars" size={22} />
               </button>
             </div>
           )

@@ -34,6 +34,7 @@ export type PoemLine = {
   id: string
   text: string
   group?: PoemLineGroup
+  stanzaStart?: boolean
 }
 
 export type Poem = {

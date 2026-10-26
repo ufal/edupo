@@ -15,7 +15,7 @@ export function DesktopSplashScreen({ isFading }: DesktopSplashScreenProps) {
           isFading ? 'opacity-0' : 'opacity-100',
         ].join(' ')}
       >
-        <DesktopHeader />
+        <DesktopHeader variant="brand" />
 
         <main className="flex flex-1 items-center justify-center">
           <div className="mt-[-30px]">

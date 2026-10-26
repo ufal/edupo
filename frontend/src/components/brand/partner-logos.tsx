@@ -4,6 +4,7 @@ const base = process.env.NEXT_PUBLIC_LINK_BASE || '/'
 
 type PartnerLogosVariant = 'vertical' | 'horizontal'
 type PartnerLogosSet = 'full' | 'reduced'
+type PartnerLogosColor = 'white' | 'gray'
 
 type LogoItem = {
   src: string
@@ -29,12 +30,14 @@ const logoSets: Record<PartnerLogosSet, LogoItem[]> = {
 type PartnerLogosProps = {
   variant: PartnerLogosVariant
   set?: PartnerLogosSet
+  color?: PartnerLogosColor
   className?: string
 }
 
 export function PartnerLogos({
   variant,
   set = 'full',
+  color = 'white',
   className = '',
 }: PartnerLogosProps) {
   const layoutClassName =
@@ -44,16 +47,23 @@ export function PartnerLogos({
 
   return (
     <div className={[layoutClassName, className].join(' ')}>
-      {logoSets[set].map((logo) => (
-        <Image
+      {logoSets[set].map((logo) => {
+
+        const src =
+          set === 'reduced' && color === 'gray'
+            ? `${base}${logo.src.replace('.svg', '-gray.svg')}`
+            : `${base}${logo.src}`
+
+        return <Image
           key={logo.src}
-          src={`${base}${logo.src}`}
+          src={src}
           alt={logo.alt}
           width={logo.width}
           height={logo.height}
           priority
         />
-      ))}
+
+      })}
     </div>
   )
 }

@@ -9,7 +9,7 @@ const base = process.env.NEXT_PUBLIC_LINK_BASE || '/'
 export function DesktopNotFoundScreen() {
   return (
     <div className="fixed inset-0 flex flex-col bg-primary text-primary-foreground">
-      <DesktopHeader />
+      <DesktopHeader variant="brand" />
 
       <main className="flex min-h-0 flex-1 flex-col items-center justify-center text-center">
         <section className="flex flex-col items-center">

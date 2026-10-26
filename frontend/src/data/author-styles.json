@@ -1,147 +1,147 @@
 [
-  { 
-    "id": "macha",
-    "label": "Karel Hynek Mácha",
-    "avatarSrc": "assets/authors/macha.png"
-  },
-  {
-    "id": "erben",
-    "label": "Karel Jaromír Erben",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "neruda",
-    "label": "Jan Neruda",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "halek",
-    "label": "Vítězslav Hálek",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "brezina",
-    "label": "Otokar Březina",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "karasek",
-    "label": "Jiří Karásek ze Lvovic",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "hlavacek",
-    "label": "Karel Hlaváček",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "gellner",
-    "label": "František Gellner",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "wolker",
-    "label": "Jiří Wolker",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "nezval",
-    "label": "Vítězslav Nezval",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "seifert",
-    "label": "Jaroslav Seifert",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
   {
     "id": "biebl",
     "label": "Konstantin Biebl",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "holan",
-    "label": "Vladimír Holan",
-    "avatarSrc": "assets/author-avatar.svg"
+    "avatarSrc": "assets/authors/biebl-gen.png"
   },
   {
     "id": "bondy",
     "label": "Egon Bondy",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "reynek",
-    "label": "Bohuslav Reynek",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "divis",
-    "label": "Ivan Diviš",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "krchovsky",
-    "label": "J. H. Krchovský",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "hruska",
-    "label": "Petr Hruška",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "spravcova",
-    "label": "Božena Správcová",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "stehlikova",
-    "label": "Olga Stehlíková",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "rudcenkova",
-    "label": "Kateřina Rudčenková",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "maly",
-    "label": "Radek Malý",
-    "avatarSrc": "assets/author-avatar.svg"
+    "avatarSrc": "assets/authors/bondy-gen.png"
   },
   {
     "id": "borkovec",
     "label": "Petr Borkovec",
-    "avatarSrc": "assets/author-avatar.svg"
+    "avatarSrc": "assets/authors/borkovec-gen.png"
   },
   {
-    "id": "iljasenko",
-    "label": "Marie Iljašenko",
-    "avatarSrc": "assets/author-avatar.svg"
+    "id": "brezina",
+    "label": "Otokar Březina",
+    "avatarSrc": "assets/authors/brezina-gen.png"
   },
   {
-    "id": "tesnohlidek",
-    "label": "Jan Těsnohlídek",
-    "avatarSrc": "assets/author-avatar.svg"
+    "id": "divis",
+    "label": "Ivan Diviš",
+    "avatarSrc": "assets/authors/divis-gen.png"
   },
   {
-    "id": "jirous",
-    "label": "Ivan Martin Jirous",
-    "avatarSrc": "assets/author-avatar.svg"
-  },
-  {
-    "id": "wernisch",
-    "label": "Ivan Wernisch",
-    "avatarSrc": "assets/author-avatar.svg"
+    "id": "erben",
+    "label": "Karel Jaromír Erben",
+    "avatarSrc": "assets/authors/erben-gen.png"
   },
   {
     "id": "fischerova",
     "label": "Viola Fischerová",
-    "avatarSrc": "assets/author-avatar.svg"
+    "avatarSrc": "assets/authors/fischerova-gen.png"
+  },
+  {
+    "id": "gellner",
+    "label": "František Gellner",
+    "avatarSrc": "assets/authors/gellner-gen.png"
+  },
+  {
+    "id": "halek",
+    "label": "Vítězslav Hálek",
+    "avatarSrc": "assets/authors/halek-gen.png"
+  },
+  {
+    "id": "hlavacek",
+    "label": "Karel Hlaváček",
+    "avatarSrc": "assets/authors/hlavacek-gen.png"
+  },
+  {
+    "id": "holan",
+    "label": "Vladimír Holan",
+    "avatarSrc": "assets/authors/holan-gen.png"
   },
   {
     "id": "hrabe",
     "label": "Václav Hrabě",
-    "avatarSrc": "assets/author-avatar.svg"
+    "avatarSrc": "assets/authors/hrabe-gen.png"
+  },
+  {
+    "id": "hruska",
+    "label": "Petr Hruška",
+    "avatarSrc": "assets/authors/hruska-gen.png"
+  },
+  {
+    "id": "iljasenko",
+    "label": "Marie Iljašenko",
+    "avatarSrc": "assets/authors/iljasenko-gen.png"
+  },
+  {
+    "id": "jirous",
+    "label": "Ivan Martin Jirous",
+    "avatarSrc": "assets/authors/jirous-gen.png"
+  },
+  {
+    "id": "karasek",
+    "label": "Jiří Karásek ze Lvovic",
+    "avatarSrc": "assets/authors/karasek-gen.png"
+  },
+  {
+    "id": "krchovsky",
+    "label": "J. H. Krchovský",
+    "avatarSrc": "assets/authors/krchovsky-gen.png"
+  },
+  {
+    "id": "macha",
+    "label": "Karel Hynek Mácha",
+    "avatarSrc": "assets/authors/macha-gen.png"
+  },
+  {
+    "id": "maly",
+    "label": "Radek Malý",
+    "avatarSrc": "assets/authors/maly-gen.png"
+  },
+  {
+    "id": "neruda",
+    "label": "Jan Neruda",
+    "avatarSrc": "assets/authors/neruda-gen.png"
+  },
+  {
+    "id": "nezval",
+    "label": "Vítězslav Nezval",
+    "avatarSrc": "assets/authors/nezval-gen.png"
+  },
+  {
+    "id": "reynek",
+    "label": "Bohuslav Reynek",
+    "avatarSrc": "assets/authors/reynek-gen.png"
+  },
+  {
+    "id": "rudcenkova",
+    "label": "Kateřina Rudčenková",
+    "avatarSrc": "assets/authors/rudcenkova-gen.png"
+  },
+  {
+    "id": "seifert",
+    "label": "Jaroslav Seifert",
+    "avatarSrc": "assets/authors/seifert-gen.png"
+  },
+  {
+    "id": "spravcova",
+    "label": "Božena Správcová",
+    "avatarSrc": "assets/authors/spravcova-gen.png"
+  },
+  {
+    "id": "stehlikova",
+    "label": "Olga Stehlíková",
+    "avatarSrc": "assets/authors/stehlikova-gen.png"
+  },
+  {
+    "id": "tesnohlidek",
+    "label": "Jan Těsnohlídek",
+    "avatarSrc": "assets/authors/tesnohlidek-gen.png"
+  },
+  {
+    "id": "wernisch",
+    "label": "Ivan Wernisch",
+    "avatarSrc": "assets/authors/wernisch-gen.png"
+  },
+  {
+    "id": "wolker",
+    "label": "Jiří Wolker",
+    "avatarSrc": "assets/authors/wolker-gen.png"
   }
 ]

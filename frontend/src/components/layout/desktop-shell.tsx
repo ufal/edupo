@@ -1,9 +1,10 @@
+
 'use client'
 
 import { useState, type ReactNode } from 'react'
 import { DesktopSideMenu } from '@/components/layout/desktop/desktop-side-menu'
-import { DesktopSettingsPanel } from '@/components/layout/desktop/desktop-settings-panel'
-import { DesktopFooter } from '@/components/layout/desktop/desktop-footer'
+import { DesktopHeader } from '@/components/layout/desktop/desktop-header'
+import { PartnerLogos } from '@/components/brand/partner-logos'
 import { OverlayRenderer } from '@/components/overlays/overlay-renderer'
 import { DesktopTitleMotifsPanel } from '@/components/layout/desktop/side-panels/desktop-title-motifs-panel'
 import type { DesktopSidePanel } from '@/components/layout/desktop/desktop-side-panel-types'
@@ -35,51 +36,81 @@ export function DesktopShell({ children }: DesktopShellProps) {
           : 'grid-cols-[410px_minmax(0,1fr)]',
       ].join(' ')}
     >
-      <DesktopSideMenu activePanel={activePanel} onPanelToggle={togglePanel} />
+      <DesktopSideMenu
+        activePanel={activePanel}
+        onPanelToggle={togglePanel}
+      />
 
       {activePanel === 'author-style' && (
-        <DesktopAuthorStylePanel onClose={() => setActivePanel(null)} />
+        <DesktopAuthorStylePanel
+          onClose={() => setActivePanel(null)}
+        />
       )}
 
       {activePanel === 'title-motifs' && (
-        <DesktopTitleMotifsPanel onClose={() => setActivePanel(null)} />
+        <DesktopTitleMotifsPanel
+          onClose={() => setActivePanel(null)}
+        />
       )}
 
       {activePanel === 'form' && (
-        <DesktopFormPanel onClose={() => setActivePanel(null)} />
+        <DesktopFormPanel
+          onClose={() => setActivePanel(null)}
+        />
       )}
 
       {activePanel === 'metrum' && (
-        <DesktopMetrePanel onClose={() => setActivePanel(null)} />
+        <DesktopMetrePanel
+          onClose={() => setActivePanel(null)}
+        />
       )}
 
       {activePanel === 'temperature' && (
-        <DesktopTemperaturePanel onClose={() => setActivePanel(null)} />
+        <DesktopTemperaturePanel
+          onClose={() => setActivePanel(null)}
+        />
       )}
 
       {activePanel === 'verse-count' && (
-        <DesktopVerseCountPanel onClose={() => setActivePanel(null)} />
+        <DesktopVerseCountPanel
+          onClose={() => setActivePanel(null)}
+        />
       )}
 
       {activePanel === 'rhyme-scheme' && (
-        <DesktopRhymeSchemePanel onClose={() => setActivePanel(null)} />
+        <DesktopRhymeSchemePanel
+          onClose={() => setActivePanel(null)}
+        />
       )}
 
       {activePanel === 'first-verse-length' && (
-        <DesktopFirstVerseLengthPanel onClose={() => setActivePanel(null)} />
+        <DesktopFirstVerseLengthPanel
+          onClose={() => setActivePanel(null)}
+        />
       )}
 
-      <div className="relative grid min-w-0 grid-rows-[1fr_auto] overflow-hidden">
-        <div className="grid min-h-0 grid-cols-[minmax(0,1fr)_290px] gap-12 px-[50px] pt-[60px]">
-          <main className="relative min-h-0 overflow-y-auto">
+      <div className="relative flex min-w-0 min-h-0 flex-col overflow-hidden">
+
+        {/* Horní navigace */}
+        <DesktopHeader />
+
+        {/* Hlavní pracovní oblast */}
+        <div className="relative min-h-0 flex-1 px-10">
+          <main className="relative h-full min-h-0 overflow-y-auto">
             {children}
             <OverlayRenderer />
           </main>
-
-          <DesktopSettingsPanel />
         </div>
 
-        <DesktopFooter />
+        {/* Spodní loga institucí */}
+        <footer className="flex h-[88px] shrink-0 items-center justify-end px-10">
+          <PartnerLogos
+            variant="horizontal"
+            set="reduced"
+            color="gray"
+          />
+        </footer>
+
       </div>
     </div>
   )

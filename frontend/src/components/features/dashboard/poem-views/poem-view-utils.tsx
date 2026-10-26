@@ -5,20 +5,14 @@ import { fetchTTSApi } from '@/services/api/edupo-api'
 import { API_BASE_URL } from '@/services/api/http-client'
 import { usePoemStore } from '@/stores/poem-store'
 import { useUiStore } from '@/stores/ui-store'
+import { parsePlaintextToLines } from '@/utils/poem-lines'
 
 export function getPoemLines(poem: Poem | null): PoemLine[] {
   if (!poem) return []
 
   if (poem.lines?.length) return poem.lines
 
-  return poem.text
-    .split('\n')
-    .map((text) => text.trim())
-    .filter(Boolean)
-    .map((text, index) => ({
-      id: `line-${index + 1}`,
-      text,
-    }))
+  return parsePlaintextToLines(poem.text)
 }
 
 export function PoemEmptyState() {

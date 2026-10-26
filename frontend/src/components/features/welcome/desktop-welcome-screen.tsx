@@ -9,7 +9,7 @@ type DesktopWelcomeScreenProps = {
 export function DesktopWelcomeScreen({ onContinue }: DesktopWelcomeScreenProps) {
   return (
     <div className="fixed inset-0 flex flex-col bg-primary text-primary-foreground">
-      <DesktopHeader />
+      <DesktopHeader variant="brand" />
 
       <main className="flex flex-1 flex-col items-center justify-center text-center">
         <section className="flex flex-col items-center">

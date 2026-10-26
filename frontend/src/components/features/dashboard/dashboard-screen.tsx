@@ -1,3 +1,4 @@
+
 'use client'
 
 import { usePoemStore } from '@/stores/poem-store'
@@ -10,8 +11,11 @@ export function DashboardScreen() {
   const setMode = usePoemStore((state) => state.setMode)
 
   return (
-    <div className="flex grow flex-col space-y-4 px-5 py-5 desktop:px-0 desktop:py-0 desktop:mx-auto desktop:w-full">
-      <DashboardHero />
+    <div className="flex grow flex-col space-y-4 px-5 py-5 desktop:mx-auto desktop:w-full desktop:px-0 desktop:py-0">
+      <div className="desktop:hidden">
+        <DashboardHero />
+      </div>
+
       <DashboardTabs value={mode} onChange={setMode} />
       <DashboardCard mode={mode} />
     </div>
