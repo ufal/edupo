@@ -57,15 +57,43 @@ export type GeneratePoemResponse = {
   ttsfile: string | null
 }
 
+
 export type AnalysisVerse = {
   text: string
+
   rhymeletter?: string | null
   rhymeclass?: number | null
+
+  stanza?: number
+
+  metre?: string
+  metrum?: string
+  pattern?: string
+  rythm?: string
+
+  clause?: string
+  foot?: number
 }
 
 export type AnalysisResponse = {
   id: string
+
   verses?: AnalysisVerse[]
+
+  title?: string | null
+  author_name?: string | null
+  plaintext?: string | null
+
+  form?: string | null
+  mood?: string | null
+  motives?: string[] | null
+  present_metres?: string[]
+
+  geninput?: {
+    modelspec?: string | null
+    collection_style?: string | null
+    [key: string]: unknown
+  }
 }
 
 export type AddLikeResponse = number | string

@@ -50,3 +50,15 @@ export function serializePoemLines(
     })
     .join('')
 }
+
+
+export function getOriginalLineText(
+  originalText: string | undefined,
+  lineId: string,
+): string | undefined {
+  if (!originalText) return undefined
+
+  return parsePlaintextToLines(originalText)
+    .find((line) => line.id === lineId)
+    ?.text
+}

@@ -52,8 +52,13 @@ const demoPoem: Poem = {
   source: 'local',
 }
 
-function parseRhymeLetter(value: string | null | undefined): PoemLineGroup {
-  const letter = value?.trim().toUpperCase()
+
+function parseRhymeLetter(value: string | null | undefined): PoemLineGroup | undefined {
+
+  if (typeof value !== 'string')
+    return undefined
+  
+  const letter = value.trim().toUpperCase()
 
   if (
     letter === 'A' ||
@@ -68,20 +73,63 @@ function parseRhymeLetter(value: string | null | undefined): PoemLineGroup {
     return letter
   }
 
-  return 'X'
+  return undefined
 }
 
-function applyAnalysisToPoem(poem: Poem, analysis: AnalysisResponse): Poem {
-  const analysisVerses = analysis.verses ?? []
+function normalizeVerseText(text: string): string {
+  return text
+    .normalize('NFC')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
+function applyAnalysisToPoem(
+  poem: Poem,
+  analysis: AnalysisResponse,
+): Poem | null {
   const currentLines =
     poem.lines?.length
       ? poem.lines
       : parsePlaintextToLines(poem.text)
 
+  const analysisVerses = analysis.verses
+
+  // Analýza musí patřit ke správné básni.
+  if (analysis.id !== poem.id) {
+    return null
+  }
+
+  // Musíme mít skutečné výsledky pro jednotlivé verše.
+  if (!Array.isArray(analysisVerses)) {
+    return null
+  }
+
+  // Počet veršů musí být shodný.
+  if (analysisVerses.length !== currentLines.length) {
+    return null
+  }
+
+  // Ověříme texty všech veršů ve stejném pořadí.
+  const textsMatch = currentLines.every((line, index) => {
+    const analyzedText = analysisVerses[index]?.text
+
+    return (
+      typeof analyzedText === 'string' &&
+      normalizeVerseText(line.text) ===
+        normalizeVerseText(analyzedText)
+    )
+  })
+
+  if (!textsMatch) {
+    return null
+  }
+
+  // Teprve nyní bezpečně přiřadíme rýmové skupiny.
   const lines = currentLines.map((line, index) => ({
     ...line,
-    group: parseRhymeLetter(analysisVerses[index]?.rhymeletter),
+    group: parseRhymeLetter(
+      analysisVerses[index].rhymeletter,
+    ),
   }))
 
   return {
@@ -163,6 +211,7 @@ type PoemState = {
   error: string | null
   analysisStatus: AnalysisStatus
   analysisError: string | null
+  analysisResult: AnalysisResponse | null
   mode: PoemMode
   selectedAuthorStyleId: string | null
   likedPoemIds: Record<string, true>
@@ -182,7 +231,8 @@ type PoemState = {
   regeneratePoemLine: (lineId: string) => Promise<Poem>
   updatePoemLine: (lineId: string, text: string) => void
   addPoemLine: () => string | null
-  removePoemLine: (lineId: string) => void
+  removePoemLine: (lineId: string) => void  
+  restorePoemLine: (lineId: string) => void
   generateDemoPoem: () => Promise<void>
   loadPoetrySample: (id: string) => Promise<void>
   setSelectedAuthorStyleId: (authorStyleId: string) => void
@@ -195,6 +245,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
   error: null,
   analysisStatus: 'idle',
   analysisError: null,
+  analysisResult: null,
   mode: 'reading',
   selectedAuthorStyleId: null,
   likedPoemIds: {},
@@ -248,6 +299,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       error: null,
       analysisStatus: 'idle',
       analysisError: null,
+      analysisResult: null
     }),
 
   setParams: (params) => set({ params }),
@@ -277,6 +329,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       error: null,
       analysisStatus: 'idle',
       analysisError: null,
+      analysisResult: null
     }),
 
   loadPoemById: async (poemId: string) => {
@@ -285,6 +338,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       error: null,
       analysisStatus: 'idle',
       analysisError: null,
+      analysisResult: null
     })
 
     try {
@@ -316,6 +370,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     set({
       analysisStatus: 'loading',
       analysisError: null,
+      analysisResult: null,
     })
 
     try {
@@ -326,8 +381,31 @@ export const usePoemStore = create<PoemState>((set, get) => ({
           return state
         }
 
+        const analyzedPoem = applyAnalysisToPoem(
+          state.poem,
+          analysis,
+        )
+
+        if (!analyzedPoem) {
+          console.warn(
+            'Analýza neodpovídá aktuální podobě básně.',
+            {
+              poemId,
+              analysisId: analysis.id,
+            },
+          )
+
+          return {
+            analysisResult: null,
+            analysisStatus: 'error',
+            analysisError:
+              'Výsledky analýzy neodpovídají aktuální podobě básně.',
+          }
+        }
+
         return {
-          poem: applyAnalysisToPoem(state.poem, analysis),
+          poem: analyzedPoem,
+          analysisResult: analysis,
           analysisStatus: 'success',
           analysisError: null,
         }
@@ -338,6 +416,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       if (get().poem?.id !== poemId) return
 
       set({
+        analysisResult: null,
         analysisStatus: 'error',
         analysisError: 'Nepodařilo se načíst analýzu básně.',
       })
@@ -352,6 +431,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       error: null,
       analysisStatus: 'idle',
       analysisError: null,
+      analysisResult: null,
     })
 
     // Zachytíme parametry a přepínače při zahájení generování.
@@ -437,6 +517,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       error: null,
       analysisStatus: 'idle',
       analysisError: null,
+      analysisResult: null
     })
 
     try {
@@ -499,6 +580,53 @@ export const usePoemStore = create<PoemState>((set, get) => ({
         },
       }
     }),
+    
+  restorePoemLine: (lineId) =>
+    set((state) => {
+      const poem = state.poem
+
+      if (!poem?.originalText) return state
+
+      const currentLines = poem.lines?.length
+        ? poem.lines
+        : parsePlaintextToLines(poem.text)
+
+      // Původní verše mají stabilní ID line-1, line-2...
+      const originalLines = parsePlaintextToLines(
+        poem.originalText,
+      )
+
+      const originalLine = originalLines.find(
+        (line) => line.id === lineId,
+      )
+
+      if (!originalLine) return state
+
+      const currentLine = currentLines.find(
+        (line) => line.id === lineId,
+      )
+
+      if (
+        !currentLine ||
+        currentLine.text === originalLine.text
+      ) {
+        return state
+      }
+
+      const lines = currentLines.map((line) =>
+        line.id === lineId
+          ? { ...line, text: originalLine.text }
+          : line,
+      )
+
+      return {
+        poem: {
+          ...poem,
+          lines,
+          text: serializePoemLines(lines),
+        },
+      }
+    }),
 
   addPoemLine: () => {
     const newLineId = `line-${Date.now()}`
@@ -542,34 +670,29 @@ export const usePoemStore = create<PoemState>((set, get) => ({
 
   removePoemLine: (lineId) =>
     set((state) => {
-      if (!state.poem) return state
+      const poem = state.poem
 
-      const currentLines: PoemLine[] = state.poem.lines?.length
-        ? state.poem.lines
-        : parsePlaintextToLines(state.poem.text)
+      if (!poem) return state
 
-      const removedIndex = currentLines.findIndex(
+      const currentLines = poem.lines?.length
+        ? poem.lines
+        : parsePlaintextToLines(poem.text)
+
+      const lineExists = currentLines.some(
         (line) => line.id === lineId,
       )
 
-      if (removedIndex === -1) return state
+      if (!lineExists) return state
 
-      const removedLine = currentLines[removedIndex]
-
-      const lines = currentLines.filter(
-        (line) => line.id !== lineId,
+      const lines = currentLines.map((line) =>
+        line.id === lineId
+          ? { ...line, text: '' }
+          : line,
       )
-
-      if (removedLine.stanzaStart && removedIndex < lines.length) {
-        lines[removedIndex] = {
-          ...lines[removedIndex],
-          stanzaStart: removedIndex > 0,
-        }
-      }
 
       return {
         poem: {
-          ...state.poem,
+          ...poem,
           lines,
           text: serializePoemLines(lines),
         },
@@ -583,6 +706,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       error: null,
       analysisStatus: 'idle',
       analysisError: null,
+      analysisResult: null
     })
 
     await new Promise((resolve) => setTimeout(resolve, 4600))
@@ -606,6 +730,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       error: null,
       analysisStatus: 'idle',
       analysisError: null,
+      analysisResult: null
     })
 
     await new Promise((resolve) => setTimeout(resolve, 1200))

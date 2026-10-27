@@ -22,6 +22,7 @@ import EyeIcon from '@/assets/icons/eye.svg'
 import EyeOffIcon from '@/assets/icons/eye-off.svg'
 import ResetIcon from '@/assets/icons/reset.svg'
 import TrashIcon from '@/assets/icons/trash.svg'
+import UndoIcon from '@/assets/icons/undo.svg'
 
 export type IconName = 'hamburger'
   | 'home'
@@ -46,6 +47,7 @@ export type IconName = 'hamburger'
   | 'eyeOff'
   | 'reset'
   | 'trash'
+  | 'undo'
 
 type AppIconProps = {
   name: IconName
@@ -76,7 +78,8 @@ const icons = {
   eye: EyeIcon,
   eyeOff: EyeOffIcon,
   reset: ResetIcon,
-  trash: TrashIcon
+  trash: TrashIcon,
+  undo: UndoIcon
 }
 
 export function AppIcon({ name, size = 42, className }: AppIconProps) {

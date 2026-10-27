@@ -12,7 +12,7 @@ type DashboardCardProps = {
 
 export function DashboardCard({ mode }: DashboardCardProps) {
   return (
-    <Card className="flex grow rounded-3xl bg-white px-4 py-5 desktop:min-h-[430px] desktop:px-[40px] desktop:py-[38px]">
+    <Card className="flex grow rounded-3xl bg-white px-4 py-5 desktop:min-h-0 desktop:overflow-y-auto desktop:overscroll-contain desktop:px-[40px] desktop:py-[38px]">
       {mode === 'reading' && <PoemReadingView />}
       {mode === 'analysis' && <PoemAnalysisView />}
       {mode === 'editing' && <PoemEditingView />}

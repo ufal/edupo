@@ -9,6 +9,11 @@ import {
   PoemEmptyState,
 } from './poem-view-utils'
 import { PoemHeader } from './poem-header'
+import {
+  PoemVerseRow,
+  POEM_VERSES_CLASS,
+  POEM_VERSE_CONTENT_CLASS,
+} from './poem-verse-row'
 
 export function PoemReadingView() {
   const poem = usePoemStore((state) => state.poem)
@@ -20,22 +25,31 @@ export function PoemReadingView() {
     <div className="flex grow flex-col">
       <PoemHeader poem={poem} />
 
-      {/* Verše básně */}
-      <div className="mt-5 flex grow flex-col space-y-2 desktop:mt-6 desktop:space-y-[10px]">
+      <div className={POEM_VERSES_CLASS}>
         {lines.map((line) => (
+          <PoemVerseRow
+            key={line.id}
+            stanzaStart={line.stanzaStart}
+          >
             <div
-              key={line.id}
-              className={[
-                'rounded-xl bg-grey-50 px-3 py-2 typo-detail text-grey-700 desktop:min-h-8',
-                line.stanzaStart ? '!mt-5 desktop:!mt-6' : '',
-              ].join(' ')}
+              className={`${POEM_VERSE_CONTENT_CLASS} bg-grey-50 text-grey-700`}
             >
-            <SmartWrappedVerseText text={line.text} />
-          </div>
+              {line.text.trim() ? (
+                <SmartWrappedVerseText
+                  text={line.text}
+                  className="w-full"
+                />
+              ) : (
+                <span
+                  aria-label="Prázdný verš"
+                  className="block w-full"
+                />
+              )}
+            </div>
+          </PoemVerseRow>
         ))}
       </div>
 
-      {/* Akce pod básní */}
       <PoemCardActions />
     </div>
   )

@@ -124,6 +124,14 @@
     letter-spacing: 0;
   }
 
+  .typo-medium {
+    font-family: var(--font-inria-sans), sans-serif;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
   .typo-small {
     font-family: var(--font-inria-sans), sans-serif;
     font-size: 14px;

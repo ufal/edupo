@@ -12,6 +12,7 @@ type PoemHeaderProps = {
 function cleanAuthorName(name: string): string {
   return name
     .replace(/\s*\[vygenerováno\]\s*$/i, '')
+    .replace(/\s*\[vloženo uživatelem\]\s*$/i, '')
     .trim()
 }
 

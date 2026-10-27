@@ -25,7 +25,7 @@ export function DesktopHeader({
   }
 
   return (
-    <header className="flex h-[86px] shrink-0 items-center justify-end gap-12 px-10 typo-body text-zinc-900">
+    <header className="flex h-[86px] pb-6 shrink-0 items-end justify-end gap-12 px-10 typo-body text-zinc-900">
       <Link
         href={`${base}about`}
         className="transition-colors hover:text-purple-500"

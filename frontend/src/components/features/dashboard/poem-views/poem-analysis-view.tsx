@@ -1,12 +1,25 @@
+
 'use client'
 
 import { usePoemStore } from '@/stores/poem-store'
 import type { PoemLineGroup } from '@/types/poem'
-import { getPoemLines, PoemCardActions, PoemEmptyState } from './poem-view-utils'
+import {
+  getPoemLines,
+  PoemCardActions,
+  PoemEmptyState,
+} from './poem-view-utils'
 import { SmartWrappedVerseText } from '@/components/ui/smart-wrapped-verse-text'
 import { PoemHeader } from './poem-header'
+import {
+  PoemVerseRow,
+  POEM_VERSES_CLASS,
+  POEM_VERSE_CONTENT_CLASS,
+} from './poem-verse-row'
 
-const groupClasses: Record<PoemLineGroup, { badge: string; line: string }> = {
+const groupClasses: Record<
+  PoemLineGroup,
+  { badge: string; line: string }
+> = {
   A: {
     badge: 'bg-purple-100 text-purple-700',
     line: 'bg-purple-100 text-grey-700',
@@ -48,56 +61,84 @@ const pendingClasses = {
 
 export function PoemAnalysisView() {
   const poem = usePoemStore((state) => state.poem)
-  const analysisStatus = usePoemStore((state) => state.analysisStatus)
-  const analysisError = usePoemStore((state) => state.analysisError)
+  const analysisStatus = usePoemStore(
+    (state) => state.analysisStatus,
+  )
+  const analysisError = usePoemStore(
+    (state) => state.analysisError,
+  )
+
   const lines = getPoemLines(poem)
 
   if (!poem) return <PoemEmptyState />
 
-  const hasMissingGroups = lines.some((line) => !line.group)
+  const hasMissingGroups = lines.some(
+    (line) => !line.group,
+  )
 
   return (
     <div className="flex w-full grow flex-col">
       <PoemHeader poem={poem} />
 
+      {analysisStatus === 'loading' &&
+        hasMissingGroups && (
+          <p className="mt-3 typo-detail text-grey-600">
+            Analýza rýmového schématu se načítá…
+          </p>
+        )}
 
-      {analysisStatus === 'loading' && hasMissingGroups && (
-        <p className="mt-3 typo-detail text-grey-600">
-          Analýza rýmového schématu se načítá…
-        </p>
-      )}
+      {analysisStatus === 'error' &&
+        hasMissingGroups && (
+          <p className="mt-3 typo-detail text-grey-600">
+            {analysisError ??
+              'Analýzu rýmového schématu se nepodařilo načíst.'}
+          </p>
+        )}
 
-      {analysisStatus === 'error' && hasMissingGroups && (
-        <p className="mt-3 typo-detail text-grey-600">
-          {analysisError ?? 'Analýzu rýmového schématu se nepodařilo načíst.'}
-        </p>
-      )}
-
-      <div className="mt-5 space-y-2 desktop:mt-6 desktop:space-y-[10px]">
+      <div className={POEM_VERSES_CLASS}>
         {lines.map((line) => {
           const group = line.group
-          const classes = group ? groupClasses[group] : pendingClasses
+          const classes = group
+            ? groupClasses[group]
+            : pendingClasses
 
           return (
-            <div
+            <PoemVerseRow
               key={line.id}
-              className={[
-                'grid grid-cols-[32px_minmax(0,1fr)] items-start gap-2',
-                line.stanzaStart ? '!mt-5 desktop:!mt-6' : '',
-              ].join(' ')}
+              stanzaStart={line.stanzaStart}
+              left={
+                <span
+                  className={[
+                    'grid size-8 shrink-0 place-items-center rounded-xl',
+                    'typo-detail font-semibold',
+                    classes.badge,
+                  ].join(' ')}
+                  aria-label={
+                    group
+                      ? `Rýmová skupina ${group}`
+                      : 'Rýmová skupina neurčena'
+                  }
+                >
+                  {group ?? '–'}
+                </span>
+              }
             >
-              <span
-                className={`grid size-8 shrink-0 place-items-center rounded-xl font-medium leading-none ${classes.badge}`}
-              >
-                {group ?? '?'}
-              </span>
-
               <div
-                className={`flex min-h-8 items-center rounded-xl px-3 py-2 typo-detail ${classes.line}`}
+                className={`${POEM_VERSE_CONTENT_CLASS} ${classes.line}`}
               >
-                <SmartWrappedVerseText text={line.text} />
+                {line.text.trim() ? (
+                  <SmartWrappedVerseText
+                    text={line.text}
+                    className="w-full"
+                  />
+                ) : (
+                  <span
+                    aria-label="Prázdný verš"
+                    className="block w-full"
+                  />
+                )}
               </div>
-            </div>
+            </PoemVerseRow>
           )
         })}
       </div>
