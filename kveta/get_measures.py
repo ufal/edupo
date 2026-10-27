@@ -135,6 +135,8 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
     syllables_in_verses = [] 
     verses_in_stanzas = []
     verse_count = 0
+    poem_metre = ""
+    pismeno2metrum = {'T': 'trochej', 'D': 'daktyl', 'J': 'jamb', 'A': 'amfibrach'}
    
     raw_text = ""
     lines_before = dict()
@@ -178,6 +180,11 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
             for m in ['T', 'J', 'D', 'A']:
                 if m in poem[i]['metre_probs']:
                     metre_probs_sum[m] += poem[i]['metre_probs'][m]
+        if not poem_metre and 'metre' in poem[i]:
+            poem_metre = list(poem[i]['metre'].keys())[0]
+            if poem_metre in pismeno2metrum.keys():
+                poem_metre = pismeno2metrum[poem_metre]
+            
         #if 'sections' in poem[i]:
         #    for j, stress in enumerate(poem[i]['sections']):
         #        if j % 2 == 0 or stress == 0:
@@ -239,6 +246,7 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
             'metre_consistency': max(metre_probs_sum.values()) / len(poem),
             'metre_accuracy': metre_probs_sum[parameters['metre']] / len(poem),
+            'poem_metre': poem_metre,
             #'metre_consistency_rb': max(metre_probs_rb.values()) / syllables_total,
             'syllable_count_entropy': syllable_count_entropy,
             'syllables_in_verses': syllables_in_verses,
@@ -329,8 +337,9 @@ if __name__=="__main__":
         #print('Gemini meaning:', results['chatgpt_meaning'])
         print('Word repetitions:', results['word_repetitions'])
         print('Line repetitions:', results['line_repetitions'])
-        print('syllables_in_verses', results['syllables_in_verses'])
-        print('verses_in_stanzas', results['verses_in_stanzas'])
+        print('syllables_in_verses:', results['syllables_in_verses'])
+        print('verses_in_stanzas:', results['verses_in_stanzas'])
+        print('Metrum:', results['poem_metre'])
         #print('ChatGPT syntax:', results['chatgpt_syntax'])
         #print('ChatGPT language:', results['chatgpt_language'])
         #print('ChatGPT rhyming:', results['chatgpt_rhyming'])
