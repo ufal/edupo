@@ -132,6 +132,9 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
     current_stanza = []
     word_repetitions = 0
     line_repetitions = 0
+    syllables_in_verses = [] 
+    verses_in_stanzas = []
+    verse_count = 0
    
     raw_text = ""
     lines_before = dict()
@@ -145,6 +148,12 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
         lines_before[poem[i]['text'].lower()] = 1
         if poem[i]['stanza'] != current_stanza_num:
             lines_before = {}
+            if current_stanza_num >= 0:
+                verses_in_stanzas.append(verse_count)
+                verse_count = 0
+                syllables_in_verses.append("\n")
+        
+        verse_count += 1
         
         # počítám (mimo jiné) v kolika verších jsou dvě stejná slova po sobě
         is_repetition = 0
@@ -162,6 +171,7 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
             word_repetitions += 1
 
         num_syllables_count[syllcount] += 1
+        syllables_in_verses.append(str(syllcount))
         if 'rhyme' in poem[i] and poem[i]["rhyme"] != None:
             rhyme_count += 1
         if 'metre_probs' in poem[i]:
@@ -182,6 +192,7 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
 
         if poem[i]['stanza'] != current_stanza_num:
             if current_stanza:
+                
                 raw_text += "\n";
                 rs = get_rhyme_scheme(current_stanza)
                 #if check_rs(rs, rhyme_scheme, current_stanza_num):
@@ -196,6 +207,8 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
         for c in num_syllables_count:
             syllable_count_entropy -= num_syllables_count[c] / len(poem) * math.log2(num_syllables_count[c] / len(poem))
     
+    verses_in_stanzas.append(verse_count)
+        
     if current_stanza:
         rs = get_rhyme_scheme(current_stanza)
         #if check_rs(rs, rhyme_scheme, current_stanza_num):
@@ -223,11 +236,13 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
     result = {'unknown_words': unknown_counter/words_counter,
             'rhyming': rhyme_count / len(poem),
             'rhyme_scheme_accuracy': rhyme_scheme_correct / len(poem),
+            'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
             'metre_consistency': max(metre_probs_sum.values()) / len(poem),
             'metre_accuracy': metre_probs_sum[parameters['metre']] / len(poem),
             #'metre_consistency_rb': max(metre_probs_rb.values()) / syllables_total,
             'syllable_count_entropy': syllable_count_entropy,
-            'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
+            'syllables_in_verses': syllables_in_verses,
+            'verses_in_stanzas': verses_in_stanzas,
             'word_repetitions': word_repetitions / len(poem),
             'line_repetitions': line_repetitions / len(poem),
            }
@@ -306,14 +321,16 @@ if __name__=="__main__":
         
         print('Unknown words:', results['unknown_words'])
         #print('Rhyming:', results['rhyming'])
-        #print('Rhyming accuracy:', results['rhyme_scheme_accuracy'])
-        #print('Rhyming consistency:', results['rhyming_consistency'])
+        print('Rhyming accuracy:', results['rhyme_scheme_accuracy'])
+        print('Rhyming consistency:', results['rhyming_consistency'])
         #print('Metre accuracy:', results['metre_accuracy'])
-        #print('Metre consistency:', results['metre_consistency'])
+        print('Metre consistency:', results['metre_consistency'])
         #print('Syllable count entropy:', results['syllable_count_entropy'])
-        print('Gemini meaning:', results['chatgpt_meaning'])
+        #print('Gemini meaning:', results['chatgpt_meaning'])
         print('Word repetitions:', results['word_repetitions'])
         print('Line repetitions:', results['line_repetitions'])
+        print('syllables_in_verses', results['syllables_in_verses'])
+        print('verses_in_stanzas', results['verses_in_stanzas'])
         #print('ChatGPT syntax:', results['chatgpt_syntax'])
         #print('ChatGPT language:', results['chatgpt_language'])
         #print('ChatGPT rhyming:', results['chatgpt_rhyming'])
