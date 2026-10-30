@@ -20,6 +20,7 @@ type SearchableSelectProps = {
   options: SearchableSelectOption[]
   placeholder: string
   searchPlaceholder: string
+  initialScrollGroup?: string
   disabled?: boolean
   onChange: (value: string) => void
   className?: string
@@ -39,6 +40,7 @@ export function SearchableSelect({
   options,
   placeholder,
   searchPlaceholder,
+  initialScrollGroup,
   disabled = false,
   onChange,
   className,
@@ -49,6 +51,7 @@ export function SearchableSelect({
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
 
   const selectedOption = options.find(
     (option) => option.value === value,
@@ -76,6 +79,26 @@ export function SearchableSelect({
     if (!isOpen) return
     inputRef.current?.focus()
   }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen || !initialScrollGroup || query) return
+
+    const list = listRef.current
+    if (!list) return
+
+    const groupIndex = Array.from(groups.keys()).indexOf(
+      initialScrollGroup,
+    )
+
+    if (groupIndex < 0) return
+
+    const groupElement = list.children[groupIndex] as
+      HTMLElement | undefined
+
+    if (!groupElement) return
+
+    list.scrollTop = groupElement.offsetTop - list.offsetTop
+  }, [isOpen, initialScrollGroup])
 
   useEffect(() => {
     if (!disabled) return
@@ -149,22 +172,27 @@ export function SearchableSelect({
         }}
         className={cn(
           'flex h-11 w-full items-center justify-between gap-3',
-          'rounded-full bg-white px-4 typo-body text-grey-700',
+          'rounded-full bg-white px-4 typo-body',
+          'text-grey-900',
           'cursor-pointer',
           'focus-visible:outline-none focus-visible:ring-2',
           'focus-visible:ring-yellow-300',
           'disabled:cursor-not-allowed',
           'disabled:bg-purple-200/70',
+          'disabled:text-grey-400',
+          !selectedOption && 'text-grey-400',
           isOpen && 'hidden',
         )}
       >
         <span className="min-w-0 truncate">
           {selectedOption?.label ?? placeholder}
         </span>
-
         <ChevronDown
           size={18}
-          className="shrink-0 text-grey-500"
+          className={cn(
+            'shrink-0 text-grey-500',
+            disabled && 'text-grey-400',
+          )}
         />
       </button>
 
@@ -195,7 +223,7 @@ export function SearchableSelect({
             />
           </div>
 
-          <div className="mt-2 max-h-72 overflow-y-auto">
+          <div ref={listRef} className="mt-2 max-h-72 overflow-y-auto">
             {Array.from(groups.entries()).map(
               ([group, groupOptions]) => (
                 <div key={group} className="mb-2 last:mb-0">

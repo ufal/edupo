@@ -12,6 +12,7 @@ type DesktopParamSettingProps = {
   label: string
   children: ReactNode
   className?: string
+  dimWhenUnset?: boolean
 }
 
 export function DesktopParamSetting({
@@ -19,6 +20,7 @@ export function DesktopParamSetting({
   label,
   children,
   className,
+  dimWhenUnset = true,
 }: DesktopParamSettingProps) {
   const unset = useDesktopSettingsUiStore(
     (state) => state.unset[param],
@@ -35,7 +37,7 @@ export function DesktopParamSetting({
         aria-label={label}
         className={[
           'm-0 min-w-0 border-0 p-0',
-          unset ? 'opacity-50' : '',
+          unset && dimWhenUnset ? 'opacity-50' : '',
         ].join(' ')}
       >
         {children}

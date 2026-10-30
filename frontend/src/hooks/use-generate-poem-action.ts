@@ -51,9 +51,14 @@ export function useGeneratePoemAction() {
   const openOverlay = useUiStore((state) => state.openOverlay)
   const closeOverlay = useUiStore((state) => state.closeOverlay)
 
+  const selectedCollectionId = useDesktopSettingsUiStore(
+    (state) => state.selectedCollectionId,
+  )
+
   const activeParams = buildGenerationParams(
     params,
     isDesktop ? unset : undefined,
+    isDesktop ? selectedCollectionId : undefined,
   )
 
   const hasParams = Object.values(activeParams).some(

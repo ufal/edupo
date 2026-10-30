@@ -1,20 +1,34 @@
+
 import type { PoemGenerationParams } from '@/types/poem'
 import type { GeneratePoemParams } from '@/types/edupo-api'
+import authorCollections from '@/data/author-collections.json'
 
 export type GenerationUnsetState = Partial<
-  Record<keyof PoemGenerationParams, boolean>
+  Record<keyof PoemGenerationParams | 'collectionId', boolean>
 >
 
 export function buildGenerationParams(
   params: PoemGenerationParams,
   unset?: GenerationUnsetState,
+  collectionId?: string | null,
 ): GeneratePoemParams {
-  const enabled = (key: keyof PoemGenerationParams) =>
+  const enabled = (key: keyof GenerationUnsetState) =>
     unset?.[key] !== true
 
   const activeForm = enabled('form')
     ? params.form
     : undefined
+
+  const activeAuthorId = enabled('authorStyleId')
+    ? params.authorStyleId
+    : undefined
+
+  const activeCollection =
+    enabled('collectionId') && collectionId
+      ? authorCollections.find(
+          (item) => item.id === collectionId,
+        )
+      : undefined
 
   return {
     title: enabled('title')
@@ -61,8 +75,8 @@ export function buildGenerationParams(
       ? params.modelSpec
       : undefined,
 
-    authorStyleId: enabled('authorStyleId')
-      ? params.authorStyleId
-      : undefined,
+    authorStyleId: activeAuthorId,
+
+    collectionId: activeCollection?.id,
   }
 }

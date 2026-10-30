@@ -207,7 +207,9 @@ export async function generatePoemApi(
     author: params.authorStyleId
       ? AUTHOR_STYLE_TO_BACKEND[params.authorStyleId as keyof typeof AUTHOR_STYLE_TO_BACKEND]
       : undefined,
-  })
+
+    collection_style: params.collectionId,
+      })
 }
 
 export async function fetchAnalysisApi(

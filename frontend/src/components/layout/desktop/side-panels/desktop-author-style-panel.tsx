@@ -67,6 +67,7 @@ export function DesktopAuthorStylePanel({
         <DesktopParamSetting
           param="authorStyleId"
           label="Autor"
+          dimWhenUnset={false}
         >
           <SearchableSelect
             className="mt-4"
@@ -86,9 +87,11 @@ export function DesktopAuthorStylePanel({
           Sbírka
         </h3>
 
+
         <DesktopParamSetting
           param="collectionId"
           label="Sbírka"
+          dimWhenUnset={false}
         >
           <SearchableSelect
             className="mt-4"
@@ -97,6 +100,9 @@ export function DesktopAuthorStylePanel({
             searchPlaceholder="Hledat sbírku"
             value={collectionId}
             options={collectionOptions}
+            initialScrollGroup={
+              authors.find((author) => author.id === authorId)?.label
+            }
             disabled={collectionUnset}
             onChange={setSelectedCollectionId}
           />

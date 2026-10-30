@@ -33,9 +33,11 @@ export type PoemLineGroup = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'X'
 export type PoemLine = {
   id: string
   text: string
+  originalText?: string
   group?: PoemLineGroup
   stanzaStart?: boolean
 }
+
 
 export type Poem = {
   id: string

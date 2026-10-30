@@ -35,6 +35,7 @@ export type GeneratePoemParams = {
   modelSpec?: PoemModelSpec
   first_words?: string[]
   authorStyleId?: string
+  collectionId?: string
 }
 
 export type PoemIdParams = {

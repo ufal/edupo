@@ -27,6 +27,7 @@ export function parsePlaintextToLines(
       return {
         id: `line-${lineIndex}`,
         text,
+        originalText: text,
         stanzaStart:
           stanzaIndex > 0 && indexInStanza === 0,
       }
@@ -61,4 +62,45 @@ export function getOriginalLineText(
   return parsePlaintextToLines(originalText)
     .find((line) => line.id === lineId)
     ?.text
+}
+
+
+export function movePoemLine(
+  lines: PoemLine[],
+  sourceId: string,
+  targetId: string,
+): PoemLine[] {
+  const sourceIndex = lines.findIndex(
+    (line) => line.id === sourceId,
+  )
+
+  const targetIndex = lines.findIndex(
+    (line) => line.id === targetId,
+  )
+
+  if (
+    sourceIndex === -1 ||
+    targetIndex === -1 ||
+    sourceIndex === targetIndex
+  ) {
+    return lines
+  }
+
+  const stanzaPositions = new Set(
+    lines.flatMap((line, index) =>
+      line.stanzaStart ? [index] : [],
+    ),
+  )
+
+  const result = [...lines]
+  const [movedLine] = result.splice(sourceIndex, 1)
+  result.splice(targetIndex, 0, movedLine)
+
+  return result.map((line, index) => ({
+    ...line,
+    stanzaStart:
+      index > 0 && stanzaPositions.has(index),
+
+    group: undefined,
+  }))
 }

@@ -26,6 +26,7 @@ import { buildGenerationParams } from '@/services/poem-generation-params'
 import {
   parsePlaintextToLines,
   serializePoemLines,
+  movePoemLine,
 } from '@/utils/poem-lines'
 import type { PoemLine } from '@/types/poem'
 
@@ -40,7 +41,10 @@ const demoLines = [
   { id: 'line-3', text: 'si připjal k plášti rudý prapor, hřímáje v mé hlubiny:', group: 'B' as const },
   { id: 'line-4', text: 'Jak mohou dál jít bez křiku, bez hrozby, v klid a důvěry?', group: 'B' as const },
   { id: 'line-5', text: 'Je pravda, věk že minul, plný vzletu, síly', group: 'C' as const },
-]
+].map((line) => ({
+  ...line,
+  originalText: line.text,
+}))
 
 const demoPoem: Poem = {
   id: 'demo-poem-1',
@@ -231,11 +235,45 @@ type PoemState = {
   regeneratePoemLine: (lineId: string) => Promise<Poem>
   updatePoemLine: (lineId: string, text: string) => void
   addPoemLine: () => string | null
-  removePoemLine: (lineId: string) => void  
+  removePoemLine: (lineId: string) => void
+  movePoemLine: (
+    sourceId: string,
+    targetId: string,
+  ) => void
   restorePoemLine: (lineId: string) => void
   generateDemoPoem: () => Promise<void>
   loadPoetrySample: (id: string) => Promise<void>
   setSelectedAuthorStyleId: (authorStyleId: string) => void
+  ensurePoemSaved: () => Promise<string>
+  preparePoemAnalysis: () => Promise<void>
+}
+
+let pendingPoemSave: Promise<string> | null = null
+
+function needsPoemSave(poem: Poem): boolean {
+  return (
+    poem.source !== 'backend' ||
+    poem.originalText === undefined ||
+    poem.text !== poem.originalText
+  )
+}
+
+function syncPoemIdInUrl(poemId: string): void {
+  if (typeof window === 'undefined') return
+
+  const url = new URL(window.location.href)
+
+  if (url.searchParams.get('poemId') === poemId) {
+    return
+  }
+
+  url.searchParams.set('poemId', poemId)
+
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${url.pathname}${url.search}${url.hash}`,
+  )
 }
 
 export const usePoemStore = create<PoemState>((set, get) => ({
@@ -319,8 +357,14 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       error,
       status: error ? 'error' : 'idle',
     }),
+  
+  setMode: (mode) => {
+    set({ mode })
 
-  setMode: (mode) => set({ mode }),
+    if (mode === 'analysis' && get().poem) {
+      void get().preparePoemAnalysis()
+    }
+  },
 
   resetPoem: () =>
     set({
@@ -331,6 +375,120 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       analysisError: null,
       analysisResult: null
     }),
+
+  preparePoemAnalysis: async () => {
+    try {
+      const poemId = await get().ensurePoemSaved()
+
+      const state = get()
+
+      // Uživatel mezitím mohl přepnout jinam.
+      if (
+        state.mode !== 'analysis' ||
+        state.poem?.id !== poemId
+      ) {
+        return
+      }
+
+      // Pokud už máme platnou analýzu,
+      // nemusíme ji stahovat znovu.
+      if (
+        state.analysisStatus === 'success' &&
+        state.analysisResult?.id === poemId &&
+        !needsPoemSave(state.poem)
+      ) {
+        return
+      }
+
+      await get().loadPoemAnalysis(poemId)
+    } catch (error) {
+      console.error(error)
+
+      if (get().mode !== 'analysis') return
+
+      set({
+        analysisStatus: 'error',
+        analysisResult: null,
+        analysisError:
+          'Nepodařilo se uložit báseň pro analýzu.',
+      })
+    }
+  },
+
+  ensurePoemSaved: async () => {
+    const poem = get().poem
+
+    if (!poem) {
+      throw new Error('No poem is loaded.')
+    }
+
+    if (!needsPoemSave(poem)) {
+      syncPoemIdInUrl(poem.id)
+      return poem.id
+    }
+
+    // Pokud ukládání už běží, počkáme na něj.
+    // Pak znovu ověříme aktuální podobu básně.
+    if (pendingPoemSave) {
+      await pendingPoemSave
+      return get().ensurePoemSaved()
+    }
+
+    const snapshot = {
+      id: poem.id,
+      author: poem.authorName,
+      title: poem.title,
+      text: poem.text,
+    }
+
+    const savePromise = savePoemApi({
+      author: snapshot.author,
+      title: snapshot.title,
+      text: snapshot.text,
+    })
+
+    pendingPoemSave = savePromise
+
+    try {
+      const savedId = await savePromise
+
+      set((state) => {
+        const current = state.poem
+
+        // Během ukládání mohla být načtena jiná báseň.
+        if (
+          !current ||
+          current.id !== snapshot.id ||
+          current.title !== snapshot.title ||
+          current.authorName !== snapshot.author
+        ) {
+          return state
+        }
+
+        return {
+          poem: {
+            ...current,
+            id: savedId,
+            source: 'backend',
+            // Uložený je snapshot, nikoli nutně
+            // nejnovější pracovní text.
+            originalText: snapshot.text,
+          },
+          analysisResult: null,
+          analysisStatus: 'idle',
+          analysisError: null,
+        }
+      })
+    } finally {
+      if (pendingPoemSave === savePromise) {
+        pendingPoemSave = null
+      }
+    }
+
+    // Pokud uživatel mezitím dál editoval,
+    // uložíme i novější pracovní podobu.
+    return get().ensurePoemSaved()
+  },
 
   loadPoemById: async (poemId: string) => {
     set({
@@ -377,7 +535,11 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       const analysis = await fetchAnalysisApi(poemId)
 
       set((state) => {
-        if (!state.poem || state.poem.id !== poemId) {
+        if (
+          !state.poem ||
+          state.poem.id !== poemId ||
+          needsPoemSave(state.poem)
+        ) {
           return state
         }
 
@@ -413,7 +575,8 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     } catch (error) {
       console.error(error)
 
-      if (get().poem?.id !== poemId) return
+      if (get().poem?.id !== poemId || !get().poem || needsPoemSave(get().poem!))
+        return
 
       set({
         analysisResult: null,
@@ -447,8 +610,15 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       ? buildFirstWordsFromEditedPoem(currentPoem)
       : undefined
 
+    const selectedCollectionId =
+      useDesktopSettingsUiStore.getState().selectedCollectionId
+
     const generationParams: GeneratePoemParams =
-      buildGenerationParams(params, unset)
+      buildGenerationParams(
+        params,
+        unset,
+        respectDesktopUnset ? selectedCollectionId : undefined,
+      )
 
     // Dosavadní chování pokračování básně zatím ponecháváme.
     generationParams.first_words = firstWords
@@ -521,18 +691,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     })
 
     try {
-      const hasUnsavedChanges =
-        poem.source !== 'backend' ||
-        poem.originalText === undefined ||
-        poem.text !== poem.originalText
-
-      const poemId = hasUnsavedChanges
-        ? await savePoemApi({
-            author: poem.authorName,
-            title: poem.title,
-            text: poem.text,
-          })
-        : poem.id
+      const poemId = await get().ensurePoemSaved()
 
       const response = await regeneratePoemLineApi(poemId, line.text)
       const regeneratedPoem = mapPoemResponseToPoem(response)
@@ -572,123 +731,148 @@ export const usePoemStore = create<PoemState>((set, get) => ({
         line.id === lineId ? { ...line, text } : line,
       )
 
+      const invalidatedLines = lines.map((line) => ({
+        ...line,
+        group: undefined,
+      }))
+
       return {
         poem: {
           ...state.poem,
-          lines,
-          text: serializePoemLines(lines),
+          lines: invalidatedLines,
+          text: serializePoemLines(invalidatedLines),
         },
+        analysisResult: null,
+        analysisStatus: 'idle',
+        analysisError: null,
       }
     }),
     
-  restorePoemLine: (lineId) =>
-    set((state) => {
-      const poem = state.poem
+    restorePoemLine: (lineId) =>
+      set((state) => {
+        const poem = state.poem
+        if (!poem) return state
 
-      if (!poem?.originalText) return state
+        const currentLines =
+          poem.lines?.length
+            ? poem.lines
+            : parsePlaintextToLines(poem.text)
+
+        const currentLine = currentLines.find(
+          (line) => line.id === lineId,
+        )
+
+        if (
+          !currentLine ||
+          currentLine.originalText === undefined ||
+          currentLine.text === currentLine.originalText
+        ) {
+          return state
+        }
+
+        const lines = currentLines.map((line) =>
+          line.id === lineId
+            ? { ...line, text: line.originalText! }
+            : line,
+        )
+
+        const invalidatedLines = lines.map((line) => ({
+          ...line,
+          group: undefined,
+        }))
+
+        return {
+          poem: {
+            ...poem,
+            lines: invalidatedLines,
+            text: serializePoemLines(invalidatedLines),
+          },
+          analysisResult: null,
+          analysisStatus: 'idle',
+          analysisError: null,
+        }
+      }),
+
+    addPoemLine: () => {
+      const poem = get().poem
+      if (!poem) return null
 
       const currentLines = poem.lines?.length
         ? poem.lines
         : parsePlaintextToLines(poem.text)
 
-      // Původní verše mají stabilní ID line-1, line-2...
-      const originalLines = parsePlaintextToLines(
-        poem.originalText,
-      )
-
-      const originalLine = originalLines.find(
-        (line) => line.id === lineId,
-      )
-
-      if (!originalLine) return state
-
-      const currentLine = currentLines.find(
-        (line) => line.id === lineId,
-      )
-
-      if (
-        !currentLine ||
-        currentLine.text === originalLine.text
-      ) {
-        return state
-      }
-
-      const lines = currentLines.map((line) =>
-        line.id === lineId
-          ? { ...line, text: originalLine.text }
-          : line,
-      )
-
-      return {
-        poem: {
-          ...poem,
-          lines,
-          text: serializePoemLines(lines),
-        },
-      }
-    }),
-
-  addPoemLine: () => {
-    const newLineId = `line-${Date.now()}`
-
-    set((state) => {
-      if (!state.poem) return state
-
-      const currentLines =
-        state.poem.lines?.length
-          ? state.poem.lines
-          : state.poem.text
-              .split('\n')
-              .map((lineText, index) => ({
-                id: `line-${index + 1}`,
-                text: lineText,
-              }))
-
       if (currentLines.length >= MAX_POEM_LINES) {
-        return state
+        return null
       }
+
+      const newLineId = `line-${crypto.randomUUID()}`
 
       const lines = [
         ...currentLines,
         {
           id: newLineId,
           text: '',
+          stanzaStart: false,
         },
       ]
 
-      return {
-        poem: {
-          ...state.poem,
-          lines,
-          text: serializePoemLines(lines),
-        },
-      }
-    })
+      const invalidatedLines = lines.map((line) => ({
+        ...line,
+        group: undefined,
+      }))
 
-    return newLineId
-  },
+      set({
+        poem: {
+          ...poem,
+          lines: invalidatedLines,
+          text: serializePoemLines(invalidatedLines),
+        },
+        analysisResult: null,
+        analysisStatus: 'idle',
+        analysisError: null,
+      })
+
+      return newLineId
+    },
+
 
   removePoemLine: (lineId) =>
     set((state) => {
       const poem = state.poem
-
       if (!poem) return state
 
       const currentLines = poem.lines?.length
         ? poem.lines
         : parsePlaintextToLines(poem.text)
 
-      const lineExists = currentLines.some(
+      // V básni musí zůstat alespoň jeden verš.
+      if (currentLines.length <= 1) return state
+
+      const index = currentLines.findIndex(
         (line) => line.id === lineId,
       )
 
-      if (!lineExists) return state
+      if (index === -1) return state
 
-      const lines = currentLines.map((line) =>
-        line.id === lineId
-          ? { ...line, text: '' }
-          : line,
-      )
+      const removedLine = currentLines[index]
+
+      const lines = currentLines
+        .filter((line) => line.id !== lineId)
+        .map((line) => ({ ...line }))
+
+      // Pokud mažeme začátek sloky, jeho hranici
+      // převezme další verš téže sloky.
+      if (
+        removedLine.stanzaStart &&
+        index < lines.length &&
+        !lines[index].stanzaStart
+      ) {
+        lines[index].stanzaStart = true
+      }
+
+      // První verš básně nikdy nezačíná
+      // oddělením od předchozí sloky.
+      lines[0].stanzaStart = false
 
       return {
         poem: {
@@ -696,6 +880,41 @@ export const usePoemStore = create<PoemState>((set, get) => ({
           lines,
           text: serializePoemLines(lines),
         },
+        analysisResult: null,
+        analysisStatus: 'idle',
+        analysisError: null,
+      }
+    }),
+
+  movePoemLine: (sourceId, targetId) =>
+    set((state) => {
+      const poem = state.poem
+      if (!poem) return state
+
+      const currentLines = poem.lines?.length
+        ? poem.lines
+        : parsePlaintextToLines(poem.text)
+
+      const lines = movePoemLine(
+        currentLines,
+        sourceId,
+        targetId,
+      )
+
+      // Neplatný přesun – nic se nezměnilo.
+      if (lines === currentLines) {
+        return state
+      }
+
+      return {
+        poem: {
+          ...poem,
+          lines,
+          text: serializePoemLines(lines),
+        },
+        analysisResult: null,
+        analysisStatus: 'idle',
+        analysisError: null,
       }
     }),
 

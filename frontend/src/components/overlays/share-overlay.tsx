@@ -8,13 +8,49 @@ import { AppIcon } from '../icons/app-icon'
 import { ShellOverlay } from './shell-overlay'
 import { ShellControlPanel } from './shell-control-panel'
 import { DesktopModalOverlay } from './desktop-modal-overlay'
+import { usePoemStore } from '@/stores/poem-store'
 
 export function ShareOverlay({ onClose }: { onClose: () => void }) {
   const [url, setUrl] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const ensurePoemSaved = usePoemStore(
+    (state) => state.ensurePoemSaved,
+  )
 
   useEffect(() => {
-    setUrl(window.location.href)
-  }, [])
+    let cancelled = false
+
+    async function prepareShare() {
+      try {
+        const poemId = await ensurePoemSaved()
+
+        if (cancelled) return
+
+        const shareUrl = new URL(window.location.href)
+        shareUrl.searchParams.set('poemId', poemId)
+
+        setUrl(shareUrl.toString())
+      } catch (err) {
+        console.error(err)
+
+        if (!cancelled) {
+          setError('Nepodařilo se uložit báseň pro sdílení.')
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void prepareShare()
+
+    return () => {
+      cancelled = true
+    }
+  }, [ensurePoemSaved])
 
   const copyUrl = async () => {
     if (!url) return
@@ -55,6 +91,16 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
 
   const content = (
     <div className="flex flex-col items-center rounded-3xl bg-white px-6 py-8 desktop:w-[476px] desktop:px-10 desktop:py-[66px]">
+      {loading && (
+        <p className="text-grey-500">
+          Připravuji báseň ke sdílení…
+        </p>
+      )}
+      {error && (
+        <p className="text-red-600">
+          {error}
+        </p>
+      )}
       {url && (
         <QRCodeSVG
           value={url}
@@ -69,6 +115,7 @@ export function ShareOverlay({ onClose }: { onClose: () => void }) {
         type="button"
         variant="primary"
         size="md"
+        disabled={!url}
         className="mt-7 px-10 desktop:mt-[60px]"
         onClick={copyUrl}
       >
