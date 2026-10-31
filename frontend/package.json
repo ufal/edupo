@@ -9,7 +9,7 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
-    "start": "env-cmd -f .env.production cross-env NODE_OPTIONS=--no-deprecation next start -p 8001"
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start -p 8001"
   },
   "keywords": [],
   "author": "",
