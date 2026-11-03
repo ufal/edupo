@@ -1057,7 +1057,14 @@ def call_analyze():
     if full:
         return return_accepted_type_for_poemid(data)
     else:
-        return jsonify({'measures': data['measures']})
+        return return_accepted_type(
+            "\n".join(
+                f"{key}: {' '.join('-'.join(map(str, item)) if isinstance(item, list) else str(item) for item in value) if isinstance(value, list) else value}"
+                for key, value in data["measures"].items()
+            ),
+            {'measures': data['measures']},
+            redirect_for_poemid(data['id']))
+
 
 @app.route("/genmotives", methods=['GET', 'POST'])
 def call_genmotives():
