@@ -1542,8 +1542,7 @@ def get_models():
 def call_logs():
     n = int(get_post_arg('n', '20'))
     backlog = sorted([f for f in os.listdir('logs') if f.startswith('app.')])[-1]
-    frontlog = sorted([f for f in os.listdir('../frontend/logs') if f.endswith('.log')])[-1]
-    filenames = ['../autodeploy.log', f"../frontend/logs/{frontlog}", f"../backend/logs/{backlog}", f"../backend/logs/gen_mc.log", f"../backend/logs/gen_tm.log"]
+    filenames = ['../autodeploy.log', f"../backend/logs/{backlog}", f"../backend/logs/gen_tm.log", f"../backend/logs/analyze.log"]
 
     result = list()
     for filename in filenames:
