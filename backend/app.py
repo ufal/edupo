@@ -1002,12 +1002,19 @@ def call_typfeatures():
     # TODO return_accepted_type -- now only text
     return Response(result, mimetype='text/plain')
 
-# TODO implement this
 def guess_form(data):
     form = ''
-    if 'body' in data:
-        if len(data['body']) == 14:
-            form = 'Sonet'
+    if 'measures' in data:
+        if sum(data['measures']['verses_in_stanzas']) == 14:
+            # pro sonet ignorujeme členění do slok
+            form = 'sonet'
+        elif len(data['measures']['verses_in_stanzas']) == 1:
+            # jedna sloka: může to být haiku či limerik
+            if data['measures']['verses_in_stanzas'][0] == 3 and data['measures']['syllables_in_verses'] == [5, 7, 5]:
+                form = 'haiku'
+            elif data['measures']['verses_in_stanzas'][0] == 5 and data['measures']['syllables_in_verses'][0] > data['measures']['syllables_in_verses'][2]:
+                # TODO check rhyme scheme AABBA
+                form = 'limerik'
     return form
 
 # can be called from input on main page -> no id
@@ -1041,9 +1048,9 @@ def call_analyze():
         # data['measures']['chatgpt_meaning'] = measure_meaning(data['plaintext'])
         if 'schemes' in data and data['schemes']['form']:
             # form is annotated in data
-            data['form'] = data['schemes']['form']
+            data['measures']['form'] = data['schemes']['form']
         else:
-            data['form'] = guess_form(data)
+            data['measures']['form'] = guess_form(data)
 
     store(data)
 
