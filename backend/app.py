@@ -1010,10 +1010,7 @@ def guess_form(data):
             form = 'sonet'
         elif len(data['measures']['verses_in_stanzas']) == 1:
             # jedna sloka: může to být haiku či limerik
-            if data['measures']['verses_in_stanzas'][0] == 3 and data['measures']['syllables_in_verses'] == ["5", "7", "5"]:
-                # TODO remove once format fixed to the next line
-                form = 'haiku'
-            elif data['measures']['verses_in_stanzas'][0] == 3 and data['measures']['syllables_in_verses'] == [[5, 7, 5]]:
+            if data['measures']['verses_in_stanzas'][0] == 3 and data['measures']['syllables_in_verses'] == [[5, 7, 5]]:
                 form = 'haiku'
             elif data['measures']['verses_in_stanzas'][0] == 5 and data['measures']['syllables_in_verses'][0] > data['measures']['syllables_in_verses'][2]:
                 # TODO check rhyme scheme AABBA
@@ -1031,13 +1028,14 @@ def call_analyze():
     if not data.get('plaintext', ''):
         raise ExceptionPoemInvalid("Text must not be empty!")
     
+    full = bool(get_post_arg('full', False))
+    
     if 'body' in data and not reanalyze:
         # no need to analyze, already analyzed
         # either explicitly by /analyze
         # or within get_poem_by_id()
         pass
     else:
-        full = bool(get_post_arg('full', False))
         request = {'text': data['plaintext'], 'measures': True, 'full': full}
         if 'geninput' in data:
             # is generated: pass the requested scheme/metre as hints
@@ -1054,10 +1052,12 @@ def call_analyze():
             data['measures']['form'] = data['schemes']['form']
         else:
             data['measures']['form'] = guess_form(data)
+        store(data)
 
-    store(data)
-
-    return return_accepted_type_for_poemid(data)
+    if full:
+        return return_accepted_type_for_poemid(data)
+    else:
+        return jsonify({'measures': data['measures']})
 
 @app.route("/genmotives", methods=['GET', 'POST'])
 def call_genmotives():

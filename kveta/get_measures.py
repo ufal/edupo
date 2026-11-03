@@ -15,6 +15,7 @@ from openai import OpenAI
 sys.path.append("../backend")
 from openai_helper import generate_with_openai_simple, generate_with_openai_responses, measure_meaning
 from ufal.morphodita import *
+import string
 
 class Morphodita:
     def __init__(self):
@@ -85,6 +86,15 @@ def check_rs(rs, rhyme_scheme, current_stanza_num):
     else:
         return False
 
+RHYMING_ALPHABET = string.ascii_uppercase[:23] + string.ascii_uppercase[24:]
+RHYMING_MODULO = len(RHYMING_ALPHABET)
+def get_rhyme_letter(rhyme, nonrhyming='X'):
+    if not rhyme:
+        return nonrhyming
+    else:
+        index = (rhyme-1) % RHYMING_MODULO
+        return RHYMING_ALPHABET[index]
+
 def get_measures_from_analyzed_poem(poem, parameters=None):
     """Compute measures from an analyzed body (list of verse dicts as returned
     by kveta.okvetuj). parameters: rhyme_scheme, metre (hints for accuracy
@@ -132,6 +142,7 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
     current_stanza = []
     word_repetitions = 0
     line_repetitions = 0
+    rhyme_scheme_letters = []
     syllables_in_verses = [] 
     verses_in_stanzas = []
     verse_count = 0
@@ -150,10 +161,13 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
         lines_before[poem[i]['text'].lower()] = 1
         if poem[i]['stanza'] != current_stanza_num:
             lines_before = {}
+            rhyme_scheme_letters.append([])
+            syllables_in_verses.append([])
             if current_stanza_num >= 0:
                 verses_in_stanzas.append(verse_count)
                 verse_count = 0
-                syllables_in_verses.append("\n")
+        
+        rhyme_scheme_letters[-1].append(get_rhyme_letter(poem[i]['rhyme']))
         
         verse_count += 1
         
@@ -173,7 +187,7 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
             word_repetitions += 1
 
         num_syllables_count[syllcount] += 1
-        syllables_in_verses.append(str(syllcount))
+        syllables_in_verses[-1].append(syllcount)
         if 'rhyme' in poem[i] and poem[i]["rhyme"] != None:
             rhyme_count += 1
         if 'metre_probs' in poem[i]:
@@ -242,6 +256,7 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
 
     result = {'unknown_words': unknown_counter/words_counter,
             'rhyming': rhyme_count / len(poem),
+            'rhyme_scheme': rhyme_scheme_letters,
             'rhyme_scheme_accuracy': rhyme_scheme_correct / len(poem),
             'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
             'metre_consistency': max(metre_probs_sum.values()) / len(poem),

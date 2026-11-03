@@ -83,7 +83,7 @@
 
     {% if schemes and schemes.form %}
     <p class="form">Forma básně: <em>{{ schemes.form }}</em></p>
-    {% elif measures.form %}
+    {% elif measures and measures.form %}
     <p class="form">Automaticky určená forma básně: <em>{{ measures.form }}</em></p>
     {% endif %}
 
