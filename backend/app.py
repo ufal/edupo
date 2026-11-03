@@ -1038,7 +1038,7 @@ def call_analyze():
         data['body'] = result['body']
         data['measures'] = result['measures']
         # the LLM meaning score is made here, not in the worker
-        data['measures']['chatgpt_meaning'] = measure_meaning(data['plaintext'])
+        # data['measures']['chatgpt_meaning'] = measure_meaning(data['plaintext'])
         if 'schemes' in data and data['schemes']['form']:
             # form is annotated in data
             data['form'] = data['schemes']['form']
