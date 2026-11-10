@@ -1570,7 +1570,7 @@ def call_logs():
             result.append('\n\n')
 
     text = ''.join(result)
-    html = f"<pre>{text}</pre>"
+    html = f"<pre>{escape(text)}</pre>"
 
     return return_accepted_type(text, result, html)
 
