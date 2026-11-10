@@ -1017,8 +1017,8 @@ def guess_form(data):
                 form = 'haiku'
             elif (
                 data['measures']['verses_in_stanzas'][0] == 5
-                and data['measures']['syllables_in_verses'][0]
-                > data['measures']['syllables_in_verses'][2]
+                and data['measures']['syllables_in_verses'][0][0]
+                > data['measures']['syllables_in_verses'][0][2]
                 and ''.join(data['measures']['rhyme_scheme'][0])
                 in ('AABBA', 'AAAAA')
             ):
