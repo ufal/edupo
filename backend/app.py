@@ -1010,10 +1010,18 @@ def guess_form(data):
             form = 'sonet'
         elif len(data['measures']['verses_in_stanzas']) == 1:
             # jedna sloka: může to být haiku či limerik
-            if data['measures']['verses_in_stanzas'][0] == 3 and data['measures']['syllables_in_verses'] == [[5, 7, 5]]:
+            if (
+                data['measures']['verses_in_stanzas'][0] == 3
+                and data['measures']['syllables_in_verses'] == [[5, 7, 5]]
+            ):
                 form = 'haiku'
-            elif data['measures']['verses_in_stanzas'][0] == 5 and data['measures']['syllables_in_verses'][0] > data['measures']['syllables_in_verses'][2]:
-                # TODO check rhyme scheme AABBA
+            elif (
+                data['measures']['verses_in_stanzas'][0] == 5
+                and data['measures']['syllables_in_verses'][0]
+                > data['measures']['syllables_in_verses'][2]
+                and ''.join(data['measures']['rhyme_scheme'][0])
+                in ('AABBA', 'AAAAA')
+            ):
                 form = 'limerik'
     return form
 
