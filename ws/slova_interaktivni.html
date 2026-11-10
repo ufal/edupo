@@ -38,13 +38,62 @@ body {
   will-change: left, top;
 }
 .word.dragging { cursor: grabbing; z-index: 1000; }
+#coordinate-grid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+#coordinate-grid[hidden] { display: none; }
+.word { z-index: 1; }
+.coordinates {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  line-height: 1.2;
+  color: #777;
+  pointer-events: none;
+}
+.show-coordinates .coordinates { display: block; }
+#coordinate-toggle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  z-index: 1001;
+  touch-action: manipulation;
+}
+#coordinate-toggle svg { display: block; width: 100%; height: 100%; }
+#coordinate-toggle:hover { color: #111; }
+#coordinate-toggle:focus-visible { outline: 2px solid #555; outline-offset: 2px; }
 @media (max-width: 600px) {
   .word { font-size: clamp(18px, 5.2vw, 24px); }
 }
 </style>
 </head>
 <body>
-<main id="stage" aria-label="Slova"></main>
+<main id="stage" aria-label="Slova">
+  <svg id="coordinate-grid" aria-hidden="true" hidden></svg>
+  <button id="coordinate-toggle" type="button" aria-label="Zobrazit souřadnice" aria-pressed="false" title="Zobrazit souřadnice">
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="10" fill="white" fill-opacity="0.8" stroke="currentColor" stroke-width="1.5" />
+      <path d="M20 3v12m0 10v12M3 20h12m10 0h12" fill="none" stroke="currentColor" stroke-width="1.5" />
+      <circle cx="20" cy="20" r="2" fill="currentColor" />
+    </svg>
+  </button>
+</main>
 <script>
 (() => {
   "use strict";
@@ -52,8 +101,69 @@ body {
   const MOBILE_LIMIT = 600;
   const MOBILE_WORD_COUNT = 13;
   const MIN_GAP = 8;
+  const stage = document.getElementById("stage");
+  const grid = document.getElementById("coordinate-grid");
+  const toggle = document.getElementById("coordinate-toggle");
+  let coordinatesVisible = false;
   let active = null;
   let resizeTimer = null;
+
+  function gridUnit() {
+    return Math.min(stage.clientWidth, stage.clientHeight) / 9;
+  }
+
+  function updateCoordinates(el) {
+    const x = (parseFloat(el.style.left) + el.offsetWidth / 2 - stage.clientWidth / 2) / gridUnit();
+    const y = (stage.clientHeight / 2 - parseFloat(el.style.top) - el.offsetHeight / 2) / gridUnit();
+    const format = value => (Math.abs(value) < 0.05 ? 0 : value).toFixed(1).replace(".", ",");
+    el.querySelector(".coordinates").textContent = `[${format(x)}; ${format(y)}]`;
+  }
+
+  function drawGrid() {
+    grid.replaceChildren();
+    const width = stage.clientWidth, height = stage.clientHeight;
+    const unit = gridUnit();
+    if (!unit) return;
+    function add(tag, attributes, text) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, value);
+      if (text !== undefined) el.textContent = text;
+      grid.appendChild(el);
+    }
+    for (const vertical of [true, false]) {
+      const length = vertical ? width : height;
+      const limit = Math.floor(length / (2 * unit));
+      for (let n = -limit; n <= limit; n++) {
+        const position = length / 2 + n * unit;
+        add("line", {
+          x1: vertical ? position : 0, y1: vertical ? 0 : position,
+          x2: vertical ? position : width, y2: vertical ? height : position,
+          stroke: n === 0 ? "#aaa" : "#e5e5e5", "stroke-width": n === 0 ? 1.5 : 1
+        });
+        if (n === 0 || position < 16 || position > length - 16) continue;
+        add("text", {
+          x: vertical ? position : width / 2 + 7,
+          y: vertical ? height / 2 + 17 : position + 4,
+          fill: "#888", "font-size": 12, "text-anchor": vertical ? "middle" : "start"
+        }, vertical ? n : -n);
+      }
+    }
+    add("text", { x: width / 2 + 23, y: height / 2 + 17, fill: "#888", "font-size": 12 }, "[0; 0]");
+  }
+
+  toggle.addEventListener("click", () => {
+    coordinatesVisible = !coordinatesVisible;
+    stage.classList.toggle("show-coordinates", coordinatesVisible);
+    grid.toggleAttribute("hidden", !coordinatesVisible);
+    toggle.setAttribute("aria-pressed", String(coordinatesVisible));
+    const label = coordinatesVisible ? "Skrýt souřadnice" : "Zobrazit souřadnice";
+    toggle.setAttribute("aria-label", label);
+    toggle.title = label;
+    if (coordinatesVisible) {
+      drawGrid();
+      stage.querySelectorAll(".word").forEach(updateCoordinates);
+    }
+  });
 
   function shuffled(items) {
     const a = items.slice();
@@ -81,14 +191,21 @@ body {
   }
 
   function placeWords() {
-    stage.innerHTML = "";
+    stage.querySelectorAll(".word").forEach(el => el.remove());
+    active = null;
     const selected = shuffled(WORDS).slice(0, getWordCount());
-    const placed = [];
+    const placed = [{
+      left: stage.clientWidth / 2 - 24, right: stage.clientWidth / 2 + 24,
+      top: stage.clientHeight / 2 - 24, bottom: stage.clientHeight / 2 + 24
+    }];
 
     for (const wordText of selected) {
       const el = document.createElement("div");
       el.className = "word";
       el.textContent = wordText;
+      const coordinates = document.createElement("span");
+      coordinates.className = "coordinates";
+      el.appendChild(coordinates);
       stage.appendChild(el);
 
       const maxX = Math.max(0, stage.clientWidth - el.offsetWidth - 10);
@@ -112,9 +229,11 @@ body {
 
       el.style.left = best.left + "px";
       el.style.top = best.top + "px";
+      updateCoordinates(el);
       placed.push(best);
       el.addEventListener("pointerdown", startDrag);
     }
+    if (coordinatesVisible) drawGrid();
   }
 
   function startDrag(e) {
@@ -148,6 +267,7 @@ body {
     y = Math.max(0, Math.min(maxY, y));
     el.style.left = x + "px";
     el.style.top = y + "px";
+    if (coordinatesVisible) updateCoordinates(el);
     e.preventDefault();
   });
 
