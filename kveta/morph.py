@@ -3,6 +3,7 @@ import re
 import os
 import sys
 import requests
+import logging
 import json
 import time
 
@@ -69,21 +70,17 @@ class Morphodita:
 
         # perform the UDPipe request to parse the whole poem
         api_data = {"tagger": True, "parser": True, "model": "czech-fictree-ud-2.12-230717", "input": "vertical", "data": vertical_input}
-        response = requests.post("https://lindat.mff.cuni.cz/services/udpipe/api/process", api_data)
-        
-        #try:
-        #    response.json()
-        #except (RuntimeError, TypeError, NameError):
-        #    print(response)
-
-        # sometimes more attempts are needed to get the output from the UDPipe
-        if not response:
-            for attempt in range(5):
+        # Sometimes more attempts are needed to get output from UDPipe.
+        for attempt in range(6):
+            response = requests.post("https://lindat.mff.cuni.cz/services/udpipe/api/process", api_data)
+            if response.ok:
+                break
+            logging.warning(
+                "UDPipe returned HTTP %s (attempt %s/6)",
+                response.status_code, attempt + 1)
+            if attempt < 5:
                 time.sleep(3)
-                print("No result from UDPipe. Making another request.", file=sys.stderr)
-                response = requests.post("https://lindat.mff.cuni.cz/services/udpipe/api/process", api_data)
-                if response:
-                    break
+        response.raise_for_status()
 
         l = 0 # line index
         t = 0 # token index
