@@ -3,8 +3,11 @@
 # debug run
 # run only on local computer, not visible from outside
 echo "Starting/reloading analysis worker..."
-
-exec python3 analyze.py "$@" & 
+python3 analyze.py "$@" &
+echo Starting generator model...
+python3 gen.py new 5012 --16bit &
+echo new model process id $!
+echo Starting Flask...
 flask run --debug
 
 # debug VISIBLE FROM OUTSIDE

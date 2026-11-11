@@ -132,8 +132,6 @@ class PrefixFromHostMiddleware:
 
 app.wsgi_app = PrefixFromHostMiddleware(app.wsgi_app)
 
-MC_MODEL_PORT = os.getenv('MC_MODEL_PORT', 5010)
-TM_MODEL_PORT = os.getenv('TM_MODEL_PORT', 5011)
 NEW_MODEL_PORT = os.getenv('NEW_MODEL_PORT', 5012)
 ANALYZE_PORT = os.getenv('ANALYZE_PORT', 5013)
 # how long to wait for the analysis worker (ms); kveta on a long poem takes seconds
@@ -490,15 +488,14 @@ def call_store():
     return return_accepted_type_for_poemid(data)
 
 import zmq
+# Local ZMQ generator models. Only the Format V4 model ('new') is served; the
+# retired 'mc' and 'tm' models (still sent by older frontends) map to it.
+LOCAL_MODELSPECS = {'new': 'new', 'mc': 'new', 'tm': 'new'}
+
 def gen_zmq(params):
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
-    if params['modelspec'] == 'tm':
-        socket.connect(f"tcp://localhost:{TM_MODEL_PORT}")
-    elif params['modelspec'] == 'mc':
-        socket.connect(f"tcp://localhost:{MC_MODEL_PORT}")
-    elif params['modelspec'] == 'new':
-        socket.connect(f"tcp://localhost:{NEW_MODEL_PORT}")
+    socket.connect(f"tcp://localhost:{NEW_MODEL_PORT}")
     socket.send_string(json.dumps(params))
     return json.loads(socket.recv())
 
@@ -538,18 +535,19 @@ def analyze_zmq(request):
     return reply
 
 def set_params_for_form(params):
-    if params['modelspec'] == 'new':
-        return
     # TODO dodělat pro další povolené formy
-    if params['form'] == 'sonet' and params['modelspec'] != 'mc':
+    if params['form'] == 'sonet':
         params['max_strophes'] = 4
-        params['rhyme_scheme'] = 'ABBA CDDC EFG EFG'
         params['verses_count'] = [4,4,3,3]
+        if params['modelspec'] not in LOCAL_MODELSPECS:
+            # the local model knows the sonnet form (form "Sonet") and picks
+            # the rhyme scheme itself
+            params['rhyme_scheme'] = 'ABBA CDDC EFG EFG'
     elif params['form'] == 'limerik':
         params['max_strophes'] = 1
         params['rhyme_scheme'] = 'AABBA'
         params['verses_count'] = 5
-    elif params['form'] == 'haiku' and params['modelspec'] != 'mc':
+    elif params['form'] == 'haiku':
         params['max_strophes'] = 1
         params['rhyme_scheme'] = 'XXX'
         params['syllables_count'] = [5,7,5]
@@ -641,7 +639,9 @@ def call_generuj():
     params['modelspec'] = get_post_arg(
         'modelspec', FRONTEND_DEFAULT_MODELSPEC.get(params['frontend'], DEFAULT_MODEL),
         nonempty=True)
-    params['modelspec'] = resolve_modelspec(params['modelspec'])
+    # legacy 'mc'/'tm' requests are served by the current local model ('new')
+    params['modelspec'] = resolve_modelspec(
+        LOCAL_MODELSPECS.get(params['modelspec'], params['modelspec']))
     params['rhyme_scheme'] = get_post_arg('rhyme_scheme', '')
     params['verses_count'] = int_or_intlist(get_post_arg('verses_count', '0', True))
     
@@ -653,9 +653,7 @@ def call_generuj():
     params['syllables_count'] = get_post_arg('syllables_count', '0', True)
     if params['syllables_count'] not in ('short', 'long'):
         params['syllables_count'] = int_or_intlist(params['syllables_count'])
-    elif params['modelspec'] in ('mc', 'tm'):
-        # TODO prasárna ale do budoucna to nebude pač modely tm ani mc nebudem
-        # používat a novej tm model bude umět i short/long
+    elif params['modelspec'] in LOCAL_MODELSPECS:
         params['syllables_count'] = verselength2syllcount[params['syllables_count']]
     
     params['metre'] = get_post_arg('metre')
@@ -719,59 +717,6 @@ def call_generuj():
         data = generuj_poem(params)
     
     return return_accepted_type_for_poemid(data)
-
-METRENAMES = {
-    'T': 'trochej',
-    'J': 'jamb',
-    'D': 'daktyl',
-    'N': 'volný',
-}
-
-@app.route("/geninter", methods=['GET', 'POST'])
-def call_generuj_interaktivne():
-    
-    params = dict()
-    
-    # generation settings
-    params['interactive_mode'] = get_post_arg('interactive_mode', 'lines_gh', True)
-    params['modelspec'] = get_post_arg('modelspec', 'mc', True)
-    params['title'] = get_post_arg('title', 'Bez názvu', True)
-    params['metre'] = get_post_arg('metre', 'T', True)
-    params['rhyme_scheme'] = get_post_arg('rhyme_scheme', 'AABB', True)
-    params['syllables_count'] = int(get_post_arg('syllables_count', 8, True))
-    
-    # generation process
-    poemid = get_post_arg('poemid')
-    if poemid:
-        params['id'] = poemid
-    params['rawtext'] = get_post_arg('rawtext', '')
-    params['userinput'] = get_post_arg('userinput', '')
-
-    app.logger.info(f"Generate interactively poem with parameters: {params}")
-    if params['rawtext'] or params['userinput'] or params['interactive_mode'].endswith('gh'):
-        raw_output, clean_verses, author_name, title = gen_zmq(params)
-        app.logger.info(f"Generated interatively part of poem: {clean_verses}")
-        # TODO store author_name, title
-    else:
-        # user starts, nothing to generate yet
-        raw_output, clean_verses = '', []
-    
-    # TODO if the poem is already a full quatrain, handle that
-  
-    data = {
-            **params,
-            'geninput': params,
-            'plaintext': "\n".join(clean_verses),
-            'rawtext': raw_output,
-            'metrum': METRENAMES[params['metre']],
-            }
-    data['poemid'] = store(data)
-    
-    if '<|endoftext|>' in raw_output:
-        return return_accepted_type(raw_output, data, redirect_for_poemid(poemid))
-    else:
-        html = render_template('interactive_gen_process.html', **data)
-        return return_accepted_type(raw_output, data, html)
 
 @app.route("/regen", methods=['GET', 'POST'])
 def call_regenerate_line():
@@ -1567,7 +1512,7 @@ def get_models():
 def call_logs():
     n = int(get_post_arg('n', '20'))
     backlog = sorted([f for f in os.listdir('logs') if f.startswith('app.')])[-1]
-    filenames = ['../autodeploy.log', f"../backend/logs/{backlog}", f"../backend/logs/gen_tm.log", f"../backend/logs/analyze.log"]
+    filenames = ['../autodeploy.log', f"../backend/logs/{backlog}", f"../backend/logs/gen_new.log", f"../backend/logs/analyze.log"]
 
     result = list()
     for filename in filenames:

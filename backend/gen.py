@@ -18,6 +18,7 @@ logging.basicConfig(
 
 VERBOSE_INFO=False
 NOSAMPLE=False
+LOAD16BIT=False
 
 def _generate(model, tokenizer, temperature=1):
     def g(poet_start, stop_strings=None, krok=None, max_new=256):
@@ -140,7 +141,7 @@ def parse_args():
     argparser.add_argument('--temperature', type=float, default=1.0, help='Temperature for text generation')
     parsed_args = argparser.parse_args()
 
-    assert parsed_args.model in ['mc', 'tm', 'new']
+    assert parsed_args.model in ['new', 'v3']
 
     if parsed_args.verbose:
         VERBOSE_INFO = True
@@ -157,13 +158,12 @@ def parse_args():
 if __name__=="__main__":
     args = parse_args()
 
-    if args.model == 'tm':
-        with redirect_stdout(sys.stderr):
-            from gen_modely.gen_tm import load_model, generuj
-    elif args.model == 'mc':
-        from gen_modely.gen_mc import load_model, generuj
-    elif args.model == 'new':
-        with redirect_stdout(sys.stderr):
+    with redirect_stdout(sys.stderr):
+        if args.model == 'new':
+            # Format V4 (JSON) model trained on the dynamic dataset
+            from gen_modely.gen_v4 import load_model, generuj
+        elif args.model == 'v3':
+            # older Format V3 (XML) model, kept for standalone experiments
             from gen_modely.gen_3g import load_model, generuj
 
     if args.port:

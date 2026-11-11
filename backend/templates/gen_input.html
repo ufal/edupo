@@ -9,28 +9,23 @@
         // 👉 přepnutí datalistu pro Author
         var authorInput = document.getElementById("author");
 
-        if (model === "tm") {
-            authorInput.setAttribute("list", "author_datalist1");
-        } else {
-            authorInput.setAttribute("list", "author_datalist0");
-        }                
+        authorInput.setAttribute("list", "author_datalist0");
 	}
     </script>
     
     <form method="post" action="{{ url_for('call_generuj') }}" class="genform">
         <p><label class="tooltip"
             title="Komerční modely (GPT, Gemini) podporují všechny parametry, ale nejsou speciálně vyladěné na poezii.
-Naše modely (základní, nový) jsou speciálně vyladěné na poezii a trénované na korpuse české poezie, ale podporují nastavení jen některých parametrů."
+Náš model je speciálně vyladěný na poezii a trénovaný na korpuse české poezie, ale podporuje nastavení jen některých parametrů."
             >Model</label>
         <select name="modelspec" onchange="updateModelVisibility()" id="modelSelect">
             <option value="EduPo">náš</option>
-            <!-- <option value="new" selected>3g</option> -->
             <option value="good">Dobrej komerční</option>
             <option value="fast" selected>Rychlej komerční</option>
         </select>
         </p>
 
-        <p data-hide-models="mc"><label class="tooltip"
+        <p><label class="tooltip"
             title="Můžete zvolit nebo vepsat autora. Pokud ponecháte nevyplněno, model náhodně zvolí autora."
             >Autor</label>
             <input type="text"
@@ -50,7 +45,7 @@ Naše modely (základní, nový) jsou speciálně vyladěné na poezii a trénov
         
         </p>
 
-        <p data-hide-models="mc,tm"><label class="tooltip"
+        <p><label class="tooltip"
             title="Po výběru autora se zde nabídnou vybrané sbírky daného autora.
 Model se pokusí generovat báseň nejen ve stylu vybraného autora, ale dokonce jeho vybrané sbírky."
             >Styl sbírky</label>
@@ -59,10 +54,10 @@ Model se pokusí generovat báseň nejen ve stylu vybraného autora, ale dokonce
         </select>
         </p>
         
-        <p data-hide-models="mc"><label>Název</label> <input name="title" type="text"></p>
+        <p><label>Název</label> <input name="title" type="text"></p>
 
 
-        <p data-hide-models="new"><label class="tooltip"
+        <p><label class="tooltip"
             title="Platí pro první verš v básni; polymetrická báseň může pro různé verše používat různé metrum."
             >Metrum</label>
         <select name="metre">
@@ -74,7 +69,7 @@ Model se pokusí generovat báseň nejen ve stylu vybraného autora, ale dokonce
         </select>
         </p>
 
-        <p id="pocetversu" data-hide-models="tm,new"><label class="tooltip"
+        <p id="pocetversu"><label class="tooltip"
             title="Počet veršů v jedné sloce.
 Typicky 4 nebo 6, ale můžete zadat vlastní hodnotu.
 Platí pro první sloku, další sloky mohou mít i jiné počty veršů.
@@ -84,7 +79,7 @@ Pokud mají mít jednotlivé sloky různé počty veršů, můžete zadat více 
             type="number" min="1" max="20">
         </p>
 
-        <p data-hide-models="new"><label class="tooltip"
+        <p><label class="tooltip"
             title="Rýmující verše se označují stejným písmenem, nerýmující se verš se označuje X.
 Můžete si vybrat některé z běžných rýmových schémat, anebo vepsat vlastní.
 Platí pro první sloku, ostatní sloky mohou mít i jiné rýmové schéma.
@@ -121,7 +116,7 @@ Pokud mají mít jednotlivé sloky různá schémata, můžete vepsat schámata 
         
         </p>
 
-        <p data-hide-models="new"><label class="tooltip"
+        <p><label class="tooltip"
             title="Délka prvního verše."
             >Délka verše</label>
         <select name="syllables_count">
@@ -152,7 +147,7 @@ Pokud mají mít jednotlivé sloky různá schémata, můžete vepsat schámata 
         jednotlivé rýmy; není to nutně totéž jako počet slabik (m/f/a se liší
         počtem slabik při stejném rozměru)</p>-->
 
-        <p data-hide-models="mc"><label>Pevná forma</label>
+        <p><label>Pevná forma</label>
         <select name="form">
         <option></option>
         <option value="sonet">italský sonet</option>
@@ -169,7 +164,7 @@ Pokud mají mít jednotlivé sloky různá schémata, můžete vepsat schámata 
             formou se budou ignorovat.-->
         </p>
 
-        <p data-hide-models="mc,tm"><label style="vertical-align: top">Motivy</label>
+        <p><label style="vertical-align: top">Motivy</label>
         <textarea rows=5 type="text"
                name="motives"
 placeholder="Naděje a touha
@@ -204,7 +199,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
 		    }
 	</script>
 
-	<div data-hide-models="new">
+	<div>
 	<button type="button" id="prvoslovaButton" onclick="togglePrvoslova()">➕ První slova veršů</button>
 	<div id="prvoslova">
 	<p>Lze vypnit jen první slovo prvního verše, anebo i první slova dalších
@@ -216,7 +211,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Muž"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
+	<span data-hide-models="EduPo,good,fast">
         <input type="checkbox" name="anaphors" value="0"  disabled="disabled"> anafora
         <input type="checkbox" name="epanastrophes" value="0"  disabled="disabled"> epanastrofa
 	</span>
@@ -227,7 +222,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Žena"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
+	<span data-hide-models="EduPo,good,fast">
         <input type="checkbox" name="anaphors" value="1"> anafora
         <input type="checkbox" name="epanastrophes" value="1"> epanastrofa
 	</span>
@@ -238,7 +233,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Banán"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
+	<span data-hide-models="EduPo,good,fast">
         <input type="checkbox" name="anaphors" value="2"> anafora
         <input type="checkbox" name="epanastrophes" value="2"> epanastrofa
 	</span>
@@ -249,7 +244,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Mušle"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
+	<span data-hide-models="EduPo,good,fast">
         <input type="checkbox" name="anaphors" value="3"> anafora
         <input type="checkbox" name="epanastrophes" value="3"> epanastrofa
 	</span>
@@ -260,7 +255,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Lanýž"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
+	<span data-hide-models="EduPo,good,fast">
         <input type="checkbox" name="anaphors" value="4"> anafora
         <input type="checkbox" name="epanastrophes" value="4"> epanastrofa
 	</span>
@@ -271,7 +266,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
                name="first_words"
                placeholder="Hrob"
         >
-	<span data-hide-models="new,gpt-4o-mini,gpt-5-mini,google/gemini-3.1-pro-preview">
+	<span data-hide-models="EduPo,good,fast">
         <input type="checkbox" name="anaphors" value="5"> anafora
         <input type="checkbox" name="epanastrophes" value="5"> epanastrofa
 	</span>
@@ -299,7 +294,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
 	<button type="button" id="moreButton" onclick="toggleMore()">➕ Další nastavení</button>
 	<div id="more">
 
-        <p data-hide-models="mc,tm,new">Rýmovaná báseň:
+        <p data-hide-models="EduPo">Rýmovaná báseň:
         <select name="rhymed">
         <option value=""></option>
         <option value="yes">ano</option>
@@ -307,7 +302,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
         </select>
         </p>
         
-    <p data-hide-models="mc,tm,new">Současná nebo stará báseň:
+    <p data-hide-models="EduPo">Současná nebo stará báseň:
         <select name="old_style">
         <option value=""></option>
         <option value="old">stará</option>
@@ -316,7 +311,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
         </select>
         </p>
         
-        <p data-hide-models="mc,tm">Nálada:
+        <p data-hide-models="EduPo">Nálada:
         <select name="mood">
         <option></option>
         <option>veselá</option>
@@ -324,7 +319,7 @@ Pro nový model nám dobře fungují hodnoty kolem 0.7, pro ChatGPT 4 kolem 0.5 
         </select>
         </p>
 
-        <p data-hide-models="mc,tm,new">Délka básně:
+        <p data-hide-models="EduPo">Délka básně:
         <select name="poem_length">
         <option value=""></option>
         <option value="short">krátká</option>

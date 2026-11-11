@@ -1,7 +1,7 @@
 {
   "models": [
     {
-      "precise_identifier": "tm",
+      "precise_identifier": "new",
       "generic_identifier": "EduPo",
       "human_readable_identifier": "EduPo model",
       "default": false,

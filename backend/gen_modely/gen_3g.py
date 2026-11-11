@@ -95,7 +95,8 @@ def parse_poem_xml(xml_text: str) -> tuple[list[str], str, str]:
     return verses, author, title
 
 
-def load_model(modelspec=None, load16bit=True, model_path=MODEL):
+def load_model(modelspec=None, load16bit=True, model_path=None):
+    model_path = model_path or MODEL
 
     logging.info(f"Loading model {modelspec} {model_path}")
 

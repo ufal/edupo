@@ -1,18 +1,18 @@
 #!/bin/bash
 
 f=$(date "+%Y-%m-%d-%H-%M-%S")
-l=logs/gen_mc.log
+l=logs/gen_new.log
 
 T=10s
 
-echo Starting MC generator loop, logs in $l, autorestart in $T
+echo Starting NEW generator loop, logs in $l, autorestart in $T
 
 source ~/.bashrc
 while true;
 do
     date
-    echo Starting/reloading MC generator model...
-    python3 gen.py mc 5010
+    echo Starting/reloading New generator model...
+    python3 gen.py new 5012 --16bit
     echo Generator stopped, waiting $T for restart...
     sleep $T
     echo

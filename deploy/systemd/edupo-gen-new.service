@@ -1,6 +1,5 @@
 [Unit]
-Description=EduPo NEW generator model (gen.py new --16bit, ZMQ port 5012)
-# Optional: enable only if the "new" modelspec is in use (see run_gen_3g.sh).
+Description=EduPo generator model, Format V4 (gen.py new --16bit, ZMQ port 5012)
 After=network.target
 
 [Service]

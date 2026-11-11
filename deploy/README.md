@@ -6,9 +6,7 @@ Systemd units replacing the screen/while-loop setup on the production server
 | unit | replaces | what it runs |
 |---|---|---|
 | `edupo-backend.service` | `backend/app.sh` loop | gunicorn `app:app` on port 5000, 2 workers × 8 threads |
-| `edupo-gen-mc.service` | `backend/run_gen_mc.sh` loop | `gen.py mc 5010` (ZMQ) |
-| `edupo-gen-tm.service` | `backend/run_gen_tm.sh` loop | `gen.py tm 5011 --16bit` (ZMQ) |
-| `edupo-gen-new.service` | `backend/run_gen_3g.sh` loop | `gen.py new 5012 --16bit` — optional, only if the `new` modelspec is in use |
+| `edupo-gen-new.service` | `backend/run_gen_new.sh` loop | `gen.py new 5012 --16bit` (ZMQ) — the Format V4 model (`/net/projects/EduPo/data/hrabe_v2_epoch8`); serves the `new` modelspec and the legacy `mc`/`tm` ones |
 | `edupo-analyze.service` | (new; analysis used to run inside gunicorn) | `analyze.py 5013` (ZMQ) — kveta + measures worker, required by `/analyze`, poem display and multi-try generation |
 | `edupo-autodeploy.timer` + `.service` | cron entry | `autodeploy.sh` every minute |
 
@@ -52,15 +50,15 @@ port 5000, frontend-lite (static files, no process), the data directory
    ```
 
 4. **Stop the old setup** (avoid double instances):
-   - `screen -ls` and kill the sessions running `app.sh`, `run_gen_mc.sh`,
-     `run_gen_tm.sh` (or `pkill -f app.sh` etc., then `pkill -f gunicorn`,
+   - `screen -ls` and kill the sessions running `app.sh`, `run_gen_*.sh`
+     (or `pkill -f app.sh` etc., then `pkill -f gunicorn`,
      `pkill -f gen.py`).
    - `crontab -e` and remove/comment the `autodeploy.sh` line.
 
 5. **Start and enable** (`enable` also makes them start on server boot):
 
    ```bash
-   sudo systemctl enable --now edupo-gen-mc edupo-gen-tm edupo-analyze edupo-backend
+   sudo systemctl enable --now edupo-gen-new edupo-analyze edupo-backend
    sudo systemctl enable --now edupo-autodeploy.timer
    ```
 
@@ -71,16 +69,29 @@ port 5000, frontend-lite (static files, no process), the data directory
    curl -s localhost:5000/prdel?accept=txt
    ```
 
+## Migrating from the mc/tm generators (once, needs root)
+
+The `mc` and `tm` models were retired; only the Format V4 model runs now
+(`gen.py new`, port 5012). On a server that still has the old units:
+
+```bash
+sudo systemctl disable --now edupo-gen-mc edupo-gen-tm
+sudo rm /etc/systemd/system/edupo-gen-mc.service /etc/systemd/system/edupo-gen-tm.service
+sudo cp deploy/systemd/edupo-gen-new.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now edupo-gen-new
+```
+
 ## Day-to-day
 
 - logs stay where they always were — `backend/logs/app.<date>.log` (a new
-  dated file per backend (re)start), `backend/logs/gen_mc.log`,
-  `backend/logs/gen_tm.log`, `backend/logs/analyze.log`, `autodeploy.log` — so `watch_server.sh` keeps
+  dated file per backend (re)start), `backend/logs/gen_new.log`,
+  `backend/logs/analyze.log`, `autodeploy.log` — so `watch_server.sh` keeps
   working. The journal (`journalctl -u edupo-backend` etc.) only catches
   launcher-level errors, e.g. wrong paths in `env.sh`.
 - reload backend code only, without dropping requests: `sudo systemctl reload edupo-backend`
 - restart everything by hand, as a deploy would: `backend/reload.sh`
-- restart a generator: `sudo systemctl restart edupo-gen-tm`
+- restart a generator: `sudo systemctl restart edupo-gen-new`
 - restart the analysis worker (after changes under `kveta/`): `sudo systemctl restart edupo-analyze`
 - deploys still happen automatically via the timer;
   run one manually: `sudo systemctl start edupo-autodeploy.service`
