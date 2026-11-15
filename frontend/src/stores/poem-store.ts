@@ -645,7 +645,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       }
 
       const response = await generatePoemApi(generationParams)
-      const poem = mapPoemResponseToPoem(response)
+      const poem = mapPoemResponseToPoem(response, 'generated')
 
       set({
         poem,
@@ -694,7 +694,10 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       const poemId = await get().ensurePoemSaved()
 
       const response = await regeneratePoemLineApi(poemId, line.text)
-      const regeneratedPoem = mapPoemResponseToPoem(response)
+      const regeneratedPoem = mapPoemResponseToPoem(
+        response,
+        poem.origin,
+      )
 
       set({
         poem: regeneratedPoem,
@@ -978,12 +981,23 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     })
   },
 
-  setSelectedAuthorStyleId: (authorStyleId) =>
+  setSelectedAuthorStyleId: (authorStyleId) => {
+    const previousAuthorStyleId = get().selectedAuthorStyleId
+
+    // Při změně autora zrušíme dosavadní výběr sbírky.
+    if (previousAuthorStyleId !== authorStyleId) {
+      useDesktopSettingsUiStore
+        .getState()
+        .setSelectedCollectionId(null)
+    }
+
     set((state) => ({
       selectedAuthorStyleId: authorStyleId,
       params: {
         ...state.params,
         authorStyleId,
       },
-    })),
+    }))
+  },
+
 }))

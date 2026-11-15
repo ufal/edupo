@@ -3,10 +3,11 @@
 import { usePoemStore } from '@/stores/poem-store'
 import { useDesktopSettingsUiStore } from '@/stores/desktop-settings-ui-store'
 import { getAllAuthorStyles } from '@/services/author-styles-service'
-import authorCollections from '@/data/author-collections.json'
+import { approvedAuthorCollections } from '@/config/approved-author-collections'
 import { SearchableSelect } from '@/components/ui/searchable-select'
 import { DesktopSidePanelShell } from './desktop-side-panel-shell'
 import { DesktopParamSetting } from './desktop-param-setting'
+
 
 type DesktopAuthorStylePanelProps = {
   onClose: () => void
@@ -18,16 +19,6 @@ const authorOptions = authors.map((author) => ({
   value: author.id,
   label: author.label,
 }))
-
-const collectionOptions = authors.flatMap((author) =>
-  authorCollections
-    .filter((collection) => collection.authorId === author.id)
-    .map((collection) => ({
-      value: collection.id,
-      label: collection.label,
-      group: author.label,
-    })),
-)
 
 export function DesktopAuthorStylePanel({
   onClose,
@@ -52,6 +43,18 @@ export function DesktopAuthorStylePanel({
   const setSelectedCollectionId = useDesktopSettingsUiStore(
     (state) => state.setSelectedCollectionId,
   )
+
+  const collectionOptions = authorId
+    ? approvedAuthorCollections
+        .filter((collection) => collection.authorId === authorId)
+        .map((collection) => ({
+          value: collection.id,
+          label: collection.label,
+        }))
+    : []
+
+  const hasAvailableCollections =
+    !authorUnset && collectionOptions.length > 0
 
   return (
     <DesktopSidePanelShell
@@ -100,10 +103,7 @@ export function DesktopAuthorStylePanel({
             searchPlaceholder="Hledat sbírku"
             value={collectionId}
             options={collectionOptions}
-            initialScrollGroup={
-              authors.find((author) => author.id === authorId)?.label
-            }
-            disabled={collectionUnset}
+            disabled={collectionUnset || !hasAvailableCollections}
             onChange={setSelectedCollectionId}
           />
         </DesktopParamSetting>

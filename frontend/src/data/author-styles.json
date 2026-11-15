@@ -1,147 +1,171 @@
+
 [
   {
     "id": "biebl",
     "label": "Konstantin Biebl",
+    "genitive": "Konstantina Biebla",
     "avatarSrc": "assets/authors/biebl-gen.png"
   },
   {
     "id": "bondy",
     "label": "Egon Bondy",
+    "genitive": "Egona Bondyho",
     "avatarSrc": "assets/authors/bondy-gen.png"
   },
   {
     "id": "borkovec",
     "label": "Petr Borkovec",
+    "genitive": "Petra Borkovce",
     "avatarSrc": "assets/authors/borkovec-gen.png"
   },
   {
     "id": "brezina",
     "label": "Otokar Březina",
+    "genitive": "Otokara Březiny",
     "avatarSrc": "assets/authors/brezina-gen.png"
   },
   {
     "id": "divis",
     "label": "Ivan Diviš",
+    "genitive": "Ivana Diviše",
     "avatarSrc": "assets/authors/divis-gen.png"
   },
   {
     "id": "erben",
     "label": "Karel Jaromír Erben",
+    "genitive": "Karla Jaromíra Erbena",
     "avatarSrc": "assets/authors/erben-gen.png"
   },
   {
     "id": "fischerova",
     "label": "Viola Fischerová",
+    "genitive": "Violy Fischerové",
     "avatarSrc": "assets/authors/fischerova-gen.png"
   },
   {
     "id": "gellner",
     "label": "František Gellner",
+    "genitive": "Františka Gellnera",
     "avatarSrc": "assets/authors/gellner-gen.png"
   },
   {
     "id": "halek",
     "label": "Vítězslav Hálek",
+    "genitive": "Vítězslava Hálka",
     "avatarSrc": "assets/authors/halek-gen.png"
   },
   {
     "id": "hlavacek",
     "label": "Karel Hlaváček",
+    "genitive": "Karla Hlaváčka",
     "avatarSrc": "assets/authors/hlavacek-gen.png"
   },
   {
     "id": "holan",
     "label": "Vladimír Holan",
+    "genitive": "Vladimíra Holana",
     "avatarSrc": "assets/authors/holan-gen.png"
   },
   {
     "id": "hrabe",
     "label": "Václav Hrabě",
+    "genitive": "Václava Hraběte",
     "avatarSrc": "assets/authors/hrabe-gen.png"
   },
   {
     "id": "hruska",
     "label": "Petr Hruška",
+    "genitive": "Petra Hrušky",
     "avatarSrc": "assets/authors/hruska-gen.png"
   },
   {
     "id": "iljasenko",
     "label": "Marie Iljašenko",
+    "genitive": "Marie Iljašenko",
     "avatarSrc": "assets/authors/iljasenko-gen.png"
   },
   {
     "id": "jirous",
     "label": "Ivan Martin Jirous",
+    "genitive": "Ivana Martina Jirouse",
     "avatarSrc": "assets/authors/jirous-gen.png"
   },
   {
     "id": "karasek",
     "label": "Jiří Karásek ze Lvovic",
+    "genitive": "Jiřího Karáska ze Lvovic",
     "avatarSrc": "assets/authors/karasek-gen.png"
   },
   {
     "id": "krchovsky",
     "label": "J. H. Krchovský",
+    "genitive": "J. H. Krchovského",
     "avatarSrc": "assets/authors/krchovsky-gen.png"
   },
   {
     "id": "macha",
     "label": "Karel Hynek Mácha",
+    "genitive": "Karla Hynka Máchy",
     "avatarSrc": "assets/authors/macha-gen.png"
   },
   {
     "id": "maly",
     "label": "Radek Malý",
+    "genitive": "Radka Malého",
     "avatarSrc": "assets/authors/maly-gen.png"
   },
   {
     "id": "neruda",
     "label": "Jan Neruda",
+    "genitive": "Jana Nerudy",
     "avatarSrc": "assets/authors/neruda-gen.png"
   },
   {
     "id": "nezval",
     "label": "Vítězslav Nezval",
+    "genitive": "Vítězslava Nezvala",
     "avatarSrc": "assets/authors/nezval-gen.png"
   },
   {
     "id": "reynek",
     "label": "Bohuslav Reynek",
+    "genitive": "Bohuslava Reynka",
     "avatarSrc": "assets/authors/reynek-gen.png"
-  },
-  {
-    "id": "rudcenkova",
-    "label": "Kateřina Rudčenková",
-    "avatarSrc": "assets/authors/rudcenkova-gen.png"
   },
   {
     "id": "seifert",
     "label": "Jaroslav Seifert",
+    "genitive": "Jaroslava Seiferta",
     "avatarSrc": "assets/authors/seifert-gen.png"
   },
   {
     "id": "spravcova",
     "label": "Božena Správcová",
+    "genitive": "Boženy Správcové",
     "avatarSrc": "assets/authors/spravcova-gen.png"
   },
   {
     "id": "stehlikova",
     "label": "Olga Stehlíková",
+    "genitive": "Olgy Stehlíkové",
     "avatarSrc": "assets/authors/stehlikova-gen.png"
   },
   {
     "id": "tesnohlidek",
     "label": "Jan Těsnohlídek",
+    "genitive": "Jana Těsnohlídka",
     "avatarSrc": "assets/authors/tesnohlidek-gen.png"
   },
   {
     "id": "wernisch",
     "label": "Ivan Wernisch",
+    "genitive": "Ivana Wernische",
     "avatarSrc": "assets/authors/wernisch-gen.png"
   },
   {
     "id": "wolker",
     "label": "Jiří Wolker",
+    "genitive": "Jiřího Wolkera",
     "avatarSrc": "assets/authors/wolker-gen.png"
   }
 ]

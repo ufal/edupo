@@ -3,6 +3,7 @@ import authorStylesJson from '@/data/author-styles.json'
 export type AuthorStyle = {
   id: string
   label: string
+  genitive: string
   description?: string
   avatarSrc: string
 }

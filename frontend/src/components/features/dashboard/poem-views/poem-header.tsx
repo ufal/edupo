@@ -11,8 +11,7 @@ type PoemHeaderProps = {
 
 function cleanAuthorName(name: string): string {
   return name
-    .replace(/\s*\[vygenerováno\]\s*$/i, '')
-    .replace(/\s*\[vloženo uživatelem\]\s*$/i, '')
+    .replace(/\s*\[(?:vygenerováno|vloženo uživatelem)\]\s*$/i, '')
     .trim()
 }
 
@@ -25,7 +24,7 @@ function normalizeAuthorName(name: string): string {
 }
 
 export function PoemHeader({ poem }: PoemHeaderProps) {
-  const authorName = cleanAuthorName(poem.authorName ?? '') || 'Neznámý autor'
+  const authorName = cleanAuthorName(poem.authorName ?? '')
 
   const author = getAllAuthorStyles().find(
     (style) =>
@@ -33,9 +32,29 @@ export function PoemHeader({ poem }: PoemHeaderProps) {
       normalizeAuthorName(authorName),
   )
 
+  const origin =
+    poem.origin ??
+    (/\[vygenerováno\]\s*$/i.test(poem.authorName ?? '')
+      ? 'generated'
+      : /\[vloženo uživatelem\]\s*$/i.test(poem.authorName ?? '')
+        ? 'user'
+        : 'unknown')
+
+  let authorDescription: string
+
+  if (origin === 'generated') {
+    authorDescription = author
+      ? `Vygenerováno ve stylu ${author.genitive}`
+      : 'Vygenerováno umělou inteligencí'
+  } else if (origin === 'user') {
+    authorDescription = 'Vloženo uživatelem'
+  } else {
+    authorDescription = authorName || 'Autor neuveden'
+  }
+
   return (
     <>
-      {/* Původní mobilní hlavička */}
+      {/* Původní mobilní hlavička – beze změny */}
       <h2 className="pl-[10px] typo-large text-grey-700 desktop:hidden">
         {poem.title ?? 'Vygenerovaná báseň'}
       </h2>
@@ -45,7 +64,7 @@ export function PoemHeader({ poem }: PoemHeaderProps) {
         <div className="shrink-0">
           <Avatar
             src={author?.avatarSrc}
-            alt={authorName}
+            alt={authorName || 'Autor'}
             size={92}
           />
         </div>
@@ -56,7 +75,7 @@ export function PoemHeader({ poem }: PoemHeaderProps) {
           </h2>
 
           <p className="typo-body text-grey-700">
-            {authorName}
+            {authorDescription}
           </p>
         </div>
       </div>

@@ -38,7 +38,6 @@ export type PoemLine = {
   stanzaStart?: boolean
 }
 
-
 export type Poem = {
   id: string
   title?: string
@@ -48,4 +47,5 @@ export type Poem = {
   lines?: PoemLine[]
   createdAt?: string
   source?: 'backend' | 'local'
+  origin?: 'generated' | 'user' | 'unknown'
 }

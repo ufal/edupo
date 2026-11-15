@@ -1,7 +1,7 @@
 
 import type { PoemGenerationParams } from '@/types/poem'
 import type { GeneratePoemParams } from '@/types/edupo-api'
-import authorCollections from '@/data/author-collections.json'
+import { approvedAuthorCollections } from '@/config/approved-author-collections'
 
 export type GenerationUnsetState = Partial<
   Record<keyof PoemGenerationParams | 'collectionId', boolean>
@@ -24,9 +24,14 @@ export function buildGenerationParams(
     : undefined
 
   const activeCollection =
-    enabled('collectionId') && collectionId
-      ? authorCollections.find(
-          (item) => item.id === collectionId,
+    enabled('authorStyleId') &&
+    activeAuthorId &&
+    enabled('collectionId') &&
+    collectionId
+      ? approvedAuthorCollections.find(
+          (item) =>
+            item.id === collectionId &&
+            item.authorId === activeAuthorId,
         )
       : undefined
 
