@@ -27,6 +27,8 @@ export function mapPoemResponseToPoem(
     id: response.id,
     title: response.title,
     authorName: response.author_name,
+    mood: response.mood,
+    motives: response.motives,
     text: normalizedText,
     originalText: normalizedText,
     lines,

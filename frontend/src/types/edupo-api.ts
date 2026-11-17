@@ -58,44 +58,27 @@ export type GeneratePoemResponse = {
   ttsfile: string | null
 }
 
-
-export type AnalysisVerse = {
-  text: string
-
-  rhymeletter?: string | null
-  rhymeclass?: number | null
-
-  stanza?: number
-
-  metre?: string
-  metrum?: string
-  pattern?: string
-  rythm?: string
-
-  clause?: string
-  foot?: number
+export type AnalysisMeasures = {
+  form: string
+  line_repetitions: number
+  metre_accuracy: number
+  metre_consistency: number
+  poem_metre: string
+  rhyme_scheme: string[][]
+  rhyme_scheme_accuracy: number
+  rhyming: number
+  rhyming_consistency: number
+  syllable_count_entropy: number
+  syllables_in_verses: number[][]
+  unknown_words: number
+  verses_in_stanzas: number[]
+  word_repetitions: number
 }
 
 export type AnalysisResponse = {
-  id: string
-
-  verses?: AnalysisVerse[]
-
-  title?: string | null
-  author_name?: string | null
-  plaintext?: string | null
-
-  form?: string | null
-  mood?: string | null
-  motives?: string[] | null
-  present_metres?: string[]
-
-  geninput?: {
-    modelspec?: string | null
-    collection_style?: string | null
-    [key: string]: unknown
-  }
+  measures: AnalysisMeasures
 }
+
 
 export type AddLikeResponse = number | string
 

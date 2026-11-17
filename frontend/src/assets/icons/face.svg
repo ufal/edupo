@@ -1,0 +1,21 @@
+<svg viewBox="-1 -1 30 28" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<mask id="stroke0_1796_14080" fill="white">
+<path d="M23.5514 14.3871C23.5514 20.663 18.2792 25.7507 11.7757 25.7507C5.27216 25.7507 0 20.663 0 14.3871C0 8.11111 5.27216 3.02344 11.7757 3.02344C18.2792 3.02344 23.5514 8.11111 23.5514 14.3871Z"/>
+</mask>
+<ellipse cx="11.7757" cy="14.3871" rx="11.7757" ry="11.3636" stroke-width="1.25" stroke="#953DD5" mask="url(#stroke0_1796_14080)"/>
+<ellipse cx="11.7757" cy="14.3871" rx="11.7757" ry="11.3636" stroke-width="1.25" stroke="black" stroke-opacity="0.2" mask="url(#stroke0_1796_14080)"/>
+<use xlink:href="#stroke1_1796_14080" stroke="#953DD5"/>
+<use xlink:href="#stroke1_1796_14080" stroke="black" stroke-opacity="0.2"/>
+<use xlink:href="#stroke2_1796_14080" stroke="#953DD5"/>
+<use xlink:href="#stroke2_1796_14080" stroke="black" stroke-opacity="0.2"/>
+<use xlink:href="#stroke3_1796_14080" stroke="#953DD5"/>
+<use xlink:href="#stroke3_1796_14080" stroke="black" stroke-opacity="0.2"/>
+<use xlink:href="#stroke4_1796_14080" stroke="#953DD5"/>
+<use xlink:href="#stroke4_1796_14080" stroke="black" stroke-opacity="0.2"/>
+<defs>
+<path id="stroke1_1796_14080" d="M4.18689 12.2392C4.44857 11.8183 5.39063 10.9766 7.06539 10.9766C8.74016 10.9766 9.50776 11.8183 9.68222 12.2392" stroke-linecap="round"/>
+<path id="stroke2_1796_14080" d="M14.3925 12.2392C14.6541 11.8183 15.5962 10.9766 17.271 10.9766C18.9457 10.9766 19.7133 11.8183 19.8878 12.2392" stroke-linecap="round"/>
+<path id="stroke3_1796_14080" d="M17.0094 17.1622C16.5359 18.004 14.8312 19.6875 11.8007 19.6875C8.77015 19.6875 7.38115 18.004 7.06547 17.1622" stroke-linecap="round"/>
+<path id="stroke4_1796_14080" d="M25.6448 3.52778L23.0543 6.02765M20.6729 0.75V2.51768V4.28535M28 8.83081H26.1682H24.3364" stroke-linecap="round"/>
+</defs>
+</svg>

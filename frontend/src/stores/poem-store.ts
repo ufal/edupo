@@ -80,65 +80,70 @@ function parseRhymeLetter(value: string | null | undefined): PoemLineGroup | und
   return undefined
 }
 
-function normalizeVerseText(text: string): string {
-  return text
-    .normalize('NFC')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
 function applyAnalysisToPoem(
   poem: Poem,
   analysis: AnalysisResponse,
 ): Poem | null {
-  const currentLines =
-    poem.lines?.length
-      ? poem.lines
-      : parsePlaintextToLines(poem.text)
+  const currentLines = poem.lines?.length
+    ? poem.lines
+    : parsePlaintextToLines(poem.text)
 
-  const analysisVerses = analysis.verses
+  const schemes = analysis.measures?.rhyme_scheme
+  const stanzaCounts = analysis.measures?.verses_in_stanzas
 
-  // Analýza musí patřit ke správné básni.
-  if (analysis.id !== poem.id) {
+  if (!Array.isArray(schemes) || !Array.isArray(stanzaCounts)) {
     return null
   }
 
-  // Musíme mít skutečné výsledky pro jednotlivé verše.
-  if (!Array.isArray(analysisVerses)) {
-    return null
-  }
+  const groups = schemes.flat()
 
-  // Počet veršů musí být shodný.
-  if (analysisVerses.length !== currentLines.length) {
-    return null
-  }
-
-  // Ověříme texty všech veršů ve stejném pořadí.
-  const textsMatch = currentLines.every((line, index) => {
-    const analyzedText = analysisVerses[index]?.text
-
-    return (
-      typeof analyzedText === 'string' &&
-      normalizeVerseText(line.text) ===
-        normalizeVerseText(analyzedText)
+  if (
+    groups.length !== currentLines.length ||
+    schemes.length !== stanzaCounts.length ||
+    schemes.some(
+      (stanza, index) => stanza.length !== stanzaCounts[index],
     )
-  })
-
-  if (!textsMatch) {
+  ) {
     return null
   }
 
-  // Teprve nyní bezpečně přiřadíme rýmové skupiny.
-  const lines = currentLines.map((line, index) => ({
-    ...line,
-    group: parseRhymeLetter(
-      analysisVerses[index].rhymeletter,
-    ),
-  }))
+  // Ověříme také hranice slok, aby se rýmové skupiny
+  // nepřiřadily k nesprávným veršům.
+  let offset = 0
+
+  for (
+    let stanzaIndex = 0;
+    stanzaIndex < stanzaCounts.length;
+    stanzaIndex += 1
+  ) {
+    const count = stanzaCounts[stanzaIndex]
+
+    if (!Number.isInteger(count) || count <= 0) {
+      return null
+    }
+
+    if (
+      stanzaIndex > 0 &&
+      !currentLines[offset]?.stanzaStart
+    ) {
+      return null
+    }
+
+    for (let i = 1; i < count; i += 1) {
+      if (currentLines[offset + i]?.stanzaStart) {
+        return null
+      }
+    }
+
+    offset += count
+  }
 
   return {
     ...poem,
-    lines,
+    lines: currentLines.map((line, index) => ({
+      ...line,
+      group: parseRhymeLetter(groups[index]),
+    })),
   }
 }
 
@@ -249,6 +254,8 @@ type PoemState = {
 }
 
 let pendingPoemSave: Promise<string> | null = null
+
+let analysisRequestSequence = 0
 
 function needsPoemSave(poem: Poem): boolean {
   return (
@@ -394,7 +401,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       // nemusíme ji stahovat znovu.
       if (
         state.analysisStatus === 'success' &&
-        state.analysisResult?.id === poemId &&
+        state.analysisResult !== null &&
         !needsPoemSave(state.poem)
       ) {
         return
@@ -525,6 +532,18 @@ export const usePoemStore = create<PoemState>((set, get) => ({
   },
 
   loadPoemAnalysis: async (poemId: string) => {
+    const requestedPoem = get().poem
+
+    if (
+      !requestedPoem ||
+      requestedPoem.id !== poemId ||
+      needsPoemSave(requestedPoem)
+    ) {
+      return
+    }
+
+    const requestSequence = ++analysisRequestSequence
+
     set({
       analysisStatus: 'loading',
       analysisError: null,
@@ -535,8 +554,11 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       const analysis = await fetchAnalysisApi(poemId)
 
       set((state) => {
+        // Výsledek staršího požadavku ignorujeme.
+        // Kontrolujeme i to, že se báseň mezitím nezměnila.
         if (
-          !state.poem ||
+          requestSequence !== analysisRequestSequence ||
+          state.poem !== requestedPoem ||
           state.poem.id !== poemId ||
           needsPoemSave(state.poem)
         ) {
@@ -549,19 +571,11 @@ export const usePoemStore = create<PoemState>((set, get) => ({
         )
 
         if (!analyzedPoem) {
-          console.warn(
-            'Analýza neodpovídá aktuální podobě básně.',
-            {
-              poemId,
-              analysisId: analysis.id,
-            },
-          )
-
           return {
             analysisResult: null,
             analysisStatus: 'error',
             analysisError:
-              'Výsledky analýzy neodpovídají aktuální podobě básně.',
+              'Rýmové schéma neodpovídá struktuře básně.',
           }
         }
 
@@ -575,13 +589,20 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     } catch (error) {
       console.error(error)
 
-      if (get().poem?.id !== poemId || !get().poem || needsPoemSave(get().poem!))
-        return
+      set((state) => {
+        if (
+          requestSequence !== analysisRequestSequence ||
+          state.poem !== requestedPoem
+        ) {
+          return state
+        }
 
-      set({
-        analysisResult: null,
-        analysisStatus: 'error',
-        analysisError: 'Nepodařilo se načíst analýzu básně.',
+        return {
+          analysisResult: null,
+          analysisStatus: 'error',
+          analysisError:
+            'Nepodařilo se načíst analýzu básně.',
+        }
       })
     }
   },

@@ -4,14 +4,12 @@
 import type { ReactNode } from 'react'
 import { AppIcon, type IconName } from '@/components/icons/app-icon'
 import { usePoemStore } from '@/stores/poem-store'
-
 import {
-  getAnalysisAuthor,
-  getAnalysisCollection,
-  getAnalysisStanzaCount,
-  getAnalysisMetre,
+  formatAnalysisMetre,
+  formatPercentage,
   getAnalysisRhymeScheme,
-  getAnalysisModel,
+  getAnalysisVerseCounts,
+  getAnalysisVerseLengths,
 } from '@/utils/poem-analysis'
 
 type SettingsItem = {
@@ -61,119 +59,97 @@ export function DesktopSettingsPanel() {
     (state) => state.analysisError,
   )
 
-  const isLoading = analysisStatus === 'loading'
-  const isError = analysisStatus === 'error'
-
   const analysis =
-    analysisStatus === 'success' &&
-    analysisResult?.id === poem?.id
+    analysisStatus === 'success'
       ? analysisResult
       : null
 
-  const unavailable = isLoading ? 'Načítá se…' : '—'
+  const measures = analysis?.measures
 
-  const showValue = (
-    value: string | number | null | undefined,
-  ): string => {
-    if (!analysis) return unavailable
+  const unavailable =
+    analysisStatus === 'loading' ? 'Načítá se…' : '—'
 
-    if (value === null || value === undefined) {
-      return '—'
-    }
-
-    return String(value).trim() || '—'
-  }
-
-  const author = analysis
-    ? getAnalysisAuthor(analysis)
-    : null
-
-  const collection = analysis
-    ? getAnalysisCollection(analysis)
-    : null
-
-  const title = analysis?.title
-
-  const verseCount = analysis?.verses?.length
-
-  const stanzaCount = analysis
-    ? getAnalysisStanzaCount(analysis)
-    : null
-
-  const rhymeScheme = analysis
-    ? getAnalysisRhymeScheme(analysis)
-    : null
-
-  const metrum = analysis
-    ? getAnalysisMetre(analysis)
-    : null
-
-  const model = analysis
-    ? getAnalysisModel(analysis)
-    : null
+  const motives = poem?.motives?.filter(Boolean) ?? []
+  const mood = poem?.mood?.trim() || '—'
 
   const settingsItems: SettingsItem[] = [
     {
-      icon: 'feather',
-      label: 'Autorský styl',
-      value: (
-        <>
-          Autor: {showValue(author)}
-          <br />
-          Sbírka: {showValue(collection)}
-        </>
-      ),
+      icon: 'bookAngle',
+      label: 'Motivy',
+      value: motives.length ? (
+        <div className="flex flex-col">
+          {motives.map((motive, index) => (
+            <div key={`${motive}-${index}`}>
+              {motive}
+            </div>
+          ))}
+        </div>
+      ) : '—',
     },
     {
-      icon: 'book',
-      label: 'Název a motiv',
-      value: (
-        <>
-          Název: {showValue(title)}
-          <br />
-          Motiv: {unavailable}
-          <br />
-          Nálada: {unavailable}
-        </>
-      ),
-    },
-    {
-      icon: 'geometry',
-      label: 'Forma',
-      value: analysis
-        ? showValue(analysis.form)
-        : unavailable,
+      icon: 'face',
+      label: 'Nálada',
+      value: mood,
     },
     {
       icon: 'verseList',
-      label: 'Počet veršů a slok',
-      value: (
-        <>
-          Počet veršů: {showValue(verseCount)}
-          <br />
-          Počet slok: {showValue(stanzaCount)}
-        </>
-      ),
-    },
-    {
-      icon: 'verseGroups',
-      label: 'Rýmové schéma',
-      value: showValue(rhymeScheme),
+      label: 'Počet veršů ve slokách',
+      value: analysis
+        ? getAnalysisVerseCounts(analysis)
+        : unavailable,
     },
     {
       icon: 'ruler',
-      label: 'Délka prvního verše',
-      value: unavailable,
+      label: 'Délky veršů',
+      value: analysis ? (
+        <div className="flex flex-col">
+          {getAnalysisVerseLengths(analysis).map(
+            (stanza, index) => (
+              <div key={index}>
+                {stanza || '—'}
+              </div>
+            ),
+          )}
+        </div>
+      ) : unavailable,
+    },
+    {
+      icon: 'verseGroups',
+      label: 'Rýmování',
+      value: measures ? (
+        <div>
+          <div>
+            {getAnalysisRhymeScheme(analysis!)}
+          </div>
+          <div>
+            {formatPercentage(measures.rhyming)} veršů se rýmuje
+          </div>
+          <div>
+            {formatPercentage(measures.rhyming_consistency)} slok má shodné schéma
+          </div>
+        </div>
+      ) : unavailable,
     },
     {
       icon: 'metrum',
       label: 'Metrum',
-      value: showValue(metrum),
+      value: measures ? (
+        <div>
+          <div>
+            {formatAnalysisMetre(measures.poem_metre)}
+          </div>
+          <div>
+            {formatPercentage(measures.metre_consistency)} konzistence metra
+          </div>
+        </div>
+      ) : unavailable,
     },
     {
-      icon: 'thermometer',
-      label: 'AI model',
-      value: showValue(model),
+      icon: 'docSearch',
+      label: 'Neznámá slova',
+      value: measures
+        ? `${formatPercentage(measures.unknown_words)} slov nejsou ve slovníku`
+        : unavailable,
     },
   ]
 
@@ -183,7 +159,7 @@ export function DesktopSettingsPanel() {
         Automatická analýza
       </h2>
 
-      {isLoading && (
+      {analysisStatus === 'loading' && (
         <p
           role="status"
           className="mt-3 typo-small text-zinc-500"
@@ -192,7 +168,7 @@ export function DesktopSettingsPanel() {
         </p>
       )}
 
-      {isError && (
+      {analysisStatus === 'error' && (
         <p
           role="alert"
           className="mt-3 typo-small text-red-600"

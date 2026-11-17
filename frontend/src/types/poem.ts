@@ -42,6 +42,8 @@ export type Poem = {
   id: string
   title?: string
   authorName?: string
+  mood?: string | null
+  motives?: string[] | null
   text: string
   originalText?: string
   lines?: PoemLine[]

@@ -8,6 +8,7 @@ import PencilIcon from '@/assets/icons/pencil.svg'
 import XIcon from '@/assets/icons/x.svg'
 import ArrowLeftIcon from '@/assets/icons/arrow-left.svg'
 import BookIcon from '@/assets/icons/book.svg'
+import BookAngleIcon from '@/assets/icons/book-angle.svg'
 import GeometryIcon from '@/assets/icons/geometry.svg'
 import MetrumIcon from '@/assets/icons/metrum.svg'
 import RulerIcon from '@/assets/icons/ruler.svg'
@@ -25,6 +26,9 @@ import TrashIcon from '@/assets/icons/trash.svg'
 import UndoIcon from '@/assets/icons/undo.svg'
 import GripVerticalIcon from '@/assets/icons/grip-vertical.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
+import FaceIcon from '@/assets/icons/face.svg'
+import DocSearchIcon from '@/assets/icons/doc-search.svg'
+
 
 export type IconName = 'hamburger'
   | 'home'
@@ -34,6 +38,7 @@ export type IconName = 'hamburger'
   | 'pencil'
   | 'arrowLeft'
   | 'book'
+  | 'bookAngle'
   | 'geometry'
   | 'metrum'
   | 'ruler'
@@ -52,6 +57,8 @@ export type IconName = 'hamburger'
   | 'undo'
   | 'gripVertical'
   | 'plus'
+  | 'face'
+  | 'docSearch'
 
 type AppIconProps = {
   name: IconName
@@ -68,6 +75,7 @@ const icons = {
   pencil: PencilIcon,
   arrowLeft: ArrowLeftIcon,
   book: BookIcon,
+  bookAngle: BookAngleIcon,
   geometry: GeometryIcon,
   metrum: MetrumIcon,
   ruler: RulerIcon,
@@ -85,7 +93,9 @@ const icons = {
   trash: TrashIcon,
   undo: UndoIcon,
   gripVertical: GripVerticalIcon,
-  plus: PlusIcon
+  plus: PlusIcon,
+  face: FaceIcon,
+  docSearch: DocSearchIcon
 }
 
 export function AppIcon({ name, size = 42, className }: AppIconProps) {
