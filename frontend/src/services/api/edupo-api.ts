@@ -13,6 +13,7 @@ import type {
   MotivesResponse,
   PoemsListResponse,
   TTSResponse,
+  MoodResponse,
 } from '@/types/edupo-api'
 
 const MAX_AUTHORS = 20
@@ -221,13 +222,61 @@ export async function fetchAnalysisApi(
   })
 }
 
+
 export async function fetchMotivesApi(
   poemId: string | number,
 ): Promise<MotivesResponse> {
-  return apiGetJson<MotivesResponse>('genmotives', {
-    poemid: poemId,
-    accept: 'json',
-  })
+  const response = await apiGetJson<MotivesResponse>(
+    'genmotives',
+    {
+      poemid: poemId,
+      accept: 'json',
+    },
+  )
+
+  if (
+    !Array.isArray(response?.motives) ||
+    !response.motives.every(
+      (value) => typeof value === 'string',
+    )
+  ) {
+    throw new Error(
+      'Edupo API returned invalid motives.',
+    )
+  }
+
+  return {
+    motives: response.motives
+      .map((motive) =>
+        motive
+          .trim()
+          .replace(/^\d+[.)]\s*/, '')
+          .trim(),
+      )
+      .filter(Boolean),
+  }
+}
+
+export async function fetchMoodApi(
+  poemId: string | number,
+): Promise<MoodResponse> {
+  const response = await apiGetJson<MoodResponse>(
+    'guessmood',
+    {
+      poemid: poemId,
+      accept: 'json',
+    },
+  )
+
+  if (typeof response?.mood !== 'string') {
+    throw new Error(
+      'Edupo API returned an invalid mood.',
+    )
+  }
+
+  return {
+    mood: response.mood.trim(),
+  }
 }
 
 export async function fetchImageApi(

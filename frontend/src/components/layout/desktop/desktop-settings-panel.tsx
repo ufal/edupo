@@ -45,7 +45,9 @@ function DesktopSettingsItem({
 }
 
 export function DesktopSettingsPanel() {
-  const poem = usePoemStore((state) => state.poem)
+  const semanticAnalysis = usePoemStore(
+    (state) => state.semanticAnalysis,
+  )
 
   const analysisResult = usePoemStore(
     (state) => state.analysisResult,
@@ -69,8 +71,22 @@ export function DesktopSettingsPanel() {
   const unavailable =
     analysisStatus === 'loading' ? 'Načítá se…' : '—'
 
-  const motives = poem?.motives?.filter(Boolean) ?? []
-  const mood = poem?.mood?.trim() || '—'
+  const motives = semanticAnalysis?.motives ?? []
+  const mood = semanticAnalysis?.mood
+
+  const motivesUnavailable =
+    semanticAnalysis?.motivesStatus === 'loading'
+      ? 'Načítá se…'
+      : semanticAnalysis?.motivesStatus === 'error'
+        ? 'Nepodařilo se načíst motivy.'
+        : '—'
+
+  const moodUnavailable =
+    semanticAnalysis?.moodStatus === 'loading'
+      ? 'Načítá se…'
+      : semanticAnalysis?.moodStatus === 'error'
+        ? 'Nepodařilo se určit náladu.'
+        : '—'
 
   const settingsItems: SettingsItem[] = [
     {
@@ -84,12 +100,12 @@ export function DesktopSettingsPanel() {
             </div>
           ))}
         </div>
-      ) : '—',
+      ) : motivesUnavailable,
     },
     {
       icon: 'face',
       label: 'Nálada',
-      value: mood,
+      value: mood || moodUnavailable,
     },
     {
       icon: 'verseList',
@@ -154,7 +170,7 @@ export function DesktopSettingsPanel() {
   ]
 
   return (
-    <aside className="h-full min-h-0 overflow-hidden rounded-3xl bg-white px-8 py-6">
+    <aside className="h-full min-h-0 overflow-y-auto rounded-3xl bg-white px-8 py-6">
       <h2 className="typo-large font-bold text-grey-700">
         Automatická analýza
       </h2>

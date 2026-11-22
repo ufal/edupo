@@ -85,7 +85,15 @@ export type AddLikeResponse = number | string
 export type TTSResponse = {
   url: string
 }
-export type MotivesResponse = unknown
+
+export type MotivesResponse = {
+  motives: string[]
+}
+
+export type MoodResponse = {
+  mood: string
+}
+
 export type ImageResponse = unknown
 
 export type AvailableModel = {

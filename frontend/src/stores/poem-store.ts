@@ -14,6 +14,8 @@ import {
   regeneratePoemLineApi,
   savePoemApi,
   sendLikeApi,
+  fetchMotivesApi,
+  fetchMoodApi,
 } from '@/services/api/edupo-api'
 import type { AnalysisResponse, GeneratePoemParams } from '@/types/edupo-api'
 import { useModelsStore } from '@/stores/models-store'
@@ -34,6 +36,16 @@ export const MAX_POEM_LINES = 10
 
 type GenerationStatus = 'idle' | 'loading' | 'success' | 'error'
 type AnalysisStatus = 'idle' | 'loading' | 'success' | 'error'
+
+type SemanticAnalysis = {
+  requestId: number
+  poemId: string
+  text: string
+  motives: string[]
+  mood: string | null
+  motivesStatus: AnalysisStatus
+  moodStatus: AnalysisStatus
+}
 
 const demoLines = [
   { id: 'line-1', text: 'Co zbývá mně, než volat: Všecko jest v Bohu a bez viny?', group: 'A' as const },
@@ -221,6 +233,7 @@ type PoemState = {
   analysisStatus: AnalysisStatus
   analysisError: string | null
   analysisResult: AnalysisResponse | null
+  semanticAnalysis: SemanticAnalysis | null
   mode: PoemMode
   selectedAuthorStyleId: string | null
   likedPoemIds: Record<string, true>
@@ -251,11 +264,14 @@ type PoemState = {
   setSelectedAuthorStyleId: (authorStyleId: string) => void
   ensurePoemSaved: () => Promise<string>
   preparePoemAnalysis: () => Promise<void>
+  loadSemanticAnalysis: (poemId: string) => Promise<void>
 }
 
 let pendingPoemSave: Promise<string> | null = null
 
 let analysisRequestSequence = 0
+
+let semanticAnalysisRequestSequence = 0
 
 function needsPoemSave(poem: Poem): boolean {
   return (
@@ -289,6 +305,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
   status: 'idle',
   error: null,
   analysisStatus: 'idle',
+  semanticAnalysis: null,
   analysisError: null,
   analysisResult: null,
   mode: 'reading',
@@ -343,6 +360,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       status: 'success',
       error: null,
       analysisStatus: 'idle',
+      semanticAnalysis: null,
       analysisError: null,
       analysisResult: null
     }),
@@ -379,11 +397,14 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       status: 'idle',
       error: null,
       analysisStatus: 'idle',
+      semanticAnalysis: null,
       analysisError: null,
       analysisResult: null
     }),
 
   preparePoemAnalysis: async () => {
+    if (get().status === 'loading') return
+
     try {
       const poemId = await get().ensurePoemSaved()
 
@@ -392,12 +413,17 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       // Uživatel mezitím mohl přepnout jinam.
       if (
         state.mode !== 'analysis' ||
-        state.poem?.id !== poemId
+        state.poem?.id !== poemId ||
+        state.status === 'loading'
       ) {
         return
       }
 
-      // Pokud už máme platnou analýzu,
+      // Sémantickou analýzu spustíme nezávisle
+      // na formální analýze.
+      void get().loadSemanticAnalysis(poemId)
+
+      // Pokud už máme platnou formální analýzu,
       // nemusíme ji stahovat znovu.
       if (
         state.analysisStatus === 'success' &&
@@ -483,6 +509,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
           },
           analysisResult: null,
           analysisStatus: 'idle',
+          semanticAnalysis: null,
           analysisError: null,
         }
       })
@@ -502,6 +529,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       status: 'loading',
       error: null,
       analysisStatus: 'idle',
+      semanticAnalysis: null,
       analysisError: null,
       analysisResult: null
     })
@@ -517,6 +545,10 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       })
 
       void get().loadPoemAnalysis(poem.id)
+
+      if (get().mode === 'analysis') {
+        void get().loadSemanticAnalysis(poem.id)
+      }
 
       return poem
     } catch (error) {
@@ -607,6 +639,150 @@ export const usePoemStore = create<PoemState>((set, get) => ({
     }
   },
 
+  loadSemanticAnalysis: async (poemId: string) => {
+    const state = get()
+    const poem = state.poem
+
+    if (
+      !poem ||
+      poem.id !== poemId ||
+      needsPoemSave(poem) ||
+      state.status === 'loading'
+    ) {
+      return
+    }
+
+    const poemText = poem.text
+
+    const previous = state.semanticAnalysis
+
+    const isSamePoem =
+      previous !== null &&
+      previous.poemId === poemId &&
+      previous.text === poemText
+
+    // Pokud už požadavky běží, nespouštíme je znovu.
+    if (
+      isSamePoem &&
+      (
+        previous.motivesStatus === 'loading' ||
+        previous.moodStatus === 'loading'
+      )
+    ) {
+      return
+    }
+
+    // Úspěšně získané výsledky nemusíme stahovat znovu.
+    const loadMotives =
+      !isSamePoem ||
+      previous.motivesStatus !== 'success'
+
+    const loadMood =
+      !isSamePoem ||
+      previous.moodStatus !== 'success'
+
+    if (!loadMotives && !loadMood) return
+
+    const requestId = ++semanticAnalysisRequestSequence
+
+    set({
+      semanticAnalysis: {
+        requestId,
+        poemId,
+        text: poemText,
+
+        motives: isSamePoem
+          ? previous.motives
+          : [],
+
+        mood: isSamePoem
+          ? previous.mood
+          : null,
+
+        motivesStatus: loadMotives
+          ? 'loading'
+          : 'success',
+
+        moodStatus: loadMood
+          ? 'loading'
+          : 'success',
+      },
+    })
+
+    function updateResult(
+      patch: Partial<SemanticAnalysis>,
+    ) {
+      set((currentState) => {
+        const current = currentState.semanticAnalysis
+        const currentPoem = currentState.poem
+
+        // Ignorujeme výsledky starších požadavků
+        // nebo výsledky pro mezitím změněnou báseň.
+        if (
+          !current ||
+          current.requestId !== requestId ||
+          !currentPoem ||
+          currentPoem.id !== poemId ||
+          currentPoem.text !== poemText ||
+          needsPoemSave(currentPoem)
+        ) {
+          return currentState
+        }
+
+        return {
+          semanticAnalysis: {
+            ...current,
+            ...patch,
+          },
+        }
+      })
+    }
+
+    const tasks: Promise<void>[] = []
+
+    if (loadMotives) {
+      tasks.push(
+        fetchMotivesApi(poemId)
+          .then((response) => {
+            updateResult({
+              motives: response.motives,
+              motivesStatus: 'success',
+            })
+          })
+          .catch((error) => {
+            console.error(error)
+
+            updateResult({
+              motives: [],
+              motivesStatus: 'error',
+            })
+          }),
+      )
+    }
+
+    if (loadMood) {
+      tasks.push(
+        fetchMoodApi(poemId)
+          .then((response) => {
+            updateResult({
+              mood: response.mood,
+              moodStatus: 'success',
+            })
+          })
+          .catch((error) => {
+            console.error(error)
+
+            updateResult({
+              mood: null,
+              moodStatus: 'error',
+            })
+          }),
+      )
+    }
+
+    await Promise.all(tasks)
+  },
+
   generatePoem: async ({
     respectDesktopUnset = false,
   }: GeneratePoemOptions = {}) => {
@@ -614,6 +790,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       status: 'loading',
       error: null,
       analysisStatus: 'idle',
+      semanticAnalysis: null,
       analysisError: null,
       analysisResult: null,
     })
@@ -707,6 +884,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       status: 'loading',
       error: null,
       analysisStatus: 'idle',
+      semanticAnalysis: null,
       analysisError: null,
       analysisResult: null
     })
@@ -768,6 +946,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
         },
         analysisResult: null,
         analysisStatus: 'idle',
+        semanticAnalysis: null,
         analysisError: null,
       }
     }),
@@ -813,6 +992,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
           },
           analysisResult: null,
           analysisStatus: 'idle',
+          semanticAnalysis: null,
           analysisError: null,
         }
       }),
@@ -853,6 +1033,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
         },
         analysisResult: null,
         analysisStatus: 'idle',
+        semanticAnalysis: null,
         analysisError: null,
       })
 
@@ -906,6 +1087,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
         },
         analysisResult: null,
         analysisStatus: 'idle',
+        semanticAnalysis: null,
         analysisError: null,
       }
     }),
@@ -938,6 +1120,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
         },
         analysisResult: null,
         analysisStatus: 'idle',
+        semanticAnalysis: null,
         analysisError: null,
       }
     }),
@@ -948,6 +1131,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       status: 'loading',
       error: null,
       analysisStatus: 'idle',
+      semanticAnalysis: null,
       analysisError: null,
       analysisResult: null
     })
@@ -972,6 +1156,7 @@ export const usePoemStore = create<PoemState>((set, get) => ({
       status: 'loading',
       error: null,
       analysisStatus: 'idle',
+      semanticAnalysis: null,
       analysisError: null,
       analysisResult: null
     })
