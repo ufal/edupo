@@ -185,19 +185,46 @@ def _generate_constrained(gen, params):
         poem += '\n]}'
 
     poem += '\n]'
-    # footer: predicted title/author, closing brace
-    _, generated = gen(poem, stop_strings=['}'], max_new=200)
-    generated = clean_decoded(generated)
-    end = generated.find('}')
-    poem += generated[:end + 1] if end >= 0 else '}'
-    return poem
+    return _finish(gen, poem, params)
+
+
+# end of the last stanza + end of the stanzas list
+STANZAS_END = ']}\n]'
 
 
 def _generate_free(gen, params):
+    """One model call for the stanzas, then the footer is forced."""
     stanzas_count = params.get('max_strophes') or 0
     poem = _header(params, stanzas_count)
-    _, generated = gen(poem, max_new=1500)
-    return poem + clean_decoded(generated)
+    _, generated = gen(poem, stop_strings=[STANZAS_END], max_new=1500)
+    generated = clean_decoded(generated)
+    idx = generated.find(STANZAS_END)
+    if idx >= 0:
+        return _finish(gen, poem + generated[:idx + len(STANZAS_END)], params)
+    # no proper end of the stanzas list (output cut off / malformed): close it
+    # after the last complete stanza if there is one
+    idx = generated.rfind(']}')
+    if idx >= 0:
+        return _finish(gen, poem + generated[:idx + 2] + '\n]', params)
+    return poem + generated
+
+
+def _finish(gen, poem, params):
+    """Close the poem after its stanzas list. A title / author that was not
+    given is always generated: we write the footer key (title_answer,
+    author_answer -- the PREDICT format) and the model fills in the value."""
+    for key, given in (('title_answer', params.get('title')),
+                       ('author_answer', params.get('author_name'))):
+        if given:
+            continue
+        value = ''
+        for _ in range(ATTEMPTS):
+            value = _free(gen, poem + f',\n"{key}": "', '"', 40).strip()
+            if value:
+                break
+        if value:
+            poem += f',\n"{key}": "{_json_string_body(value)}"'
+    return poem + '}'
 
 
 # ---------------------------------------------------------------- parsing
