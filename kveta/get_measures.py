@@ -147,7 +147,7 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
     verses_in_stanzas = []
     verse_count = 0
     poem_metre = ""
-    pismeno2metrum = {'T': 'trochej', 'D': 'daktyl', 'J': 'jamb', 'A': 'amfibrach'}
+    pismeno2metrum = {'T': 'trochej', 'D': 'daktyl', 'J': 'jamb', 'A': 'amfibrach', 'N': 'volný'}
    
     raw_text = ""
     lines_before = dict()
