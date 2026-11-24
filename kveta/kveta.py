@@ -122,7 +122,8 @@ class Kveta:
                 if not corrupted_word:
                     pos += len(current_word)
                 word_index += 1
-            if not corrupted_word and pos < len(verse['text']):
+            if not corrupted_word and pos < len(verse['text']) and self.poem_[i]['words']:
+                # (verses with no words at all, e.g. a line of dots, have nowhere to store trailing punctuation)
                 self.poem_[i]['words'][-1]['punct'] = verse['text'][pos:]
         #del verse['punct']
 
