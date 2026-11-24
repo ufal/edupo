@@ -258,7 +258,7 @@ def get_measures_from_analyzed_poem(poem, parameters=None):
             'rhyming': rhyme_count / len(poem),
             'rhyme_scheme': rhyme_scheme_letters,
             'rhyme_scheme_accuracy': rhyme_scheme_correct / len(poem),
-            #'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
+            'rhyming_consistency': max(rhyme_schemes.values()) / (current_stanza_num + 1),
             'metre_consistency': max(metre_probs_sum.values()) / len(poem),
             'metre_accuracy': metre_probs_sum[parameters['metre']] / len(poem),
             'poem_metre': poem_metre,
