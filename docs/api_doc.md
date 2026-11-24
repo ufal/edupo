@@ -141,7 +141,10 @@ básně zůstávají dostupné celé.
   - [https://edupo.cz/api/showlist?accept=txt](https://edupo.cz/api/showlist?accept=txt)   
 
 `/showlistgen`
-- Vrací: seznam vygenerovaných básní (uložených jako JSON ve `static/poemfiles`), seřazený sestupně: ID a začátek básně (název a první verš). JSON: `[{"id": ..., "preview": ...}]`, txt: `ID<tab>začátek` na řádek.
+- Parametry:
+  - `page` = číslo strany (od 1, výchozí 1)
+  - `per_page` = počet básní na stranu (výchozí 100, max. 1000)
+- Vrací: seznam vygenerovaných básní (uložených jako JSON ve `static/poemfiles`), seřazený sestupně, jen zvolená strana: ID a začátek básně (název a první verš). JSON: `[{"id": ..., "preview": ...}]`, txt: `ID<tab>začátek` na řádek.
 - Příklad:
   - [https://edupo.cz/api/showlistgen?accept=txt](https://edupo.cz/api/showlistgen?accept=txt)
 

@@ -11,6 +11,19 @@
 
 <h2>Zobrazit vygenerovanou báseň</h2>
 
+{% macro pager() %}
+{% if pages > 1 %}
+<p>
+    {% if page > 1 %}<a href="{{ url_for('call_showlistgen', page=1, per_page=per_page) }}">&laquo; první</a>
+    <a href="{{ url_for('call_showlistgen', page=page-1, per_page=per_page) }}">&lsaquo; předchozí</a>{% endif %}
+    strana {{ page }} / {{ pages }}
+    {% if page < pages %}<a href="{{ url_for('call_showlistgen', page=page+1, per_page=per_page) }}">další &rsaquo;</a>
+    <a href="{{ url_for('call_showlistgen', page=pages, per_page=per_page) }}">poslední &raquo;</a>{% endif %}
+</p>
+{% endif %}
+{% endmacro %}
+
+{{ pager() }}
 <ul>
 {% for poem in poems %}
     <li>
@@ -19,6 +32,8 @@
     </li>
 {% endfor %}
 </ul>
+
+{{ pager() }}
 
 </body>
 </html>

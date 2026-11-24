@@ -354,6 +354,7 @@ def listgen():
     return [f for f in os.listdir(POEMFILES) if f.endswith('.json') and '_' in f]
 
 PREVIEW_LENGTH = 60
+LIST_PER_PAGE = 100
 _poem_previews = {}  # poem file -> beginning of the poem (files never change)
 
 def poem_preview(poemfile):
@@ -807,8 +808,18 @@ def call_showlist():
 def call_showlistgen():
     poemids = listgen()
     poemids.sort(reverse=True)
+    def int_arg(key, default, minimum):
+        try:
+            return max(minimum, int(get_post_arg(key, default, True)))
+        except ValueError:
+            return default
+    per_page = min(int_arg('per_page', LIST_PER_PAGE, 1), 1000)
+    pages = max(1, -(-len(poemids) // per_page))
+    page = min(int_arg('page', 1, 1), pages)
+    poemids = poemids[(page - 1) * per_page:page * per_page]
     poems = [{'id': poemid, 'preview': poem_preview(poemid)} for poemid in poemids]
-    html = render_template('showlistgen.html', poems=poems)
+    html = render_template('showlistgen.html', poems=poems, page=page,
+                           pages=pages, per_page=per_page)
     text = "\n".join(f"{p['id']}\t{p['preview']}" for p in poems)
     return return_accepted_type(text, poems, html)
 
