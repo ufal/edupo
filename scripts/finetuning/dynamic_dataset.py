@@ -15,9 +15,10 @@ from format_v3 import FormatV3
 import sqlite3
 import json
 import sys
+import copy
 from pathlib import Path
 import random
-from typing import Optional, Dict
+from typing import Optional, Dict, Iterable
 
 
 
@@ -107,6 +108,11 @@ class DynamicPoemDataset(Dataset):
         motive_weights: Dictionary mapping MotiveFormat to probability weights
         book_weights: Dictionary mapping BookFormat to probability weights
         verse_regenerate_prob: Probability of verse regeneration mode (default: 0.1)
+        log_path: Optional file to which --debug sample dumps are written
+        append_eos: Optional string (the tokenizer's EOS token) appended to every
+            formatted sample. Unsloth's SFTTrainer tokenises with BOS only, so
+            without this the model never sees an end-of-text token and does not
+            learn to stop after the closing brace.
     """
 
     def __init__(self, db_path=None, max_poems=None, start_poem=None,
@@ -118,7 +124,8 @@ class DynamicPoemDataset(Dataset):
                  motive_weights: Optional[Dict[MotiveFormat, float]] = None,
                  book_weights: Optional[Dict[BookFormat, float]] = None,
                  verse_regenerate_prob: float = 0.1,
-                 log_path: Optional[str] = None):
+                 log_path: Optional[str] = None,
+                 append_eos: Optional[str] = None):
         self.db_path = db_path if db_path is not None else config.DB_PATH
         self.start_poem = start_poem
         self.format_version = format_version
@@ -138,6 +145,8 @@ class DynamicPoemDataset(Dataset):
         self.verse_regenerate_prob = verse_regenerate_prob
         self.log_path = log_path
         self._log_file = open(log_path, "w", encoding="utf-8") if log_path else None
+        self.append_eos = append_eos
+        self.dropped = []  # (poem id, error) for poems that failed processing
 
         # Load and process poems from database
         self._load_poems(max_poems, start_poem)
@@ -156,7 +165,7 @@ class DynamicPoemDataset(Dataset):
         sqlite3.register_converter("json", json.loads)
         with sqlite3.connect(self.db_path, detect_types=sqlite3.PARSE_DECLTYPES) as db:
             db.row_factory = dict_factory
-            query = "SELECT poems.id, poems.author, poems.title, body, year, poems.schemes, poems.motives, books.title as b_title FROM poems JOIN books on poems.book_id = books.id WHERE poems.duplicate IS NULL"
+            query = "SELECT poems.id, poems.author, poems.title, body, year, poems.schemes, poems.motives, poems.book_id, books.title as b_title FROM poems JOIN books on poems.book_id = books.id WHERE poems.duplicate IS NULL"
             if max_poems is not None:
                 query += f" LIMIT {max_poems}"
             if start_poem is not None:
@@ -199,9 +208,59 @@ class DynamicPoemDataset(Dataset):
             except Exception as e:
                 print(f"ERROR processing poem {p['id']} {p['author']}: {p['title']} ({p['year']})", file=sys.stderr)
                 print(f"  {str(e)}", file=sys.stderr)
+                self.dropped.append((p['id'], str(e)))
                 continue
 
-        print(f"Successfully processed {len(self.poems)} poems.", file=sys.stderr)
+        print(f"Successfully processed {len(self.poems)} poems, dropped {len(self.dropped)}.", file=sys.stderr)
+
+    def _clone_with_poems(self, poems):
+        """Shallow copy sharing formatter/config but with its own poem list."""
+        other = copy.copy(self)
+        other.poems = poems
+        other._log_file = None
+        return other
+
+    def split_by_books(self, eval_frac: float, seed: int = 0):
+        """Hold out a random fraction of *books* as an eval set.
+
+        Splitting by book (not by poem) keeps the many near-duplicate poems
+        printed in several collections from leaking into the eval set.
+        Returns (train_dataset, eval_dataset); both share this object's settings.
+        """
+        if not eval_frac or eval_frac <= 0:
+            return self, None
+        book_ids = sorted({p['book_id'] for p in self.poems})
+        rng = random.Random(seed)
+        rng.shuffle(book_ids)
+        n_eval = max(1, int(round(len(book_ids) * eval_frac)))
+        eval_books = set(book_ids[:n_eval])
+        train = [p for p in self.poems if p['book_id'] not in eval_books]
+        evl = [p for p in self.poems if p['book_id'] in eval_books]
+        print(f"Split by books: {len(train)} train poems, {len(evl)} eval poems "
+              f"({n_eval} of {len(book_ids)} books held out).", file=sys.stderr)
+        return self._clone_with_poems(train), self._clone_with_poems(evl)
+
+    def oversample(self, factors: Dict[str, int], shuffle: bool = True, seed: Optional[int] = None):
+        """Return a copy where poems of the given authors are repeated N times.
+
+        factors: {author identity as stored in the DB (e.g. "Hrabě, Václav"): N}.
+        Each epoch then contains N copies of those poems (each rendered with its
+        own random format variant).
+        """
+        counts = {a: 0 for a in factors}
+        poems = []
+        for p in self.poems:
+            n = factors.get(p['author'], 1)
+            if p['author'] in counts:
+                counts[p['author']] += 1
+            poems.extend([p] * max(1, n))
+        for a, c in counts.items():
+            print(f"Oversampling {a}: {c} poems x{factors[a]}" if c else
+                  f"WARNING: oversample author {a!r} not found in dataset", file=sys.stderr)
+        if shuffle:
+            random.Random(seed).shuffle(poems)
+        print(f"Dataset size after oversampling: {len(poems)} (was {len(self.poems)}).", file=sys.stderr)
+        return self._clone_with_poems(poems)
 
     def __len__(self):
         """Return number of poems in dataset."""
@@ -271,6 +330,8 @@ class DynamicPoemDataset(Dataset):
             # Delegate to formatter if it handles full poem formatting (V4+)
             if hasattr(self.formatter, 'format_poem'):
                 output = self.formatter.format_poem(poem, format_config, regenerate_verse_idx)
+                if self.append_eos:
+                    output += self.append_eos
                 return {'text': output}
 
             # V3 formatting: build output from header, stanzas, footer
@@ -333,6 +394,8 @@ class DynamicPoemDataset(Dataset):
                 output += footer
 
             output += '</poem>'
+            if self.append_eos:
+                output += self.append_eos
 
             return {'text': output}
 
