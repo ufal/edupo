@@ -141,7 +141,7 @@ básně zůstávají dostupné celé.
   - [https://edupo.cz/api/showlist?accept=txt](https://edupo.cz/api/showlist?accept=txt)   
 
 `/showlistgen`
-- Vrací: seznam ID vygenerovaných básní (uložených jako JSON ve `static/poemfiles`), seřazený sestupně.
+- Vrací: seznam vygenerovaných básní (uložených jako JSON ve `static/poemfiles`), seřazený sestupně: ID a začátek básně (název a první verš). JSON: `[{"id": ..., "preview": ...}]`, txt: `ID<tab>začátek` na řádek.
 - Příklad:
   - [https://edupo.cz/api/showlistgen?accept=txt](https://edupo.cz/api/showlistgen?accept=txt)
 

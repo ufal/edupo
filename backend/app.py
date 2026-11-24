@@ -353,6 +353,29 @@ def listgen():
     """
     return [f for f in os.listdir(POEMFILES) if f.endswith('.json') and '_' in f]
 
+PREVIEW_LENGTH = 60
+_poem_previews = {}  # poem file -> beginning of the poem (files never change)
+
+def poem_preview(poemfile):
+    """Beginning of a stored generated poem (title + first verse) for lists."""
+    if poemfile not in _poem_previews:
+        try:
+            with open(os.path.join(POEMFILES, poemfile)) as f:
+                data = json.load(f)
+            first = next((l.strip() for l in poem2text(data).split('\n') if l.strip()), '')
+            limit = 20 if data.get('copyrighted') else PREVIEW_LENGTH
+            if len(first) > limit:
+                first = first[:limit].rstrip() + '…'
+            title = data.get('title') or ''
+            if title == 'Bez názvu':
+                title = ''
+            preview = f"{title}: {first}" if title else first
+        except Exception as e:
+            app.logger.warning(f"Cannot read preview of {poemfile}: {e}")
+            preview = ''
+        _poem_previews[poemfile] = preview
+    return _poem_previews[poemfile]
+
 # TODO do we need to run show_poem_html.show() always?
 def get_poem_by_id(poemid=None, random_if_no_id=False):
     """If poemid is None, then get it from get/post arguments. If not set,
@@ -784,9 +807,10 @@ def call_showlist():
 def call_showlistgen():
     poemids = listgen()
     poemids.sort(reverse=True)
-    html = render_template('showlistgen.html', poemids=poemids)
-    text = "\n".join(poemids)
-    return return_accepted_type(text, poemids, html)
+    poems = [{'id': poemid, 'preview': poem_preview(poemid)} for poemid in poemids]
+    html = render_template('showlistgen.html', poems=poems)
+    text = "\n".join(f"{p['id']}\t{p['preview']}" for p in poems)
+    return return_accepted_type(text, poems, html)
 
 @app.route("/showauthor", methods=['GET', 'POST'])
 def call_showauthor():

@@ -12,9 +12,10 @@
 <h2>Zobrazit vygenerovanou báseň</h2>
 
 <ul>
-{% for poemid in poemids %}
+{% for poem in poems %}
     <li>
-        <a href="{{ url_for('call_show', poemid=poemid) }}">{{ poemid }}</a>
+        <a href="{{ url_for('call_show', poemid=poem.id) }}">{{ poem.id }}</a>
+        {% if poem.preview %}<span style="color: #666">&mdash; {{ poem.preview }}</span>{% endif %}
     </li>
 {% endfor %}
 </ul>
