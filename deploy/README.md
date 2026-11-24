@@ -6,7 +6,7 @@ Systemd units replacing the screen/while-loop setup on the production server
 | unit | replaces | what it runs |
 |---|---|---|
 | `edupo-backend.service` | `backend/app.sh` loop | gunicorn `app:app` on port 5000, 2 workers × 8 threads |
-| `edupo-gen-new.service` | `backend/run_gen_new.sh` loop | `gen.py new 5012 --16bit` (ZMQ) — the Format V4 model (`/net/projects/EduPo/data/hrabe_v2_epoch8`); serves the `new` modelspec and the legacy `mc`/`tm` ones |
+| `edupo-gen-new.service` | `backend/run_gen_new.sh` loop | `gen.py new 5012 --16bit` (ZMQ) — the Format V4 model (`/net/projects/EduPo/data/hrabe_v2_epoch6`); serves the `new` modelspec and the legacy `mc`/`tm` ones |
 | `edupo-analyze.service` | (new; analysis used to run inside gunicorn) | `analyze.py 5013` (ZMQ) — kveta + measures worker, required by `/analyze`, poem display and multi-try generation |
 | `edupo-autodeploy.timer` + `.service` | cron entry | `autodeploy.sh` every minute |
 

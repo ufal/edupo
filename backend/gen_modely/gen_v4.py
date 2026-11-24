@@ -19,7 +19,7 @@ from unsloth import FastLanguageModel
 
 from gen_eval_set import clean_decoded, extract_first_json_object
 
-MODEL = '/net/projects/EduPo/data/hrabe_v2_epoch8'
+MODEL = '/net/projects/EduPo/data/hrabe_v2_epoch6'
 
 # app form name -> form name used in the training data (poems.schemes.form)
 FORMS = {
